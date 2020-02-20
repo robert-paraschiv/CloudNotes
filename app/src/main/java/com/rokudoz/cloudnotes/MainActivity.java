@@ -28,9 +28,23 @@ public class MainActivity extends AppCompatActivity {
         setupFirebaseAuth();
     }
 
+    @Override
+    protected void onStart() {
+        super.onStart();
+        FirebaseAuth.getInstance().addAuthStateListener(mAuthListener);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        if (mAuthListener != null) {
+            FirebaseAuth.getInstance().removeAuthStateListener(mAuthListener);
+        }
+    }
+
     /*
-        ----------------------------- Firebase setup ---------------------------------
-     */
+                ----------------------------- Firebase setup ---------------------------------
+             */
     private void setupFirebaseAuth() {
         Log.d(TAG, "setupFirebaseAuth: started");
 
@@ -42,6 +56,7 @@ public class MainActivity extends AppCompatActivity {
                     //check if email is verified
                     if (user.isEmailVerified()) {
                         // DO STUFF
+                        Log.d(TAG, "onAuthStateChanged: MAIL VERIFIED");
                     } else {
                         Toast.makeText(MainActivity.this, "Email is not Verified\nCheck your Inbox", Toast.LENGTH_SHORT).show();
                         FirebaseAuth.getInstance().signOut();
