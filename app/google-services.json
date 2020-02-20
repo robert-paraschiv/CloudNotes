@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "986777872712",
+    "firebase_url": "https://cloudnotes-2818c.firebaseio.com",
+    "project_id": "cloudnotes-2818c",
+    "storage_bucket": "cloudnotes-2818c.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:986777872712:android:e21752f1efca9585656b7d",
+        "android_client_info": {
+          "package_name": "com.rokudoz.cloudnotes"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "986777872712-5h5k09k1m9k6rv4vo76buk8tjns0a3nt.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.rokudoz.cloudnotes",
+            "certificate_hash": "3b2cc5f7937a24dd7ac35aa074c3cc0087a0a05e"
+          }
+        },
+        {
+          "client_id": "986777872712-1pr9rkkrh4lpvhrn8v9saimlsd40poan.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC3LOH3wseue9U2NFTwktIh8hhrUfSByuk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "986777872712-1pr9rkkrh4lpvhrn8v9saimlsd40poan.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
