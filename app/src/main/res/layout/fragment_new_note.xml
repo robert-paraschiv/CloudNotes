@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".Fragments.NewNoteFragment">
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/newNoteFragment_title_textInputLayout"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="4dp"
+        app:boxCornerRadiusBottomEnd="18dp"
+        app:boxCornerRadiusBottomStart="18dp"
+        app:boxCornerRadiusTopEnd="18dp"
+        app:boxCornerRadiusTopStart="18dp">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/newNoteFragment_title_textInput"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="top"
+            android:imeOptions="actionDone"
+            android:inputType="textCapSentences"
+            android:maxLines="1"
+            android:text="Title" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/newNoteFragment_textInputLayout"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@id/newNoteFragment_addBtn"
+        android:layout_below="@id/newNoteFragment_title_textInputLayout"
+        android:layout_marginStart="4dp"
+        android:layout_marginTop="4dp"
+        android:layout_marginEnd="4dp"
+        android:layout_marginBottom="8dp"
+        app:boxCornerRadiusBottomEnd="18dp"
+        app:boxCornerRadiusBottomStart="18dp"
+        app:boxCornerRadiusTopEnd="18dp"
+        app:boxCornerRadiusTopStart="18dp">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/newNoteFragment_textInput"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="top"
+            android:imeOptions="flagNoExtractUi"
+            android:inputType="textMultiLine"
+            android:text="YAH" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/newNoteFragment_addBtn"
+        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:text="Add" />
+
+</RelativeLayout>
