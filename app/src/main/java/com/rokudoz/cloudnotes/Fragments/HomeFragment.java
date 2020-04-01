@@ -103,13 +103,10 @@ public class HomeFragment extends Fragment implements StaggeredRecyclerViewAdapt
     public void onStart() {
         super.onStart();
         FirebaseAuth.getInstance().addAuthStateListener(mAuthListener);
-        if (FirebaseAuth.getInstance().getCurrentUser().getUid() != null) {
-            getNotes(FirebaseAuth.getInstance().getCurrentUser().getUid());
-        }
     }
 
     private void getNotes(String uid) {
-        notesListener = usersRef.document(uid).collection("Notes").orderBy("creation_date", Query.Direction.DESCENDING)
+        usersRef.document(uid).collection("Notes").orderBy("creation_date", Query.Direction.DESCENDING)
                 .addSnapshotListener(new EventListener<QuerySnapshot>() {
                     @Override
                     public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) {
@@ -168,6 +165,7 @@ public class HomeFragment extends Fragment implements StaggeredRecyclerViewAdapt
                     //check if email is verified
                     if (user.isEmailVerified()) {
                         // DO STUFF
+                        getNotes(FirebaseAuth.getInstance().getCurrentUser().getUid());
                         Log.d(TAG, "onAuthStateChanged: MAIL VERIFIED");
                     } else {
                         Toast.makeText(getActivity(), "Email is not Verified\nCheck your Inbox", Toast.LENGTH_SHORT).show();

@@ -39,5 +39,39 @@
             android:id="@+id/action_editNoteFragment_to_homeFragment"
             app:destination="@id/homeFragment"
             app:popUpTo="@id/homeFragment" />
+        <action
+            android:id="@+id/action_editNoteFragment_to_noteEditsFragment"
+            app:destination="@id/noteEditsFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/noteEditsFragment"
+        android:name="com.rokudoz.cloudnotes.Fragments.NoteEditsFragment"
+        android:label="fragment_note_edits"
+        tools:layout="@layout/fragment_note_edits" >
+        <action
+            android:id="@+id/action_noteEditsFragment_to_editNoteFragment"
+            app:destination="@id/editNoteFragment" />
+        <argument
+            android:name="note_ID"
+            app:argType="string" />
+        <action
+            android:id="@+id/action_noteEditsFragment_to_viewNoteEditFragment"
+            app:destination="@id/viewNoteEditFragment"
+            app:popUpTo="@id/noteEditsFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/viewNoteEditFragment"
+        android:name="com.rokudoz.cloudnotes.Fragments.ViewNoteEditFragment"
+        android:label="fragment_view_note_edit"
+        tools:layout="@layout/fragment_view_note_edit" >
+        <action
+            android:id="@+id/action_viewNoteEditFragment_to_editNoteFragment"
+            app:destination="@id/editNoteFragment" />
+        <argument
+            android:name="note_ID"
+            app:argType="string" />
+        <argument
+            android:name="note_edit_ID"
+            app:argType="string" />
     </fragment>
 </navigation>

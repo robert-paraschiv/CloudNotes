@@ -3,6 +3,7 @@ package com.rokudoz.cloudnotes.Fragments;
 import android.os.Bundle;
 
 import androidx.activity.OnBackPressedCallback;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.Navigation;
 
@@ -18,7 +19,9 @@ import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.WriteBatch;
 import com.rokudoz.cloudnotes.Models.Note;
 import com.rokudoz.cloudnotes.R;
@@ -59,6 +62,13 @@ public class EditNoteFragment extends Fragment {
             noteID = editNoteFragmentArgs.getNoteDocID();
             getNote(noteID);
         }
+
+        lastEditTv.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Navigation.findNavController(view).navigate(EditNoteFragmentDirections.actionEditNoteFragmentToNoteEditsFragment(noteID));
+            }
+        });
 
         backBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -126,22 +136,25 @@ public class EditNoteFragment extends Fragment {
 
     private void getNote(String noteID) {
         if (FirebaseAuth.getInstance().getCurrentUser() != null)
-            usersRef.document(FirebaseAuth.getInstance().getCurrentUser().getUid()).collection("Notes").document(noteID).get()
-                    .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+            usersRef.document(FirebaseAuth.getInstance().getCurrentUser().getUid()).collection("Notes").document(noteID)
+                    .addSnapshotListener(new EventListener<DocumentSnapshot>() {
                         @Override
-                        public void onSuccess(DocumentSnapshot documentSnapshot) {
-                            if (documentSnapshot != null) {
+                        public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException e) {
+                            if (documentSnapshot != null && e == null) {
                                 mNote = documentSnapshot.toObject(Note.class);
                                 if (mNote != null) {
                                     mNote.setNote_doc_ID(documentSnapshot.getId());
                                     titleInput.setText(mNote.getNoteTitle());
                                     textInput.setText(mNote.getNoteText());
-                                    Date date = mNote.getCreation_date();
-                                    LastEdit lastEdit = new LastEdit();
-                                    lastEditTv.setText(lastEdit.getLastEdit(date.getTime()));
+
+                                    if (mNote.getCreation_date() != null) {
+                                        Date date = mNote.getCreation_date();
+                                        LastEdit lastEdit = new LastEdit();
+                                        lastEditTv.setText(lastEdit.getLastEdit(date.getTime()));
+                                    }
+
                                 }
                             }
-
                         }
                     });
     }

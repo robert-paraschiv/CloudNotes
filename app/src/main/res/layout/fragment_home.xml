@@ -24,15 +24,14 @@
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/homeFragment_signOutBtn"
-                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-                android:layout_width="wrap_content"
+                style="@style/Widget.MaterialComponents.Button.TextButton"
+                android:layout_width="45dp"
                 android:layout_height="wrap_content"
                 android:layout_alignParentEnd="true"
                 android:layout_centerVertical="true"
                 android:layout_marginEnd="8dp"
-                android:text="Sign out"
-                android:textAllCaps="false"
-                app:cornerRadius="18dp" />
+                android:text="x"
+                android:textAllCaps="false"/>
         </RelativeLayout>
 
 
