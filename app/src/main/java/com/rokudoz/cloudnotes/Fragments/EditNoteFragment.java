@@ -2,12 +2,15 @@ package com.rokudoz.cloudnotes.Fragments;
 
 import android.os.Bundle;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.fragment.app.Fragment;
+import androidx.navigation.Navigation;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
+import android.widget.TextView;
 
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.button.MaterialButton;
@@ -16,8 +19,13 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.WriteBatch;
 import com.rokudoz.cloudnotes.Models.Note;
 import com.rokudoz.cloudnotes.R;
+import com.rokudoz.cloudnotes.Utils.LastEdit;
+
+import java.util.Date;
+import java.util.Objects;
 
 public class EditNoteFragment extends Fragment {
     private static final String TAG = "EditNoteFragment";
@@ -25,8 +33,10 @@ public class EditNoteFragment extends Fragment {
     private String noteID = "";
     private View view;
 
-    TextInputEditText tvTitle, tvText;
-    MaterialButton saveBtn;
+    private Note mNote = new Note();
+    TextInputEditText titleInput, textInput;
+    TextView lastEditTv;
+    MaterialButton backBtn;
 
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
     private CollectionReference usersRef = db.collection("Users");
@@ -39,15 +49,77 @@ public class EditNoteFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.fragment_edit_note, container, false);
 
-        tvText = view.findViewById(R.id.editNoteFragment_textEditText);
-        tvTitle = view.findViewById(R.id.editNoteFragment_titleEditText);
-        saveBtn = view.findViewById(R.id.editNoteFragment_saveBtn);
+        textInput = view.findViewById(R.id.editNoteFragment_textEditText);
+        titleInput = view.findViewById(R.id.editNoteFragment_titleEditText);
+        backBtn = view.findViewById(R.id.editNoteFragment_backBtn);
+        lastEditTv = view.findViewById(R.id.editNoteFragment_lastEditTextView);
 
         if (getArguments() != null) {
             EditNoteFragmentArgs editNoteFragmentArgs = EditNoteFragmentArgs.fromBundle(getArguments());
             noteID = editNoteFragmentArgs.getNoteDocID();
             getNote(noteID);
         }
+
+        backBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (!mNote.getNoteText().equals(textInput.getText().toString()) || !mNote.getNoteTitle().equals(titleInput.getText().toString())) {
+                    Note note = new Note(Objects.requireNonNull(titleInput.getText()).toString(),
+                            Objects.requireNonNull(textInput.getText()).toString(),
+                            null,
+                            Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid(),
+                            null);
+
+                    WriteBatch batch = db.batch();
+                    batch.set(usersRef.document(FirebaseAuth.getInstance().getCurrentUser().getUid()).collection("Notes").document(noteID), note);
+                    batch.set(usersRef.document(FirebaseAuth.getInstance().getCurrentUser().getUid()).collection("Notes").document(noteID)
+                            .collection("Edits").document(), note);
+
+                    batch.commit().addOnSuccessListener(new OnSuccessListener<Void>() {
+                        @Override
+                        public void onSuccess(Void aVoid) {
+                            Log.d(TAG, "onSuccess: Updated note successfully");
+                            Navigation.findNavController(view).navigate(EditNoteFragmentDirections.actionEditNoteFragmentToHomeFragment());
+                        }
+                    });
+                } else {
+                    Log.d(TAG, "Note was the same, going back");
+                    Navigation.findNavController(view).navigate(EditNoteFragmentDirections.actionEditNoteFragmentToHomeFragment());
+                }
+
+            }
+        });
+
+        OnBackPressedCallback callback = new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                if (!mNote.getNoteText().equals(textInput.getText().toString()) || !mNote.getNoteTitle().equals(titleInput.getText().toString())) {
+                    Note note = new Note(Objects.requireNonNull(titleInput.getText()).toString(),
+                            Objects.requireNonNull(textInput.getText()).toString(),
+                            null,
+                            Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid(),
+                            null);
+
+                    WriteBatch batch = db.batch();
+                    batch.set(usersRef.document(FirebaseAuth.getInstance().getCurrentUser().getUid()).collection("Notes").document(noteID), note);
+                    batch.set(usersRef.document(FirebaseAuth.getInstance().getCurrentUser().getUid()).collection("Notes").document(noteID)
+                            .collection("Edits").document(), note);
+
+                    batch.commit().addOnSuccessListener(new OnSuccessListener<Void>() {
+                        @Override
+                        public void onSuccess(Void aVoid) {
+                            Log.d(TAG, "onSuccess: Updated note successfully");
+                            Navigation.findNavController(view).navigate(EditNoteFragmentDirections.actionEditNoteFragmentToHomeFragment());
+                        }
+                    });
+                } else {
+                    Log.d(TAG, "Note was the same, going back");
+                    Navigation.findNavController(view).navigate(EditNoteFragmentDirections.actionEditNoteFragmentToHomeFragment());
+                }
+
+            }
+        };
+        requireActivity().getOnBackPressedDispatcher().addCallback(this, callback);
 
         return view;
     }
@@ -59,11 +131,14 @@ public class EditNoteFragment extends Fragment {
                         @Override
                         public void onSuccess(DocumentSnapshot documentSnapshot) {
                             if (documentSnapshot != null) {
-                                Note note = documentSnapshot.toObject(Note.class);
-                                if (note != null) {
-                                    note.setNote_doc_ID(documentSnapshot.getId());
-                                    tvTitle.setText(note.getNoteTitle());
-                                    tvText.setText(note.getNoteText());
+                                mNote = documentSnapshot.toObject(Note.class);
+                                if (mNote != null) {
+                                    mNote.setNote_doc_ID(documentSnapshot.getId());
+                                    titleInput.setText(mNote.getNoteTitle());
+                                    textInput.setText(mNote.getNoteText());
+                                    Date date = mNote.getCreation_date();
+                                    LastEdit lastEdit = new LastEdit();
+                                    lastEditTv.setText(lastEdit.getLastEdit(date.getTime()));
                                 }
                             }
 

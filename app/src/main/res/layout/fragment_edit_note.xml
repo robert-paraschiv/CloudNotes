@@ -6,48 +6,69 @@
     android:layout_height="match_parent"
     tools:context=".Fragments.EditNoteFragment">
 
-    <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/editNoteFragment_titleEditTextLayout"
-        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/editNoteFragment_toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="50dp">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/editNoteFragment_backBtn"
+                style="@style/Widget.MaterialComponents.Button.TextButton"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_centerVertical="true"
+                app:icon="@drawable/ic_baseline_arrow_back_24" />
+
+            <TextView
+                style="@style/TextAppearance.MaterialComponents.Headline6"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_toEndOf="@id/editNoteFragment_backBtn"
+                android:text="Edit Note" />
+        </RelativeLayout>
+
+
+    </com.google.android.material.appbar.MaterialToolbar>
+
+    <com.google.android.material.textfield.TextInputEditText
+        android:id="@+id/editNoteFragment_titleEditText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="4dp">
+        android:layout_below="@id/editNoteFragment_toolbar"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="4dp"
+        android:layout_marginEnd="8dp"
+        android:background="@null"
+        android:hint="Title"
+        android:maxLines="1" />
 
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/editNoteFragment_titleEditText"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:maxLines="1" />
-    </com.google.android.material.textfield.TextInputLayout>
-
-    <com.google.android.material.textfield.TextInputLayout
-        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+    <com.google.android.material.textfield.TextInputEditText
+        android:id="@+id/editNoteFragment_textEditText"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_above="@id/editNoteFragment_saveBtn"
-        android:layout_below="@id/editNoteFragment_titleEditTextLayout"
-        android:layout_margin="4dp">
+        android:layout_above="@id/editNoteFragment_lastEditTextView"
+        android:layout_below="@id/editNoteFragment_titleEditText"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="4dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginBottom="8dp"
+        android:background="@null"
+        android:gravity="top"
+        android:hint="Text"
+        android:imeOptions="flagNoExtractUi"
+        android:inputType="textMultiLine" />
 
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/editNoteFragment_textEditText"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_marginTop="4dp"
-            android:gravity="top"
-            android:imeOptions="flagNoExtractUi"
-            android:inputType="textMultiLine" />
-    </com.google.android.material.textfield.TextInputLayout>
-
-
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/editNoteFragment_saveBtn"
-        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+    <TextView
+        android:id="@+id/editNoteFragment_lastEditTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
-        android:text="Save"
-        app:cornerRadius="18dp" />
-
+        android:layout_marginBottom="8dp"
+        tools:text="Last edit today at 18:00" />
 </RelativeLayout>
