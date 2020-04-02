@@ -43,15 +43,21 @@
         android:layout_margin="8dp"
         tools:text="Title" />
 
-    <TextView
-        android:id="@+id/viewNoteEditFragment_text"
+    <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_above="@id/viewNoteEditFragment_restoreBtn"
         android:layout_below="@id/viewNoteEditFragment_title"
-        android:layout_margin="8dp"
-        android:gravity="top"
-        tools:text="LOREM ipsum\nnonon\ntete\naaaaaaaaaaaaaaaa" />
+        android:layout_margin="8dp">
+
+        <TextView
+            android:id="@+id/viewNoteEditFragment_text"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="top"
+            tools:text="LOREM ipsum\nnonon\ntete\naaaaaaaaaaaaaaaa" />
+    </ScrollView>
+
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/viewNoteEditFragment_restoreBtn"

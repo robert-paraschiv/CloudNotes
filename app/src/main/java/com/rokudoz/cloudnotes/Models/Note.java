@@ -11,16 +11,18 @@ public class Note {
     private String noteText;
     private String latest_edit_doc_ID;
     private String user_ID;
+    private Boolean edited;
 
     @ServerTimestamp
     private Date creation_date;
 
-    public Note(String noteTitle, String noteText, String latest_edit_doc_ID, String user_ID, Date creation_date) {
+    public Note(String noteTitle, String noteText, String latest_edit_doc_ID, String user_ID, Date creation_date,Boolean edited) {
         this.noteTitle = noteTitle;
         this.noteText = noteText;
         this.latest_edit_doc_ID = latest_edit_doc_ID;
         this.user_ID = user_ID;
         this.creation_date = creation_date;
+        this.edited=edited;
     }
 
     public Note() {
@@ -72,6 +74,14 @@ public class Note {
 
     public void setCreation_date(Date creation_date) {
         this.creation_date = creation_date;
+    }
+
+    public Boolean getEdited() {
+        return edited;
+    }
+
+    public void setEdited(Boolean edited) {
+        this.edited = edited;
     }
 
     @Override

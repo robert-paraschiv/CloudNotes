@@ -36,12 +36,12 @@
     </com.google.android.material.appbar.MaterialToolbar>
 
     <com.google.android.material.textfield.TextInputEditText
+        style="@style/TextAppearance.MaterialComponents.Headline6"
         android:id="@+id/newNoteFragment_title_textInput"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/newNoteFragment_toolbar"
-        android:layout_marginStart="8dp"
-        android:layout_marginEnd="8dp"
+        android:layout_margin="8dp"
         android:background="@null"
         android:gravity="top"
         android:hint="Title"
@@ -54,9 +54,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_below="@id/newNoteFragment_title_textInput"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="4dp"
-        android:layout_marginEnd="8dp"
+        android:layout_margin="8dp"
         android:background="@null"
         android:gravity="top"
         android:hint="Note text here"

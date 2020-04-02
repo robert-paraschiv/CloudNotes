@@ -83,6 +83,7 @@ public class ViewNoteEditFragment extends Fragment {
                         restoreBtn.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(final View v) {
+                                note.setEdited(true);
                                 usersRef.document(FirebaseAuth.getInstance().getCurrentUser().getUid()).collection("Notes")
                                         .document(noteID).set(note).addOnSuccessListener(new OnSuccessListener<Void>() {
                                     @Override

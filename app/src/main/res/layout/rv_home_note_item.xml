@@ -6,8 +6,8 @@
     android:layout_height="wrap_content"
     android:layout_margin="5dp"
     app:strokeColor="@color/note_stroke_color"
-    app:strokeWidth="0.5dp"
-    app:cardCornerRadius="20dp">
+    app:strokeWidth="0.15dp"
+    app:cardCornerRadius="8dp">
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -16,7 +16,7 @@
 
         <TextView
             android:id="@+id/rv_home_note_TitleTV"
-            style="@style/TextAppearance.MaterialComponents.Subtitle1"
+            style="@style/TextAppearance.MaterialComponents.Subtitle2"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:maxLines="1"
@@ -24,6 +24,7 @@
             tools:text="Note title here" />
 
         <TextView
+            style="@style/TextAppearance.MaterialComponents.Caption"
             android:layout_marginTop="4dp"
             android:textSize="16sp"
             android:id="@+id/rv_home_note_textTv"

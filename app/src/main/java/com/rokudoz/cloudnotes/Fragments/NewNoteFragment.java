@@ -1,5 +1,6 @@
 package com.rokudoz.cloudnotes.Fragments;
 
+import android.app.Activity;
 import android.os.Bundle;
 
 import androidx.activity.OnBackPressedCallback;
@@ -9,6 +10,7 @@ import androidx.navigation.Navigation;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.Toast;
 
@@ -52,18 +54,20 @@ public class NewNoteFragment extends Fragment {
                             Objects.requireNonNull(textInputEditText.getText()).toString(),
                             null,
                             Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid(),
-                            null);
+                            null,false);
 
                     usersRef.document(FirebaseAuth.getInstance().getCurrentUser().getUid()).collection("Notes").add(note)
                             .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
                                 @Override
                                 public void onSuccess(DocumentReference documentReference) {
                                     Toast.makeText(getActivity(), "Added note successfully", Toast.LENGTH_SHORT).show();
+                                    hideSoftKeyboard(getActivity());
                                     Navigation.findNavController(view).navigate(NewNoteFragmentDirections.actionNewNoteFragmentToHomeFragment());
                                 }
                             });
                 } else {
                     Toast.makeText(getActivity(), "Empty note discarded", Toast.LENGTH_SHORT).show();
+                    hideSoftKeyboard(getActivity());
                     Navigation.findNavController(view).navigate(NewNoteFragmentDirections.actionNewNoteFragmentToHomeFragment());
                 }
             }
@@ -77,18 +81,20 @@ public class NewNoteFragment extends Fragment {
                             Objects.requireNonNull(textInputEditText.getText()).toString(),
                             null,
                             Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid(),
-                            null);
+                            null,false);
 
                     usersRef.document(FirebaseAuth.getInstance().getCurrentUser().getUid()).collection("Notes").add(note)
                             .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
                                 @Override
                                 public void onSuccess(DocumentReference documentReference) {
                                     Toast.makeText(getActivity(), "Added note successfully", Toast.LENGTH_SHORT).show();
+                                    hideSoftKeyboard(getActivity());
                                     Navigation.findNavController(view).navigate(NewNoteFragmentDirections.actionNewNoteFragmentToHomeFragment());
                                 }
                             });
                 } else {
                     Toast.makeText(getActivity(), "Empty note discarded", Toast.LENGTH_SHORT).show();
+                    hideSoftKeyboard(getActivity());
                     Navigation.findNavController(view).navigate(NewNoteFragmentDirections.actionNewNoteFragmentToHomeFragment());
                 }
             }
@@ -96,5 +102,14 @@ public class NewNoteFragment extends Fragment {
         requireActivity().getOnBackPressedDispatcher().addCallback(this, callback);
 
         return view;
+    }
+
+    public static void hideSoftKeyboard(Activity activity) {
+        InputMethodManager inputMethodManager =
+                (InputMethodManager) activity.getSystemService(
+                        Activity.INPUT_METHOD_SERVICE);
+        if (activity.getCurrentFocus() != null)
+            inputMethodManager.hideSoftInputFromWindow(
+                    activity.getCurrentFocus().getWindowToken(), 0);
     }
 }
