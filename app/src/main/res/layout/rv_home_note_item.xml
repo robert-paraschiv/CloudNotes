@@ -5,9 +5,10 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_margin="5dp"
-    app:strokeColor="@color/note_stroke_color"
-    app:strokeWidth="0.15dp"
-    app:cardCornerRadius="8dp">
+    android:elevation="0dp"
+    app:cardCornerRadius="8dp"
+    app:strokeColor="@color/stroke_color"
+    app:strokeWidth="0.8dp">
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -24,14 +25,14 @@
             tools:text="Note title here" />
 
         <TextView
-            style="@style/TextAppearance.MaterialComponents.Caption"
-            android:layout_marginTop="4dp"
-            android:textSize="16sp"
             android:id="@+id/rv_home_note_textTv"
+            style="@style/TextAppearance.MaterialComponents.Caption"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@id/rv_home_note_TitleTV"
+            android:layout_marginTop="4dp"
             android:maxLines="5"
+            android:textSize="16sp"
             tools:text="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum." />
     </RelativeLayout>
 

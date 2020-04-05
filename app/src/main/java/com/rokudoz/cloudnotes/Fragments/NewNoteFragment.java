@@ -50,7 +50,7 @@ public class NewNoteFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 if (!textInputEditText.getText().toString().trim().equals("")) {
-                    Note note = new Note(Objects.requireNonNull(titleInputEditText.getText()).toString(),
+                    final Note note = new Note(Objects.requireNonNull(titleInputEditText.getText()).toString(),
                             Objects.requireNonNull(textInputEditText.getText()).toString(),
                             null,
                             Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid(),
@@ -60,9 +60,14 @@ public class NewNoteFragment extends Fragment {
                             .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
                                 @Override
                                 public void onSuccess(DocumentReference documentReference) {
-                                    Toast.makeText(getActivity(), "Added note successfully", Toast.LENGTH_SHORT).show();
-                                    hideSoftKeyboard(getActivity());
-                                    Navigation.findNavController(view).navigate(NewNoteFragmentDirections.actionNewNoteFragmentToHomeFragment());
+                                    documentReference.collection("Notes").add(note).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+                                        @Override
+                                        public void onSuccess(DocumentReference documentReference) {
+                                            Toast.makeText(getActivity(), "Added note successfully", Toast.LENGTH_SHORT).show();
+                                            hideSoftKeyboard(getActivity());
+                                            Navigation.findNavController(view).navigate(NewNoteFragmentDirections.actionNewNoteFragmentToHomeFragment());
+                                        }
+                                    });
                                 }
                             });
                 } else {
