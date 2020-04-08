@@ -60,7 +60,7 @@ public class NewNoteFragment extends Fragment {
                             .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
                                 @Override
                                 public void onSuccess(DocumentReference documentReference) {
-                                    documentReference.collection("Notes").add(note).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+                                    documentReference.collection("Edits").add(note).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
                                         @Override
                                         public void onSuccess(DocumentReference documentReference) {
                                             Toast.makeText(getActivity(), "Added note successfully", Toast.LENGTH_SHORT).show();
