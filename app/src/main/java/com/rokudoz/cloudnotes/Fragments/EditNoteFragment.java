@@ -27,6 +27,7 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.WriteBatch;
 import com.rokudoz.cloudnotes.Models.Note;
 import com.rokudoz.cloudnotes.R;
@@ -73,103 +74,61 @@ public class EditNoteFragment extends Fragment {
         backBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (!mNote.getNoteText().equals(textInput.getText().toString()) || !mNote.getNoteTitle().equals(titleInput.getText().toString())) {
-                    Note note = new Note(Objects.requireNonNull(titleInput.getText()).toString(),
-                            Objects.requireNonNull(textInput.getText()).toString(),
-                            null,
-                            Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid(),
-                            null, true);
-
-                    WriteBatch batch = db.batch();
-                    batch.set(usersRef.document(FirebaseAuth.getInstance().getCurrentUser().getUid()).collection("Notes").document(noteID), note);
-                    batch.set(usersRef.document(FirebaseAuth.getInstance().getCurrentUser().getUid()).collection("Notes").document(noteID)
-                            .collection("Edits").document(), note);
-
-                    batch.commit().addOnSuccessListener(new OnSuccessListener<Void>() {
-                        @Override
-                        public void onSuccess(Void aVoid) {
-                            Log.d(TAG, "onSuccess: Updated note successfully");
-                            hideSoftKeyboard(getActivity());
-                            Navigation.findNavController(view).navigate(EditNoteFragmentDirections.actionEditNoteFragmentToHomeFragment());
-                        }
-                    });
-                } else {
-                    Log.d(TAG, "Note was the same, going back");
-                    hideSoftKeyboard(getActivity());
-                    Navigation.findNavController(view).navigate(EditNoteFragmentDirections.actionEditNoteFragmentToHomeFragment());
-                }
-
+                hideSoftKeyboard(getActivity());
+                Navigation.findNavController(view).navigate(EditNoteFragmentDirections.actionEditNoteFragmentToHomeFragment());
             }
         });
-
-        OnBackPressedCallback callback = new OnBackPressedCallback(true) {
-            @Override
-            public void handleOnBackPressed() {
-                if (!mNote.getNoteText().equals(textInput.getText().toString()) || !mNote.getNoteTitle().equals(titleInput.getText().toString())) {
-                    Note note = new Note(Objects.requireNonNull(titleInput.getText()).toString(),
-                            Objects.requireNonNull(textInput.getText()).toString(),
-                            null,
-                            Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid(),
-                            null, true);
-
-                    WriteBatch batch = db.batch();
-                    batch.set(usersRef.document(FirebaseAuth.getInstance().getCurrentUser().getUid()).collection("Notes").document(noteID), note);
-                    batch.set(usersRef.document(FirebaseAuth.getInstance().getCurrentUser().getUid()).collection("Notes").document(noteID)
-                            .collection("Edits").document(), note);
-
-                    batch.commit().addOnSuccessListener(new OnSuccessListener<Void>() {
-                        @Override
-                        public void onSuccess(Void aVoid) {
-                            Log.d(TAG, "onSuccess: Updated note successfully");
-                            hideSoftKeyboard(getActivity());
-                            Navigation.findNavController(view).navigate(EditNoteFragmentDirections.actionEditNoteFragmentToHomeFragment());
-                        }
-                    });
-                } else {
-                    Log.d(TAG, "Note was the same, going back");
-                    hideSoftKeyboard(getActivity());
-                    Navigation.findNavController(view).navigate(EditNoteFragmentDirections.actionEditNoteFragmentToHomeFragment());
-                }
-
-            }
-        };
-        requireActivity().getOnBackPressedDispatcher().addCallback(this, callback);
 
         deleteBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                usersRef.document(FirebaseAuth.getInstance().getCurrentUser().getUid()).collection("Notes").document(noteID).delete()
-                        .addOnSuccessListener(new OnSuccessListener<Void>() {
-                            @Override
-                            public void onSuccess(Void aVoid) {
 
-                                MaterialAlertDialogBuilder materialAlertDialogBuilder = new MaterialAlertDialogBuilder(getActivity(),
-                                        R.style.ThemeOverlay_MaterialComponents_MaterialAlertDialog_Centered);
-                                materialAlertDialogBuilder.setMessage("Are you sure you want to delete this note?");
-                                materialAlertDialogBuilder.setCancelable(true);
-                                materialAlertDialogBuilder.setPositiveButton(
-                                        "Yes",
-                                        new DialogInterface.OnClickListener() {
-                                            public void onClick(DialogInterface dialog, int id) {
-                                                //Delete note
-                                                Toast.makeText(getContext(), "Deleted note", Toast.LENGTH_SHORT).show();
-                                                hideSoftKeyboard(getActivity());
-                                                Navigation.findNavController(view).navigate(EditNoteFragmentDirections.actionEditNoteFragmentToHomeFragment());
-                                                dialog.cancel();
+                MaterialAlertDialogBuilder materialAlertDialogBuilder = new MaterialAlertDialogBuilder(getActivity(),
+                        R.style.ThemeOverlay_MaterialComponents_MaterialAlertDialog_Centered);
+                materialAlertDialogBuilder.setMessage("Are you sure you want to delete this note?");
+                materialAlertDialogBuilder.setCancelable(true);
+                materialAlertDialogBuilder.setPositiveButton(
+                        "Yes",
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(final DialogInterface dialog, int id) {
+                                //Delete note
+                                final WriteBatch batch = db.batch();
+                                usersRef.document(FirebaseAuth.getInstance().getCurrentUser().getUid()).collection("Notes").document(noteID)
+                                        .collection("Edits").get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+                                    @Override
+                                    public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                                        if (queryDocumentSnapshots != null && queryDocumentSnapshots.size() > 0) {
+                                            for (DocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
+                                                batch.delete(documentSnapshot.getReference());
                                             }
-                                        });
-
-                                materialAlertDialogBuilder.setNegativeButton(
-                                        "No",
-                                        new DialogInterface.OnClickListener() {
-                                            public void onClick(DialogInterface dialog, int id) {
-                                                dialog.cancel();
-                                            }
-                                        });
-
-                                materialAlertDialogBuilder.show();
+                                            batch.delete(usersRef.document(FirebaseAuth.getInstance().getCurrentUser().getUid())
+                                                    .collection("Notes").document(noteID));
+                                            batch.commit().addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                @Override
+                                                public void onSuccess(Void aVoid) {
+                                                    Toast.makeText(getContext(), "Deleted note", Toast.LENGTH_SHORT).show();
+                                                    hideSoftKeyboard(getActivity());
+                                                    Navigation.findNavController(view).navigate(EditNoteFragmentDirections.actionEditNoteFragmentToHomeFragment());
+                                                    dialog.cancel();
+                                                }
+                                            });
+                                        }
+                                    }
+                                });
                             }
                         });
+
+                materialAlertDialogBuilder.setNegativeButton(
+                        "No",
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                dialog.cancel();
+                            }
+                        });
+
+                materialAlertDialogBuilder.show();
+
+
             }
         });
 
@@ -215,5 +174,36 @@ public class EditNoteFragment extends Fragment {
                             }
                         }
                     });
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        Log.d(TAG, "onStop: ");
+        if (mNote != null) {
+            if (!mNote.getNoteText().equals(textInput.getText().toString()) || !mNote.getNoteTitle().equals(titleInput.getText().toString())) {
+                Note note = new Note(Objects.requireNonNull(titleInput.getText()).toString(),
+                        Objects.requireNonNull(textInput.getText()).toString(),
+                        null,
+                        Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid(),
+                        null, true);
+
+                WriteBatch batch = db.batch();
+                batch.set(usersRef.document(FirebaseAuth.getInstance().getCurrentUser().getUid()).collection("Notes").document(noteID), note);
+                batch.set(usersRef.document(FirebaseAuth.getInstance().getCurrentUser().getUid()).collection("Notes").document(noteID)
+                        .collection("Edits").document(), note);
+
+                batch.commit().addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        Log.d(TAG, "onSuccess: Updated note successfully");
+                        if (getActivity() != null)
+                            hideSoftKeyboard(getActivity());
+                    }
+                });
+            } else {
+                Log.d(TAG, "Note was the same, going back");
+            }
+        }
     }
 }
