@@ -1,5 +1,6 @@
 package com.rokudoz.cloudnotes.Fragments;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 
@@ -18,7 +19,10 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.button.MaterialButton;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -30,6 +34,7 @@ import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.firestore.WriteBatch;
 import com.rokudoz.cloudnotes.Adapters.StaggeredRecyclerViewAdapter;
 import com.rokudoz.cloudnotes.LoginActivity;
 import com.rokudoz.cloudnotes.Models.Note;
@@ -38,6 +43,8 @@ import com.rokudoz.cloudnotes.R;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import de.hdodenhof.circleimageview.CircleImageView;
 
 public class HomeFragment extends Fragment implements StaggeredRecyclerViewAdapter.OnItemClickListener {
     private static final String TAG = "HomeFragment";
@@ -53,6 +60,8 @@ public class HomeFragment extends Fragment implements StaggeredRecyclerViewAdapt
     private FirebaseAuth.AuthStateListener mAuthListener;
     private ListenerRegistration notesListener;
 
+    private CircleImageView userPicture;
+
 
     public HomeFragment() {
         // Required empty public constructor
@@ -64,17 +73,8 @@ public class HomeFragment extends Fragment implements StaggeredRecyclerViewAdapt
         view = inflater.inflate(R.layout.fragment_home, container, false);
 
 
-        MaterialButton signOutBtn = view.findViewById(R.id.homeFragment_signOutBtn);
+        userPicture = view.findViewById(R.id.homeFragment_userImage);
 
-        signOutBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                FirebaseAuth.getInstance().signOut();
-                Intent intent = new Intent(getActivity(), LoginActivity.class);
-                startActivity(intent);
-                getActivity().finish();
-            }
-        });
         FloatingActionButton addNewNoteBtn = view.findViewById(R.id.homeFragment_addNoteFab);
         addNewNoteBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -146,6 +146,39 @@ public class HomeFragment extends Fragment implements StaggeredRecyclerViewAdapt
                     if (user != null && user.getUser_name() != null) {
                         Log.d(TAG, "onEvent: " + user.getUser_name());
                     }
+                    if (user != null && user.getUser_profile_picture() != null){
+                        Glide.with(userPicture).load(user.getUser_profile_picture()).centerCrop().into(userPicture);
+                        userPicture.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                MaterialAlertDialogBuilder materialAlertDialogBuilder = new MaterialAlertDialogBuilder(getActivity(),
+                                        R.style.ThemeOverlay_MaterialComponents_MaterialAlertDialog_Centered);
+                                materialAlertDialogBuilder.setMessage("Are you sure you want to sign out?");
+                                materialAlertDialogBuilder.setCancelable(true);
+                                materialAlertDialogBuilder.setPositiveButton(
+                                        "Yes",
+                                        new DialogInterface.OnClickListener() {
+                                            public void onClick(final DialogInterface dialog, int id) {
+                                                //Delete note
+                                                FirebaseAuth.getInstance().signOut();
+                                                Intent intent = new Intent(getActivity(), LoginActivity.class);
+                                                startActivity(intent);
+                                                getActivity().finish();
+                                            }
+                                        });
+
+                                materialAlertDialogBuilder.setNegativeButton(
+                                        "No",
+                                        new DialogInterface.OnClickListener() {
+                                            public void onClick(DialogInterface dialog, int id) {
+                                                dialog.cancel();
+                                            }
+                                        });
+
+                                materialAlertDialogBuilder.show();
+                            }
+                        });
+                    }
                 }
             }
         });
@@ -166,6 +199,7 @@ public class HomeFragment extends Fragment implements StaggeredRecyclerViewAdapt
                     if (user.isEmailVerified()) {
                         // DO STUFF
                         getNotes(FirebaseAuth.getInstance().getCurrentUser().getUid());
+                        getUserInfo();
                         Log.d(TAG, "onAuthStateChanged: MAIL VERIFIED");
                     } else {
                         Toast.makeText(getActivity(), "Email is not Verified\nCheck your Inbox", Toast.LENGTH_SHORT).show();
