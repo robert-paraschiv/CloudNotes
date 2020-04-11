@@ -9,6 +9,7 @@
         <item name="colorSecondary">@color/colorAccent</item>
         <item name="android:statusBarColor">@color/status_bar_color</item>
         <item name="android:windowLightStatusBar">true</item>
+        <item name="fontFamily">@font/montserrat</item>
     </style>
 
 </resources>
