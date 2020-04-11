@@ -2,7 +2,8 @@
 <resources>
     <color name="colorPrimary">#1976d2</color>
     <color name="colorPrimaryDark">#004ba0</color>
-    <color name="colorAccent">#2962ff</color>
+    <color name="colorAccent">#0091ea</color>
     <color name="note_stroke_color">#fafafa</color>
     <color name="fragments_background">#121212</color>
+    <color name="status_bar_color">#212121</color>
 </resources>
