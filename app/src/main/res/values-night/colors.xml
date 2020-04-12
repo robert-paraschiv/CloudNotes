@@ -5,5 +5,5 @@
     <color name="colorAccent">#0091ea</color>
     <color name="note_stroke_color">#fafafa</color>
     <color name="fragments_background">#121212</color>
-    <color name="status_bar_color">#212121</color>
+    <color name="status_bar_color">#0f0f0f</color>
 </resources>
