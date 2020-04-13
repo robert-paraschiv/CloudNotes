@@ -23,14 +23,14 @@ public class LastEdit {
             // if timestamp given in seconds, convert to millis
             time *= 1000;
         }
-
-        long now = System.currentTimeMillis() + 30000;
-        if (time > now || time <= 0) {
-            return null;
-        }
         Date timeStampDate = new Date(time);
         DateFormat hourFormat = new SimpleDateFormat("HH:mm", Locale.getDefault());
         DateFormat dayFormat = new SimpleDateFormat("E", Locale.getDefault());
+
+        long now = System.currentTimeMillis() + 30000;
+        if (time > now || time <= 0) {
+            hourFormat.format(now);
+        }
 
 
         // TODO: localize

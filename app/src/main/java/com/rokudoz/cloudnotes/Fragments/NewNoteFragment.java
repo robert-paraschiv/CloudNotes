@@ -38,7 +38,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
-public class NewNoteFragment extends Fragment implements CheckableItemAdapter.OnStartDragListener {
+public class NewNoteFragment extends Fragment implements CheckableItemAdapter.OnStartDragListener, CheckableItemAdapter.OnItemClickListener {
     private static final String TAG = "NewNoteFragment";
 
     ItemTouchHelper helper;
@@ -116,6 +116,7 @@ public class NewNoteFragment extends Fragment implements CheckableItemAdapter.On
         recyclerView.setAdapter(mAdapter);
 
         mAdapter.setOnStartDragListener(this);
+        mAdapter.setOnItemClickListener(this);
 
         checkableItemList.add(new CheckableItem("", false));
         mAdapter.notifyDataSetChanged();
@@ -232,5 +233,11 @@ public class NewNoteFragment extends Fragment implements CheckableItemAdapter.On
     @Override
     public void onStartDrag(RecyclerView.ViewHolder viewHolder) {
         helper.startDrag(viewHolder);
+    }
+
+    @Override
+    public void onDeleteClick(int position) {
+        checkableItemList.remove(position);
+        mAdapter.notifyItemRemoved(position);
     }
 }

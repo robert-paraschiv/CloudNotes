@@ -46,7 +46,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
-public class EditNoteFragment extends Fragment implements CheckableItemAdapter.OnStartDragListener {
+public class EditNoteFragment extends Fragment implements CheckableItemAdapter.OnStartDragListener, CheckableItemAdapter.OnItemClickListener {
     private static final String TAG = "EditNoteFragment";
 
     private View view;
@@ -193,6 +193,7 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
         recyclerView.setAdapter(mAdapter);
 
         mAdapter.setOnStartDragListener(this);
+        mAdapter.setOnItemClickListener(this);
 
         checkableItemList.add(new CheckableItem("", false));
         mAdapter.notifyDataSetChanged();
@@ -310,6 +311,11 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
                     }
                 }
             }
+            for (CheckableItem item : oldList) {
+                if (!checkableItemList.contains(item))
+                    edit = true;
+            }
+            Log.d(TAG, "onStop: " + edit);
 
             if (!mNote.getNoteText().equals(textInput.getText().toString()) || !mNote.getNoteTitle().equals(titleInput.getText().toString()) || edit) {
                 Note note = new Note();
@@ -324,13 +330,13 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
                             Objects.requireNonNull(textInput.getText()).toString(),
                             null,
                             Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid(),
-                            null, false, noteType, null);
+                            null, true, noteType, null);
                 } else if (noteType.equals("checkbox")) {
                     note = new Note(title,
                             "",
                             null,
                             Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid(),
-                            null, false, noteType, checkableItemList);
+                            null, true, noteType, checkableItemList);
                 }
 
                 WriteBatch batch = db.batch();
@@ -355,5 +361,11 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
     @Override
     public void onStartDrag(RecyclerView.ViewHolder viewHolder) {
         helper.startDrag(viewHolder);
+    }
+
+    @Override
+    public void onDeleteClick(int position) {
+        checkableItemList.remove(position);
+        mAdapter.notifyItemRemoved(position);
     }
 }

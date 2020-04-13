@@ -78,7 +78,7 @@
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/editNoteFragment_checkbox_rv"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"/>
+                android:layout_height="wrap_content" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/editNoteFragment_add_checkbox_Btn"
@@ -98,7 +98,8 @@
         android:id="@+id/editNoteFragment_bottomCard"
         android:layout_width="match_parent"
         android:layout_height="40dp"
-        android:layout_alignParentBottom="true">
+        android:layout_alignParentBottom="true"
+        android:layout_marginTop="4dp">
 
         <RelativeLayout
             android:layout_width="match_parent"

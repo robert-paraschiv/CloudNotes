@@ -1,7 +1,6 @@
 package com.rokudoz.cloudnotes.Adapters;
 
 import android.annotation.SuppressLint;
-import android.content.Context;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -9,49 +8,54 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.ImageView;
-import android.widget.TextView;
 
-import androidx.annotation.NonNull;
 import androidx.core.view.MotionEventCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.button.MaterialButton;
 import com.google.android.material.checkbox.MaterialCheckBox;
 import com.google.android.material.textfield.TextInputEditText;
 import com.rokudoz.cloudnotes.Models.CheckableItem;
-import com.rokudoz.cloudnotes.Models.Note;
 import com.rokudoz.cloudnotes.R;
-import com.rokudoz.cloudnotes.Utils.LastEdit;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 public class CheckableItemAdapter extends RecyclerView.Adapter<CheckableItemAdapter.ViewHolder> {
     private static final String TAG = "CheckableItemAdapter";
 
     private OnStartDragListener onStartDragListener;
-    private List<CheckableItem> checkableItemListt = new ArrayList<>();
+    private OnItemClickListener onItemClickListener;
+    private List<CheckableItem> checkableItemList = new ArrayList<>();
 
 
     public interface OnStartDragListener {
         void onStartDrag(RecyclerView.ViewHolder viewHolder);
     }
 
+    public interface OnItemClickListener {
+        void onDeleteClick(int position);
+    }
+
     public void setOnStartDragListener(OnStartDragListener onStartDragListener) {
         this.onStartDragListener = onStartDragListener;
     }
 
+    public void setOnItemClickListener(OnItemClickListener listener) {
+        onItemClickListener = listener;
+    }
+
     public CheckableItemAdapter(List<CheckableItem> checkableItemList) {
-        checkableItemListt = checkableItemList;
+        this.checkableItemList = checkableItemList;
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
 
         TextInputEditText text;
         MaterialCheckBox checkBox;
+        MaterialButton deleteBtn;
         ImageView dragHandle;
 
         public ViewHolder(final View itemView) {
@@ -59,7 +63,18 @@ public class CheckableItemAdapter extends RecyclerView.Adapter<CheckableItemAdap
             this.checkBox = itemView.findViewById(R.id.checkableItem_checkbox);
             this.text = itemView.findViewById(R.id.checkableItem_textInput);
             this.dragHandle = itemView.findViewById(R.id.checkableItem_drag_handle);
+            this.deleteBtn = itemView.findViewById(R.id.checkableItem_deleteBtn);
 
+            this.deleteBtn.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (onItemClickListener != null) {
+                        int position = getAdapterPosition();
+                        if (position != RecyclerView.NO_POSITION)
+                            onItemClickListener.onDeleteClick(position);
+                    }
+                }
+            });
         }
     }
 
@@ -73,8 +88,15 @@ public class CheckableItemAdapter extends RecyclerView.Adapter<CheckableItemAdap
     @Override
     public void onBindViewHolder(final ViewHolder holder, final int position) {
         Log.d(TAG, "onBindViewHolder: called.");
-        CheckableItem currentItem = checkableItemListt.get(position);
+        CheckableItem currentItem = checkableItemList.get(position);
 
+        holder.deleteBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                checkableItemList.remove(position);
+                notifyItemRemoved(position);
+            }
+        });
         holder.dragHandle.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
@@ -99,7 +121,7 @@ public class CheckableItemAdapter extends RecyclerView.Adapter<CheckableItemAdap
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 if (s != null && !s.toString().equals(""))
-                    checkableItemListt.get(position).setText(s.toString());
+                    checkableItemList.get(position).setText(s.toString());
             }
 
             @Override
@@ -110,7 +132,7 @@ public class CheckableItemAdapter extends RecyclerView.Adapter<CheckableItemAdap
         holder.checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                checkableItemListt.get(position).setChecked(isChecked);
+                checkableItemList.get(position).setChecked(isChecked);
             }
         });
 
@@ -119,6 +141,6 @@ public class CheckableItemAdapter extends RecyclerView.Adapter<CheckableItemAdap
 
     @Override
     public int getItemCount() {
-        return checkableItemListt.size();
+        return checkableItemList.size();
     }
 }
