@@ -5,15 +5,20 @@ import android.content.DialogInterface;
 import android.os.Bundle;
 
 import androidx.activity.OnBackPressedCallback;
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.Navigation;
+import androidx.recyclerview.widget.ItemTouchHelper;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -29,23 +34,36 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.WriteBatch;
+import com.rokudoz.cloudnotes.Adapters.CheckableItemAdapter;
+import com.rokudoz.cloudnotes.Models.CheckableItem;
 import com.rokudoz.cloudnotes.Models.Note;
 import com.rokudoz.cloudnotes.R;
 import com.rokudoz.cloudnotes.Utils.LastEdit;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 import java.util.Objects;
 
-public class EditNoteFragment extends Fragment {
+public class EditNoteFragment extends Fragment implements CheckableItemAdapter.OnStartDragListener {
     private static final String TAG = "EditNoteFragment";
 
-    private String noteID = "";
     private View view;
+
+    private String noteType = "text";
+    private String noteID = "";
+    private List<CheckableItem> checkableItemList = new ArrayList<>();
+    private List<CheckableItem> oldList = new ArrayList<>();
+    private RecyclerView recyclerView;
+    private ScrollView rv_scrollView;
+    private CheckableItemAdapter mAdapter;
+    private ItemTouchHelper helper;
 
     private Note mNote = new Note();
     TextInputEditText titleInput, textInput;
     TextView lastEditTv;
-    MaterialButton backBtn, deleteBtn;
+    MaterialButton backBtn, deleteBtn, checkboxModeBtn, addCheckboxBtn;
 
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
     private CollectionReference usersRef = db.collection("Users");
@@ -63,12 +81,46 @@ public class EditNoteFragment extends Fragment {
         backBtn = view.findViewById(R.id.editNoteFragment_backBtn);
         lastEditTv = view.findViewById(R.id.editNoteFragment_lastEditTextView);
         deleteBtn = view.findViewById(R.id.editNoteFragment_deleteBtn);
+        recyclerView = view.findViewById(R.id.editNoteFragment_checkbox_rv);
+        checkboxModeBtn = view.findViewById(R.id.editNoteFragment_CheckBoxModeBtn);
+        addCheckboxBtn = view.findViewById(R.id.editNoteFragment_add_checkbox_Btn);
+        rv_scrollView = view.findViewById(R.id.editNoteFragment_scroll_rv);
 
         if (getArguments() != null) {
             EditNoteFragmentArgs editNoteFragmentArgs = EditNoteFragmentArgs.fromBundle(getArguments());
             noteID = editNoteFragmentArgs.getNoteDocID();
             getNote(noteID);
         }
+
+
+        checkboxModeBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (noteType.equals("text")) {
+                    noteType = "checkbox";
+                    textInput.setText("");
+                    textInput.setVisibility(View.GONE);
+                    checkableItemList.clear();
+                    mAdapter.notifyDataSetChanged();
+                    checkableItemList.add(new CheckableItem("", false));
+                    mAdapter.notifyItemInserted(checkableItemList.size() - 1);
+                    rv_scrollView.setVisibility(View.VISIBLE);
+
+                } else if (noteType.equals("checkbox")) {
+                    noteType = "text";
+                    textInput.setText("");
+                    textInput.setVisibility(View.VISIBLE);
+                    checkableItemList.clear();
+                    mAdapter.notifyDataSetChanged();
+                    rv_scrollView.setVisibility(View.GONE);
+
+                    Log.d(TAG, "onClick: " + checkableItemList.toString());
+                }
+
+            }
+        });
+
+        buildRecyclerView();
 
 
         backBtn.setOnClickListener(new View.OnClickListener() {
@@ -135,6 +187,44 @@ public class EditNoteFragment extends Fragment {
         return view;
     }
 
+    private void buildRecyclerView() {
+        mAdapter = new CheckableItemAdapter(checkableItemList);
+        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        recyclerView.setAdapter(mAdapter);
+
+        mAdapter.setOnStartDragListener(this);
+
+        checkableItemList.add(new CheckableItem("", false));
+        mAdapter.notifyDataSetChanged();
+
+        addCheckboxBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                checkableItemList.add(new CheckableItem("", false));
+                mAdapter.notifyItemInserted(checkableItemList.size() - 1);
+            }
+        });
+
+        helper = new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(ItemTouchHelper.UP | ItemTouchHelper.DOWN, 0) {
+            @Override
+            public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {
+                int position_dragged = viewHolder.getAdapterPosition();
+                int position_target = target.getAdapterPosition();
+
+                Collections.swap(checkableItemList, position_dragged, position_target);
+                mAdapter.notifyItemMoved(position_dragged, position_target);
+
+                return false;
+            }
+
+            @Override
+            public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
+
+            }
+        });
+        helper.attachToRecyclerView(recyclerView);
+    }
+
     public static void hideSoftKeyboard(Activity activity) {
         InputMethodManager inputMethodManager =
                 (InputMethodManager) activity.getSystemService(
@@ -151,11 +241,39 @@ public class EditNoteFragment extends Fragment {
                         @Override
                         public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException e) {
                             if (documentSnapshot != null && e == null) {
-                                mNote = documentSnapshot.toObject(Note.class);
+                                Note note = documentSnapshot.toObject(Note.class);
+                                mNote = note;
                                 if (mNote != null) {
                                     mNote.setNote_doc_ID(documentSnapshot.getId());
                                     titleInput.setText(mNote.getNoteTitle());
                                     textInput.setText(mNote.getNoteText());
+
+                                    if (mNote.getNoteType() != null) {
+                                        noteType = mNote.getNoteType();
+                                    } else {
+                                        noteType = "text";
+                                    }
+                                    if (noteType.equals("text")) {
+                                        textInput.setVisibility(View.VISIBLE);
+                                        checkableItemList.clear();
+                                        mAdapter.notifyDataSetChanged();
+                                        rv_scrollView.setVisibility(View.GONE);
+                                    } else if (noteType.equals("checkbox")) {
+                                        textInput.setText("");
+                                        textInput.setVisibility(View.GONE);
+                                        checkableItemList.clear();
+                                        mAdapter.notifyDataSetChanged();
+                                        if (mNote.getCheckableItemList() != null) {
+                                            for (CheckableItem item : mNote.getCheckableItemList()) {
+                                                checkableItemList.add(item);
+                                                oldList.add(new CheckableItem(item.getText(), item.getChecked()));
+                                                mAdapter.notifyItemInserted(checkableItemList.size() - 1);
+                                            }
+
+                                            Log.d(TAG, "onEvent: " + oldList.toString());
+                                        }
+                                        rv_scrollView.setVisibility(View.VISIBLE);
+                                    }
 
                                     if (mNote.getCreation_date() != null && mNote.getEdited() != null && mNote.getEdited()) {
                                         Date date = mNote.getCreation_date();
@@ -181,12 +299,39 @@ public class EditNoteFragment extends Fragment {
         super.onStop();
         Log.d(TAG, "onStop: ");
         if (mNote != null) {
-            if (!mNote.getNoteText().equals(textInput.getText().toString()) || !mNote.getNoteTitle().equals(titleInput.getText().toString())) {
-                Note note = new Note(Objects.requireNonNull(titleInput.getText()).toString(),
-                        Objects.requireNonNull(textInput.getText()).toString(),
-                        null,
-                        Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid(),
-                        null, true);
+            boolean edit = false;
+
+            for (CheckableItem item : checkableItemList) {
+                if (!oldList.contains(item)) {
+                    edit = true;
+                } else {
+                    if (oldList.get(oldList.indexOf(item)).getChecked() != item.getChecked()) {
+                        edit = true;
+                    }
+                }
+            }
+
+            if (!mNote.getNoteText().equals(textInput.getText().toString()) || !mNote.getNoteTitle().equals(titleInput.getText().toString()) || edit) {
+                Note note = new Note();
+                String title = "";
+                if (titleInput.getText().toString().trim().equals("")) {
+                    title = "";
+                } else {
+                    title = titleInput.getText().toString();
+                }
+                if (noteType.equals("text")) {
+                    note = new Note(title,
+                            Objects.requireNonNull(textInput.getText()).toString(),
+                            null,
+                            Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid(),
+                            null, false, noteType, null);
+                } else if (noteType.equals("checkbox")) {
+                    note = new Note(title,
+                            "",
+                            null,
+                            Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid(),
+                            null, false, noteType, checkableItemList);
+                }
 
                 WriteBatch batch = db.batch();
                 batch.set(usersRef.document(FirebaseAuth.getInstance().getCurrentUser().getUid()).collection("Notes").document(noteID), note);
@@ -205,5 +350,10 @@ public class EditNoteFragment extends Fragment {
                 Log.d(TAG, "Note was the same, going back");
             }
         }
+    }
+
+    @Override
+    public void onStartDrag(RecyclerView.ViewHolder viewHolder) {
+        helper.startDrag(viewHolder);
     }
 }

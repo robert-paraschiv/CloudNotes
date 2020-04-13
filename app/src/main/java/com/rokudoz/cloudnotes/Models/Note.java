@@ -3,6 +3,7 @@ package com.rokudoz.cloudnotes.Models;
 import com.google.firebase.firestore.ServerTimestamp;
 
 import java.util.Date;
+import java.util.List;
 import java.util.Objects;
 
 public class Note {
@@ -12,20 +13,41 @@ public class Note {
     private String latest_edit_doc_ID;
     private String user_ID;
     private Boolean edited;
+    private String noteType;
+    private List<CheckableItem> checkableItemList;
 
     @ServerTimestamp
     private Date creation_date;
 
-    public Note(String noteTitle, String noteText, String latest_edit_doc_ID, String user_ID, Date creation_date,Boolean edited) {
+    public Note(String noteTitle, String noteText, String latest_edit_doc_ID, String user_ID, Date creation_date, Boolean edited, String noteType,
+                List<CheckableItem> checkableItemList) {
         this.noteTitle = noteTitle;
         this.noteText = noteText;
         this.latest_edit_doc_ID = latest_edit_doc_ID;
         this.user_ID = user_ID;
         this.creation_date = creation_date;
-        this.edited=edited;
+        this.edited = edited;
+        this.noteType = noteType;
+        this.checkableItemList = checkableItemList;
     }
 
     public Note() {
+    }
+
+    public String getNoteType() {
+        return noteType;
+    }
+
+    public void setNoteType(String noteType) {
+        this.noteType = noteType;
+    }
+
+    public List<CheckableItem> getCheckableItemList() {
+        return checkableItemList;
+    }
+
+    public void setCheckableItemList(List<CheckableItem> checkableItemList) {
+        this.checkableItemList = checkableItemList;
     }
 
     public String getNote_doc_ID() {

@@ -31,15 +31,6 @@
                 android:layout_centerVertical="true"
                 android:layout_toEndOf="@id/editNoteFragment_backBtn"
                 android:text="Edit Note" />
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/editNoteFragment_deleteBtn"
-                style="@style/Widget.MaterialComponents.Button.TextButton"
-                android:layout_width="50dp"
-                android:layout_height="50dp"
-                android:layout_alignParentEnd="true"
-                android:layout_marginEnd="8dp"
-                app:icon="@drawable/ic_baseline_delete_outline_24" />
         </RelativeLayout>
 
 
@@ -60,21 +51,89 @@
         android:id="@+id/editNoteFragment_textEditText"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_above="@id/editNoteFragment_lastEditTextView"
+        android:layout_above="@id/editNoteFragment_bottomCard"
         android:layout_below="@id/editNoteFragment_titleEditText"
         android:layout_margin="8dp"
         android:background="@null"
         android:gravity="top"
         android:hint="Text"
         android:imeOptions="flagNoExtractUi"
-        android:inputType="textMultiLine" />
+        android:inputType="textMultiLine"
+        tools:visibility="invisible" />
 
-    <TextView
-        android:id="@+id/editNoteFragment_lastEditTextView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginBottom="16dp"
-        tools:text="Last edit today at 18:00" />
+    <ScrollView
+        android:id="@+id/editNoteFragment_scroll_rv"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@id/editNoteFragment_bottomCard"
+        android:layout_below="@id/editNoteFragment_titleEditText"
+        android:visibility="invisible"
+        tools:visibility="visible">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="8dp">
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/editNoteFragment_checkbox_rv"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/editNoteFragment_add_checkbox_Btn"
+                style="@style/Widget.MaterialComponents.Button.TextButton"
+                android:layout_width="35dp"
+                android:layout_height="35dp"
+                android:layout_below="@id/editNoteFragment_checkbox_rv"
+                android:layout_alignParentStart="true"
+                android:layout_marginStart="25dp"
+                app:icon="@drawable/ic_baseline_add_24"
+                app:iconGravity="textStart" />
+        </RelativeLayout>
+
+    </ScrollView>
+
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/editNoteFragment_bottomCard"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:layout_alignParentBottom="true">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/editNoteFragment_CheckBoxModeBtn"
+                style="@style/Widget.MaterialComponents.Button.TextButton"
+                android:layout_width="35dp"
+                android:layout_height="35dp"
+                android:layout_alignParentStart="true"
+                android:layout_centerVertical="true"
+                android:layout_marginStart="16dp"
+                app:icon="@drawable/ic_outline_check_box_24" />
+
+            <TextView
+                android:id="@+id/editNoteFragment_lastEditTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:layout_centerVertical="true"
+                tools:text="10:20" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/editNoteFragment_deleteBtn"
+                style="@style/Widget.MaterialComponents.Button.TextButton"
+                android:layout_width="35dp"
+                android:layout_height="35dp"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
+                android:layout_marginEnd="16dp"
+                app:icon="@drawable/ic_baseline_delete_outline_24" />
+
+        </RelativeLayout>
+
+    </com.google.android.material.card.MaterialCardView>
+
 </RelativeLayout>

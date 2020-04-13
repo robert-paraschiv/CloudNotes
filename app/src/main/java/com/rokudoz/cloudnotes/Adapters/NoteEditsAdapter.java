@@ -19,7 +19,8 @@ import java.util.List;
 
 public class NoteEditsAdapter extends RecyclerView.Adapter<NoteEditsAdapter.ViewHolder> {
 
-    private static final String TAG = "StaggeredRecyclerViewAd";
+    private static final String TAG = "NoteEditsAdapter";
+
     private OnItemClickListener mListener;
     private List<Note> noteList = new ArrayList<>();
     private Context mContext;

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="40dp">
+
+    <ImageView
+        android:id="@+id/checkableItem_drag_handle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:src="@drawable/ic_baseline_drag_handle_24" />
+
+    <com.google.android.material.checkbox.MaterialCheckBox
+        android:id="@+id/checkableItem_checkbox"
+        android:layout_width="35dp"
+        android:layout_height="35dp"
+        android:layout_centerVertical="true"
+        android:layout_toEndOf="@id/checkableItem_drag_handle" />
+
+    <com.google.android.material.textfield.TextInputEditText
+        android:id="@+id/checkableItem_textInput"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:layout_centerVertical="true"
+        android:layout_marginEnd="8dp"
+        android:layout_toEndOf="@id/checkableItem_checkbox"
+        tools:hint="Text"
+        android:imeOptions="flagNoEnterAction"
+        android:inputType="textCapSentences" />
+</RelativeLayout>

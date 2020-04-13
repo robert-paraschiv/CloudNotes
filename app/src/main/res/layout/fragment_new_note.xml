@@ -37,8 +37,8 @@
     </com.google.android.material.appbar.MaterialToolbar>
 
     <com.google.android.material.textfield.TextInputEditText
-        style="@style/TextAppearance.MaterialComponents.Headline6"
         android:id="@+id/newNoteFragment_title_textInput"
+        style="@style/TextAppearance.MaterialComponents.Headline6"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/newNoteFragment_toolbar"
@@ -54,12 +54,90 @@
         android:id="@+id/newNoteFragment_textInput"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_above="@id/newNoteFragment_bottom_card"
         android:layout_below="@id/newNoteFragment_title_textInput"
         android:layout_margin="8dp"
         android:background="@null"
         android:gravity="top"
         android:hint="Note text here"
         android:imeOptions="flagNoExtractUi"
-        android:inputType="textMultiLine" />
+        android:inputType="textMultiLine"
+        tools:visibility="invisible" />
+
+    <ScrollView
+        android:id="@+id/newNoteFragment_scroll_rv"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@id/newNoteFragment_bottom_card"
+        android:layout_below="@id/newNoteFragment_title_textInput"
+        android:visibility="invisible"
+        tools:visibility="visible">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="8dp">
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/newNoteFragment_checkbox_rv"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/newNoteFragment_add_checkbox_Btn"
+                style="@style/Widget.MaterialComponents.Button.TextButton"
+                android:layout_width="35dp"
+                android:layout_height="35dp"
+                android:layout_below="@id/newNoteFragment_checkbox_rv"
+                android:layout_alignParentStart="true"
+                android:layout_marginStart="25dp"
+                app:icon="@drawable/ic_baseline_add_24"
+                app:iconGravity="textStart" />
+        </RelativeLayout>
+
+    </ScrollView>
+
+
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/newNoteFragment_bottom_card"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:layout_alignParentBottom="true">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/newNoteFragment_CheckBoxModeBtn"
+                style="@style/Widget.MaterialComponents.Button.TextButton"
+                android:layout_width="35dp"
+                android:layout_height="35dp"
+                android:layout_alignParentStart="true"
+                android:layout_centerVertical="true"
+                android:layout_marginStart="16dp"
+                app:icon="@drawable/ic_outline_check_box_24" />
+
+            <TextView
+                android:id="@+id/newNoteFragment_timeStamp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:layout_centerVertical="true"
+                tools:text="10:20" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/newNoteFragment_deleteBtn"
+                style="@style/Widget.MaterialComponents.Button.TextButton"
+                android:layout_width="35dp"
+                android:layout_height="35dp"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
+                android:layout_marginEnd="16dp"
+                app:icon="@drawable/ic_baseline_delete_outline_24" />
+
+        </RelativeLayout>
+
+    </com.google.android.material.card.MaterialCardView>
 
 </RelativeLayout>
