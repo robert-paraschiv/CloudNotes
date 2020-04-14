@@ -6,4 +6,5 @@
     <color name="note_stroke_color">#fafafa</color>
     <color name="fragments_background">#121212</color>
     <color name="status_bar_color">#0f0f0f</color>
+    <color name="navigationColor">#0f0f0f</color>
 </resources>

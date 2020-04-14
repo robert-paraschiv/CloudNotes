@@ -2,6 +2,7 @@ package com.rokudoz.cloudnotes.Fragments;
 
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -16,9 +17,12 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.google.android.material.bottomsheet.BottomSheetDialog;
+import com.google.android.material.button.MaterialButton;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
@@ -39,6 +43,7 @@ import com.rokudoz.cloudnotes.R;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -138,40 +143,60 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
             @Override
             public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException e) {
                 if (e == null && documentSnapshot != null) {
-                    User user = documentSnapshot.toObject(User.class);
+                    final User user = documentSnapshot.toObject(User.class);
                     if (user != null && user.getUser_name() != null) {
                         Log.d(TAG, "onEvent: " + user.getUser_name());
                     }
-                    if (user != null && user.getUser_profile_picture() != null){
+                    if (user != null && user.getUser_profile_picture() != null) {
                         Glide.with(userPicture).load(user.getUser_profile_picture()).centerCrop().into(userPicture);
                         userPicture.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
-                                MaterialAlertDialogBuilder materialAlertDialogBuilder = new MaterialAlertDialogBuilder(getActivity(),
-                                        R.style.ThemeOverlay_MaterialComponents_MaterialAlertDialog_Centered);
-                                materialAlertDialogBuilder.setMessage("Are you sure you want to sign out?");
-                                materialAlertDialogBuilder.setCancelable(true);
-                                materialAlertDialogBuilder.setPositiveButton(
-                                        "Yes",
-                                        new DialogInterface.OnClickListener() {
-                                            public void onClick(final DialogInterface dialog, int id) {
-                                                //Delete note
-                                                FirebaseAuth.getInstance().signOut();
-                                                Intent intent = new Intent(getActivity(), LoginActivity.class);
-                                                startActivity(intent);
-                                                getActivity().finish();
-                                            }
-                                        });
 
-                                materialAlertDialogBuilder.setNegativeButton(
-                                        "No",
-                                        new DialogInterface.OnClickListener() {
-                                            public void onClick(DialogInterface dialog, int id) {
-                                                dialog.cancel();
-                                            }
-                                        });
 
-                                materialAlertDialogBuilder.show();
+
+                                View dialogView = getLayoutInflater().inflate(R.layout.dialog_settings, (ViewGroup) view, false);
+                                BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(Objects.requireNonNull(getContext()), R.style.CustomBottomSheetDialogTheme);
+
+                                CircleImageView profilePic = dialogView.findViewById(R.id.dialog_settings_profilePic);
+                                TextView emailTv = dialogView.findViewById(R.id.dialog_settings_email);
+                                MaterialButton signOutBtn = dialogView.findViewById(R.id.dialog_settings_signOut);
+                                Glide.with(profilePic).load(user.getUser_profile_picture()).centerCrop().into(profilePic);
+                                emailTv.setText(user.getEmail());
+
+                                bottomSheetDialog.setContentView(dialogView);
+
+                                signOutBtn.setOnClickListener(new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View v) {
+                                        MaterialAlertDialogBuilder materialAlertDialogBuilder = new MaterialAlertDialogBuilder(getActivity(),
+                                                R.style.ThemeOverlay_MaterialComponents_MaterialAlertDialog_Centered);
+                                        materialAlertDialogBuilder.setMessage("Are you sure you want to sign out?");
+                                        materialAlertDialogBuilder.setCancelable(true);
+                                        materialAlertDialogBuilder.setPositiveButton(
+                                                "Yes",
+                                                new DialogInterface.OnClickListener() {
+                                                    public void onClick(final DialogInterface dialog, int id) {
+                                                        //Delete note
+                                                        FirebaseAuth.getInstance().signOut();
+                                                        Intent intent = new Intent(getActivity(), LoginActivity.class);
+                                                        startActivity(intent);
+                                                        getActivity().finish();
+                                                    }
+                                                });
+
+                                        materialAlertDialogBuilder.setNegativeButton(
+                                                "No",
+                                                new DialogInterface.OnClickListener() {
+                                                    public void onClick(DialogInterface dialog, int id) {
+                                                        dialog.cancel();
+                                                    }
+                                                });
+
+                                        materialAlertDialogBuilder.show();
+                                    }
+                                });
+                                bottomSheetDialog.show();
                             }
                         });
                     }
