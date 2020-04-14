@@ -36,12 +36,12 @@ public class LastEdit {
         // TODO: localize
         final long diff = now - time;
         if (diff < 24 * HOUR_MILLIS && dayFormat.format(now).equals(dayFormat.format(timeStampDate))) {
-            return "last edit today at " + hourFormat.format(timeStampDate);
+            return "Today at " + hourFormat.format(timeStampDate);
         } else if (diff < 48 * HOUR_MILLIS) {
-            return "last edit yesterday at " + hourFormat.format(timeStampDate);
+            return "Yesterday at " + hourFormat.format(timeStampDate);
         } else if (diff < 7 * DAY_MILLIS) {
-            return "last edit " + dayFormat.format(timeStampDate) + " at " + hourFormat.format(timeStampDate);
+            return "" + dayFormat.format(timeStampDate) + " at " + hourFormat.format(timeStampDate);
         } else
-            return "last edit " + diff / DAY_MILLIS + " days ago";
+            return "" + diff / DAY_MILLIS + " days ago";
     }
 }

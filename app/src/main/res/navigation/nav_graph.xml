@@ -56,7 +56,8 @@
             app:argType="string" />
         <action
             android:id="@+id/action_noteEditsFragment_to_viewNoteEditFragment"
-            app:destination="@id/viewNoteEditFragment" />
+            app:destination="@id/viewNoteEditFragment"
+            app:popUpTo="@id/editNoteFragment" />
     </fragment>
     <fragment
         android:id="@+id/viewNoteEditFragment"
@@ -65,7 +66,8 @@
         tools:layout="@layout/fragment_view_note_edit" >
         <action
             android:id="@+id/action_viewNoteEditFragment_to_editNoteFragment"
-            app:destination="@id/editNoteFragment" />
+            app:destination="@id/editNoteFragment"
+            app:popUpTo="@id/homeFragment" />
         <argument
             android:name="note_ID"
             app:argType="string" />

@@ -135,7 +135,7 @@ public class CheckableItemAdapter extends RecyclerView.Adapter<CheckableItemAdap
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                if (s != null && !s.toString().equals(""))
+                if (s != null && !s.toString().equals("") && checkableItemList.size() > position)
                     checkableItemList.get(position).setText(s.toString());
             }
 

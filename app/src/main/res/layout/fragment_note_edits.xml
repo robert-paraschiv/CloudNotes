@@ -30,7 +30,7 @@
                 android:layout_height="wrap_content"
                 android:layout_centerVertical="true"
                 android:layout_toEndOf="@id/noteEditsFragment_backBtn"
-                android:text="Note last edits" />
+                android:text="Note edits" />
 
         </RelativeLayout>
     </com.google.android.material.appbar.MaterialToolbar>
