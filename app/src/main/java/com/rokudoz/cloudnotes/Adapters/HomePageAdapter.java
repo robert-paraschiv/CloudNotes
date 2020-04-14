@@ -6,12 +6,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.android.material.checkbox.MaterialCheckBox;
 import com.rokudoz.cloudnotes.Models.CheckableItem;
 import com.rokudoz.cloudnotes.Models.Note;
 import com.rokudoz.cloudnotes.R;
@@ -19,7 +17,7 @@ import com.rokudoz.cloudnotes.R;
 import java.util.ArrayList;
 import java.util.List;
 
-public class StaggeredRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> implements HomeCheckableAdapter.OnItemClickListener {
+public class HomePageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> implements NonCheckableAdapter.OnItemClickListener {
 
     private static final String TAG = "StaggeredRecyclerViewAd";
     private OnItemClickListener mListener;
@@ -42,7 +40,7 @@ public class StaggeredRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerV
         mListener = listener;
     }
 
-    public StaggeredRecyclerViewAdapter(Context context, List<Note> notesList) {
+    public HomePageAdapter(Context context, List<Note> notesList) {
         noteList = notesList;
         mContext = context;
     }
@@ -147,7 +145,7 @@ public class StaggeredRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerV
                     checkableItemList.add(noteList.get(position).getCheckableItemList().get(i));
                 }
             }
-            HomeCheckableAdapter homeCheckableAdapter = new HomeCheckableAdapter(checkableItemList, position);
+            NonCheckableAdapter homeCheckableAdapter = new NonCheckableAdapter(checkableItemList, position);
             holder.recyclerView.setAdapter(homeCheckableAdapter);
             holder.recyclerView.setHasFixedSize(true);
             homeCheckableAdapter.setOnItemClickListener(this);

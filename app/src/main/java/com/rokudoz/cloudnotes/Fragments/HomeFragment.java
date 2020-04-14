@@ -16,12 +16,9 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.material.button.MaterialButton;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
@@ -34,8 +31,7 @@ import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
-import com.google.firebase.firestore.WriteBatch;
-import com.rokudoz.cloudnotes.Adapters.StaggeredRecyclerViewAdapter;
+import com.rokudoz.cloudnotes.Adapters.HomePageAdapter;
 import com.rokudoz.cloudnotes.LoginActivity;
 import com.rokudoz.cloudnotes.Models.Note;
 import com.rokudoz.cloudnotes.Models.User;
@@ -46,12 +42,12 @@ import java.util.List;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
-public class HomeFragment extends Fragment implements StaggeredRecyclerViewAdapter.OnItemClickListener {
+public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClickListener {
     private static final String TAG = "HomeFragment";
 
     private View view;
 
-    private StaggeredRecyclerViewAdapter staggeredRecyclerViewAdapter;
+    private HomePageAdapter staggeredRecyclerViewAdapter;
     private List<Note> noteList = new ArrayList<>();
 
     private FirebaseAuth mAuth;
@@ -91,7 +87,7 @@ public class HomeFragment extends Fragment implements StaggeredRecyclerViewAdapt
 
     private void buildRecyclerView() {
         RecyclerView recyclerView = view.findViewById(R.id.homeFragment_recyclerView);
-        staggeredRecyclerViewAdapter = new StaggeredRecyclerViewAdapter(getActivity(), noteList);
+        staggeredRecyclerViewAdapter = new HomePageAdapter(getActivity(), noteList);
         StaggeredGridLayoutManager staggeredGridLayoutManager = new StaggeredGridLayoutManager(2, LinearLayoutManager.VERTICAL);
         recyclerView.setLayoutManager(staggeredGridLayoutManager);
         recyclerView.setAdapter(staggeredRecyclerViewAdapter);

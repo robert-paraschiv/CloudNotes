@@ -1,31 +1,21 @@
 package com.rokudoz.cloudnotes.Adapters;
 
-import android.annotation.SuppressLint;
-import android.text.Editable;
-import android.text.TextWatcher;
-import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.CompoundButton;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.core.view.MotionEventCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.android.material.button.MaterialButton;
 import com.google.android.material.checkbox.MaterialCheckBox;
-import com.google.android.material.textfield.TextInputEditText;
 import com.rokudoz.cloudnotes.Models.CheckableItem;
 import com.rokudoz.cloudnotes.R;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class HomeCheckableAdapter extends RecyclerView.Adapter<HomeCheckableAdapter.ViewHolder> {
+public class NonCheckableAdapter extends RecyclerView.Adapter<NonCheckableAdapter.ViewHolder> {
     private static final String TAG = "HomeCheckableItemAdapter";
     private OnItemClickListener mListener;
     int position = 0;
@@ -39,7 +29,7 @@ public class HomeCheckableAdapter extends RecyclerView.Adapter<HomeCheckableAdap
         mListener = listener;
     }
 
-    public HomeCheckableAdapter(List<CheckableItem> checkableItemList, int position) {
+    public NonCheckableAdapter(List<CheckableItem> checkableItemList, int position) {
         this.checkableItemList = checkableItemList;
         this.position = position;
     }
@@ -65,7 +55,7 @@ public class HomeCheckableAdapter extends RecyclerView.Adapter<HomeCheckableAdap
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.rv_home_checkbox_item, parent, false);
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.rv_non_checkable_item, parent, false);
         return new ViewHolder(view);
     }
 

@@ -95,7 +95,7 @@ public class CheckableItemAdapter extends RecyclerView.Adapter<CheckableItemAdap
 
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.rv_checkbox_item_layout, parent, false);
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.rv_checkable_item_layout, parent, false);
         return new ViewHolder(view);
     }
 

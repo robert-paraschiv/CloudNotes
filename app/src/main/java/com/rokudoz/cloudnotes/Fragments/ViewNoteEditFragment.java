@@ -22,14 +22,14 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
-import com.rokudoz.cloudnotes.Adapters.HomeCheckableAdapter;
+import com.rokudoz.cloudnotes.Adapters.NonCheckableAdapter;
 import com.rokudoz.cloudnotes.Models.CheckableItem;
 import com.rokudoz.cloudnotes.Models.Note;
 import com.rokudoz.cloudnotes.R;
 
 import java.util.List;
 
-public class ViewNoteEditFragment extends Fragment implements HomeCheckableAdapter.OnItemClickListener {
+public class ViewNoteEditFragment extends Fragment implements NonCheckableAdapter.OnItemClickListener {
     private static final String TAG = "ViewNoteEditFragment";
 
     private View view;
@@ -37,7 +37,7 @@ public class ViewNoteEditFragment extends Fragment implements HomeCheckableAdapt
     private TextView titleTv, textTv;
     private MaterialButton restoreBtn, backBtn;
     private RecyclerView recyclerView;
-    private HomeCheckableAdapter mAdapter;
+    private NonCheckableAdapter mAdapter;
 
     String noteID = "";
     String note_edit_ID = "";
@@ -81,7 +81,7 @@ public class ViewNoteEditFragment extends Fragment implements HomeCheckableAdapt
 
     private void buildRecyclerView(List<CheckableItem> checkableItemList) {
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        mAdapter = new HomeCheckableAdapter(checkableItemList, 0);
+        mAdapter = new NonCheckableAdapter(checkableItemList, 0);
         recyclerView.setAdapter(mAdapter);
         mAdapter.setOnItemClickListener(this);
     }
