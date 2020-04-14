@@ -105,7 +105,7 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
                     checkableItemList.add(new CheckableItem("", false));
                     mAdapter.notifyItemInserted(checkableItemList.size() - 1);
                     rv_scrollView.setVisibility(View.VISIBLE);
-
+                    checkboxModeBtn.setIconResource(R.drawable.ic_outline_text_fields_24);
                 } else if (noteType.equals("checkbox")) {
                     noteType = "text";
                     textInput.setText("");
@@ -113,7 +113,7 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
                     checkableItemList.clear();
                     mAdapter.notifyDataSetChanged();
                     rv_scrollView.setVisibility(View.GONE);
-
+                    checkboxModeBtn.setIconResource(R.drawable.ic_outline_check_box_24);
                     Log.d(TAG, "onClick: " + checkableItemList.toString());
                 }
 
@@ -259,6 +259,7 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
                                         checkableItemList.clear();
                                         mAdapter.notifyDataSetChanged();
                                         rv_scrollView.setVisibility(View.GONE);
+                                        checkboxModeBtn.setIconResource(R.drawable.ic_outline_check_box_24);
                                     } else if (noteType.equals("checkbox")) {
                                         textInput.setText("");
                                         textInput.setVisibility(View.GONE);
@@ -274,8 +275,9 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
                                             Log.d(TAG, "onEvent: " + oldList.toString());
                                         }
                                         rv_scrollView.setVisibility(View.VISIBLE);
+                                        checkboxModeBtn.setIconResource(R.drawable.ic_outline_text_fields_24);
                                     }
-
+                                    checkboxModeBtn.setVisibility(View.VISIBLE);
                                     if (mNote.getCreation_date() != null && mNote.getEdited() != null && mNote.getEdited()) {
                                         Date date = mNote.getCreation_date();
                                         LastEdit lastEdit = new LastEdit();

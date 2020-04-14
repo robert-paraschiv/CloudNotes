@@ -8,20 +8,30 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.checkbox.MaterialCheckBox;
 import com.rokudoz.cloudnotes.Models.Note;
 import com.rokudoz.cloudnotes.R;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class StaggeredRecyclerViewAdapter extends RecyclerView.Adapter<StaggeredRecyclerViewAdapter.ViewHolder> {
+public class StaggeredRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> implements HomeCheckableAdapter.OnItemClickListener {
 
     private static final String TAG = "StaggeredRecyclerViewAd";
     private OnItemClickListener mListener;
     private List<Note> noteList = new ArrayList<>();
     private Context mContext;
+
+    private static final int TEXT_TYPE = 0;
+    private static final int CHECKBOX_TYPE = 1;
+
+    @Override
+    public void onItemClick(int position) {
+        mListener.onItemClick(position);
+    }
 
     public interface OnItemClickListener {
         void onItemClick(int position);
@@ -59,19 +69,89 @@ public class StaggeredRecyclerViewAdapter extends RecyclerView.Adapter<Staggered
         }
     }
 
-    @Override
-    public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.rv_home_note_item, parent, false);
-        return new ViewHolder(view);
+    public class CheckboxViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+
+        TextView noteTitle;
+        RecyclerView recyclerView;
+
+        public CheckboxViewHolder(View itemView) {
+            super(itemView);
+            this.noteTitle = itemView.findViewById(R.id.rv_home_checkboxNote_TitleTV);
+            this.recyclerView = itemView.findViewById(R.id.rv_home_checkboxNote_recyclerView);
+
+            itemView.setOnClickListener(this);
+        }
+
+        @Override
+        public void onClick(View v) {
+            if (mListener != null) {
+                int position = getAdapterPosition();
+                if (position != RecyclerView.NO_POSITION) {
+                    mListener.onItemClick(position);
+                }
+            }
+        }
     }
 
     @Override
-    public void onBindViewHolder(ViewHolder holder, final int position) {
+    public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        switch (viewType) {
+            case CHECKBOX_TYPE:
+                View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.rv_home_checkbox_note_item, parent, false);
+                return new CheckboxViewHolder(view);
+            case TEXT_TYPE:
+
+            default:
+                View textView = LayoutInflater.from(parent.getContext()).inflate(R.layout.rv_home_note_item, parent, false);
+                return new ViewHolder(textView);
+
+        }
+    }
+
+    @Override
+    public void onBindViewHolder(RecyclerView.ViewHolder holder, final int position) {
         Log.d(TAG, "onBindViewHolder: called.");
+        int viewType = getItemViewType(position);
+        switch (viewType) {
+            case CHECKBOX_TYPE:
+                CheckboxViewHolder checkboxViewHolder = (CheckboxViewHolder) holder;
+                populateCheckBoxViewHolder(checkboxViewHolder, position);
+                break;
+            case TEXT_TYPE:
+                ViewHolder viewHolder = (ViewHolder) holder;
+                populateTextViewHolder(viewHolder, position);
+                break;
+        }
 
-        holder.noteText.setText(noteList.get(position).getNoteText());
-        holder.noteTitle.setText(noteList.get(position).getNoteTitle());
 
+    }
+
+    private void populateTextViewHolder(ViewHolder holder, int position) {
+        if (noteList.get(position).getNoteText() != null)
+            holder.noteText.setText(noteList.get(position).getNoteText());
+        if (noteList.get(position).getNoteTitle() != null)
+            holder.noteTitle.setText(noteList.get(position).getNoteTitle());
+    }
+
+    private void populateCheckBoxViewHolder(CheckboxViewHolder holder, int position) {
+        if (noteList.get(position).getNoteTitle() != null)
+            holder.noteTitle.setText(noteList.get(position).getNoteTitle());
+        if (noteList.get(position).getCheckableItemList() != null && noteList.get(position).getCheckableItemList().size() > 0) {
+            holder.recyclerView.setLayoutManager(new LinearLayoutManager(mContext));
+            HomeCheckableAdapter homeCheckableAdapter = new HomeCheckableAdapter(noteList.get(position).getCheckableItemList(),position);
+            holder.recyclerView.setAdapter(homeCheckableAdapter);
+            holder.recyclerView.setHasFixedSize(true);
+            homeCheckableAdapter.setOnItemClickListener(this);
+        }
+    }
+
+    @Override
+    public int getItemViewType(int position) {
+        if (noteList.get(position).getNoteType() != null && noteList.get(position).getNoteType().equals("checkbox")) {
+            return CHECKBOX_TYPE;
+        } else {
+            return TEXT_TYPE;
+        }
     }
 
     @Override

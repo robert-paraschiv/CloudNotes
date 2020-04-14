@@ -91,6 +91,7 @@ public class NewNoteFragment extends Fragment implements CheckableItemAdapter.On
                     checkableItemList.add(new CheckableItem("", false));
                     mAdapter.notifyDataSetChanged();
                     rv_scrollview.setVisibility(View.VISIBLE);
+                    checkboxModeBtn.setIconResource(R.drawable.ic_outline_text_fields_24);
                 } else if (noteType.equals("checkbox")) {
                     noteType = "text";
                     textInputEditText.setVisibility(View.VISIBLE);
@@ -99,6 +100,7 @@ public class NewNoteFragment extends Fragment implements CheckableItemAdapter.On
                     mAdapter.notifyDataSetChanged();
                     textInputEditText.setText("");
                     rv_scrollview.setVisibility(View.GONE);
+                    checkboxModeBtn.setIconResource(R.drawable.ic_outline_check_box_24);
 
                     Log.d(TAG, "onClick: " + checkableItemList.toString());
                 }
