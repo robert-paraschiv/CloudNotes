@@ -5,6 +5,8 @@ import android.os.Bundle;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.Navigation;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -20,16 +22,22 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.rokudoz.cloudnotes.Adapters.HomeCheckableAdapter;
+import com.rokudoz.cloudnotes.Models.CheckableItem;
 import com.rokudoz.cloudnotes.Models.Note;
 import com.rokudoz.cloudnotes.R;
 
-public class ViewNoteEditFragment extends Fragment {
+import java.util.List;
+
+public class ViewNoteEditFragment extends Fragment implements HomeCheckableAdapter.OnItemClickListener {
     private static final String TAG = "ViewNoteEditFragment";
 
     private View view;
 
     private TextView titleTv, textTv;
     private MaterialButton restoreBtn, backBtn;
+    private RecyclerView recyclerView;
+    private HomeCheckableAdapter mAdapter;
 
     String noteID = "";
     String note_edit_ID = "";
@@ -50,6 +58,7 @@ public class ViewNoteEditFragment extends Fragment {
         textTv = view.findViewById(R.id.viewNoteEditFragment_text);
         restoreBtn = view.findViewById(R.id.viewNoteEditFragment_restoreBtn);
         backBtn = view.findViewById(R.id.viewNoteEditFragment_backBtn);
+        recyclerView = view.findViewById(R.id.viewNoteEditFragment_recyclerView);
 
         if (getArguments() != null) {
             ViewNoteEditFragmentArgs viewNoteEditFragmentArgs = ViewNoteEditFragmentArgs.fromBundle(getArguments());
@@ -62,11 +71,19 @@ public class ViewNoteEditFragment extends Fragment {
         backBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Navigation.findNavController(view).navigate(ViewNoteEditFragmentDirections.actionViewNoteEditFragmentToEditNoteFragment(noteID));
+                Navigation.findNavController(view).navigate(ViewNoteEditFragmentDirections.actionViewNoteEditFragmentToNoteEditsFragment(noteID));
             }
         });
 
+
         return view;
+    }
+
+    private void buildRecyclerView(List<CheckableItem> checkableItemList) {
+        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        mAdapter = new HomeCheckableAdapter(checkableItemList, 0);
+        recyclerView.setAdapter(mAdapter);
+        mAdapter.setOnItemClickListener(this);
     }
 
     private void getNote(final String noteID) {
@@ -78,8 +95,20 @@ public class ViewNoteEditFragment extends Fragment {
                     final Note note = documentSnapshot.toObject(Note.class);
                     if (note != null) {
                         note.setNote_doc_ID(documentSnapshot.getId());
-                        titleTv.setText(note.getNoteTitle());
-                        textTv.setText(note.getNoteText());
+                        if (note.getNoteTitle() != null)
+                            titleTv.setText(note.getNoteTitle());
+                        if (note.getNoteText() != null)
+                            textTv.setText(note.getNoteText());
+
+                        if (note.getNoteType() != null && note.getNoteType().equals("checkbox")) {
+                            recyclerView.setVisibility(View.VISIBLE);
+                            textTv.setVisibility(View.INVISIBLE);
+                            if (note.getCheckableItemList() != null)
+                                buildRecyclerView(note.getCheckableItemList());
+                        } else {
+                            recyclerView.setVisibility(View.INVISIBLE);
+                        }
+
                         restoreBtn.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(final View v) {
@@ -99,5 +128,10 @@ public class ViewNoteEditFragment extends Fragment {
                 }
             }
         });
+    }
+
+    @Override
+    public void onItemClick(int position) {
+        //do nothing, but crashes if not included
     }
 }

@@ -123,8 +123,6 @@ public class StaggeredRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerV
                 populateTextViewHolder(viewHolder, position);
                 break;
         }
-
-
     }
 
     private void populateTextViewHolder(ViewHolder holder, int position) {
