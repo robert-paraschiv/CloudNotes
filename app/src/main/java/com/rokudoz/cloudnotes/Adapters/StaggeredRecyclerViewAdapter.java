@@ -12,6 +12,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.checkbox.MaterialCheckBox;
+import com.rokudoz.cloudnotes.Models.CheckableItem;
 import com.rokudoz.cloudnotes.Models.Note;
 import com.rokudoz.cloudnotes.R;
 
@@ -138,7 +139,17 @@ public class StaggeredRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerV
             holder.noteTitle.setText(noteList.get(position).getNoteTitle());
         if (noteList.get(position).getCheckableItemList() != null && noteList.get(position).getCheckableItemList().size() > 0) {
             holder.recyclerView.setLayoutManager(new LinearLayoutManager(mContext));
-            HomeCheckableAdapter homeCheckableAdapter = new HomeCheckableAdapter(noteList.get(position).getCheckableItemList(),position);
+            List<CheckableItem> checkableItemList = new ArrayList<>();
+
+            //Only show 4 checkboxes Maximum
+            if (noteList.get(position).getCheckableItemList().size() <= 3) {
+                checkableItemList.addAll(noteList.get(position).getCheckableItemList());
+            } else {
+                for (int i = 0; i <= 3; i++) {
+                    checkableItemList.add(noteList.get(position).getCheckableItemList().get(i));
+                }
+            }
+            HomeCheckableAdapter homeCheckableAdapter = new HomeCheckableAdapter(checkableItemList, position);
             holder.recyclerView.setAdapter(homeCheckableAdapter);
             holder.recyclerView.setHasFixedSize(true);
             homeCheckableAdapter.setOnItemClickListener(this);
