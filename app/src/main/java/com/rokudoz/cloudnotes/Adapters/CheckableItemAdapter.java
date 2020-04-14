@@ -4,12 +4,15 @@ import android.annotation.SuppressLint;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.EditorInfo;
 import android.widget.CompoundButton;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import androidx.core.view.MotionEventCompat;
 import androidx.recyclerview.widget.RecyclerView;
@@ -73,6 +76,18 @@ public class CheckableItemAdapter extends RecyclerView.Adapter<CheckableItemAdap
                         if (position != RecyclerView.NO_POSITION)
                             onItemClickListener.onDeleteClick(position);
                     }
+                }
+            });
+            this.text.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+                @Override
+                public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                    boolean handled = false;
+                    if (actionId == EditorInfo.IME_ACTION_DONE) {
+                        checkableItemList.add(new CheckableItem("", false));
+                        notifyItemInserted(checkableItemList.size() - 1);
+                        handled = true;
+                    }
+                    return handled;
                 }
             });
         }

@@ -41,6 +41,7 @@ import com.rokudoz.cloudnotes.R;
 import com.rokudoz.cloudnotes.Utils.LastEdit;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -97,24 +98,52 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
             @Override
             public void onClick(View v) {
                 if (noteType.equals("text")) {
+                    checkboxModeBtn.setEnabled(false);
+
+                    checkableItemList.clear();
+                    mAdapter = new CheckableItemAdapter(checkableItemList);
+                    recyclerView.setAdapter(mAdapter);
+
                     noteType = "checkbox";
+                    List<String> textList = new ArrayList<String>(Arrays.asList(Objects.requireNonNull(textInput.getText()).toString().split("\n")));
                     textInput.setText("");
                     textInput.setVisibility(View.GONE);
-                    checkableItemList.clear();
-                    mAdapter.notifyDataSetChanged();
-                    checkableItemList.add(new CheckableItem("", false));
-                    mAdapter.notifyItemInserted(checkableItemList.size() - 1);
+
+                    for (int i = 0; i < textList.size(); i++) {
+                        checkableItemList.add(new CheckableItem(textList.get(i), false));
+                        mAdapter.notifyItemInserted(checkableItemList.size() - 1);
+                    }
+
                     rv_scrollView.setVisibility(View.VISIBLE);
                     checkboxModeBtn.setIconResource(R.drawable.ic_outline_text_fields_24);
+                    Log.d(TAG, "onClick: " + textList.toString());
+                    Log.d(TAG, "onClick: " + checkableItemList.toString());
+                    checkboxModeBtn.setEnabled(true);
+
                 } else if (noteType.equals("checkbox")) {
+                    checkboxModeBtn.setEnabled(false);
+
+                    StringBuilder text = new StringBuilder();
+                    for (int i = 0; i < checkableItemList.size(); i++) {
+                        if (i == checkableItemList.size() - 1) {
+                            text.append(checkableItemList.get(i).getText());
+                        } else {
+                            text.append(checkableItemList.get(i).getText()).append("\n");
+                        }
+                    }
                     noteType = "text";
-                    textInput.setText("");
+                    textInput.setText(text);
                     textInput.setVisibility(View.VISIBLE);
-                    checkableItemList.clear();
+
+                    checkableItemList = new ArrayList<>();
                     mAdapter.notifyDataSetChanged();
+
                     rv_scrollView.setVisibility(View.GONE);
                     checkboxModeBtn.setIconResource(R.drawable.ic_outline_check_box_24);
                     Log.d(TAG, "onClick: " + checkableItemList.toString());
+                    Log.d(TAG, "onClick: " + text);
+
+                    checkboxModeBtn.setEnabled(true);
                 }
 
             }

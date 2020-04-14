@@ -29,7 +29,7 @@
         android:layout_marginEnd="8dp"
         android:layout_toStartOf="@id/checkableItem_deleteBtn"
         android:layout_toEndOf="@id/checkableItem_checkbox"
-        android:imeOptions="flagNoEnterAction"
+        android:imeOptions="actionDone"
         android:inputType="textCapSentences"
         tools:hint="Text" />
 
