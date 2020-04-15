@@ -5,7 +5,7 @@
     <color name="colorAccent">#0091ea</color>
     <color name="note_stroke_color">#000000</color>
     <color name="fragments_background">#f6f6f6</color>
-    <color name="status_bar_color">#eeeeee</color>
+    <color name="status_bar_color">#f6f6f6</color>
     <color name="navigationColor">#eeeeee</color>
     <color name="dialog_settings_background_color" >#f6f6f6</color>
 </resources>

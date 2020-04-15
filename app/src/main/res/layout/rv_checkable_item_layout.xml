@@ -11,7 +11,7 @@
         android:layout_height="wrap_content"
         android:layout_centerVertical="true"
         android:layout_marginStart="8dp"
-        android:src="@drawable/ic_baseline_drag_handle_24" />
+        android:src="@drawable/ic_outline_drag_indicator_24" />
 
     <com.google.android.material.checkbox.MaterialCheckBox
         android:id="@+id/checkableItem_checkbox"

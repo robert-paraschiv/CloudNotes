@@ -168,7 +168,8 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
 
                                 //Bottom sheet dialog for "Settings"
                                 final View dialogView = getLayoutInflater().inflate(R.layout.dialog_settings, (ViewGroup) view, false);
-                                final BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(Objects.requireNonNull(getContext()), R.style.CustomBottomSheetDialogTheme);
+                                final BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(Objects.requireNonNull(getContext()),
+                                        R.style.CustomBottomSheetDialogTheme);
 
                                 LinearLayout themeLinearLayout = dialogView.findViewById(R.id.dialog_settings_theme_LL);
                                 TextView themeTextView = dialogView.findViewById(R.id.dialog_settings_theme_textView);

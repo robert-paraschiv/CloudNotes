@@ -10,8 +10,7 @@
         android:layout_width="30dp"
         android:layout_height="wrap_content"
         android:layout_centerVertical="true"
-        android:clickable="false"
-        android:src="@drawable/ic_baseline_drag_handle_24" />
+        android:clickable="false" />
 
     <TextView
         android:id="@+id/homeCheckableItem_textView"
