@@ -4,56 +4,87 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@drawable/dialog_settings_background">
+    android:background="@drawable/dialog_settings_background"
+    android:fitsSystemWindows="true">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:layout_marginBottom="12dp"
+        android:orientation="vertical"
+        android:padding="14dp">
 
-        <com.google.android.material.card.MaterialCardView
-            android:layout_width="wrap_content"
+        <RelativeLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:layout_marginTop="18dp"
-            android:elevation="0dp"
-            app:cardCornerRadius="12dp"
-            app:strokeColor="@color/stroke_color"
-            app:strokeWidth="0.8dp">
+            android:padding="4dp">
+
+            <de.hdodenhof.circleimageview.CircleImageView
+                android:id="@+id/dialog_settings_profilePic"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_alignParentStart="true"
+                android:layout_marginEnd="8dp"
+                tools:src="@color/colorPrimary" />
 
             <LinearLayout
-                android:layout_width="match_parent"
+                android:id="@+id/nameLinearLayout"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:gravity="center"
-                android:orientation="horizontal"
-                android:padding="4dp">
+                android:layout_gravity="center_vertical"
+                android:layout_toEndOf="@id/dialog_settings_profilePic"
+                android:gravity="center_vertical"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/dialog_settings_name"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="16sp"
+                    tools:text="Robert Paraschiv" />
 
                 <TextView
                     android:id="@+id/dialog_settings_email"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
-                    android:layout_marginEnd="8dp"
+                    android:textSize="12sp"
                     tools:text="paraschivlongin@gmail.com" />
-
-                <de.hdodenhof.circleimageview.CircleImageView
-                    android:id="@+id/dialog_settings_profilePic"
-                    android:layout_width="40dp"
-                    android:layout_height="40dp"
-                    android:layout_marginEnd="8dp"
-                    tools:src="@color/colorPrimary" />
             </LinearLayout>
 
-        </com.google.android.material.card.MaterialCardView>
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/dialog_settings_signOut"
+                style="@style/Widget.MaterialComponents.Button.TextButton"
+                android:layout_width="75dp"
+                android:layout_height="45dp"
+                android:layout_alignParentEnd="true"
+                android:layout_marginStart="8dp"
+                android:text="Log out"
+                android:textAllCaps="false"
+                android:textSize="12sp"
+                app:cornerRadius="8dp" />
+        </RelativeLayout>
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/dialog_settings_signOut"
-            style="@style/Widget.MaterialComponents.Button.TextButton"
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:id="@+id/dialog_settings_theme_LL"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:layout_marginTop="80dp"
-            android:text="Sign out" />
+            android:layout_marginTop="12dp"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:text="Theme" />
+
+            <TextView
+                android:id="@+id/dialog_settings_theme_textView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:textSize="12sp"
+                tools:text="System default" />
+        </LinearLayout>
 
 
     </LinearLayout>
