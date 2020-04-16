@@ -88,8 +88,10 @@ public class NewNoteFragment extends Fragment implements CheckableItemAdapter.On
                 titleInputEditText.post(new Runnable() {
                     @Override
                     public void run() {
-                        InputMethodManager inputMethodManager= (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
-                        inputMethodManager.showSoftInput(titleInputEditText, InputMethodManager.SHOW_IMPLICIT);
+                        if (getActivity() != null) {
+                            InputMethodManager inputMethodManager = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+                            inputMethodManager.showSoftInput(titleInputEditText, InputMethodManager.SHOW_IMPLICIT);
+                        }
                     }
                 });
             }
