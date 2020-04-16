@@ -1,6 +1,7 @@
 package com.rokudoz.cloudnotes.Adapters;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -9,11 +10,14 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.core.view.MotionEventCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -46,6 +50,8 @@ public class CheckableItemAdapter extends RecyclerView.Adapter<CheckableItemAdap
         void onTextChanged(int position, String text);
 
         void onDeleteClick(int position);
+
+        void onEnterPressed(int position);
     }
 
     public void setOnStartDragListener(OnStartDragListener onStartDragListener) {
@@ -66,8 +72,9 @@ public class CheckableItemAdapter extends RecyclerView.Adapter<CheckableItemAdap
         MaterialCheckBox checkBox;
         MaterialButton deleteBtn;
         ImageView dragHandle;
+        PositionTextWatcher positionTextWatcher;
 
-        public ViewHolder(final View itemView) {
+        public ViewHolder(final View itemView, PositionTextWatcher positionTextWatcher) {
             super(itemView);
             this.checkBox = itemView.findViewById(R.id.checkableItem_checkbox);
             this.text = itemView.findViewById(R.id.checkableItem_textInput);
@@ -88,9 +95,13 @@ public class CheckableItemAdapter extends RecyclerView.Adapter<CheckableItemAdap
                 @Override
                 public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
                     boolean handled = false;
-                    if (actionId == EditorInfo.IME_ACTION_DONE) {
-                        checkableItemList.add(new CheckableItem("", false));
-                        notifyItemInserted(checkableItemList.size() - 1);
+                    if (actionId == EditorInfo.IME_ACTION_SEND) {
+                        if (onItemClickListener != null) {
+                            int position = getAdapterPosition();
+                            if (position != RecyclerView.NO_POSITION) {
+                                onItemClickListener.onEnterPressed(position);
+                            }
+                        }
                         handled = true;
                     }
                     return handled;
@@ -115,34 +126,18 @@ public class CheckableItemAdapter extends RecyclerView.Adapter<CheckableItemAdap
                     }
                 }
             });
-            this.text.addTextChangedListener(new TextWatcher() {
-                @Override
-                public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-                }
-
-                @Override
-                public void onTextChanged(CharSequence s, int start, int before, int count) {
-                    int position = getAdapterPosition();
-                    if (position != RecyclerView.NO_POSITION && !onBind) {
-                        if (s != null && !s.toString().equals("") && checkableItemList.size() > position)
-                            onItemClickListener.onTextChanged(position, s.toString());
-                    }
-
-                }
-
-                @Override
-                public void afterTextChanged(Editable s) {
-                }
-            });
+            this.positionTextWatcher = positionTextWatcher;
+            text.addTextChangedListener(this.positionTextWatcher);
 
 
         }
     }
 
+    @NonNull
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.rv_checkable_item_layout, parent, false);
-        return new ViewHolder(view);
+        return new ViewHolder(view, new PositionTextWatcher());
     }
 
     @SuppressLint("ClickableViewAccessibility")
@@ -150,7 +145,16 @@ public class CheckableItemAdapter extends RecyclerView.Adapter<CheckableItemAdap
     public void onBindViewHolder(final ViewHolder holder, final int position) {
         Log.d(TAG, "onBindViewHolder: called.");
         CheckableItem currentItem = checkableItemList.get(position);
+
         onBind = true;
+
+        if (currentItem != null && currentItem.getChecked() != null && currentItem.getText() != null) {
+            holder.text.setText(currentItem.getText());
+            holder.checkBox.setChecked(currentItem.getChecked());
+            onBind = false;
+        }
+
+        holder.positionTextWatcher.updatePosition(position);
 
         holder.dragHandle.setOnTouchListener(new View.OnTouchListener() {
             @Override
@@ -162,10 +166,44 @@ public class CheckableItemAdapter extends RecyclerView.Adapter<CheckableItemAdap
             }
         });
 
-        if (currentItem != null && currentItem.getChecked() != null && currentItem.getText() != null) {
-            holder.text.setText(currentItem.getText());
-            holder.checkBox.setChecked(currentItem.getChecked());
-            onBind = false;
+        if (currentItem != null && currentItem.getShouldBeFocused() != null && currentItem.getShouldBeFocused()) {
+            holder.text.post(new Runnable() {
+                @Override
+                public void run() {
+                    if (holder.text.requestFocus()) {
+                        InputMethodManager inputMethodManager = (InputMethodManager) holder.text.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+                        inputMethodManager.showSoftInput(holder.text, InputMethodManager.SHOW_IMPLICIT);
+                    }
+                }
+            });
+            currentItem.setShouldBeFocused(false);
+        }
+    }
+
+
+    private class PositionTextWatcher implements TextWatcher {
+        private int position;
+
+        public void updatePosition(int position) {
+            this.position = position;
+        }
+
+        @Override
+        public void beforeTextChanged(CharSequence charSequence, int i, int i2, int i3) {
+            // no op
+        }
+
+        @Override
+        public void onTextChanged(CharSequence s, int i, int i2, int i3) {
+            if (!onBind) {
+                if (s != null && !s.toString().equals("") && checkableItemList.size() > position)
+                    onItemClickListener.onTextChanged(position, s.toString());
+            }
+        }
+
+        @Override
+        public void afterTextChanged(Editable editable) {
+            // no op
         }
     }
 

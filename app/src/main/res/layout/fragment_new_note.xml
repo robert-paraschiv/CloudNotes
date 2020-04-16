@@ -46,7 +46,7 @@
         android:background="@null"
         android:gravity="top"
         android:hint="Title"
-        android:imeOptions="actionDone"
+        android:imeOptions="actionNext"
         android:inputType="textCapSentences"
         android:maxLines="1" />
 

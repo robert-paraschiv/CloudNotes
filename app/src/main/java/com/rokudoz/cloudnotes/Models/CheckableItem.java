@@ -2,6 +2,8 @@ package com.rokudoz.cloudnotes.Models;
 
 import android.util.Log;
 
+import com.google.firebase.firestore.Exclude;
+
 import java.util.Objects;
 
 import static android.content.ContentValues.TAG;
@@ -9,6 +11,7 @@ import static android.content.ContentValues.TAG;
 public class CheckableItem {
     private String text;
     private Boolean isChecked;
+    private Boolean shouldBeFocused;
 
     public CheckableItem() {
     }
@@ -32,6 +35,15 @@ public class CheckableItem {
 
     public void setChecked(Boolean checked) {
         isChecked = checked;
+    }
+
+    @Exclude
+    public Boolean getShouldBeFocused() {
+        return shouldBeFocused;
+    }
+
+    public void setShouldBeFocused(Boolean shouldBeFocused) {
+        this.shouldBeFocused = shouldBeFocused;
     }
 
     @Override

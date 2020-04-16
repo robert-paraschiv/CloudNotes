@@ -1,6 +1,7 @@
 package com.rokudoz.cloudnotes.Fragments;
 
 import android.app.Activity;
+import android.content.Context;
 import android.os.Bundle;
 
 import androidx.activity.OnBackPressedCallback;
@@ -80,6 +81,20 @@ public class NewNoteFragment extends Fragment implements CheckableItemAdapter.On
                 Navigation.findNavController(view).navigate(NewNoteFragmentDirections.actionNewNoteFragmentToHomeFragment());
             }
         });
+
+        titleInputEditText.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                titleInputEditText.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        InputMethodManager inputMethodManager= (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+                        inputMethodManager.showSoftInput(titleInputEditText, InputMethodManager.SHOW_IMPLICIT);
+                    }
+                });
+            }
+        });
+        titleInputEditText.requestFocus();
 
         checkboxModeBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -280,12 +295,20 @@ public class NewNoteFragment extends Fragment implements CheckableItemAdapter.On
     @Override
     public void onTextChanged(int position, String text) {
         checkableItemList.get(position).setText(text);
-        mAdapter.notifyItemChanged(position);
+//        mAdapter.notifyItemChanged(position);
     }
 
     @Override
     public void onDeleteClick(int position) {
         checkableItemList.remove(position);
         mAdapter.notifyItemRemoved(position);
+    }
+
+    @Override
+    public void onEnterPressed(int position) {
+        CheckableItem checkableItem = new CheckableItem("", false);
+        checkableItem.setShouldBeFocused(true);
+        checkableItemList.add(position + 1, checkableItem);
+        mAdapter.notifyItemInserted(position + 1);
     }
 }

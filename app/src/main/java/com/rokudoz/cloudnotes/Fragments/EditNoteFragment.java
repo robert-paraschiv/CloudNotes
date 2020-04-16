@@ -405,12 +405,20 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
     @Override
     public void onTextChanged(int position, String text) {
         checkableItemList.get(position).setText(text);
-        mAdapter.notifyItemChanged(position);
+//        mAdapter.notifyItemChanged(position);
     }
 
     @Override
     public void onDeleteClick(int position) {
         checkableItemList.remove(position);
         mAdapter.notifyItemRemoved(position);
+    }
+
+    @Override
+    public void onEnterPressed(int position) {
+        CheckableItem checkableItem = new CheckableItem("", false);
+        checkableItem.setShouldBeFocused(true);
+        checkableItemList.add(position + 1, checkableItem);
+        mAdapter.notifyItemInserted(position + 1);
     }
 }
