@@ -29,6 +29,8 @@ import java.util.List;
 public class CheckableItemAdapter extends RecyclerView.Adapter<CheckableItemAdapter.ViewHolder> {
     private static final String TAG = "CheckableItemAdapter";
 
+    private boolean onBind;
+
     private OnStartDragListener onStartDragListener;
     private OnItemClickListener onItemClickListener;
     private List<CheckableItem> checkableItemList = new ArrayList<>();
@@ -39,6 +41,10 @@ public class CheckableItemAdapter extends RecyclerView.Adapter<CheckableItemAdap
     }
 
     public interface OnItemClickListener {
+        void onCheckClick(int position, boolean isChecked);
+
+        void onTextChanged(int position, String text);
+
         void onDeleteClick(int position);
     }
 
@@ -90,6 +96,46 @@ public class CheckableItemAdapter extends RecyclerView.Adapter<CheckableItemAdap
                     return handled;
                 }
             });
+            this.checkBox.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (((CompoundButton) v).isChecked()) {
+                        if (onItemClickListener != null) {
+                            int position = getAdapterPosition();
+                            if (position != RecyclerView.NO_POSITION) {
+                                onItemClickListener.onCheckClick(position, true);
+                            }
+                        }
+
+                    } else {
+                        int position = getAdapterPosition();
+                        if (position != RecyclerView.NO_POSITION) {
+                            onItemClickListener.onCheckClick(position, false);
+                        }
+                    }
+                }
+            });
+            this.text.addTextChangedListener(new TextWatcher() {
+                @Override
+                public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+                }
+
+                @Override
+                public void onTextChanged(CharSequence s, int start, int before, int count) {
+                    int position = getAdapterPosition();
+                    if (position != RecyclerView.NO_POSITION && !onBind) {
+                        if (s != null && !s.toString().equals("") && checkableItemList.size() > position)
+                            onItemClickListener.onTextChanged(position, s.toString());
+                    }
+
+                }
+
+                @Override
+                public void afterTextChanged(Editable s) {
+                }
+            });
+
+
         }
     }
 
@@ -104,14 +150,8 @@ public class CheckableItemAdapter extends RecyclerView.Adapter<CheckableItemAdap
     public void onBindViewHolder(final ViewHolder holder, final int position) {
         Log.d(TAG, "onBindViewHolder: called.");
         CheckableItem currentItem = checkableItemList.get(position);
+        onBind = true;
 
-        holder.deleteBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                checkableItemList.remove(position);
-                notifyItemRemoved(position);
-            }
-        });
         holder.dragHandle.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
@@ -125,32 +165,8 @@ public class CheckableItemAdapter extends RecyclerView.Adapter<CheckableItemAdap
         if (currentItem != null && currentItem.getChecked() != null && currentItem.getText() != null) {
             holder.text.setText(currentItem.getText());
             holder.checkBox.setChecked(currentItem.getChecked());
+            onBind = false;
         }
-
-        holder.text.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                if (s != null && !s.toString().equals("") && checkableItemList.size() > position)
-                    checkableItemList.get(position).setText(s.toString());
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-
-            }
-        });
-        holder.checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                checkableItemList.get(position).setChecked(isChecked);
-            }
-        });
-
     }
 
 

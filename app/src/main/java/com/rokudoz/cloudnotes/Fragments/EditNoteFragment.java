@@ -101,8 +101,7 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
                     checkboxModeBtn.setEnabled(false);
 
                     checkableItemList.clear();
-                    mAdapter = new CheckableItemAdapter(checkableItemList);
-                    recyclerView.setAdapter(mAdapter);
+                    mAdapter.notifyDataSetChanged();
 
                     noteType = "checkbox";
                     List<String> textList = new ArrayList<String>(Arrays.asList(Objects.requireNonNull(textInput.getText()).toString().split("\n")));
@@ -135,7 +134,7 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
                     textInput.setText(text);
                     textInput.setVisibility(View.VISIBLE);
 
-                    checkableItemList = new ArrayList<>();
+                    checkableItemList.clear();
                     mAdapter.notifyDataSetChanged();
 
                     rv_scrollView.setVisibility(View.GONE);
@@ -330,6 +329,9 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
     public void onStop() {
         super.onStop();
         Log.d(TAG, "onStop: ");
+        for (CheckableItem checkableItem : checkableItemList) {
+            Log.d(TAG, "onStop: " + checkableItem.toString());
+        }
         if (mNote != null) {
             boolean edit = false;
 
@@ -392,6 +394,18 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
     @Override
     public void onStartDrag(RecyclerView.ViewHolder viewHolder) {
         helper.startDrag(viewHolder);
+    }
+
+    @Override
+    public void onCheckClick(int position, boolean isChecked) {
+        checkableItemList.get(position).setChecked(isChecked);
+        mAdapter.notifyItemChanged(position);
+    }
+
+    @Override
+    public void onTextChanged(int position, String text) {
+        checkableItemList.get(position).setText(text);
+        mAdapter.notifyItemChanged(position);
     }
 
     @Override

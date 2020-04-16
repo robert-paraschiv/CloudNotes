@@ -88,8 +88,7 @@ public class NewNoteFragment extends Fragment implements CheckableItemAdapter.On
                     checkboxModeBtn.setEnabled(false);
 
                     checkableItemList.clear();
-                    mAdapter = new CheckableItemAdapter(checkableItemList);
-                    recyclerView.setAdapter(mAdapter);
+                    mAdapter.notifyDataSetChanged();
 
                     noteType = "checkbox";
                     List<String> textList = new ArrayList<String>(Arrays.asList(Objects.requireNonNull(textInputEditText.getText()).toString().split("\n")));
@@ -100,7 +99,7 @@ public class NewNoteFragment extends Fragment implements CheckableItemAdapter.On
                         checkableItemList.add(new CheckableItem(textList.get(i), false));
                         mAdapter.notifyItemInserted(checkableItemList.size() - 1);
                     }
-                    if (checkableItemList.size()==0) {
+                    if (checkableItemList.size() == 0) {
                         checkableItemList.add(new CheckableItem("", false));
                         mAdapter.notifyItemInserted(checkableItemList.size() - 1);
                     }
@@ -126,7 +125,7 @@ public class NewNoteFragment extends Fragment implements CheckableItemAdapter.On
                     textInputEditText.setText(text);
                     textInputEditText.setVisibility(View.VISIBLE);
 
-                    checkableItemList = new ArrayList<>();
+                    checkableItemList.clear();
                     mAdapter.notifyDataSetChanged();
 
                     rv_scrollview.setVisibility(View.GONE);
@@ -187,6 +186,9 @@ public class NewNoteFragment extends Fragment implements CheckableItemAdapter.On
     public void onStop() {
         super.onStop();
         Log.d(TAG, "onStop: ");
+        for (CheckableItem checkableItem : checkableItemList) {
+            Log.d(TAG, "onStop: " + checkableItem.toString());
+        }
         boolean empty = true;
         for (CheckableItem item : checkableItemList) {
             if (!item.getText().trim().equals(""))
@@ -267,6 +269,18 @@ public class NewNoteFragment extends Fragment implements CheckableItemAdapter.On
     @Override
     public void onStartDrag(RecyclerView.ViewHolder viewHolder) {
         helper.startDrag(viewHolder);
+    }
+
+    @Override
+    public void onCheckClick(int position, boolean isChecked) {
+        checkableItemList.get(position).setChecked(isChecked);
+        mAdapter.notifyItemChanged(position);
+    }
+
+    @Override
+    public void onTextChanged(int position, String text) {
+        checkableItemList.get(position).setText(text);
+        mAdapter.notifyItemChanged(position);
     }
 
     @Override
