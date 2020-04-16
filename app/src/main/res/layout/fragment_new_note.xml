@@ -48,7 +48,7 @@
         android:hint="Title"
         android:imeOptions="actionNext"
         android:inputType="textCapSentences"
-        android:maxLines="1" />
+        android:maxLines="1"/>
 
     <com.google.android.material.textfield.TextInputEditText
         android:id="@+id/newNoteFragment_textInput"
@@ -81,7 +81,7 @@
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/newNoteFragment_checkbox_rv"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"/>
+                android:layout_height="wrap_content" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/newNoteFragment_add_checkbox_Btn"

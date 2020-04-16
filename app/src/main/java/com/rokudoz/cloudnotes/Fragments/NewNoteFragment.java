@@ -17,6 +17,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ScrollView;
@@ -77,26 +78,22 @@ public class NewNoteFragment extends Fragment implements CheckableItemAdapter.On
         backBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                hideSoftKeyboard(getActivity());
+                if (getActivity() != null)
+                    hideSoftKeyboard(getActivity());
                 Navigation.findNavController(view).navigate(NewNoteFragmentDirections.actionNewNoteFragmentToHomeFragment());
             }
         });
 
-        titleInputEditText.setOnFocusChangeListener(new View.OnFocusChangeListener() {
-            @Override
-            public void onFocusChange(View v, boolean hasFocus) {
-                titleInputEditText.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        if (getActivity() != null) {
-                            InputMethodManager inputMethodManager = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
-                            inputMethodManager.showSoftInput(titleInputEditText, InputMethodManager.SHOW_IMPLICIT);
-                        }
-                    }
-                });
+
+        titleInputEditText.setFocusableInTouchMode(true);
+        titleInputEditText.post(new Runnable() {
+            public void run() {
+                titleInputEditText.requestFocusFromTouch();
+                InputMethodManager lManager = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+                lManager.showSoftInput(titleInputEditText, 0);
             }
         });
-        titleInputEditText.requestFocus();
+
 
         checkboxModeBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -145,7 +142,7 @@ public class NewNoteFragment extends Fragment implements CheckableItemAdapter.On
                     checkableItemList.clear();
                     mAdapter.notifyDataSetChanged();
 
-                    rv_scrollview.setVisibility(View.GONE);
+                    rv_scrollview.setVisibility(View.INVISIBLE);
                     checkboxModeBtn.setIconResource(R.drawable.ic_outline_check_box_24);
                     Log.d(TAG, "onClick: " + checkableItemList.toString());
                     Log.d(TAG, "onClick: " + text);

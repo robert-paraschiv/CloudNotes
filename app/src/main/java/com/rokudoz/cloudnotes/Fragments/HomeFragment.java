@@ -1,5 +1,6 @@
 package com.rokudoz.cloudnotes.Fragments;
 
+import android.app.Activity;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -21,6 +22,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.LinearLayout;
 import android.widget.RadioGroup;
 import android.widget.TextView;
@@ -93,6 +95,7 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
             }
         });
 
+
         buildRecyclerView();
         setupFirebaseAuth();
 
@@ -108,6 +111,11 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
         staggeredRecyclerViewAdapter.setOnItemClickListener(HomeFragment.this);
     }
 
+    public static void hideSoftKeyboard(Activity activity) {
+        InputMethodManager inputMethodManager = (InputMethodManager) activity.getSystemService(Activity.INPUT_METHOD_SERVICE);
+        if (activity.getCurrentFocus() != null)
+            inputMethodManager.hideSoftInputFromWindow(activity.getCurrentFocus().getWindowToken(), 0);
+    }
 
     @Override
     public void onStart() {

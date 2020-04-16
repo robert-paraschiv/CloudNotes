@@ -137,7 +137,7 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
                     checkableItemList.clear();
                     mAdapter.notifyDataSetChanged();
 
-                    rv_scrollView.setVisibility(View.GONE);
+                    rv_scrollView.setVisibility(View.INVISIBLE);
                     checkboxModeBtn.setIconResource(R.drawable.ic_outline_check_box_24);
                     Log.d(TAG, "onClick: " + checkableItemList.toString());
                     Log.d(TAG, "onClick: " + text);
