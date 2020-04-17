@@ -9,7 +9,7 @@ android {
         applicationId "com.rokudoz.cloudnotes"
         minSdkVersion 27
         targetSdkVersion 29
-        versionCode 3
+        versionCode 4
         versionName "1.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
@@ -31,6 +31,7 @@ dependencies {
     // Lifecycle components
     def archLifecycleVersion = '1.1.1'
     implementation "android.arch.lifecycle:extensions:$archLifecycleVersion"
+    implementation 'com.google.firebase:firebase-ads:19.0.1'
     annotationProcessor "android.arch.lifecycle:compiler:$archLifecycleVersion"
 
     // JetPack Nav components
