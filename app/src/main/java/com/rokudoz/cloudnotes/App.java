@@ -12,6 +12,8 @@ public class App extends Application {
     private static final String TAG = "App";
     SharedPreferences sharedPreferences;
     public static final String SETTINGS_PREFS_NAME = "SettingsPrefs";
+    public static boolean HIDE_BANNER = false;
+    public static boolean ASKED_ALREADY = false;
 
 
     @Override

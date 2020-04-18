@@ -1,6 +1,7 @@
 package com.rokudoz.cloudnotes.Fragments;
 
 import android.app.Activity;
+import android.app.Dialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
 
@@ -35,6 +36,7 @@ import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.WriteBatch;
 import com.rokudoz.cloudnotes.Adapters.CheckableItemAdapter;
+import com.rokudoz.cloudnotes.MainActivity;
 import com.rokudoz.cloudnotes.Models.CheckableItem;
 import com.rokudoz.cloudnotes.Models.Note;
 import com.rokudoz.cloudnotes.R;
@@ -157,8 +159,10 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
         backBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                hideSoftKeyboard(getActivity());
-                Navigation.findNavController(view).navigate(EditNoteFragmentDirections.actionEditNoteFragmentToHomeFragment());
+                hideSoftKeyboard(Objects.requireNonNull(getActivity()));
+                if (Objects.requireNonNull(Navigation.findNavController(view).getCurrentDestination()).getId() == R.id.editNoteFragment)
+                    Navigation.findNavController(view).navigate(EditNoteFragmentDirections.actionEditNoteFragmentToHomeFragment());
+
             }
         });
 
@@ -166,50 +170,54 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
             @Override
             public void onClick(View v) {
 
-                MaterialAlertDialogBuilder materialAlertDialogBuilder = new MaterialAlertDialogBuilder(getActivity(),
-                        R.style.ThemeOverlay_MaterialComponents_MaterialAlertDialog_Centered);
-                materialAlertDialogBuilder.setMessage("Are you sure you want to delete this note?");
-                materialAlertDialogBuilder.setCancelable(true);
-                materialAlertDialogBuilder.setPositiveButton(
-                        "Yes",
-                        new DialogInterface.OnClickListener() {
-                            public void onClick(final DialogInterface dialog, int id) {
-                                //Delete note
-                                final WriteBatch batch = db.batch();
-                                usersRef.document(FirebaseAuth.getInstance().getCurrentUser().getUid()).collection("Notes").document(noteID)
-                                        .collection("Edits").get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
-                                    @Override
-                                    public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
-                                        if (queryDocumentSnapshots != null && queryDocumentSnapshots.size() > 0) {
-                                            for (DocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
-                                                batch.delete(documentSnapshot.getReference());
-                                            }
-                                            batch.delete(usersRef.document(FirebaseAuth.getInstance().getCurrentUser().getUid())
-                                                    .collection("Notes").document(noteID));
-                                            batch.commit().addOnSuccessListener(new OnSuccessListener<Void>() {
-                                                @Override
-                                                public void onSuccess(Void aVoid) {
-                                                    Toast.makeText(getContext(), "Deleted note", Toast.LENGTH_SHORT).show();
-                                                    hideSoftKeyboard(getActivity());
-                                                    Navigation.findNavController(view).navigate(EditNoteFragmentDirections.actionEditNoteFragmentToHomeFragment());
-                                                    dialog.cancel();
-                                                }
-                                            });
-                                        }
+                //Dialog for delete note
+                View dialogView = getLayoutInflater().inflate(R.layout.dialog_show_ad, null);
+                final Dialog dialog = new Dialog(getContext(), R.style.CustomBottomSheetDialogTheme);
+                MaterialButton confirmBtn = dialogView.findViewById(R.id.dialog_ShowAd_confirmBtn);
+                MaterialButton cancelBtn = dialogView.findViewById(R.id.dialog_ShowAd_cancelBtn);
+                TextView title = dialogView.findViewById(R.id.dialog_ShowAd_title);
+                title.setText("Are you sure you want to delete this note?");
+                dialog.setContentView(dialogView);
+
+                confirmBtn.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        //Delete note
+                        final WriteBatch batch = db.batch();
+                        usersRef.document(FirebaseAuth.getInstance().getCurrentUser().getUid()).collection("Notes").document(noteID)
+                                .collection("Edits").get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+                            @Override
+                            public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                                if (queryDocumentSnapshots != null && queryDocumentSnapshots.size() > 0) {
+                                    for (DocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
+                                        batch.delete(documentSnapshot.getReference());
                                     }
-                                });
+                                    batch.delete(usersRef.document(FirebaseAuth.getInstance().getCurrentUser().getUid())
+                                            .collection("Notes").document(noteID));
+                                    batch.commit().addOnSuccessListener(new OnSuccessListener<Void>() {
+                                        @Override
+                                        public void onSuccess(Void aVoid) {
+                                            Toast.makeText(getContext(), "Deleted note", Toast.LENGTH_SHORT).show();
+                                            hideSoftKeyboard(getActivity());
+                                            if (Objects.requireNonNull(Navigation.findNavController(view).getCurrentDestination()).getId()
+                                                    == R.id.editNoteFragment)
+                                                Navigation.findNavController(view).navigate(EditNoteFragmentDirections.actionEditNoteFragmentToHomeFragment());
+                                            dialog.cancel();
+                                        }
+                                    });
+                                }
                             }
                         });
+                    }
+                });
+                cancelBtn.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        dialog.cancel();
+                    }
+                });
 
-                materialAlertDialogBuilder.setNegativeButton(
-                        "No",
-                        new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int id) {
-                                dialog.cancel();
-                            }
-                        });
-
-                materialAlertDialogBuilder.show();
+                dialog.show();
 
 
             }
@@ -318,8 +326,9 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
                                         lastEditTv.setOnClickListener(new View.OnClickListener() {
                                             @Override
                                             public void onClick(View v) {
-                                                Navigation.findNavController(view).navigate(EditNoteFragmentDirections
-                                                        .actionEditNoteFragmentToNoteEditsFragment(noteID));
+                                                if (Objects.requireNonNull(Navigation.findNavController(view).getCurrentDestination()).getId() == R.id.editNoteFragment)
+                                                    Navigation.findNavController(view).navigate(EditNoteFragmentDirections
+                                                            .actionEditNoteFragmentToNoteEditsFragment(noteID));
                                             }
                                         });
                                     }

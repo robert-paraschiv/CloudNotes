@@ -65,6 +65,8 @@ import java.util.Objects;
 import de.hdodenhof.circleimageview.CircleImageView;
 
 import static android.content.Context.MODE_PRIVATE;
+import static com.rokudoz.cloudnotes.App.ASKED_ALREADY;
+import static com.rokudoz.cloudnotes.App.HIDE_BANNER;
 import static com.rokudoz.cloudnotes.App.SETTINGS_PREFS_NAME;
 
 public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClickListener {
@@ -99,7 +101,7 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
 
         sharedPreferences = Objects.requireNonNull(getActivity()).getSharedPreferences(SETTINGS_PREFS_NAME, MODE_PRIVATE);
 
-        if (getActivity() != null) {
+        if (getActivity() != null && !HIDE_BANNER) {
             getActivity().findViewById(R.id.bannerAdCard).setVisibility(View.VISIBLE);
         }
 
@@ -109,7 +111,8 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
         addNewNoteBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Navigation.findNavController(view).navigate(HomeFragmentDirections.actionHomeFragmentToNewNoteFragment());
+                if (Objects.requireNonNull(Navigation.findNavController(view).getCurrentDestination()).getId() == R.id.homeFragment)
+                    Navigation.findNavController(view).navigate(HomeFragmentDirections.actionHomeFragmentToNewNoteFragment());
             }
         });
 
@@ -129,7 +132,7 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
                     MaterialButton confirmBtn = dialogView.findViewById(R.id.dialog_ShowAd_confirmBtn);
                     MaterialButton cancelBtn = dialogView.findViewById(R.id.dialog_ShowAd_cancelBtn);
                     dialog.setContentView(dialogView);
-
+                    dialog.setCancelable(false);
                     confirmBtn.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
@@ -149,7 +152,8 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
                                     public void onUserEarnedReward(@NonNull RewardItem reward) {
                                         // User earned reward.
                                         //Reset times app opened counter
-                                        final SharedPreferences.Editor sharedPrefsEditor = getActivity().getSharedPreferences(SETTINGS_PREFS_NAME, MODE_PRIVATE).edit();
+                                        final SharedPreferences.Editor sharedPrefsEditor =
+                                                getActivity().getSharedPreferences(SETTINGS_PREFS_NAME, MODE_PRIVATE).edit();
                                         sharedPrefsEditor.putInt("TimesStartedCounter", 0);
                                         sharedPrefsEditor.apply();
 
@@ -171,6 +175,7 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
                     cancelBtn.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
+                            ASKED_ALREADY = true;
                             dialog.cancel();
                         }
                     });
@@ -189,7 +194,7 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
                 .addTestDevice("4129AB584AC9547A6DDCE83E28748843") // Mi 9T Pro
                 .addTestDevice("B141CB779F883EF84EA9A32A7D068B76") // RedMi 5 Plus
                 .addTestDevice(AdRequest.DEVICE_ID_EMULATOR).build();
-        if (sharedPreferences.getInt("TimesStartedCounter", 0) >= 5)
+        if (sharedPreferences.getInt("TimesStartedCounter", 0) >= 5 && !ASKED_ALREADY)
             rewardedAd.loadAd(adRequest, adLoadCallback);
 
 
@@ -207,7 +212,8 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
         recyclerView.setAdapter(staggeredRecyclerViewAdapter);
         staggeredRecyclerViewAdapter.setOnItemClickListener(HomeFragment.this);
 
-        helper = new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(ItemTouchHelper.UP | ItemTouchHelper.DOWN | ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT, 0) {
+        helper = new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(ItemTouchHelper.UP | ItemTouchHelper.DOWN |
+                ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT, 0) {
             @Override
             public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {
                 int position_dragged = viewHolder.getAdapterPosition();
@@ -484,6 +490,7 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
     @Override
     public void onItemClick(int position) {
         Note note = noteList.get(position);
-        Navigation.findNavController(view).navigate(HomeFragmentDirections.actionHomeFragmentToEditNoteFragment(note.getNote_doc_ID()));
+        if (Objects.requireNonNull(Navigation.findNavController(view).getCurrentDestination()).getId() == R.id.homeFragment)
+            Navigation.findNavController(view).navigate(HomeFragmentDirections.actionHomeFragmentToEditNoteFragment(note.getNote_doc_ID()));
     }
 }

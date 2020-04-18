@@ -84,7 +84,8 @@ public class NewNoteFragment extends Fragment implements CheckableItemAdapter.On
             public void onClick(View v) {
                 if (getActivity() != null)
                     hideSoftKeyboard(getActivity());
-                Navigation.findNavController(view).navigate(NewNoteFragmentDirections.actionNewNoteFragmentToHomeFragment());
+                if (Objects.requireNonNull(Navigation.findNavController(view).getCurrentDestination()).getId() == R.id.newNoteFragment)
+                    Navigation.findNavController(view).navigate(NewNoteFragmentDirections.actionNewNoteFragmentToHomeFragment());
             }
         });
 

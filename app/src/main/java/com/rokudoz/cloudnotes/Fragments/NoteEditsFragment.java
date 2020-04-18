@@ -26,6 +26,9 @@ import com.rokudoz.cloudnotes.R;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+
+import static com.rokudoz.cloudnotes.App.HIDE_BANNER;
 
 public class NoteEditsFragment extends Fragment implements NoteEditsAdapter.OnItemClickListener {
     private static final String TAG = "NoteEditsFragment";
@@ -53,7 +56,7 @@ public class NoteEditsFragment extends Fragment implements NoteEditsAdapter.OnIt
             noteID = noteEditsFragmentArgs.getNoteID();
             getNotes(noteID);
         }
-        if (getActivity() != null) {
+        if (getActivity() != null && !HIDE_BANNER) {
             getActivity().findViewById(R.id.bannerAdCard).setVisibility(View.VISIBLE);
         }
 
@@ -61,7 +64,8 @@ public class NoteEditsFragment extends Fragment implements NoteEditsAdapter.OnIt
         backBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Navigation.findNavController(view).navigate(NoteEditsFragmentDirections.actionNoteEditsFragmentToEditNoteFragment(noteID));
+                if (Objects.requireNonNull(Navigation.findNavController(view).getCurrentDestination()).getId() == R.id.noteEditsFragment)
+                    Navigation.findNavController(view).navigate(NoteEditsFragmentDirections.actionNoteEditsFragmentToEditNoteFragment(noteID));
             }
         });
 
@@ -108,6 +112,7 @@ public class NoteEditsFragment extends Fragment implements NoteEditsAdapter.OnIt
     @Override
     public void onItemClick(int position) {
         Note note = noteList.get(position);
-        Navigation.findNavController(view).navigate(NoteEditsFragmentDirections.actionNoteEditsFragmentToViewNoteEditFragment(noteID, note.getNote_doc_ID()));
+        if (Objects.requireNonNull(Navigation.findNavController(view).getCurrentDestination()).getId() == R.id.noteEditsFragment)
+            Navigation.findNavController(view).navigate(NoteEditsFragmentDirections.actionNoteEditsFragmentToViewNoteEditFragment(noteID, note.getNote_doc_ID()));
     }
 }

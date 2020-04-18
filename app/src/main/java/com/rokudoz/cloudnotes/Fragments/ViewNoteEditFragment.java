@@ -28,6 +28,9 @@ import com.rokudoz.cloudnotes.Models.Note;
 import com.rokudoz.cloudnotes.R;
 
 import java.util.List;
+import java.util.Objects;
+
+import static com.rokudoz.cloudnotes.App.HIDE_BANNER;
 
 public class ViewNoteEditFragment extends Fragment implements NonCheckableAdapter.OnItemClickListener {
     private static final String TAG = "ViewNoteEditFragment";
@@ -60,7 +63,7 @@ public class ViewNoteEditFragment extends Fragment implements NonCheckableAdapte
         backBtn = view.findViewById(R.id.viewNoteEditFragment_backBtn);
         recyclerView = view.findViewById(R.id.viewNoteEditFragment_recyclerView);
 
-        if (getActivity() != null) {
+        if (getActivity() != null && !HIDE_BANNER) {
             getActivity().findViewById(R.id.bannerAdCard).setVisibility(View.VISIBLE);
         }
 
@@ -75,7 +78,8 @@ public class ViewNoteEditFragment extends Fragment implements NonCheckableAdapte
         backBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Navigation.findNavController(view).navigate(ViewNoteEditFragmentDirections.actionViewNoteEditFragmentToNoteEditsFragment(noteID));
+                if (Objects.requireNonNull(Navigation.findNavController(view).getCurrentDestination()).getId() == R.id.viewNoteEditFragment)
+                    Navigation.findNavController(view).navigate(ViewNoteEditFragmentDirections.actionViewNoteEditFragmentToNoteEditsFragment(noteID));
             }
         });
 
@@ -122,8 +126,9 @@ public class ViewNoteEditFragment extends Fragment implements NonCheckableAdapte
                                     @Override
                                     public void onSuccess(Void aVoid) {
                                         Toast.makeText(getContext(), "Restored note successfully", Toast.LENGTH_SHORT).show();
-                                        Navigation.findNavController(view).navigate(ViewNoteEditFragmentDirections
-                                                .actionViewNoteEditFragmentToEditNoteFragment(noteID));
+                                        if (Objects.requireNonNull(Navigation.findNavController(view).getCurrentDestination()).getId() == R.id.viewNoteEditFragment)
+                                            Navigation.findNavController(view).navigate(ViewNoteEditFragmentDirections
+                                                    .actionViewNoteEditFragmentToEditNoteFragment(noteID));
                                     }
                                 });
                             }
