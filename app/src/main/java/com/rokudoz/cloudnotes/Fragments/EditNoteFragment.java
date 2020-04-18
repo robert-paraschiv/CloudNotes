@@ -93,7 +93,9 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
             noteID = editNoteFragmentArgs.getNoteDocID();
             getNote(noteID);
         }
-
+        if (getActivity() != null) {
+            getActivity().findViewById(R.id.bannerAdCard).setVisibility(View.GONE);
+        }
 
         checkboxModeBtn.setOnClickListener(new View.OnClickListener() {
             @Override

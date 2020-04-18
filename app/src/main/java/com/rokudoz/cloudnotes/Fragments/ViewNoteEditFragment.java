@@ -60,6 +60,10 @@ public class ViewNoteEditFragment extends Fragment implements NonCheckableAdapte
         backBtn = view.findViewById(R.id.viewNoteEditFragment_backBtn);
         recyclerView = view.findViewById(R.id.viewNoteEditFragment_recyclerView);
 
+        if (getActivity() != null) {
+            getActivity().findViewById(R.id.bannerAdCard).setVisibility(View.VISIBLE);
+        }
+
         if (getArguments() != null) {
             ViewNoteEditFragmentArgs viewNoteEditFragmentArgs = ViewNoteEditFragmentArgs.fromBundle(getArguments());
             noteID = viewNoteEditFragmentArgs.getNoteID();

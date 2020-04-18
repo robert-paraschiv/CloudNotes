@@ -1,8 +1,8 @@
 <resources>
     <string name="app_name">ONOTES</string>
 
-    <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="banner_ad_unit_id">ca-app-pub-3327926907082370/1084840324</string>
+    <string name="rewarded_ad_unit_id">ca-app-pub-3327926907082370/3784291322</string>
     <string name="adMob_app_id">ca-app-pub-3327926907082370~7650248679</string>
 </resources>

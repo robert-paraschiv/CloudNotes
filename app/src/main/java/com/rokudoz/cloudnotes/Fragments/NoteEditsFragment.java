@@ -53,6 +53,9 @@ public class NoteEditsFragment extends Fragment implements NoteEditsAdapter.OnIt
             noteID = noteEditsFragmentArgs.getNoteID();
             getNotes(noteID);
         }
+        if (getActivity() != null) {
+            getActivity().findViewById(R.id.bannerAdCard).setVisibility(View.VISIBLE);
+        }
 
         MaterialButton backBtn = view.findViewById(R.id.noteEditsFragment_backBtn);
         backBtn.setOnClickListener(new View.OnClickListener() {
