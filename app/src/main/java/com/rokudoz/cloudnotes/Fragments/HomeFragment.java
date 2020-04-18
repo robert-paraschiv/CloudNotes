@@ -13,6 +13,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.Navigation;
+import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.StaggeredGridLayoutManager;
@@ -29,6 +30,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
@@ -50,6 +52,7 @@ import com.rokudoz.cloudnotes.Models.User;
 import com.rokudoz.cloudnotes.R;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -62,6 +65,8 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
     private static final String TAG = "HomeFragment";
 
     private View view;
+
+    ItemTouchHelper helper;
 
     private HomePageAdapter staggeredRecyclerViewAdapter;
     private List<Note> noteList = new ArrayList<>();
@@ -109,6 +114,31 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
         recyclerView.setLayoutManager(staggeredGridLayoutManager);
         recyclerView.setAdapter(staggeredRecyclerViewAdapter);
         staggeredRecyclerViewAdapter.setOnItemClickListener(HomeFragment.this);
+
+        helper = new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(ItemTouchHelper.UP | ItemTouchHelper.DOWN | ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT, 0) {
+            @Override
+            public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {
+                int position_dragged = viewHolder.getAdapterPosition();
+                int position_target = target.getAdapterPosition();
+
+                noteList.get(position_dragged).setPosition(position_target);
+                noteList.get(position_target).setPosition(position_dragged);
+                noteList.get(position_dragged).setChangedPos(true);
+                noteList.get(position_target).setChangedPos(true);
+
+
+                Collections.swap(noteList, position_dragged, position_target);
+                staggeredRecyclerViewAdapter.notifyItemMoved(position_dragged, position_target);
+
+                return false;
+            }
+
+            @Override
+            public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
+
+            }
+        });
+        helper.attachToRecyclerView(recyclerView);
     }
 
     public static void hideSoftKeyboard(Activity activity) {
@@ -124,7 +154,8 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
     }
 
     private void getNotes(String uid) {
-        usersRef.document(uid).collection("Notes").orderBy("creation_date", Query.Direction.DESCENDING)
+        usersRef.document(uid).collection("Notes")
+                .orderBy("position", Query.Direction.ASCENDING)
                 .addSnapshotListener(new EventListener<QuerySnapshot>() {
                     @Override
                     public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) {
@@ -152,6 +183,18 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
         super.onStop();
         if (mAuthListener != null) {
             FirebaseAuth.getInstance().removeAuthStateListener(mAuthListener);
+        }
+        for (Note note : noteList) {
+            if (note.getChangedPos() != null && note.getChangedPos()) {
+                usersRef.document(FirebaseAuth.getInstance().getCurrentUser().getUid())
+                        .collection("Notes").document(note.getNote_doc_ID())
+                        .update("position", note.getPosition()).addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        Log.d(TAG, "onSuccess: updated position");
+                    }
+                });
+            }
         }
     }
 

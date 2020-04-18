@@ -217,13 +217,13 @@ public class NewNoteFragment extends Fragment implements CheckableItemAdapter.On
                 title = titleInputEditText.getText().toString();
             }
             if (noteType.equals("text")) {
-                note = new Note(title,
+                note = new Note(0, title,
                         Objects.requireNonNull(textInputEditText.getText()).toString(),
                         null,
                         Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid(),
                         null, false, noteType, null);
             } else if (noteType.equals("checkbox")) {
-                note = new Note(title,
+                note = new Note(0, title,
                         "",
                         null,
                         Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid(),

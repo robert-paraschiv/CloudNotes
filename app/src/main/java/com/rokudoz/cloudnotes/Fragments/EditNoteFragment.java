@@ -54,6 +54,7 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
 
     private String noteType = "text";
     private String noteID = "";
+    private int position = 0;
     private List<CheckableItem> checkableItemList = new ArrayList<>();
     private List<CheckableItem> oldList = new ArrayList<>();
     private RecyclerView recyclerView;
@@ -277,6 +278,8 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
                                     titleInput.setText(mNote.getNoteTitle());
                                     textInput.setText(mNote.getNoteText());
 
+                                    if (mNote.getPosition() != null)
+                                        position = mNote.getPosition();
                                     if (mNote.getNoteType() != null) {
                                         noteType = mNote.getNoteType();
                                     } else {
@@ -359,13 +362,15 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
                     title = titleInput.getText().toString();
                 }
                 if (noteType.equals("text")) {
-                    note = new Note(title,
+                    note = new Note(position,
+                            title,
                             Objects.requireNonNull(textInput.getText()).toString(),
                             null,
                             Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid(),
                             null, true, noteType, null);
                 } else if (noteType.equals("checkbox")) {
-                    note = new Note(title,
+                    note = new Note(position,
+                            title,
                             "",
                             null,
                             Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid(),

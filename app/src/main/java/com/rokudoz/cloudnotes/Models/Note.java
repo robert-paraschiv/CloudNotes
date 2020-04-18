@@ -1,5 +1,6 @@
 package com.rokudoz.cloudnotes.Models;
 
+import com.google.firebase.firestore.Exclude;
 import com.google.firebase.firestore.ServerTimestamp;
 
 import java.util.Date;
@@ -7,6 +8,7 @@ import java.util.List;
 import java.util.Objects;
 
 public class Note {
+    private Integer position;
     private String note_doc_ID;
     private String noteTitle;
     private String noteText;
@@ -15,12 +17,14 @@ public class Note {
     private Boolean edited;
     private String noteType;
     private List<CheckableItem> checkableItemList;
+    private Boolean changedPos;
 
     @ServerTimestamp
     private Date creation_date;
 
-    public Note(String noteTitle, String noteText, String latest_edit_doc_ID, String user_ID, Date creation_date, Boolean edited, String noteType,
+    public Note(Integer position, String noteTitle, String noteText, String latest_edit_doc_ID, String user_ID, Date creation_date, Boolean edited, String noteType,
                 List<CheckableItem> checkableItemList) {
+        this.position = position;
         this.noteTitle = noteTitle;
         this.noteText = noteText;
         this.latest_edit_doc_ID = latest_edit_doc_ID;
@@ -32,6 +36,22 @@ public class Note {
     }
 
     public Note() {
+    }
+
+    public Integer getPosition() {
+        return position;
+    }
+
+    public void setPosition(Integer position) {
+        this.position = position;
+    }
+
+    public Boolean getChangedPos() {
+        return changedPos;
+    }
+
+    public void setChangedPos(Boolean changedPos) {
+        this.changedPos = changedPos;
     }
 
     public String getNoteType() {
@@ -109,11 +129,15 @@ public class Note {
     @Override
     public String toString() {
         return "Note{" +
-                "note_doc_ID='" + note_doc_ID + '\'' +
+                "position=" + position +
+                ", note_doc_ID='" + note_doc_ID + '\'' +
                 ", noteTitle='" + noteTitle + '\'' +
                 ", noteText='" + noteText + '\'' +
                 ", latest_edit_doc_ID='" + latest_edit_doc_ID + '\'' +
                 ", user_ID='" + user_ID + '\'' +
+                ", edited=" + edited +
+                ", noteType='" + noteType + '\'' +
+                ", checkableItemList=" + checkableItemList +
                 ", creation_date=" + creation_date +
                 '}';
     }
