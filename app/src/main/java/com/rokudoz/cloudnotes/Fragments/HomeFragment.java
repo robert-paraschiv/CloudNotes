@@ -224,8 +224,10 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
                 noteList.get(position_dragged).setChangedPos(true);
                 noteList.get(position_target).setChangedPos(true);
 
+                Log.d(TAG, "onMove: " + position_dragged + "  -> " + position_target);
 
                 Collections.swap(noteList, position_dragged, position_target);
+                staggeredRecyclerViewAdapter.notifyItemChanged(position_dragged);
                 staggeredRecyclerViewAdapter.notifyItemMoved(position_dragged, position_target);
 
                 return false;
@@ -489,6 +491,7 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
 
     @Override
     public void onItemClick(int position) {
+        Log.d(TAG, "onItemClick: " + position);
         Note note = noteList.get(position);
         if (Objects.requireNonNull(Navigation.findNavController(view).getCurrentDestination()).getId() == R.id.homeFragment)
             Navigation.findNavController(view).navigate(HomeFragmentDirections.actionHomeFragmentToEditNoteFragment(note.getNote_doc_ID()));

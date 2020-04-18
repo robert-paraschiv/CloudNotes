@@ -115,11 +115,15 @@ public class NewNoteFragment extends Fragment implements CheckableItemAdapter.On
                     textInputEditText.setVisibility(View.GONE);
 
                     for (int i = 0; i < textList.size(); i++) {
-                        checkableItemList.add(new CheckableItem(textList.get(i), false));
+                        CheckableItem checkableItem = new CheckableItem(textList.get(i), false);
+                        checkableItem.setShouldBeFocused(true);
+                        checkableItemList.add(checkableItem);
                         mAdapter.notifyItemInserted(checkableItemList.size() - 1);
                     }
                     if (checkableItemList.size() == 0) {
-                        checkableItemList.add(new CheckableItem("", false));
+                        CheckableItem checkableItem = new CheckableItem("", false);
+                        checkableItem.setShouldBeFocused(true);
+                        checkableItemList.add(checkableItem);
                         mAdapter.notifyItemInserted(checkableItemList.size() - 1);
                     }
 
@@ -176,8 +180,10 @@ public class NewNoteFragment extends Fragment implements CheckableItemAdapter.On
         addCheckboxBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                checkableItemList.add(new CheckableItem("", false));
-                mAdapter.notifyItemInserted(checkableItemList.size());
+                CheckableItem checkableItem = new CheckableItem("", false);
+                checkableItem.setShouldBeFocused(true);
+                checkableItemList.add(checkableItemList.size(), checkableItem);
+                mAdapter.notifyItemInserted(checkableItemList.size() - 1);
             }
         });
 

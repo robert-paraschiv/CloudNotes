@@ -6,6 +6,8 @@
     android:layout_height="40dp">
 
     <com.google.android.material.checkbox.MaterialCheckBox
+        android:clickable="false"
+        android:focusable="false"
         android:id="@+id/homeCheckableItem_checkbox"
         android:layout_width="30dp"
         android:layout_height="wrap_content"

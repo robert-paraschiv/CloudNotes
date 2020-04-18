@@ -53,6 +53,7 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
     private static final String TAG = "EditNoteFragment";
 
     private View view;
+    boolean edit = false;
 
     private String noteType = "text";
     private String noteID = "";
@@ -240,7 +241,9 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
         addCheckboxBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                checkableItemList.add(new CheckableItem("", false));
+                CheckableItem checkableItem = new CheckableItem("", false);
+                checkableItem.setShouldBeFocused(true);
+                checkableItemList.add(checkableItemList.size(), checkableItem);
                 mAdapter.notifyItemInserted(checkableItemList.size() - 1);
             }
         });
@@ -253,6 +256,9 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
 
                 Collections.swap(checkableItemList, position_dragged, position_target);
                 mAdapter.notifyItemMoved(position_dragged, position_target);
+
+                //allow saving
+                edit = true;
 
                 return false;
             }
@@ -347,7 +353,6 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
             Log.d(TAG, "onStop: " + checkableItem.toString());
         }
         if (mNote != null) {
-            boolean edit = false;
 
             for (CheckableItem item : checkableItemList) {
                 if (!oldList.contains(item)) {
