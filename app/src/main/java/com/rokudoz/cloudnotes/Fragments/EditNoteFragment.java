@@ -19,6 +19,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -42,6 +43,7 @@ import com.rokudoz.cloudnotes.Models.Note;
 import com.rokudoz.cloudnotes.R;
 import com.rokudoz.cloudnotes.Utils.LastEdit;
 
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -53,11 +55,13 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
     private static final String TAG = "EditNoteFragment";
 
     private View view;
+    private LinearLayout editLinearLayout;
     boolean edit = false;
 
     private String noteType = "text";
     private String noteID = "";
     private int position = 0;
+    private int number_of_edits = 0;
     private List<CheckableItem> checkableItemList = new ArrayList<>();
     private List<CheckableItem> oldList = new ArrayList<>();
     private RecyclerView recyclerView;
@@ -67,7 +71,7 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
 
     private Note mNote = new Note();
     TextInputEditText titleInput, textInput;
-    TextView lastEditTv;
+    TextView lastEditTv, numberOfEditsTv;
     MaterialButton backBtn, deleteBtn, checkboxModeBtn, addCheckboxBtn;
 
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
@@ -85,11 +89,13 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
         titleInput = view.findViewById(R.id.editNoteFragment_titleEditText);
         backBtn = view.findViewById(R.id.editNoteFragment_backBtn);
         lastEditTv = view.findViewById(R.id.editNoteFragment_lastEditTextView);
+        numberOfEditsTv = view.findViewById(R.id.editNoteFragment_numberOfedits);
         deleteBtn = view.findViewById(R.id.editNoteFragment_deleteBtn);
         recyclerView = view.findViewById(R.id.editNoteFragment_checkbox_rv);
         checkboxModeBtn = view.findViewById(R.id.editNoteFragment_CheckBoxModeBtn);
         addCheckboxBtn = view.findViewById(R.id.editNoteFragment_add_checkbox_Btn);
         rv_scrollView = view.findViewById(R.id.editNoteFragment_scroll_rv);
+        editLinearLayout = view.findViewById(R.id.editNoteFragment_editLayout);
 
         if (getArguments() != null) {
             EditNoteFragmentArgs editNoteFragmentArgs = EditNoteFragmentArgs.fromBundle(getArguments());
@@ -294,6 +300,9 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
                                     titleInput.setText(mNote.getNoteTitle());
                                     textInput.setText(mNote.getNoteText());
 
+                                    if (mNote.getNumber_of_edits() != null)
+                                        number_of_edits = mNote.getNumber_of_edits();
+
                                     if (mNote.getPosition() != null)
                                         position = mNote.getPosition();
                                     if (mNote.getNoteType() != null) {
@@ -328,8 +337,17 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
                                     if (mNote.getCreation_date() != null && mNote.getEdited() != null && mNote.getEdited()) {
                                         Date date = mNote.getCreation_date();
                                         LastEdit lastEdit = new LastEdit();
-                                        lastEditTv.setText(lastEdit.getLastEdit(date.getTime()));
-                                        lastEditTv.setOnClickListener(new View.OnClickListener() {
+                                        lastEditTv.setText(MessageFormat.format("Last edit {0}", lastEdit.getLastEdit(date.getTime())));
+                                        if (mNote.getNumber_of_edits() != null) {
+                                            if (mNote.getNumber_of_edits() == 1) {
+                                                numberOfEditsTv.setText(MessageFormat.format("{0} Edit", mNote.getNumber_of_edits()));
+                                            } else if (mNote.getNumber_of_edits() > 1) {
+                                                numberOfEditsTv.setText(MessageFormat.format("{0} Edits", mNote.getNumber_of_edits()));
+                                            }
+                                        } else {
+                                            numberOfEditsTv.setText("No edits so far");
+                                        }
+                                        editLinearLayout.setOnClickListener(new View.OnClickListener() {
                                             @Override
                                             public void onClick(View v) {
                                                 if (Objects.requireNonNull(Navigation.findNavController(view).getCurrentDestination()).getId() == R.id.editNoteFragment)
@@ -383,14 +401,14 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
                             Objects.requireNonNull(textInput.getText()).toString(),
                             null,
                             Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid(),
-                            null, true, noteType, null);
+                            null, true, noteType, null, "Edit", number_of_edits + 1);
                 } else if (noteType.equals("checkbox")) {
                     note = new Note(position,
                             title,
                             "",
                             null,
                             Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid(),
-                            null, true, noteType, checkableItemList);
+                            null, true, noteType, checkableItemList, "Edit", number_of_edits + 1);
                 }
 
                 WriteBatch batch = db.batch();

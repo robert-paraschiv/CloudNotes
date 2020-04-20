@@ -51,12 +51,13 @@ public class NoteEditsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
 
     public class TextNoteViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
-        TextView editDate, noteText;
+        TextView editDate, noteText, editType;
 
         public TextNoteViewHolder(View itemView) {
             super(itemView);
             this.editDate = itemView.findViewById(R.id.rv_note_edits_dateTv);
             this.noteText = itemView.findViewById(R.id.rv_note_edits_text);
+            this.editType = itemView.findViewById(R.id.rv_note_edits_editType);
 
             itemView.setOnClickListener(this);
         }
@@ -74,13 +75,14 @@ public class NoteEditsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
 
     public class CheckboxViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
-        TextView noteDate;
+        TextView noteDate, editType;
         RecyclerView recyclerView;
 
         public CheckboxViewHolder(View itemView) {
             super(itemView);
             this.noteDate = itemView.findViewById(R.id.rv_note_edits_checkboxNote_dateTv);
             this.recyclerView = itemView.findViewById(R.id.rv_note_edits_checkboxNote_recyclerView);
+            this.editType = itemView.findViewById(R.id.rv_note_edits_checkboxNote_editType);
 
             itemView.setOnClickListener(this);
         }
@@ -137,17 +139,29 @@ public class NoteEditsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         Date date = noteList.get(position).getCreation_date();
 
         holder.editDate.setText(lastEdit.getLastEdit(date.getTime()));
+
+        if (noteList.get(position).getEdit_type() != null) {
+            holder.editType.setText(noteList.get(position).getEdit_type());
+        } else {
+            holder.editType.setText("Created");
+        }
+
     }
 
     private void populateCheckBoxViewHolder(CheckboxViewHolder holder, int position) {
 
 
         LastEdit lastEdit = new LastEdit();
-        if (noteList.get(position).getCreation_date()!=null){
+        if (noteList.get(position).getCreation_date() != null) {
             Date date = noteList.get(position).getCreation_date();
             holder.noteDate.setText(lastEdit.getLastEdit(date.getTime()));
         }
 
+        if (noteList.get(position).getEdit_type() != null) {
+            holder.editType.setText(noteList.get(position).getEdit_type());
+        } else {
+            holder.editType.setText("Created");
+        }
 
         if (noteList.get(position).getCheckableItemList() != null && noteList.get(position).getCheckableItemList().size() > 0) {
             holder.recyclerView.setLayoutManager(new LinearLayoutManager(mContext));

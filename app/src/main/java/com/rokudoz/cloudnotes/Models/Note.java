@@ -18,12 +18,14 @@ public class Note {
     private String noteType;
     private List<CheckableItem> checkableItemList;
     private Boolean changedPos;
+    private String edit_type;
+    private Integer number_of_edits;
 
     @ServerTimestamp
     private Date creation_date;
 
     public Note(Integer position, String noteTitle, String noteText, String latest_edit_doc_ID, String user_ID, Date creation_date, Boolean edited, String noteType,
-                List<CheckableItem> checkableItemList) {
+                List<CheckableItem> checkableItemList, String edit_type, Integer number_of_edits) {
         this.position = position;
         this.noteTitle = noteTitle;
         this.noteText = noteText;
@@ -33,9 +35,27 @@ public class Note {
         this.edited = edited;
         this.noteType = noteType;
         this.checkableItemList = checkableItemList;
+        this.edit_type = edit_type;
+        this.number_of_edits = number_of_edits;
     }
 
     public Note() {
+    }
+
+    public String getEdit_type() {
+        return edit_type;
+    }
+
+    public void setEdit_type(String edit_type) {
+        this.edit_type = edit_type;
+    }
+
+    public Integer getNumber_of_edits() {
+        return number_of_edits;
+    }
+
+    public void setNumber_of_edits(Integer number_of_edits) {
+        this.number_of_edits = number_of_edits;
     }
 
     public Integer getPosition() {
@@ -138,6 +158,9 @@ public class Note {
                 ", edited=" + edited +
                 ", noteType='" + noteType + '\'' +
                 ", checkableItemList=" + checkableItemList +
+                ", changedPos=" + changedPos +
+                ", edit_type='" + edit_type + '\'' +
+                ", number_of_edits=" + number_of_edits +
                 ", creation_date=" + creation_date +
                 '}';
     }

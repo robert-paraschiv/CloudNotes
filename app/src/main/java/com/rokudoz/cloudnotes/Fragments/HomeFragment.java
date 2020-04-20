@@ -219,18 +219,21 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
                 int position_dragged = viewHolder.getAdapterPosition();
                 int position_target = target.getAdapterPosition();
 
-                noteList.get(position_dragged).setPosition(position_target);
-                noteList.get(position_target).setPosition(position_dragged);
-                noteList.get(position_dragged).setChangedPos(true);
-                noteList.get(position_target).setChangedPos(true);
+
 
                 Log.d(TAG, "onMove: " + position_dragged + "  -> " + position_target);
 
                 Collections.swap(noteList, position_dragged, position_target);
-                staggeredRecyclerViewAdapter.notifyItemChanged(position_dragged);
-                staggeredRecyclerViewAdapter.notifyItemMoved(position_dragged, position_target);
 
-                return false;
+                staggeredRecyclerViewAdapter.notifyItemMoved(position_dragged, position_target);
+                staggeredRecyclerViewAdapter.notifyItemChanged(position_target);
+                staggeredRecyclerViewAdapter.notifyItemChanged(position_dragged);
+
+                noteList.get(position_dragged).setPosition(position_dragged);
+                noteList.get(position_target).setPosition(position_target);
+                noteList.get(position_dragged).setChangedPos(true);
+                noteList.get(position_target).setChangedPos(true);
+                return true;
             }
 
             @Override
