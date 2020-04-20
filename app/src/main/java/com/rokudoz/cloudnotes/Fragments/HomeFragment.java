@@ -53,6 +53,7 @@ import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.rokudoz.cloudnotes.Adapters.HomePageAdapter;
 import com.rokudoz.cloudnotes.LoginActivity;
+import com.rokudoz.cloudnotes.MainActivity;
 import com.rokudoz.cloudnotes.Models.Note;
 import com.rokudoz.cloudnotes.Models.User;
 import com.rokudoz.cloudnotes.R;
@@ -220,7 +221,6 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
                 int position_target = target.getAdapterPosition();
 
 
-
                 Log.d(TAG, "onMove: " + position_dragged + "  -> " + position_target);
 
                 Collections.swap(noteList, position_dragged, position_target);
@@ -258,6 +258,7 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
 
     private void getNotes(String uid) {
         usersRef.document(uid).collection("Notes")
+                .whereEqualTo("deleted", false)
                 .orderBy("position", Query.Direction.ASCENDING)
                 .addSnapshotListener(new EventListener<QuerySnapshot>() {
                     @Override
@@ -340,6 +341,7 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
         CircleImageView profilePic = dialogView.findViewById(R.id.dialog_settings_profilePic);
         TextView emailTv = dialogView.findViewById(R.id.dialog_settings_email);
         TextView name = dialogView.findViewById(R.id.dialog_settings_name);
+        LinearLayout trashLL = dialogView.findViewById(R.id.dialog_settings_trash_LL);
         MaterialButton signOutBtn = dialogView.findViewById(R.id.dialog_settings_signOut);
         Glide.with(profilePic).load(user.getUser_profile_picture()).centerCrop().into(profilePic);
         emailTv.setText(user.getEmail());
@@ -347,36 +349,47 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
 
         bottomSheetDialog.setContentView(dialogView);
 
+        trashLL.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (Objects.requireNonNull(Navigation.findNavController(view).getCurrentDestination()).getId() == R.id.homeFragment)
+                    Navigation.findNavController(view).navigate(HomeFragmentDirections.actionHomeFragmentToTrashFragment());
+
+                bottomSheetDialog.cancel();
+            }
+        });
+
         signOutBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                //Dialog for close ad
+                View dialogView = getLayoutInflater().inflate(R.layout.dialog_show_ad, (ViewGroup) view, false);
+                final Dialog dialog = new Dialog(Objects.requireNonNull(getContext()), R.style.CustomBottomSheetDialogTheme);
+                MaterialButton confirmBtn = dialogView.findViewById(R.id.dialog_ShowAd_confirmBtn);
+                MaterialButton cancelBtn = dialogView.findViewById(R.id.dialog_ShowAd_cancelBtn);
+                TextView title = dialogView.findViewById(R.id.dialog_ShowAd_title);
+                title.setText("Are you sure you want to log out?");
+                confirmBtn.setText("Yes");
+                dialog.setContentView(dialogView);
+                dialog.setCancelable(false);
 
-                //Dialog for sign out
-                MaterialAlertDialogBuilder materialAlertDialogBuilder = new MaterialAlertDialogBuilder(getActivity(),
-                        R.style.ThemeOverlay_MaterialComponents_MaterialAlertDialog_Centered);
-                materialAlertDialogBuilder.setMessage("Are you sure you want to sign out?");
-                materialAlertDialogBuilder.setCancelable(true);
-                materialAlertDialogBuilder.setPositiveButton(
-                        "Yes",
-                        new DialogInterface.OnClickListener() {
-                            public void onClick(final DialogInterface dialog, int id) {
-                                //Delete note
-                                FirebaseAuth.getInstance().signOut();
-                                Intent intent = new Intent(getActivity(), LoginActivity.class);
-                                startActivity(intent);
-                                getActivity().finish();
-                            }
-                        });
-
-                materialAlertDialogBuilder.setNegativeButton(
-                        "No",
-                        new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int id) {
-                                dialog.cancel();
-                            }
-                        });
-
-                materialAlertDialogBuilder.show();
+                confirmBtn.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        //Log out
+                        FirebaseAuth.getInstance().signOut();
+                        Intent intent = new Intent(getActivity(), LoginActivity.class);
+                        startActivity(intent);
+                        getActivity().finish();
+                    }
+                });
+                cancelBtn.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        dialog.cancel();
+                    }
+                });
+                dialog.show();
             }
         });
         bottomSheetDialog.show();

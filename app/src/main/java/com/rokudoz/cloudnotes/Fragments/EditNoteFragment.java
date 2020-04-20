@@ -190,31 +190,45 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
                     @Override
                     public void onClick(View v) {
                         //Delete note
-                        final WriteBatch batch = db.batch();
                         usersRef.document(FirebaseAuth.getInstance().getCurrentUser().getUid()).collection("Notes").document(noteID)
-                                .collection("Edits").get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+                                .update("deleted",true).addOnSuccessListener(new OnSuccessListener<Void>() {
                             @Override
-                            public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
-                                if (queryDocumentSnapshots != null && queryDocumentSnapshots.size() > 0) {
-                                    for (DocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
-                                        batch.delete(documentSnapshot.getReference());
-                                    }
-                                    batch.delete(usersRef.document(FirebaseAuth.getInstance().getCurrentUser().getUid())
-                                            .collection("Notes").document(noteID));
-                                    batch.commit().addOnSuccessListener(new OnSuccessListener<Void>() {
-                                        @Override
-                                        public void onSuccess(Void aVoid) {
-                                            Toast.makeText(getContext(), "Deleted note", Toast.LENGTH_SHORT).show();
-                                            hideSoftKeyboard(getActivity());
-                                            if (Objects.requireNonNull(Navigation.findNavController(view).getCurrentDestination()).getId()
-                                                    == R.id.editNoteFragment)
-                                                Navigation.findNavController(view).navigate(EditNoteFragmentDirections.actionEditNoteFragmentToHomeFragment());
-                                            dialog.cancel();
-                                        }
-                                    });
-                                }
+                            public void onSuccess(Void aVoid) {
+                                Toast.makeText(getContext(), "Deleted note", Toast.LENGTH_SHORT).show();
+                                hideSoftKeyboard(Objects.requireNonNull(getActivity()));
+                                if (Objects.requireNonNull(Navigation.findNavController(view).getCurrentDestination()).getId()
+                                        == R.id.editNoteFragment)
+                                    Navigation.findNavController(view).navigate(EditNoteFragmentDirections.actionEditNoteFragmentToHomeFragment());
+                                dialog.cancel();
                             }
                         });
+
+                        //
+//                        final WriteBatch batch = db.batch();
+//                        usersRef.document(FirebaseAuth.getInstance().getCurrentUser().getUid()).collection("Notes").document(noteID)
+//                                .collection("Edits").get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+//                            @Override
+//                            public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+//                                if (queryDocumentSnapshots != null && queryDocumentSnapshots.size() > 0) {
+//                                    for (DocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
+//                                        batch.delete(documentSnapshot.getReference());
+//                                    }
+//                                    batch.delete(usersRef.document(FirebaseAuth.getInstance().getCurrentUser().getUid())
+//                                            .collection("Notes").document(noteID));
+//                                    batch.commit().addOnSuccessListener(new OnSuccessListener<Void>() {
+//                                        @Override
+//                                        public void onSuccess(Void aVoid) {
+//                                            Toast.makeText(getContext(), "Deleted note", Toast.LENGTH_SHORT).show();
+//                                            hideSoftKeyboard(getActivity());
+//                                            if (Objects.requireNonNull(Navigation.findNavController(view).getCurrentDestination()).getId()
+//                                                    == R.id.editNoteFragment)
+//                                                Navigation.findNavController(view).navigate(EditNoteFragmentDirections.actionEditNoteFragmentToHomeFragment());
+//                                            dialog.cancel();
+//                                        }
+//                                    });
+//                                }
+//                            }
+//                        });
                     }
                 });
                 cancelBtn.setOnClickListener(new View.OnClickListener() {
@@ -401,14 +415,14 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
                             Objects.requireNonNull(textInput.getText()).toString(),
                             null,
                             Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid(),
-                            null, true, noteType, null, "Edit", number_of_edits + 1);
+                            null, true, noteType, null, "Edit", number_of_edits + 1, false);
                 } else if (noteType.equals("checkbox")) {
                     note = new Note(position,
                             title,
                             "",
                             null,
                             Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid(),
-                            null, true, noteType, checkableItemList, "Edit", number_of_edits + 1);
+                            null, true, noteType, checkableItemList, "Edit", number_of_edits + 1, false);
                 }
 
                 WriteBatch batch = db.batch();

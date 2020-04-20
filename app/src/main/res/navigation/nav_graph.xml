@@ -12,10 +12,15 @@
         tools:layout="@layout/fragment_home" >
         <action
             android:id="@+id/action_homeFragment_to_newNoteFragment"
-            app:destination="@id/newNoteFragment" />
+            app:destination="@id/newNoteFragment"
+            app:popUpTo="@id/homeFragment" />
         <action
             android:id="@+id/action_homeFragment_to_editNoteFragment"
             app:destination="@id/editNoteFragment" />
+        <action
+            android:id="@+id/action_homeFragment_to_trashFragment"
+            app:destination="@id/trashFragment"
+            app:popUpTo="@id/homeFragment" />
     </fragment>
     <fragment
         android:id="@+id/newNoteFragment"
@@ -77,5 +82,35 @@
         <action
             android:id="@+id/action_viewNoteEditFragment_to_noteEditsFragment"
             app:destination="@id/noteEditsFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/trashFragment"
+        android:name="com.rokudoz.cloudnotes.Fragments.Trash.TrashFragment"
+        android:label="fragment_trash"
+        tools:layout="@layout/fragment_trash" >
+        <action
+            android:id="@+id/action_trashFragment_to_viewTrashNote"
+            app:destination="@id/viewTrashNote" />
+        <action
+            android:id="@+id/action_trashFragment_to_homeFragment"
+            app:destination="@id/homeFragment"
+            app:popUpTo="@id/homeFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/viewTrashNote"
+        android:name="com.rokudoz.cloudnotes.Fragments.Trash.ViewTrashNote"
+        android:label="fragment_view_trash_note"
+        tools:layout="@layout/fragment_view_trash_note" >
+        <action
+            android:id="@+id/action_viewTrashNote_to_homeFragment"
+            app:destination="@id/homeFragment"
+            app:popUpTo="@id/homeFragment" />
+        <argument
+            android:name="noteID"
+            app:argType="string" />
+        <action
+            android:id="@+id/action_viewTrashNote_to_trashFragment"
+            app:destination="@id/trashFragment"
+            app:popUpTo="@id/trashFragment" />
     </fragment>
 </navigation>

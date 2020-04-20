@@ -78,7 +78,7 @@ public class MainActivity extends AppCompatActivity {
                 closeAd.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        //Dialog for sign out
+                        //Dialog for close ad
                         View dialogView = getLayoutInflater().inflate(R.layout.dialog_show_ad, null);
                         final Dialog dialog = new Dialog(MainActivity.this, R.style.CustomBottomSheetDialogTheme);
                         MaterialButton confirmBtn = dialogView.findViewById(R.id.dialog_ShowAd_confirmBtn);

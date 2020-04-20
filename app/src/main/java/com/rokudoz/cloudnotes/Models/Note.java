@@ -20,12 +20,13 @@ public class Note {
     private Boolean changedPos;
     private String edit_type;
     private Integer number_of_edits;
+    private Boolean deleted;
 
     @ServerTimestamp
     private Date creation_date;
 
     public Note(Integer position, String noteTitle, String noteText, String latest_edit_doc_ID, String user_ID, Date creation_date, Boolean edited, String noteType,
-                List<CheckableItem> checkableItemList, String edit_type, Integer number_of_edits) {
+                List<CheckableItem> checkableItemList, String edit_type, Integer number_of_edits, Boolean deleted) {
         this.position = position;
         this.noteTitle = noteTitle;
         this.noteText = noteText;
@@ -37,9 +38,18 @@ public class Note {
         this.checkableItemList = checkableItemList;
         this.edit_type = edit_type;
         this.number_of_edits = number_of_edits;
+        this.deleted = deleted;
     }
 
     public Note() {
+    }
+
+    public Boolean getDeleted() {
+        return deleted;
+    }
+
+    public void setDeleted(Boolean deleted) {
+        this.deleted = deleted;
     }
 
     public String getEdit_type() {

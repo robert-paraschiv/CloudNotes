@@ -65,13 +65,47 @@
         </RelativeLayout>
 
         <LinearLayout
+            android:id="@+id/dialog_settings_trash_LL"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:orientation="vertical">
+
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="1px"
+                android:src="@color/spacer_color" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="12dp"
+                android:text="Trash" />
+
+            <TextView
+                android:id="@+id/dialog_settings_trash_textView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:text="Tap to see"
+                android:textSize="12sp" />
+        </LinearLayout>
+
+        <LinearLayout
             android:id="@+id/dialog_settings_theme_LL"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
             android:orientation="vertical">
 
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="1px"
+                android:src="@color/spacer_color" />
+
             <TextView
+                android:layout_marginTop="12dp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
