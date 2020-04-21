@@ -75,7 +75,8 @@ public class TrashFragment extends Fragment implements NoteEditsAdapter.OnItemCl
 
     private void getNotes() {
         usersRef.document(FirebaseAuth.getInstance().getCurrentUser().getUid()).collection("Notes")
-                .whereEqualTo("deleted", true).orderBy("creation_date", Query.Direction.DESCENDING)
+                .whereEqualTo("deleted", true)
+                .orderBy("creation_date", Query.Direction.DESCENDING)
                 .addSnapshotListener(new EventListener<QuerySnapshot>() {
                     @Override
                     public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) {

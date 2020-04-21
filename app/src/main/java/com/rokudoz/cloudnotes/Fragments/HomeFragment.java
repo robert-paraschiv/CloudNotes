@@ -25,6 +25,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RadioGroup;
 import android.widget.TextView;
@@ -73,9 +74,16 @@ import static com.rokudoz.cloudnotes.App.SETTINGS_PREFS_NAME;
 public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClickListener {
     private static final String TAG = "HomeFragment";
 
-    private View view;
+    public static int LAYOUT_STAGGERED_TYPE = 0;
+    public static int LAYOUT_LINEAR_TYPE = 1;
 
+
+    private int layoutType = 0;
+
+    private View view;
+    private RecyclerView recyclerView;
     ItemTouchHelper helper;
+    private ImageView layoutManagerIcon;
 
     private HomePageAdapter staggeredRecyclerViewAdapter;
     private List<Note> noteList = new ArrayList<>();
@@ -90,6 +98,7 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
 
     private RewardedAd rewardedAd;
     SharedPreferences sharedPreferences;
+    SharedPreferences.Editor sharedPrefsEditor;
 
     public HomeFragment() {
         // Required empty public constructor
@@ -101,19 +110,23 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
         view = inflater.inflate(R.layout.fragment_home, container, false);
 
         sharedPreferences = Objects.requireNonNull(getActivity()).getSharedPreferences(SETTINGS_PREFS_NAME, MODE_PRIVATE);
-
+        sharedPrefsEditor = getActivity().getSharedPreferences(SETTINGS_PREFS_NAME, MODE_PRIVATE).edit();
         if (getActivity() != null && !HIDE_BANNER) {
             getActivity().findViewById(R.id.bannerAdCard).setVisibility(View.VISIBLE);
         }
 
         userPicture = view.findViewById(R.id.homeFragment_userImage);
+        layoutManagerIcon = view.findViewById(R.id.homeFragment_layoutManagerIcon);
 
         FloatingActionButton addNewNoteBtn = view.findViewById(R.id.homeFragment_addNoteFab);
         addNewNoteBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (Objects.requireNonNull(Navigation.findNavController(view).getCurrentDestination()).getId() == R.id.homeFragment)
-                    Navigation.findNavController(view).navigate(HomeFragmentDirections.actionHomeFragmentToNewNoteFragment());
+//                if (Objects.requireNonNull(Navigation.findNavController(view).getCurrentDestination()).getId() == R.id.homeFragment)
+//                    Navigation.findNavController(view).navigate(HomeFragmentDirections.actionHomeFragmentToNewNoteFragment());
+
+                recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+
             }
         });
 
@@ -153,8 +166,7 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
                                     public void onUserEarnedReward(@NonNull RewardItem reward) {
                                         // User earned reward.
                                         //Reset times app opened counter
-                                        final SharedPreferences.Editor sharedPrefsEditor =
-                                                getActivity().getSharedPreferences(SETTINGS_PREFS_NAME, MODE_PRIVATE).edit();
+
                                         sharedPrefsEditor.putInt("TimesStartedCounter", 0);
                                         sharedPrefsEditor.apply();
 
@@ -181,7 +193,6 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
                     });
 
                     dialog.show();
-                    ASKED_ALREADY = true;
                 }
             }
 
@@ -195,8 +206,10 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
                 .addTestDevice("4129AB584AC9547A6DDCE83E28748843") // Mi 9T Pro
                 .addTestDevice("B141CB779F883EF84EA9A32A7D068B76") // RedMi 5 Plus
                 .addTestDevice(AdRequest.DEVICE_ID_EMULATOR).build();
-        if (sharedPreferences.getInt("TimesStartedCounter", 0) >= 5 && !ASKED_ALREADY)
+        if (sharedPreferences.getInt("TimesStartedCounter", 0) >= 5 && !ASKED_ALREADY) {
             rewardedAd.loadAd(adRequest, adLoadCallback);
+            ASKED_ALREADY = true;
+        }
 
 
         buildRecyclerView();
@@ -206,10 +219,35 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
     }
 
     private void buildRecyclerView() {
-        RecyclerView recyclerView = view.findViewById(R.id.homeFragment_recyclerView);
+        recyclerView = view.findViewById(R.id.homeFragment_recyclerView);
         staggeredRecyclerViewAdapter = new HomePageAdapter(getActivity(), noteList);
-        StaggeredGridLayoutManager staggeredGridLayoutManager = new StaggeredGridLayoutManager(2, LinearLayoutManager.VERTICAL);
-        recyclerView.setLayoutManager(staggeredGridLayoutManager);
+
+        if (sharedPreferences.getInt("home_layout_manager_type", 0) == LAYOUT_STAGGERED_TYPE) {
+            StaggeredGridLayoutManager staggeredGridLayoutManager = new StaggeredGridLayoutManager(2, LinearLayoutManager.VERTICAL);
+            recyclerView.setLayoutManager(staggeredGridLayoutManager);
+            layoutManagerIcon.setImageResource(R.drawable.ic_outline_view_agenda_24);
+        } else {
+            recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+            layoutManagerIcon.setImageResource(R.drawable.ic_outline_dashboard_24);
+        }
+
+        layoutManagerIcon.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (sharedPreferences.getInt("home_layout_manager_type", 0) == LAYOUT_STAGGERED_TYPE) {
+                    recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+                    sharedPrefsEditor.putInt("home_layout_manager_type", 1);
+                    layoutManagerIcon.setImageResource(R.drawable.ic_outline_dashboard_24);
+                } else {
+                    StaggeredGridLayoutManager staggeredGridLayoutManager = new StaggeredGridLayoutManager(2, LinearLayoutManager.VERTICAL);
+                    recyclerView.setLayoutManager(staggeredGridLayoutManager);
+                    sharedPrefsEditor.putInt("home_layout_manager_type", 0);
+                    layoutManagerIcon.setImageResource(R.drawable.ic_outline_view_agenda_24);
+                }
+                sharedPrefsEditor.apply();
+            }
+        });
+
         recyclerView.setAdapter(staggeredRecyclerViewAdapter);
         staggeredRecyclerViewAdapter.setOnItemClickListener(HomeFragment.this);
 
