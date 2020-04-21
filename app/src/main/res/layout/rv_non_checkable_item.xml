@@ -6,12 +6,12 @@
     android:layout_height="40dp">
 
     <com.google.android.material.checkbox.MaterialCheckBox
-        android:clickable="false"
-        android:focusable="false"
         android:id="@+id/homeCheckableItem_checkbox"
         android:layout_width="30dp"
         android:layout_height="wrap_content"
-        android:layout_centerVertical="true"/>
+        android:layout_centerVertical="true"
+        android:clickable="false"
+        android:focusable="false" />
 
     <TextView
         android:id="@+id/homeCheckableItem_textView"
@@ -21,7 +21,6 @@
         android:layout_marginStart="4dp"
         android:layout_marginEnd="8dp"
         android:layout_toEndOf="@id/homeCheckableItem_checkbox"
-        android:clickable="false"
         android:gravity="center_vertical"
         android:maxLines="1"
         tools:text="YEEEEEEEEE" />

@@ -34,7 +34,7 @@ import java.util.Objects;
 
 import static com.rokudoz.cloudnotes.App.HIDE_BANNER;
 
-public class ViewNoteEditFragment extends Fragment implements NonCheckableAdapter.OnItemClickListener {
+public class ViewNoteEditFragment extends Fragment {
     private static final String TAG = "ViewNoteEditFragment";
 
     private View view;
@@ -94,7 +94,6 @@ public class ViewNoteEditFragment extends Fragment implements NonCheckableAdapte
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         mAdapter = new NonCheckableAdapter(checkableItemList, 0);
         recyclerView.setAdapter(mAdapter);
-        mAdapter.setOnItemClickListener(this);
     }
 
     private void getNote(final String noteID) {
@@ -171,8 +170,4 @@ public class ViewNoteEditFragment extends Fragment implements NonCheckableAdapte
 
     }
 
-    @Override
-    public void onItemClick(int position) {
-        //do nothing, but crashes if not included
-    }
 }

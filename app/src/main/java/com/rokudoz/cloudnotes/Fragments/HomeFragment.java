@@ -176,12 +176,12 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
                     cancelBtn.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
-                            ASKED_ALREADY = true;
                             dialog.cancel();
                         }
                     });
 
                     dialog.show();
+                    ASKED_ALREADY = true;
                 }
             }
 
@@ -217,22 +217,31 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
                 ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT, 0) {
             @Override
             public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {
-                int position_dragged = viewHolder.getAdapterPosition();
-                int position_target = target.getAdapterPosition();
+                int fromPosition = viewHolder.getAdapterPosition();
+                int toPosition = target.getAdapterPosition();
 
 
-                Log.d(TAG, "onMove: " + position_dragged + "  -> " + position_target);
-
-                Collections.swap(noteList, position_dragged, position_target);
-
-                staggeredRecyclerViewAdapter.notifyItemMoved(position_dragged, position_target);
-                staggeredRecyclerViewAdapter.notifyItemChanged(position_target);
-                staggeredRecyclerViewAdapter.notifyItemChanged(position_dragged);
-
-                noteList.get(position_dragged).setPosition(position_dragged);
-                noteList.get(position_target).setPosition(position_target);
-                noteList.get(position_dragged).setChangedPos(true);
-                noteList.get(position_target).setChangedPos(true);
+                if (fromPosition < toPosition) {
+                    for (int i = fromPosition; i < toPosition; i++) {
+                        Collections.swap(noteList, i, i + 1);
+                        noteList.get(i + 1).setPosition(i + 1);
+                        noteList.get(i).setPosition(i);
+                        staggeredRecyclerViewAdapter.notifyItemMoved(i, i + 1);
+                    }
+                } else {
+                    for (int i = fromPosition; i > toPosition; i--) {
+                        Collections.swap(noteList, i, i - 1);
+                        noteList.get(i - 1).setPosition(i - 1);
+                        noteList.get(i).setPosition(i);
+                        staggeredRecyclerViewAdapter.notifyItemMoved(i, i - 1);
+                    }
+                }
+//                staggeredRecyclerViewAdapter.notifyItemMoved(fromPosition, toPosition);
+//
+//                noteList.get(fromPosition).setPosition(fromPosition);
+//                noteList.get(toPosition).setPosition(toPosition);
+                noteList.get(fromPosition).setChangedPos(true);
+                noteList.get(toPosition).setChangedPos(true);
                 return true;
             }
 

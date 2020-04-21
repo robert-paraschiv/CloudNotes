@@ -20,7 +20,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-public class NoteEditsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> implements NonCheckableAdapter.OnItemClickListener {
+public class NoteEditsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     private static final String TAG = "NoteEditsAdapter";
 
@@ -31,10 +31,6 @@ public class NoteEditsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     private List<Note> noteList = new ArrayList<>();
     private Context mContext;
 
-    @Override
-    public void onItemClick(int position) {
-        mListener.onItemClick(position);
-    }
 
     public interface OnItemClickListener {
         void onItemClick(int position);
@@ -178,7 +174,6 @@ public class NoteEditsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
             NonCheckableAdapter homeCheckableAdapter = new NonCheckableAdapter(checkableItemList, position);
             holder.recyclerView.setAdapter(homeCheckableAdapter);
             holder.recyclerView.setHasFixedSize(true);
-            homeCheckableAdapter.setOnItemClickListener(this);
         }
     }
 

@@ -17,7 +17,7 @@ import com.rokudoz.cloudnotes.R;
 import java.util.ArrayList;
 import java.util.List;
 
-public class HomePageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> implements NonCheckableAdapter.OnItemClickListener {
+public class HomePageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
 
     private static final String TAG = "StaggeredRecyclerViewAd";
     private OnItemClickListener mListener;
@@ -27,10 +27,6 @@ public class HomePageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     private static final int TEXT_TYPE = 0;
     private static final int CHECKBOX_TYPE = 1;
 
-    @Override
-    public void onItemClick(int position) {
-        mListener.onItemClick(position);
-    }
 
     public interface OnItemClickListener {
         void onItemClick(int position);
@@ -79,6 +75,17 @@ public class HomePageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             this.recyclerView = itemView.findViewById(R.id.rv_home_checkboxNote_recyclerView);
 
             itemView.setOnClickListener(this);
+            recyclerView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (mListener != null) {
+                        int position = getAdapterPosition();
+                        if (position != RecyclerView.NO_POSITION) {
+                            mListener.onItemClick(position);
+                        }
+                    }
+                }
+            });
         }
 
         @Override
@@ -148,7 +155,8 @@ public class HomePageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             NonCheckableAdapter homeCheckableAdapter = new NonCheckableAdapter(checkableItemList, position);
             holder.recyclerView.setAdapter(homeCheckableAdapter);
             holder.recyclerView.setHasFixedSize(true);
-            homeCheckableAdapter.setOnItemClickListener(this);
+            holder.recyclerView.suppressLayout(true);
+//            homeCheckableAdapter.setOnItemClickListener(this);
         }
     }
 

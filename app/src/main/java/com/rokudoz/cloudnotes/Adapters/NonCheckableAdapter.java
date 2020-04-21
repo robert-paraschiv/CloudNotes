@@ -17,24 +17,15 @@ import java.util.List;
 
 public class NonCheckableAdapter extends RecyclerView.Adapter<NonCheckableAdapter.ViewHolder> {
     private static final String TAG = "HomeCheckableItemAdapter";
-    private OnItemClickListener mListener;
     int position = 0;
     private List<CheckableItem> checkableItemList = new ArrayList<>();
-
-    public interface OnItemClickListener {
-        void onItemClick(int position);
-    }
-
-    public void setOnItemClickListener(OnItemClickListener listener) {
-        mListener = listener;
-    }
 
     public NonCheckableAdapter(List<CheckableItem> checkableItemList, int position) {
         this.checkableItemList = checkableItemList;
         this.position = position;
     }
 
-    public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+    public class ViewHolder extends RecyclerView.ViewHolder{
 
         TextView text;
         MaterialCheckBox checkBox;
@@ -43,13 +34,13 @@ public class NonCheckableAdapter extends RecyclerView.Adapter<NonCheckableAdapte
             super(itemView);
             this.checkBox = itemView.findViewById(R.id.homeCheckableItem_checkbox);
             this.text = itemView.findViewById(R.id.homeCheckableItem_textView);
-            itemView.setOnClickListener(this);
+//            itemView.setOnClickListener(this);
         }
 
-        @Override
-        public void onClick(View v) {
-            mListener.onItemClick(position);
-        }
+//        @Override
+//        public void onClick(View v) {
+//            mListener.onItemClick(position);
+//        }
     }
 
     @NonNull
