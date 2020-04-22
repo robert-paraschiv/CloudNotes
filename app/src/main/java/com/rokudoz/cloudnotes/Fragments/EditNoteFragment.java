@@ -166,7 +166,7 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
         backBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                hideSoftKeyboard(Objects.requireNonNull(getActivity()));
+                hideSoftKeyboard(requireActivity());
                 if (Objects.requireNonNull(Navigation.findNavController(view).getCurrentDestination()).getId() == R.id.editNoteFragment)
                     Navigation.findNavController(view).navigate(EditNoteFragmentDirections.actionEditNoteFragmentToHomeFragment());
 
@@ -179,11 +179,11 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
 
                 //Dialog for delete note
                 View dialogView = getLayoutInflater().inflate(R.layout.dialog_show_ad, null);
-                final Dialog dialog = new Dialog(getContext(), R.style.CustomBottomSheetDialogTheme);
+                final Dialog dialog = new Dialog(requireContext(), R.style.CustomBottomSheetDialogTheme);
                 MaterialButton confirmBtn = dialogView.findViewById(R.id.dialog_ShowAd_confirmBtn);
                 MaterialButton cancelBtn = dialogView.findViewById(R.id.dialog_ShowAd_cancelBtn);
                 TextView title = dialogView.findViewById(R.id.dialog_ShowAd_title);
-                title.setText("Are you sure you want to delete this note?");
+                title.setText("Are you sure you want to move this note to trash?");
                 dialog.setContentView(dialogView);
 
                 confirmBtn.setOnClickListener(new View.OnClickListener() {
@@ -195,7 +195,7 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
                             @Override
                             public void onSuccess(Void aVoid) {
                                 Toast.makeText(getContext(), "Deleted note", Toast.LENGTH_SHORT).show();
-                                hideSoftKeyboard(Objects.requireNonNull(getActivity()));
+                                hideSoftKeyboard(requireActivity());
                                 if (Objects.requireNonNull(Navigation.findNavController(view).getCurrentDestination()).getId()
                                         == R.id.editNoteFragment)
                                     Navigation.findNavController(view).navigate(EditNoteFragmentDirections.actionEditNoteFragmentToHomeFragment());
@@ -203,32 +203,6 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
                             }
                         });
 
-                        //
-//                        final WriteBatch batch = db.batch();
-//                        usersRef.document(FirebaseAuth.getInstance().getCurrentUser().getUid()).collection("Notes").document(noteID)
-//                                .collection("Edits").get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
-//                            @Override
-//                            public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
-//                                if (queryDocumentSnapshots != null && queryDocumentSnapshots.size() > 0) {
-//                                    for (DocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
-//                                        batch.delete(documentSnapshot.getReference());
-//                                    }
-//                                    batch.delete(usersRef.document(FirebaseAuth.getInstance().getCurrentUser().getUid())
-//                                            .collection("Notes").document(noteID));
-//                                    batch.commit().addOnSuccessListener(new OnSuccessListener<Void>() {
-//                                        @Override
-//                                        public void onSuccess(Void aVoid) {
-//                                            Toast.makeText(getContext(), "Deleted note", Toast.LENGTH_SHORT).show();
-//                                            hideSoftKeyboard(getActivity());
-//                                            if (Objects.requireNonNull(Navigation.findNavController(view).getCurrentDestination()).getId()
-//                                                    == R.id.editNoteFragment)
-//                                                Navigation.findNavController(view).navigate(EditNoteFragmentDirections.actionEditNoteFragmentToHomeFragment());
-//                                            dialog.cancel();
-//                                        }
-//                                    });
-//                                }
-//                            }
-//                        });
                     }
                 });
                 cancelBtn.setOnClickListener(new View.OnClickListener() {

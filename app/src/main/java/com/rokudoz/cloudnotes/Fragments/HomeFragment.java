@@ -109,8 +109,8 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.fragment_home, container, false);
 
-        sharedPreferences = Objects.requireNonNull(getActivity()).getSharedPreferences(SETTINGS_PREFS_NAME, MODE_PRIVATE);
-        sharedPrefsEditor = getActivity().getSharedPreferences(SETTINGS_PREFS_NAME, MODE_PRIVATE).edit();
+        sharedPreferences = requireActivity().getSharedPreferences(SETTINGS_PREFS_NAME, MODE_PRIVATE);
+        sharedPrefsEditor = requireActivity().getSharedPreferences(SETTINGS_PREFS_NAME, MODE_PRIVATE).edit();
         if (getActivity() != null && !HIDE_BANNER) {
             getActivity().findViewById(R.id.bannerAdCard).setVisibility(View.VISIBLE);
         }
@@ -122,15 +122,13 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
         addNewNoteBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-//                if (Objects.requireNonNull(Navigation.findNavController(view).getCurrentDestination()).getId() == R.id.homeFragment)
-//                    Navigation.findNavController(view).navigate(HomeFragmentDirections.actionHomeFragmentToNewNoteFragment());
-
-                recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+                if (Objects.requireNonNull(Navigation.findNavController(view).getCurrentDestination()).getId() == R.id.homeFragment)
+                    Navigation.findNavController(view).navigate(HomeFragmentDirections.actionHomeFragmentToNewNoteFragment());
 
             }
         });
 
-        rewardedAd = new RewardedAd(Objects.requireNonNull(getContext()), getResources().getString(R.string.rewarded_ad_unit_id));
+        rewardedAd = new RewardedAd(requireContext(), getResources().getString(R.string.rewarded_ad_unit_id));
 
         RewardedAdLoadCallback adLoadCallback = new RewardedAdLoadCallback() {
             @Override
@@ -142,7 +140,7 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
 
                     //Dialog for sign out
                     View dialogView = getLayoutInflater().inflate(R.layout.dialog_show_ad, (ViewGroup) view, false);
-                    final Dialog dialog = new Dialog(Objects.requireNonNull(getActivity()), R.style.CustomBottomSheetDialogTheme);
+                    final Dialog dialog = new Dialog(requireActivity(), R.style.CustomBottomSheetDialogTheme);
                     MaterialButton confirmBtn = dialogView.findViewById(R.id.dialog_ShowAd_confirmBtn);
                     MaterialButton cancelBtn = dialogView.findViewById(R.id.dialog_ShowAd_cancelBtn);
                     dialog.setContentView(dialogView);
@@ -169,8 +167,6 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
 
                                         sharedPrefsEditor.putInt("TimesStartedCounter", 0);
                                         sharedPrefsEditor.apply();
-
-
                                         dialog.cancel();
                                     }
 
@@ -374,13 +370,13 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
     }
 
     private void showSettingsBottomSheet(User user) {
-        final SharedPreferences.Editor sharedPrefsEditor = Objects.requireNonNull(getActivity())
+        final SharedPreferences.Editor sharedPrefsEditor = requireActivity()
                 .getSharedPreferences(SETTINGS_PREFS_NAME, MODE_PRIVATE).edit();
         final SharedPreferences sharedPreferences = getActivity().getSharedPreferences(SETTINGS_PREFS_NAME, MODE_PRIVATE);
 
         //Bottom sheet dialog for "Settings"
         final View dialogView = getLayoutInflater().inflate(R.layout.dialog_settings, (ViewGroup) view, false);
-        final BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(Objects.requireNonNull(getContext()),
+        final BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(requireContext(),
                 R.style.CustomBottomSheetDialogTheme);
 
         LinearLayout themeLinearLayout = dialogView.findViewById(R.id.dialog_settings_theme_LL);
@@ -411,7 +407,7 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
             public void onClick(View v) {
                 //Dialog for close ad
                 View dialogView = getLayoutInflater().inflate(R.layout.dialog_show_ad, (ViewGroup) view, false);
-                final Dialog dialog = new Dialog(Objects.requireNonNull(getContext()), R.style.CustomBottomSheetDialogTheme);
+                final Dialog dialog = new Dialog(requireContext(), R.style.CustomBottomSheetDialogTheme);
                 MaterialButton confirmBtn = dialogView.findViewById(R.id.dialog_ShowAd_confirmBtn);
                 MaterialButton cancelBtn = dialogView.findViewById(R.id.dialog_ShowAd_cancelBtn);
                 TextView title = dialogView.findViewById(R.id.dialog_ShowAd_title);
@@ -545,7 +541,7 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
                     Intent intent = new Intent(getActivity(), LoginActivity.class);
                     intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                     startActivity(intent);
-                    getActivity().finish();
+                    requireActivity().finish();
                 }
                 // ...
             }

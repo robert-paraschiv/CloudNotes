@@ -1,5 +1,6 @@
 package com.rokudoz.cloudnotes.Fragments.Trash;
 
+import android.app.Activity;
 import android.app.ProgressDialog;
 import android.os.Bundle;
 
@@ -12,6 +13,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -23,6 +25,7 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.WriteBatch;
 import com.rokudoz.cloudnotes.Adapters.NonCheckableAdapter;
 import com.rokudoz.cloudnotes.Fragments.ViewNoteEditFragmentArgs;
@@ -42,7 +45,7 @@ public class ViewTrashNote extends Fragment {
     private View view;
 
     private TextView titleTv, textTv;
-    private MaterialButton restoreBtn, backBtn;
+    private MaterialButton restoreBtn, backBtn, deleteBtn;
     private RecyclerView recyclerView;
     private NonCheckableAdapter mAdapter;
     private int nrOfEdits = 0;
@@ -65,6 +68,7 @@ public class ViewTrashNote extends Fragment {
         textTv = view.findViewById(R.id.viewTrashNoteFragment_text);
         restoreBtn = view.findViewById(R.id.viewTrashNoteFragment_restoreBtn);
         backBtn = view.findViewById(R.id.viewTrashNoteFragment_backBtn);
+        deleteBtn = view.findViewById(R.id.viewTrashNoteFragment_deleteBtn);
         recyclerView = view.findViewById(R.id.viewTrashNoteFragment_recyclerView);
 
         if (getActivity() != null && !HIDE_BANNER) {
@@ -85,8 +89,45 @@ public class ViewTrashNote extends Fragment {
             }
         });
 
+        deleteBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                final WriteBatch batch = db.batch();
+                usersRef.document(FirebaseAuth.getInstance().getCurrentUser().getUid()).collection("Notes").document(noteID)
+                        .collection("Edits").get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+                    @Override
+                    public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                        if (queryDocumentSnapshots != null && queryDocumentSnapshots.size() > 0) {
+                            for (DocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
+                                batch.delete(documentSnapshot.getReference());
+                            }
+                            batch.delete(usersRef.document(FirebaseAuth.getInstance().getCurrentUser().getUid())
+                                    .collection("Notes").document(noteID));
+                            batch.commit().addOnSuccessListener(new OnSuccessListener<Void>() {
+                                @Override
+                                public void onSuccess(Void aVoid) {
+                                    Toast.makeText(getContext(), "Deleted note", Toast.LENGTH_SHORT).show();
+                                    hideSoftKeyboard(requireActivity());
+                                    if (Objects.requireNonNull(Navigation.findNavController(view).getCurrentDestination()).getId()
+                                            == R.id.viewTrashNote)
+                                        Navigation.findNavController(view).navigate(ViewTrashNoteDirections.actionViewTrashNoteToTrashFragment());
+                                }
+                            });
+                        }
+                    }
+                });
+            }
+        });
+
 
         return view;
+    }
+
+    public static void hideSoftKeyboard(Activity activity) {
+        InputMethodManager inputMethodManager = (InputMethodManager) activity.getSystemService(Activity.INPUT_METHOD_SERVICE);
+        if (activity.getCurrentFocus() != null)
+            inputMethodManager.hideSoftInputFromWindow(activity.getCurrentFocus().getWindowToken(), 0);
     }
 
     private void buildRecyclerView(List<CheckableItem> checkableItemList) {

@@ -30,6 +30,16 @@
                 android:layout_centerVertical="true"
                 android:layout_toEndOf="@id/viewTrashNoteFragment_backBtn"
                 android:text="View note to restore" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/viewTrashNoteFragment_deleteBtn"
+                style="@style/Widget.MaterialComponents.Button.TextButton"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
+                android:layout_marginEnd="8dp"
+                app:icon="@drawable/ic_baseline_delete_outline_24" />
         </RelativeLayout>
 
     </com.google.android.material.appbar.MaterialToolbar>
