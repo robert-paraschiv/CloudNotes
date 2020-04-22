@@ -219,7 +219,11 @@ public class NewNoteFragment extends Fragment implements CheckableItemAdapter.On
             if (!item.getText().trim().equals(""))
                 empty = false;
         }
-        if (!textInputEditText.getText().toString().trim().equals("") || !empty) {
+
+        if (!Objects.requireNonNull(textInputEditText.getText()).toString().trim().equals("")
+                || !Objects.requireNonNull(titleInputEditText.getText()).toString().trim().equals("")
+                || !empty) {
+
             Note note = new Note();
             String title = "";
             if (titleInputEditText.getText().toString().trim().equals("")) {

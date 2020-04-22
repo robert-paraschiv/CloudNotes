@@ -92,7 +92,7 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
     private CollectionReference usersRef = db.collection("Users");
     private FirebaseAuth.AuthStateListener mAuthListener;
-    private ListenerRegistration notesListener;
+    private ListenerRegistration notesListener, userDetailsListener;
 
     private CircleImageView userPicture;
 
@@ -297,10 +297,17 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
     public void onStart() {
         super.onStart();
         FirebaseAuth.getInstance().addAuthStateListener(mAuthListener);
+
+        if (FirebaseAuth.getInstance().getCurrentUser() != null) {
+            getNotes(FirebaseAuth.getInstance().getCurrentUser().getUid());
+            getUserInfo();
+        }
     }
 
     private void getNotes(String uid) {
-        usersRef.document(uid).collection("Notes")
+        noteList.clear();
+        staggeredRecyclerViewAdapter.notifyDataSetChanged();
+        notesListener = usersRef.document(uid).collection("Notes")
                 .whereEqualTo("deleted", false)
                 .orderBy("position", Query.Direction.ASCENDING)
                 .addSnapshotListener(new EventListener<QuerySnapshot>() {
@@ -311,14 +318,23 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
                                 Note note = documentSnapshot.toObject(Note.class);
                                 if (note != null) {
                                     note.setNote_doc_ID(documentSnapshot.getId());
-                                    if (!noteList.contains(note)) {
-                                        noteList.add(note);
-                                        staggeredRecyclerViewAdapter.notifyItemInserted(noteList.size() - 1);
+                                    if (noteList.contains(note)) {
+                                        if (note.getDeleted()) {
+                                            int notePosition = noteList.indexOf(note);
+                                            noteList.remove(note);
+                                            staggeredRecyclerViewAdapter.notifyItemRemoved(notePosition);
+                                        } else {
+                                            noteList.set(noteList.indexOf(note), note);
+                                            staggeredRecyclerViewAdapter.notifyItemChanged(noteList.indexOf(note));
+                                        }
                                     } else {
-                                        noteList.set(noteList.indexOf(note), note);
-                                        staggeredRecyclerViewAdapter.notifyItemChanged(noteList.indexOf(note));
+                                        if (!note.getDeleted()) {
+                                            noteList.add(note);
+                                            staggeredRecyclerViewAdapter.notifyItemInserted(noteList.size() - 1);
+                                        }
                                     }
                                 }
+                                Log.d(TAG, "onEvent: " + note.toString());
                             }
                         }
                     }
@@ -331,6 +347,16 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
         if (mAuthListener != null) {
             FirebaseAuth.getInstance().removeAuthStateListener(mAuthListener);
         }
+
+        if (userDetailsListener != null) {
+            userDetailsListener.remove();
+            userDetailsListener = null;
+        }
+        if (notesListener != null) {
+            notesListener.remove();
+            notesListener = null;
+        }
+
         for (Note note : noteList) {
             if (note.getChangedPos() != null && note.getChangedPos()) {
                 usersRef.document(FirebaseAuth.getInstance().getCurrentUser().getUid())
@@ -346,7 +372,7 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
     }
 
     private void getUserInfo() {
-        usersRef.document(FirebaseAuth.getInstance().getCurrentUser().getUid()).addSnapshotListener(new EventListener<DocumentSnapshot>() {
+        userDetailsListener = usersRef.document(FirebaseAuth.getInstance().getCurrentUser().getUid()).addSnapshotListener(new EventListener<DocumentSnapshot>() {
             @Override
             public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException e) {
                 if (e == null && documentSnapshot != null) {
@@ -526,8 +552,7 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
                     //check if email is verified
                     if (user.isEmailVerified()) {
                         // DO STUFF
-                        getNotes(FirebaseAuth.getInstance().getCurrentUser().getUid());
-                        getUserInfo();
+
                         Log.d(TAG, "onAuthStateChanged: MAIL VERIFIED");
                     } else {
                         Toast.makeText(getActivity(), "Email is not Verified\nCheck your Inbox", Toast.LENGTH_SHORT).show();

@@ -19,6 +19,7 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.rokudoz.cloudnotes.Adapters.HomePageAdapter;
@@ -42,7 +43,7 @@ public class TrashFragment extends Fragment implements NoteEditsAdapter.OnItemCl
 
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
     private CollectionReference usersRef = db.collection("Users");
-
+    private ListenerRegistration notesListener;
     private View view;
 
 
@@ -68,13 +69,29 @@ public class TrashFragment extends Fragment implements NoteEditsAdapter.OnItemCl
 
 
         setUpRecyclerView();
-        getNotes();
-
         return view;
     }
 
+    @Override
+    public void onStop() {
+        super.onStop();
+        if (notesListener != null) {
+            notesListener.remove();
+            notesListener = null;
+        }
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        if (FirebaseAuth.getInstance().getCurrentUser() != null)
+            getNotes();
+    }
+
     private void getNotes() {
-        usersRef.document(FirebaseAuth.getInstance().getCurrentUser().getUid()).collection("Notes")
+        noteList.clear();
+        noteEditsAdapter.notifyDataSetChanged();
+        notesListener = usersRef.document(FirebaseAuth.getInstance().getCurrentUser().getUid()).collection("Notes")
                 .whereEqualTo("deleted", true)
                 .orderBy("creation_date", Query.Direction.DESCENDING)
                 .addSnapshotListener(new EventListener<QuerySnapshot>() {
@@ -86,11 +103,19 @@ public class TrashFragment extends Fragment implements NoteEditsAdapter.OnItemCl
                                 if (note != null) {
                                     note.setNote_doc_ID(documentSnapshot.getId());
                                     if (noteList.contains(note)) {
-                                        noteList.set(noteList.indexOf(note), note);
-                                        noteEditsAdapter.notifyItemChanged(noteList.indexOf(note));
+                                        if (note.getDeleted()) {
+                                            noteList.set(noteList.indexOf(note), note);
+                                            noteEditsAdapter.notifyItemChanged(noteList.indexOf(note));
+                                        } else {
+                                            int notePosition = noteList.indexOf(note);
+                                            noteList.remove(note);
+                                            noteEditsAdapter.notifyItemRemoved(notePosition);
+                                        }
                                     } else {
-                                        noteList.add(note);
-                                        noteEditsAdapter.notifyItemInserted(noteList.size() - 1);
+                                        if (note.getDeleted()) {
+                                            noteList.add(note);
+                                            noteEditsAdapter.notifyItemInserted(noteList.size() - 1);
+                                        }
                                     }
                                 }
                             }
