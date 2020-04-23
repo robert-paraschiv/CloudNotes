@@ -294,7 +294,7 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
                             if (actionMode != null)
                                 actionMode.finish();
                         }
-                    }, 800);
+                    }, 200);
                 }
 
                 return true;
@@ -606,7 +606,7 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
             if (selected == 0) {
                 actionMode.finish();
             } else {
-                actionMode.setTitle("Selected: " + selected);
+                actionMode.setTitle("" + selected);
             }
         }
     }
@@ -617,13 +617,13 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
         if (actionMode == null) {
             actionMode = materialToolbar.startActionMode(actionModeCallback);
             if (actionMode != null) {
-                actionMode.setTitle("Selected: " + selected);
+                actionMode.setTitle("" + selected);
             }
         } else {
             if (selected == 0) {
                 actionMode.finish();
             } else {
-                actionMode.setTitle("Selected: " + selected);
+                actionMode.setTitle("" + selected);
             }
         }
     }
@@ -660,8 +660,9 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
             staggeredRecyclerViewAdapter.clearSelected();
             //Deselect selected items when action bar closes
             for (int i = 0; i < noteList.size(); i++) {
-                Objects.requireNonNull(Objects.requireNonNull(recyclerView.getLayoutManager()).getChildAt(i))
-                        .setBackgroundResource(R.drawable.home_note_background);
+                if (recyclerView.getLayoutManager() != null && recyclerView.getLayoutManager().getChildAt(i) != null) {
+                    Objects.requireNonNull(recyclerView.getLayoutManager().getChildAt(i)).setBackgroundResource(R.drawable.home_note_background);
+                }
             }
 
             actionMode = null;
