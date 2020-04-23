@@ -137,9 +137,21 @@ public class NoteEditsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         holder.editDate.setText(lastEdit.getLastEdit(date.getTime()));
 
         if (noteList.get(position).getEdit_type() != null) {
+            switch (noteList.get(position).getEdit_type()){
+                case "Edited":
+                    holder.editType.setTextColor(mContext.getColor(R.color.edit_type_edited));
+                    break;
+                case "Restored":
+                    holder.editType.setTextColor(mContext.getColor(R.color.edit_type_restored));
+                    break;
+                default:
+                    holder.editType.setTextColor(mContext.getColor(R.color.edit_type_created));
+                    break;
+            }
             holder.editType.setText(noteList.get(position).getEdit_type());
         } else {
             holder.editType.setText("Created");
+            holder.editType.setTextColor(mContext.getColor(R.color.edit_type_created));
         }
 
     }
@@ -154,6 +166,17 @@ public class NoteEditsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         }
 
         if (noteList.get(position).getEdit_type() != null) {
+            switch (noteList.get(position).getEdit_type()){
+                case "Edited":
+                    holder.editType.setTextColor(mContext.getColor(R.color.edit_type_edited));
+                    break;
+                case "Restored":
+                    holder.editType.setTextColor(mContext.getColor(R.color.edit_type_restored));
+                    break;
+                default:
+                    holder.editType.setTextColor(mContext.getColor(R.color.edit_type_created));
+                    break;
+            }
             holder.editType.setText(noteList.get(position).getEdit_type());
         } else {
             holder.editType.setText("Created");

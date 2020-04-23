@@ -389,14 +389,14 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
                             Objects.requireNonNull(textInput.getText()).toString(),
                             null,
                             Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid(),
-                            null, true, noteType, null, "Edit", number_of_edits + 1, false);
+                            null, true, noteType, null, "Edited", number_of_edits + 1, false);
                 } else if (noteType.equals("checkbox")) {
                     note = new Note(position,
                             title,
                             "",
                             null,
                             Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid(),
-                            null, true, noteType, checkableItemList, "Edit", number_of_edits + 1, false);
+                            null, true, noteType, checkableItemList, "Edited", number_of_edits + 1, false);
                 }
 
                 WriteBatch batch = db.batch();
