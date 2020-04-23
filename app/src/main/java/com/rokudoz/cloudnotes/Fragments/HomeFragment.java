@@ -3,6 +3,7 @@ package com.rokudoz.cloudnotes.Fragments;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -19,8 +20,13 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 
+import android.os.Handler;
 import android.util.Log;
+import android.view.ActionMode;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
@@ -30,6 +36,7 @@ import android.widget.LinearLayout;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.Toolbar;
 
 import com.bumptech.glide.Glide;
 import com.google.android.gms.ads.AdRequest;
@@ -38,6 +45,7 @@ import com.google.android.gms.ads.rewarded.RewardedAd;
 import com.google.android.gms.ads.rewarded.RewardedAdCallback;
 import com.google.android.gms.ads.rewarded.RewardedAdLoadCallback;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
@@ -77,6 +85,7 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
     public static int LAYOUT_STAGGERED_TYPE = 0;
     public static int LAYOUT_LINEAR_TYPE = 1;
 
+    private ActionMode actionMode;
 
     private int layoutType = 0;
 
@@ -92,7 +101,7 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
     private CollectionReference usersRef = db.collection("Users");
     private FirebaseAuth.AuthStateListener mAuthListener;
-    private ListenerRegistration notesListener, userDetailsListener;
+    private ListenerRegistration notesListener, userDetailsListener, deletedNotesListener;
 
     private CircleImageView userPicture;
 
@@ -114,6 +123,8 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
         if (getActivity() != null && !HIDE_BANNER) {
             getActivity().findViewById(R.id.bannerAdCard).setVisibility(View.VISIBLE);
         }
+        Toolbar materialToolbar = view.findViewById(R.id.homeFragment_toolbar);
+        getActivity().setActionBar(materialToolbar);
 
         userPicture = view.findViewById(R.id.homeFragment_userImage);
         layoutManagerIcon = view.findViewById(R.id.homeFragment_layoutManagerIcon);
@@ -251,8 +262,8 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
                 ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT, 0) {
             @Override
             public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {
-                int fromPosition = viewHolder.getAdapterPosition();
-                int toPosition = target.getAdapterPosition();
+                final int fromPosition = viewHolder.getAdapterPosition();
+                final int toPosition = target.getAdapterPosition();
 
 
                 if (fromPosition < toPosition) {
@@ -270,12 +281,22 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
                         staggeredRecyclerViewAdapter.notifyItemMoved(i, i - 1);
                     }
                 }
-//                staggeredRecyclerViewAdapter.notifyItemMoved(fromPosition, toPosition);
-//
-//                noteList.get(fromPosition).setPosition(fromPosition);
-//                noteList.get(toPosition).setPosition(toPosition);
+
                 noteList.get(fromPosition).setChangedPos(true);
                 noteList.get(toPosition).setChangedPos(true);
+
+                if (actionMode != null) {
+                    final Handler handler = new Handler();
+                    handler.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            //Do something after 100ms
+                            if (actionMode != null)
+                                actionMode.finish();
+                        }
+                    }, 800);
+                }
+
                 return true;
             }
 
@@ -576,8 +597,96 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
     @Override
     public void onItemClick(int position) {
         Log.d(TAG, "onItemClick: " + position);
-        Note note = noteList.get(position);
-        if (Objects.requireNonNull(Navigation.findNavController(view).getCurrentDestination()).getId() == R.id.homeFragment)
-            Navigation.findNavController(view).navigate(HomeFragmentDirections.actionHomeFragmentToEditNoteFragment(note.getNote_doc_ID()));
+        int selected = staggeredRecyclerViewAdapter.getSelected().size();
+        if (actionMode == null) {
+            Note note = noteList.get(position);
+            if (Objects.requireNonNull(Navigation.findNavController(view).getCurrentDestination()).getId() == R.id.homeFragment)
+                Navigation.findNavController(view).navigate(HomeFragmentDirections.actionHomeFragmentToEditNoteFragment(note.getNote_doc_ID()));
+        } else {
+            if (selected == 0) {
+                actionMode.finish();
+            } else {
+                actionMode.setTitle("Selected: " + selected);
+            }
+        }
+    }
+
+    @Override
+    public void onLongItemClick(int position) {
+        int selected = staggeredRecyclerViewAdapter.getSelected().size();
+        if (actionMode == null) {
+            actionMode = requireActivity().startActionMode(actionModeCallback);
+            if (actionMode != null) {
+                actionMode.setTitle("Selected: " + selected);
+            }
+        } else {
+            if (selected == 0) {
+                actionMode.finish();
+            } else {
+                actionMode.setTitle("Selected: " + selected);
+            }
+        }
+    }
+
+
+    private ActionMode.Callback actionModeCallback = new ActionMode.Callback() {
+        @Override
+        public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+            MenuInflater inflater = mode.getMenuInflater();
+            inflater.inflate(R.menu.cab_menu, menu);
+            return true;
+        }
+
+        @Override
+        public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+            return false;
+        }
+
+        @Override
+        public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+            if (item.getItemId() == R.id.delete_notes) {
+                //Dialog for delete note
+                List<Note> notesToDelete = new ArrayList<>(staggeredRecyclerViewAdapter.getSelected());
+
+                deleteSelectedNotes(notesToDelete);
+                mode.finish();
+                return true;
+            }
+            return false;
+        }
+
+        @Override
+        public void onDestroyActionMode(ActionMode mode) {
+            staggeredRecyclerViewAdapter.clearSelected();
+//            staggeredRecyclerViewAdapter.notifyDataSetChanged();
+            actionMode = null;
+        }
+    };
+
+    private void deleteSelectedNotes(final List<Note> notesToDelete) {
+        final ProgressDialog progressDialog = new ProgressDialog(getContext());
+        progressDialog.setTitle("Please wait");
+        progressDialog.setCancelable(false);
+        progressDialog.show();
+        final int[] notesdeleted = {0};
+        for (final Note note : notesToDelete) {
+            usersRef.document(FirebaseAuth.getInstance().getCurrentUser().getUid()).collection("Notes").document(note.getNote_doc_ID())
+                    .update("deleted", true).addOnSuccessListener(new OnSuccessListener<Void>() {
+                @Override
+                public void onSuccess(Void aVoid) {
+                    Log.d(TAG, "onSuccess: Deleted note " + note.getNoteTitle());
+                    notesdeleted[0]++;
+                    if (notesdeleted[0] == notesToDelete.size()) {
+                        getNotes(FirebaseAuth.getInstance().getCurrentUser().getUid());
+//                        noteList.removeAll(notesToDelete);
+//                        staggeredRecyclerViewAdapter.notifyDataSetChanged();
+                        progressDialog.cancel();
+                    }
+                }
+            });
+
+//            noteList.remove(note);
+//            staggeredRecyclerViewAdapter.notifyItemRemoved(noteList.indexOf(note));
+        }
     }
 }

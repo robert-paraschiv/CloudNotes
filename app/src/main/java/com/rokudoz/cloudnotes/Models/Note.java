@@ -171,6 +171,7 @@ public class Note {
                 ", changedPos=" + changedPos +
                 ", edit_type='" + edit_type + '\'' +
                 ", number_of_edits=" + number_of_edits +
+                ", deleted=" + deleted +
                 ", creation_date=" + creation_date +
                 '}';
     }

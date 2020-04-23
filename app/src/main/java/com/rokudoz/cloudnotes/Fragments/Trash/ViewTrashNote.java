@@ -1,6 +1,7 @@
 package com.rokudoz.cloudnotes.Fragments.Trash;
 
 import android.app.Activity;
+import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.os.Bundle;
 
@@ -28,6 +29,7 @@ import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.WriteBatch;
 import com.rokudoz.cloudnotes.Adapters.NonCheckableAdapter;
+import com.rokudoz.cloudnotes.Fragments.EditNoteFragmentDirections;
 import com.rokudoz.cloudnotes.Fragments.ViewNoteEditFragmentArgs;
 import com.rokudoz.cloudnotes.Fragments.ViewNoteEditFragmentDirections;
 import com.rokudoz.cloudnotes.Models.CheckableItem;
@@ -93,30 +95,55 @@ public class ViewTrashNote extends Fragment {
             @Override
             public void onClick(View v) {
 
-                final WriteBatch batch = db.batch();
-                usersRef.document(FirebaseAuth.getInstance().getCurrentUser().getUid()).collection("Notes").document(noteID)
-                        .collection("Edits").get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+                //Dialog for delete note
+                View dialogView = getLayoutInflater().inflate(R.layout.dialog_show_ad, null);
+                final Dialog dialog = new Dialog(requireContext(), R.style.CustomBottomSheetDialogTheme);
+                MaterialButton confirmBtn = dialogView.findViewById(R.id.dialog_ShowAd_confirmBtn);
+                MaterialButton cancelBtn = dialogView.findViewById(R.id.dialog_ShowAd_cancelBtn);
+                TextView title = dialogView.findViewById(R.id.dialog_ShowAd_title);
+                title.setText("Are you sure you want to delete this note forever?");
+                dialog.setContentView(dialogView);
+
+                confirmBtn.setOnClickListener(new View.OnClickListener() {
                     @Override
-                    public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
-                        if (queryDocumentSnapshots != null && queryDocumentSnapshots.size() > 0) {
-                            for (DocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
-                                batch.delete(documentSnapshot.getReference());
-                            }
-                            batch.delete(usersRef.document(FirebaseAuth.getInstance().getCurrentUser().getUid())
-                                    .collection("Notes").document(noteID));
-                            batch.commit().addOnSuccessListener(new OnSuccessListener<Void>() {
-                                @Override
-                                public void onSuccess(Void aVoid) {
-                                    Toast.makeText(getContext(), "Deleted note", Toast.LENGTH_SHORT).show();
-                                    hideSoftKeyboard(requireActivity());
-                                    if (Objects.requireNonNull(Navigation.findNavController(view).getCurrentDestination()).getId()
-                                            == R.id.viewTrashNote)
-                                        Navigation.findNavController(view).navigate(ViewTrashNoteDirections.actionViewTrashNoteToTrashFragment());
+                    public void onClick(View v) {
+                        //Delete note
+                        final WriteBatch batch = db.batch();
+                        usersRef.document(FirebaseAuth.getInstance().getCurrentUser().getUid()).collection("Notes").document(noteID)
+                                .collection("Edits").get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+                            @Override
+                            public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                                if (queryDocumentSnapshots != null && queryDocumentSnapshots.size() > 0) {
+                                    for (DocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
+                                        batch.delete(documentSnapshot.getReference());
+                                    }
+                                    batch.delete(usersRef.document(FirebaseAuth.getInstance().getCurrentUser().getUid())
+                                            .collection("Notes").document(noteID));
+                                    batch.commit().addOnSuccessListener(new OnSuccessListener<Void>() {
+                                        @Override
+                                        public void onSuccess(Void aVoid) {
+                                            Toast.makeText(getContext(), "Deleted note", Toast.LENGTH_SHORT).show();
+                                            hideSoftKeyboard(requireActivity());
+                                            if (Objects.requireNonNull(Navigation.findNavController(view).getCurrentDestination()).getId()
+                                                    == R.id.viewTrashNote)
+                                                Navigation.findNavController(view).navigate(ViewTrashNoteDirections.actionViewTrashNoteToTrashFragment());
+                                        }
+                                    });
                                 }
-                            });
-                        }
+                            }
+                        });
+
                     }
                 });
+                cancelBtn.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        dialog.cancel();
+                    }
+                });
+
+                dialog.show();
+
             }
         });
 
@@ -172,7 +199,7 @@ public class ViewTrashNote extends Fragment {
                                             public void onSuccess(Void aVoid) {
                                                 progressDialog.cancel();
                                                 if (Objects.requireNonNull(Navigation.findNavController(view).getCurrentDestination()).getId() == R.id.viewTrashNote)
-                                                    Navigation.findNavController(view).navigate(ViewTrashNoteDirections.actionViewTrashNoteToHomeFragment());
+                                                    Navigation.findNavController(view).navigate(ViewTrashNoteDirections.actionViewTrashNoteToTrashFragment());
                                             }
                                         });
 

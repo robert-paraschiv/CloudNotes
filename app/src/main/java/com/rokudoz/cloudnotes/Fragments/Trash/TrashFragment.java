@@ -138,4 +138,9 @@ public class TrashFragment extends Fragment implements NoteEditsAdapter.OnItemCl
         if (Objects.requireNonNull(Navigation.findNavController(view).getCurrentDestination()).getId() == R.id.trashFragment && note.getNote_doc_ID() != null)
             Navigation.findNavController(view).navigate(TrashFragmentDirections.actionTrashFragmentToViewTrashNote(note.getNote_doc_ID()));
     }
+
+    @Override
+    public void onLongItemClick(int position) {
+
+    }
 }
