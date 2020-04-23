@@ -8,7 +8,7 @@
     android:fitsSystemWindows="true"
     tools:context=".Fragments.HomeFragment">
 
-    <Toolbar
+    <com.google.android.material.appbar.MaterialToolbar
         android:id="@+id/homeFragment_toolbar"
         android:layout_width="match_parent"
         android:layout_height="50dp">
@@ -49,14 +49,14 @@
         </RelativeLayout>
 
 
-    </Toolbar>
+    </com.google.android.material.appbar.MaterialToolbar>
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/homeFragment_recyclerView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_alignParentStart="true"
-        android:layout_marginTop="50dp"
+        android:layout_marginTop="55dp"
         app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior" />
 
 

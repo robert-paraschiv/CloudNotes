@@ -86,6 +86,7 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
     public static int LAYOUT_LINEAR_TYPE = 1;
 
     private ActionMode actionMode;
+    private MaterialToolbar materialToolbar;
 
     private int layoutType = 0;
 
@@ -123,8 +124,7 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
         if (getActivity() != null && !HIDE_BANNER) {
             getActivity().findViewById(R.id.bannerAdCard).setVisibility(View.VISIBLE);
         }
-        Toolbar materialToolbar = view.findViewById(R.id.homeFragment_toolbar);
-        getActivity().setActionBar(materialToolbar);
+        materialToolbar = view.findViewById(R.id.homeFragment_toolbar);
 
         userPicture = view.findViewById(R.id.homeFragment_userImage);
         layoutManagerIcon = view.findViewById(R.id.homeFragment_layoutManagerIcon);
@@ -615,7 +615,7 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
     public void onLongItemClick(int position) {
         int selected = staggeredRecyclerViewAdapter.getSelected().size();
         if (actionMode == null) {
-            actionMode = requireActivity().startActionMode(actionModeCallback);
+            actionMode = materialToolbar.startActionMode(actionModeCallback);
             if (actionMode != null) {
                 actionMode.setTitle("Selected: " + selected);
             }
@@ -645,10 +645,10 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
         @Override
         public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
             if (item.getItemId() == R.id.delete_notes) {
-                //Dialog for delete note
+                // Delete btn is clicked, proceed to delete notes
                 List<Note> notesToDelete = new ArrayList<>(staggeredRecyclerViewAdapter.getSelected());
-
                 deleteSelectedNotes(notesToDelete);
+
                 mode.finish();
                 return true;
             }
@@ -658,7 +658,12 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
         @Override
         public void onDestroyActionMode(ActionMode mode) {
             staggeredRecyclerViewAdapter.clearSelected();
-//            staggeredRecyclerViewAdapter.notifyDataSetChanged();
+            //Deselect selected items when action bar closes
+            for (int i = 0; i < noteList.size(); i++) {
+                Objects.requireNonNull(Objects.requireNonNull(recyclerView.getLayoutManager()).getChildAt(i))
+                        .setBackgroundResource(R.drawable.home_note_background);
+            }
+
             actionMode = null;
         }
     };
@@ -677,16 +682,12 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
                     Log.d(TAG, "onSuccess: Deleted note " + note.getNoteTitle());
                     notesdeleted[0]++;
                     if (notesdeleted[0] == notesToDelete.size()) {
+                        //Clear notes list and get them all again
                         getNotes(FirebaseAuth.getInstance().getCurrentUser().getUid());
-//                        noteList.removeAll(notesToDelete);
-//                        staggeredRecyclerViewAdapter.notifyDataSetChanged();
                         progressDialog.cancel();
                     }
                 }
             });
-
-//            noteList.remove(note);
-//            staggeredRecyclerViewAdapter.notifyItemRemoved(noteList.indexOf(note));
         }
     }
 }

@@ -12,6 +12,7 @@
         <item name="android:navigationBarColor">@color/navigationColor</item>
         <item name="android:windowLightNavigationBar">true</item>
         <item name="fontFamily">@font/montserrat</item>
+        <item name="windowActionModeOverlay">true</item>
     </style>
 
     <style name="CustomBottomSheetDialogTheme" parent="Theme.Design.Light.BottomSheetDialog">
