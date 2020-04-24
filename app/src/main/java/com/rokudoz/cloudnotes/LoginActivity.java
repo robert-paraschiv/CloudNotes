@@ -27,7 +27,10 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.WriteBatch;
 import com.rokudoz.cloudnotes.Models.User;
+
+import java.util.Objects;
 
 public class LoginActivity extends AppCompatActivity implements View.OnClickListener {
     private static final String TAG = "LoginActivity";
@@ -38,11 +41,10 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     // [END declare_auth]
 
     //Firebase
-    private FirebaseAuth.AuthStateListener mAuthListener;
     private GoogleSignInClient mGoogleSignInClient;
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
     private CollectionReference userRef = db.collection("Users");
-
+    private String userPicture = "";
     private String name = "";
     private ProgressBar progressBar;
 
@@ -91,7 +93,9 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
             try {
                 // Google Sign In was successful, authenticate with Firebase
                 GoogleSignInAccount account = task.getResult(ApiException.class);
-                firebaseAuthWithGoogle(account);
+                if (account != null) {
+                    firebaseAuthWithGoogle(account);
+                }
             } catch (ApiException e) {
                 // Google Sign In failed, update UI appropriately
                 Log.w(TAG, "Google sign in failed", e);
@@ -119,15 +123,20 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                             // Sign in success, update UI with the signed-in user's information
                             Log.d(TAG, "signInWithCredential:success");
                             FirebaseUser user = mAuth.getCurrentUser();
-                            name = user.getDisplayName();
+                            if (user != null) {
+                                name = user.getDisplayName();
+                                userPicture = Objects.requireNonNull(user.getPhotoUrl()).toString();
+                            }
+
                             Intent intent = new Intent(LoginActivity.this, MainActivity.class);
                             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                            boolean newuser = task.getResult().getAdditionalUserInfo().isNewUser();
+                            boolean newuser = Objects.requireNonNull(Objects.requireNonNull(task.getResult()).getAdditionalUserInfo()).isNewUser();
                             if (newuser) {
                                 Log.d(TAG, "onComplete: NEW USER");
                                 addNewUser();
                             } else {
                                 Log.d(TAG, "onComplete: NOT a new USER");
+                                updateUser();
                                 startActivity(intent);
                                 finish();
                             }
@@ -143,6 +152,20 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                     }
                 });
     }
+
+    private void updateUser() {
+        String userId = Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid();
+        String userEmail = FirebaseAuth.getInstance().getCurrentUser().getEmail();
+        WriteBatch batch = db.batch();
+        batch.update(userRef.document(userId), "user_name", name);
+        batch.update(userRef.document(userId), "user_profile_picture", userPicture);
+        batch.commit().addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+                Log.d(TAG, "onSuccess: Updated user info");
+            }
+        });
+    }
     // [END auth_with_google]
 
     // [START signin]
@@ -154,9 +177,9 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
 
     public void addNewUser() {
-        String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        String userId = Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid();
         String userEmail = FirebaseAuth.getInstance().getCurrentUser().getEmail();
-        String userProfilePic = FirebaseAuth.getInstance().getCurrentUser().getPhotoUrl().toString();
+        String userProfilePic = Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser().getPhotoUrl()).toString();
 
         Log.d(TAG, "addNewUser: Adding new User: \n user_id:" + userId);
 

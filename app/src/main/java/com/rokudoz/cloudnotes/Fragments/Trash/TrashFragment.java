@@ -24,6 +24,7 @@ import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.rokudoz.cloudnotes.Adapters.HomePageAdapter;
 import com.rokudoz.cloudnotes.Adapters.NoteEditsAdapter;
+import com.rokudoz.cloudnotes.Adapters.TrashNotesAdapter;
 import com.rokudoz.cloudnotes.Fragments.NoteEditsFragment;
 import com.rokudoz.cloudnotes.Models.Note;
 import com.rokudoz.cloudnotes.R;
@@ -32,13 +33,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-public class TrashFragment extends Fragment implements NoteEditsAdapter.OnItemClickListener, HomePageAdapter.OnItemClickListener {
+public class TrashFragment extends Fragment implements NoteEditsAdapter.OnItemClickListener, TrashNotesAdapter.OnItemClickListener {
     private static final String TAG = "TrashFragment";
 
     private MaterialButton backBtn;
     private RecyclerView recyclerView;
 
-    private HomePageAdapter noteEditsAdapter;
+    private TrashNotesAdapter noteEditsAdapter;
     private List<Note> noteList = new ArrayList<>();
 
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
@@ -125,7 +126,7 @@ public class TrashFragment extends Fragment implements NoteEditsAdapter.OnItemCl
     }
 
     private void setUpRecyclerView() {
-        noteEditsAdapter = new HomePageAdapter(getActivity(), noteList);
+        noteEditsAdapter = new TrashNotesAdapter(getActivity(), noteList);
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext());
         recyclerView.setLayoutManager(linearLayoutManager);
         recyclerView.setAdapter(noteEditsAdapter);
@@ -137,10 +138,5 @@ public class TrashFragment extends Fragment implements NoteEditsAdapter.OnItemCl
         Note note = noteList.get(position);
         if (Objects.requireNonNull(Navigation.findNavController(view).getCurrentDestination()).getId() == R.id.trashFragment && note.getNote_doc_ID() != null)
             Navigation.findNavController(view).navigate(TrashFragmentDirections.actionTrashFragmentToViewTrashNote(note.getNote_doc_ID()));
-    }
-
-    @Override
-    public void onLongItemClick(int position) {
-
     }
 }

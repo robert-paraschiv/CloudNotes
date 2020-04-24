@@ -1,25 +1,12 @@
 package com.rokudoz.cloudnotes.Fragments;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatDelegate;
-import androidx.fragment.app.Fragment;
-import androidx.navigation.Navigation;
-import androidx.recyclerview.widget.ItemTouchHelper;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-import androidx.recyclerview.widget.StaggeredGridLayoutManager;
-
 import android.os.Handler;
 import android.util.Log;
 import android.view.ActionMode;
@@ -36,7 +23,16 @@ import android.widget.LinearLayout;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.widget.Toolbar;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatDelegate;
+import androidx.fragment.app.Fragment;
+import androidx.navigation.Navigation;
+import androidx.recyclerview.widget.ItemTouchHelper;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 
 import com.bumptech.glide.Glide;
 import com.google.android.gms.ads.AdRequest;
@@ -48,7 +44,6 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.button.MaterialButton;
-import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -62,7 +57,6 @@ import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.rokudoz.cloudnotes.Adapters.HomePageAdapter;
 import com.rokudoz.cloudnotes.LoginActivity;
-import com.rokudoz.cloudnotes.MainActivity;
 import com.rokudoz.cloudnotes.Models.Note;
 import com.rokudoz.cloudnotes.Models.User;
 import com.rokudoz.cloudnotes.R;
@@ -88,8 +82,6 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
     private ActionMode actionMode;
     private MaterialToolbar materialToolbar;
 
-    private int layoutType = 0;
-
     private View view;
     private RecyclerView recyclerView;
     ItemTouchHelper helper;
@@ -98,11 +90,10 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
     private HomePageAdapter staggeredRecyclerViewAdapter;
     private List<Note> noteList = new ArrayList<>();
 
-    private FirebaseAuth mAuth;
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
     private CollectionReference usersRef = db.collection("Users");
     private FirebaseAuth.AuthStateListener mAuthListener;
-    private ListenerRegistration notesListener, userDetailsListener, deletedNotesListener;
+    private ListenerRegistration notesListener, userDetailsListener;
 
     private CircleImageView userPicture;
 
@@ -113,7 +104,6 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
     public HomeFragment() {
         // Required empty public constructor
     }
-
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -213,11 +203,11 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
                 .addTestDevice("4129AB584AC9547A6DDCE83E28748843") // Mi 9T Pro
                 .addTestDevice("B141CB779F883EF84EA9A32A7D068B76") // RedMi 5 Plus
                 .addTestDevice(AdRequest.DEVICE_ID_EMULATOR).build();
+
         if (sharedPreferences.getInt("TimesStartedCounter", 0) >= 5 && !ASKED_ALREADY) {
             rewardedAd.loadAd(adRequest, adLoadCallback);
             ASKED_ALREADY = true;
         }
-
 
         buildRecyclerView();
         setupFirebaseAuth();
@@ -229,15 +219,17 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
         recyclerView = view.findViewById(R.id.homeFragment_recyclerView);
         staggeredRecyclerViewAdapter = new HomePageAdapter(getActivity(), noteList);
 
+        //Get last user selected type of home layout and apply it
         if (sharedPreferences.getInt("home_layout_manager_type", 0) == LAYOUT_STAGGERED_TYPE) {
             StaggeredGridLayoutManager staggeredGridLayoutManager = new StaggeredGridLayoutManager(2, LinearLayoutManager.VERTICAL);
             recyclerView.setLayoutManager(staggeredGridLayoutManager);
             layoutManagerIcon.setImageResource(R.drawable.ic_outline_view_agenda_24);
-        } else {
+        } else if (sharedPreferences.getInt("home_layout_manager_type", 0) == LAYOUT_LINEAR_TYPE) {
             recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
             layoutManagerIcon.setImageResource(R.drawable.ic_outline_dashboard_24);
         }
 
+        //Change type of home layout on click : Staggered / Linear
         layoutManagerIcon.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -258,6 +250,7 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
         recyclerView.setAdapter(staggeredRecyclerViewAdapter);
         staggeredRecyclerViewAdapter.setOnItemClickListener(HomeFragment.this);
 
+        //Touch helper to order notes on long press
         helper = new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(ItemTouchHelper.UP | ItemTouchHelper.DOWN |
                 ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT, 0) {
             @Override
@@ -265,7 +258,7 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
                 final int fromPosition = viewHolder.getAdapterPosition();
                 final int toPosition = target.getAdapterPosition();
 
-
+                //Swap notes position
                 if (fromPosition < toPosition) {
                     for (int i = fromPosition; i < toPosition; i++) {
                         Collections.swap(noteList, i, i + 1);
@@ -282,6 +275,7 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
                     }
                 }
 
+                //Update notes individual position in the list
                 noteList.get(fromPosition).setChangedPos(true);
                 noteList.get(toPosition).setChangedPos(true);
 
@@ -290,28 +284,20 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
                     handler.postDelayed(new Runnable() {
                         @Override
                         public void run() {
-                            //Do something after 100ms
+                            //Stop action mode after delay
                             if (actionMode != null)
                                 actionMode.finish();
                         }
                     }, 200);
                 }
-
                 return true;
             }
 
             @Override
             public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
-
             }
         });
         helper.attachToRecyclerView(recyclerView);
-    }
-
-    public static void hideSoftKeyboard(Activity activity) {
-        InputMethodManager inputMethodManager = (InputMethodManager) activity.getSystemService(Activity.INPUT_METHOD_SERVICE);
-        if (activity.getCurrentFocus() != null)
-            inputMethodManager.hideSoftInputFromWindow(activity.getCurrentFocus().getWindowToken(), 0);
     }
 
     @Override
@@ -355,7 +341,9 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
                                         }
                                     }
                                 }
-                                Log.d(TAG, "onEvent: " + note.toString());
+                                if (note != null) {
+                                    Log.d(TAG, "onEvent: " + note.toString());
+                                }
                             }
                         }
                     }
@@ -365,10 +353,12 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
     @Override
     public void onStop() {
         super.onStop();
+        //Detach Auth Listener
         if (mAuthListener != null) {
             FirebaseAuth.getInstance().removeAuthStateListener(mAuthListener);
         }
 
+        //Detach FireStore listeners
         if (userDetailsListener != null) {
             userDetailsListener.remove();
             userDetailsListener = null;
@@ -378,9 +368,10 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
             notesListener = null;
         }
 
+        //If the user has rearranged any notes, update their position
         for (Note note : noteList) {
             if (note.getChangedPos() != null && note.getChangedPos()) {
-                usersRef.document(FirebaseAuth.getInstance().getCurrentUser().getUid())
+                usersRef.document(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid())
                         .collection("Notes").document(note.getNote_doc_ID())
                         .update("position", note.getPosition()).addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
@@ -393,7 +384,7 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
     }
 
     private void getUserInfo() {
-        userDetailsListener = usersRef.document(FirebaseAuth.getInstance().getCurrentUser().getUid()).addSnapshotListener(new EventListener<DocumentSnapshot>() {
+        userDetailsListener = usersRef.document(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid()).addSnapshotListener(new EventListener<DocumentSnapshot>() {
             @Override
             public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException e) {
                 if (e == null && documentSnapshot != null) {
@@ -416,10 +407,11 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
         });
     }
 
+    @SuppressLint("SetTextI18n")
     private void showSettingsBottomSheet(User user) {
         final SharedPreferences.Editor sharedPrefsEditor = requireActivity()
                 .getSharedPreferences(SETTINGS_PREFS_NAME, MODE_PRIVATE).edit();
-        final SharedPreferences sharedPreferences = getActivity().getSharedPreferences(SETTINGS_PREFS_NAME, MODE_PRIVATE);
+        final SharedPreferences sharedPreferences = requireActivity().getSharedPreferences(SETTINGS_PREFS_NAME, MODE_PRIVATE);
 
         //Bottom sheet dialog for "Settings"
         final View dialogView = getLayoutInflater().inflate(R.layout.dialog_settings, (ViewGroup) view, false);
@@ -450,6 +442,7 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
         });
 
         signOutBtn.setOnClickListener(new View.OnClickListener() {
+            @SuppressLint("SetTextI18n")
             @Override
             public void onClick(View v) {
                 //Dialog for close ad
@@ -470,7 +463,7 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
                         FirebaseAuth.getInstance().signOut();
                         Intent intent = new Intent(getActivity(), LoginActivity.class);
                         startActivity(intent);
-                        getActivity().finish();
+                        requireActivity().finish();
                     }
                 });
                 cancelBtn.setOnClickListener(new View.OnClickListener() {
@@ -509,7 +502,7 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
             @Override
             public void onClick(View v) {
                 View themeView = getLayoutInflater().inflate(R.layout.dialog_theme_settings, (ViewGroup) view, false);
-                final Dialog dialog = new Dialog(getContext(), R.style.CustomBottomSheetDialogTheme);
+                final Dialog dialog = new Dialog(requireContext(), R.style.CustomBottomSheetDialogTheme);
                 RadioGroup appThemeRadioGroup = themeView.findViewById(R.id.settings_appTheme_radioGroup);
                 dialog.setContentView(themeView);
                 dialog.show();
@@ -676,7 +669,7 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
         progressDialog.show();
         final int[] notesdeleted = {0};
         for (final Note note : notesToDelete) {
-            usersRef.document(FirebaseAuth.getInstance().getCurrentUser().getUid()).collection("Notes").document(note.getNote_doc_ID())
+            usersRef.document(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid()).collection("Notes").document(note.getNote_doc_ID())
                     .update("deleted", true).addOnSuccessListener(new OnSuccessListener<Void>() {
                 @Override
                 public void onSuccess(Void aVoid) {
