@@ -1,5 +1,6 @@
 package com.rokudoz.cloudnotes.Fragments;
 
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.os.Bundle;
 
@@ -132,9 +133,11 @@ public class ViewNoteEditFragment extends Fragment {
                                         restoreBtn.setOnClickListener(new View.OnClickListener() {
                                             @Override
                                             public void onClick(final View v) {
-                                                final ProgressDialog progressDialog = new ProgressDialog(getContext());
-                                                progressDialog.setTitle("Please wait...");
-                                                progressDialog.show();
+                                                AlertDialog.Builder builder = new AlertDialog.Builder(getContext(), R.style.CustomBottomSheetDialogTheme);
+                                                builder.setCancelable(false);
+                                                builder.setView(R.layout.dialog_please_wait);
+                                                final AlertDialog dialog = builder.create();
+                                                dialog.show();
 
                                                 note.setNumber_of_edits(nrOfEdits + 1);
 
@@ -150,7 +153,7 @@ public class ViewNoteEditFragment extends Fragment {
                                                     @Override
                                                     public void onSuccess(Void aVoid) {
                                                         Toast.makeText(getContext(), "Restored note successfully", Toast.LENGTH_SHORT).show();
-                                                        progressDialog.cancel();
+                                                        dialog.cancel();
                                                         if (Objects.requireNonNull(Navigation.findNavController(view).getCurrentDestination()).getId() == R.id.viewNoteEditFragment)
                                                             Navigation.findNavController(view).navigate(ViewNoteEditFragmentDirections
                                                                     .actionViewNoteEditFragmentToEditNoteFragment(noteID));

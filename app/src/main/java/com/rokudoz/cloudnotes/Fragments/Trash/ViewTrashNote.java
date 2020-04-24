@@ -1,22 +1,23 @@
 package com.rokudoz.cloudnotes.Fragments.Trash;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.Dialog;
-import android.app.ProgressDialog;
 import android.os.Bundle;
-
-import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
-import androidx.navigation.Navigation;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+import androidx.navigation.Navigation;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.button.MaterialButton;
@@ -29,9 +30,6 @@ import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.WriteBatch;
 import com.rokudoz.cloudnotes.Adapters.NonCheckableAdapter;
-import com.rokudoz.cloudnotes.Fragments.EditNoteFragmentDirections;
-import com.rokudoz.cloudnotes.Fragments.ViewNoteEditFragmentArgs;
-import com.rokudoz.cloudnotes.Fragments.ViewNoteEditFragmentDirections;
 import com.rokudoz.cloudnotes.Models.CheckableItem;
 import com.rokudoz.cloudnotes.Models.Note;
 import com.rokudoz.cloudnotes.R;
@@ -47,10 +45,8 @@ public class ViewTrashNote extends Fragment {
     private View view;
 
     private TextView titleTv, textTv;
-    private MaterialButton restoreBtn, backBtn, deleteBtn;
+    private MaterialButton restoreBtn;
     private RecyclerView recyclerView;
-    private NonCheckableAdapter mAdapter;
-    private int nrOfEdits = 0;
 
     String noteID = "";
 
@@ -69,8 +65,8 @@ public class ViewTrashNote extends Fragment {
         titleTv = view.findViewById(R.id.viewTrashNoteFragment_title);
         textTv = view.findViewById(R.id.viewTrashNoteFragment_text);
         restoreBtn = view.findViewById(R.id.viewTrashNoteFragment_restoreBtn);
-        backBtn = view.findViewById(R.id.viewTrashNoteFragment_backBtn);
-        deleteBtn = view.findViewById(R.id.viewTrashNoteFragment_deleteBtn);
+        MaterialButton backBtn = view.findViewById(R.id.viewTrashNoteFragment_backBtn);
+        MaterialButton deleteBtn = view.findViewById(R.id.viewTrashNoteFragment_deleteBtn);
         recyclerView = view.findViewById(R.id.viewTrashNoteFragment_recyclerView);
 
         if (getActivity() != null && !HIDE_BANNER) {
@@ -92,11 +88,12 @@ public class ViewTrashNote extends Fragment {
         });
 
         deleteBtn.setOnClickListener(new View.OnClickListener() {
+            @SuppressLint("SetTextI18n")
             @Override
             public void onClick(View v) {
 
                 //Dialog for delete note
-                View dialogView = getLayoutInflater().inflate(R.layout.dialog_show_ad, null);
+                View dialogView = getLayoutInflater().inflate(R.layout.dialog_show_ad, (ViewGroup) view, false);
                 final Dialog dialog = new Dialog(requireContext(), R.style.CustomBottomSheetDialogTheme);
                 MaterialButton confirmBtn = dialogView.findViewById(R.id.dialog_ShowAd_confirmBtn);
                 MaterialButton cancelBtn = dialogView.findViewById(R.id.dialog_ShowAd_cancelBtn);
@@ -109,7 +106,7 @@ public class ViewTrashNote extends Fragment {
                     public void onClick(View v) {
                         //Delete note
                         final WriteBatch batch = db.batch();
-                        usersRef.document(FirebaseAuth.getInstance().getCurrentUser().getUid()).collection("Notes").document(noteID)
+                        usersRef.document(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid()).collection("Notes").document(noteID)
                                 .collection("Edits").get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
                             @Override
                             public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
@@ -123,6 +120,7 @@ public class ViewTrashNote extends Fragment {
                                         @Override
                                         public void onSuccess(Void aVoid) {
                                             Toast.makeText(getContext(), "Deleted note", Toast.LENGTH_SHORT).show();
+                                            Log.d(TAG, "onSuccess: Deleted note");
                                             hideSoftKeyboard(requireActivity());
                                             if (Objects.requireNonNull(Navigation.findNavController(view).getCurrentDestination()).getId()
                                                     == R.id.viewTrashNote)
@@ -159,12 +157,12 @@ public class ViewTrashNote extends Fragment {
 
     private void buildRecyclerView(List<CheckableItem> checkableItemList) {
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        mAdapter = new NonCheckableAdapter(checkableItemList, 0);
+        NonCheckableAdapter mAdapter = new NonCheckableAdapter(checkableItemList, 0);
         recyclerView.setAdapter(mAdapter);
     }
 
     private void getNote(final String noteID) {
-        usersRef.document(FirebaseAuth.getInstance().getCurrentUser().getUid()).collection("Notes").document(noteID)
+        usersRef.document(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid()).collection("Notes").document(noteID)
                 .addSnapshotListener(new EventListener<DocumentSnapshot>() {
                     @Override
                     public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException e) {
@@ -189,15 +187,17 @@ public class ViewTrashNote extends Fragment {
                                 restoreBtn.setOnClickListener(new View.OnClickListener() {
                                     @Override
                                     public void onClick(final View v) {
-                                        final ProgressDialog progressDialog = new ProgressDialog(getContext());
-                                        progressDialog.setTitle("Please wait...");
-                                        progressDialog.show();
+                                        AlertDialog.Builder builder = new AlertDialog.Builder(getContext(), R.style.CustomBottomSheetDialogTheme);
+                                        builder.setCancelable(false);
+                                        builder.setView(R.layout.dialog_please_wait);
+                                        final AlertDialog dialog = builder.create();
+                                        dialog.show();
 
                                         usersRef.document(FirebaseAuth.getInstance().getCurrentUser().getUid()).collection("Notes").document(noteID)
                                                 .update("deleted", false).addOnSuccessListener(new OnSuccessListener<Void>() {
                                             @Override
                                             public void onSuccess(Void aVoid) {
-                                                progressDialog.cancel();
+                                                dialog.cancel();
                                                 if (Objects.requireNonNull(Navigation.findNavController(view).getCurrentDestination()).getId() == R.id.viewTrashNote)
                                                     Navigation.findNavController(view).navigate(ViewTrashNoteDirections.actionViewTrashNoteToTrashFragment());
                                             }

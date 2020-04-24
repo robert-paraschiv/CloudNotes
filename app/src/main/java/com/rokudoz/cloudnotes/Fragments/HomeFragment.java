@@ -2,6 +2,7 @@ package com.rokudoz.cloudnotes.Fragments;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Intent;
@@ -384,27 +385,28 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
     }
 
     private void getUserInfo() {
-        userDetailsListener = usersRef.document(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid()).addSnapshotListener(new EventListener<DocumentSnapshot>() {
-            @Override
-            public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException e) {
-                if (e == null && documentSnapshot != null) {
-                    final User user = documentSnapshot.toObject(User.class);
-                    if (user != null && user.getUser_name() != null) {
-                        Log.d(TAG, "onEvent: " + user.getUser_name());
-                    }
-                    if (user != null && user.getUser_profile_picture() != null) {
-                        Glide.with(userPicture).load(user.getUser_profile_picture()).centerCrop().into(userPicture);
-                        userPicture.setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                //Settings dialog
-                                showSettingsBottomSheet(user);
+        userDetailsListener = usersRef.document(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid())
+                .addSnapshotListener(new EventListener<DocumentSnapshot>() {
+                    @Override
+                    public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException e) {
+                        if (e == null && documentSnapshot != null) {
+                            final User user = documentSnapshot.toObject(User.class);
+                            if (user != null && user.getUser_name() != null) {
+                                Log.d(TAG, "onEvent: " + user.getUser_name());
                             }
-                        });
+                            if (user != null && user.getUser_profile_picture() != null) {
+                                Glide.with(userPicture).load(user.getUser_profile_picture()).centerCrop().into(userPicture);
+                                userPicture.setOnClickListener(new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View v) {
+                                        //Settings dialog
+                                        showSettingsBottomSheet(user);
+                                    }
+                                });
+                            }
+                        }
                     }
-                }
-            }
-        });
+                });
     }
 
     @SuppressLint("SetTextI18n")
@@ -663,13 +665,15 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
     };
 
     private void deleteSelectedNotes(final List<Note> notesToDelete) {
-        final ProgressDialog progressDialog = new ProgressDialog(getContext());
-        progressDialog.setTitle("Please wait");
-        progressDialog.setCancelable(false);
-        progressDialog.show();
+        AlertDialog.Builder builder = new AlertDialog.Builder(getContext(), R.style.CustomBottomSheetDialogTheme);
+        builder.setCancelable(false);
+        builder.setView(R.layout.dialog_please_wait);
+        final AlertDialog dialog = builder.create();
+        dialog.show();
         final int[] notesdeleted = {0};
         for (final Note note : notesToDelete) {
-            usersRef.document(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid()).collection("Notes").document(note.getNote_doc_ID())
+            usersRef.document(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid()).collection("Notes")
+                    .document(note.getNote_doc_ID())
                     .update("deleted", true).addOnSuccessListener(new OnSuccessListener<Void>() {
                 @Override
                 public void onSuccess(Void aVoid) {
@@ -678,7 +682,7 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
                     if (notesdeleted[0] == notesToDelete.size()) {
                         //Clear notes list and get them all again
                         getNotes(FirebaseAuth.getInstance().getCurrentUser().getUid());
-                        progressDialog.cancel();
+                        dialog.cancel();
                     }
                 }
             });
