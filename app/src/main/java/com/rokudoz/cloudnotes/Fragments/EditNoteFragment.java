@@ -191,7 +191,7 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
                     public void onClick(View v) {
                         //Delete note
                         usersRef.document(FirebaseAuth.getInstance().getCurrentUser().getUid()).collection("Notes").document(noteID)
-                                .update("deleted",true).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                .update("deleted", true).addOnSuccessListener(new OnSuccessListener<Void>() {
                             @Override
                             public void onSuccess(Void aVoid) {
                                 Toast.makeText(getContext(), "Deleted note", Toast.LENGTH_SHORT).show();
@@ -248,8 +248,18 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
                 int position_dragged = viewHolder.getAdapterPosition();
                 int position_target = target.getAdapterPosition();
 
-                Collections.swap(checkableItemList, position_dragged, position_target);
-                mAdapter.notifyItemMoved(position_dragged, position_target);
+                //Swap notes position
+                if (position_dragged < position_target) {
+                    for (int i = position_dragged; i < position_target; i++) {
+                        Collections.swap(checkableItemList, i, i + 1);
+                        mAdapter.notifyItemMoved(i, i + 1);
+                    }
+                } else {
+                    for (int i = position_dragged; i > position_target; i--) {
+                        Collections.swap(checkableItemList, i, i - 1);
+                        mAdapter.notifyItemMoved(i, i - 1);
+                    }
+                }
 
                 //allow saving
                 edit = true;
@@ -419,8 +429,8 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
     }
 
     @Override
-    public void onStartDrag(RecyclerView.ViewHolder viewHolder) {
-        helper.startDrag(viewHolder);
+    public void onStartDrag(int position) {
+        helper.startDrag(recyclerView.getChildViewHolder(Objects.requireNonNull(Objects.requireNonNull(recyclerView.getLayoutManager()).getChildAt(position))));
     }
 
     @Override

@@ -41,7 +41,7 @@ public class CheckableItemAdapter extends RecyclerView.Adapter<CheckableItemAdap
 
 
     public interface OnStartDragListener {
-        void onStartDrag(RecyclerView.ViewHolder viewHolder);
+        void onStartDrag(int position);
     }
 
     public interface OnItemClickListener {
@@ -72,9 +72,9 @@ public class CheckableItemAdapter extends RecyclerView.Adapter<CheckableItemAdap
         MaterialCheckBox checkBox;
         MaterialButton deleteBtn;
         ImageView dragHandle;
-        PositionTextWatcher positionTextWatcher;
 
-        public ViewHolder(final View itemView, PositionTextWatcher positionTextWatcher) {
+        @SuppressLint("ClickableViewAccessibility")
+        public ViewHolder(final View itemView) {
             super(itemView);
             this.checkBox = itemView.findViewById(R.id.checkableItem_checkbox);
             this.text = itemView.findViewById(R.id.checkableItem_textInput);
@@ -126,10 +126,37 @@ public class CheckableItemAdapter extends RecyclerView.Adapter<CheckableItemAdap
                     }
                 }
             });
-            this.positionTextWatcher = positionTextWatcher;
-            text.addTextChangedListener(this.positionTextWatcher);
+            this.text.addTextChangedListener(new TextWatcher() {
+                @Override
+                public void beforeTextChanged(CharSequence s, int start, int count, int after) {
 
+                }
 
+                @Override
+                public void onTextChanged(CharSequence s, int start, int before, int count) {
+                    if (!onBind) {
+                        int position = getAdapterPosition();
+                        if (position != RecyclerView.NO_POSITION & s != null && !s.toString().equals("") && checkableItemList.size() > position)
+                            onItemClickListener.onTextChanged(position, s.toString());
+                    }
+                }
+
+                @Override
+                public void afterTextChanged(Editable s) {
+
+                }
+            });
+
+            this.dragHandle.setOnTouchListener(new View.OnTouchListener() {
+                @Override
+                public boolean onTouch(View v, MotionEvent event) {
+                    int position = getAdapterPosition();
+                    if (position != RecyclerView.NO_POSITION & MotionEventCompat.getActionMasked(event) == MotionEvent.ACTION_DOWN) {
+                        onStartDragListener.onStartDrag(position);
+                    }
+                    return false;
+                }
+            });
         }
     }
 
@@ -137,7 +164,7 @@ public class CheckableItemAdapter extends RecyclerView.Adapter<CheckableItemAdap
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.rv_checkable_item_layout, parent, false);
-        return new ViewHolder(view, new PositionTextWatcher());
+        return new ViewHolder(view);
     }
 
     @SuppressLint("ClickableViewAccessibility")
@@ -154,18 +181,6 @@ public class CheckableItemAdapter extends RecyclerView.Adapter<CheckableItemAdap
             onBind = false;
         }
 
-        holder.positionTextWatcher.updatePosition(position);
-
-        holder.dragHandle.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                if (MotionEventCompat.getActionMasked(event) == MotionEvent.ACTION_DOWN) {
-                    onStartDragListener.onStartDrag(holder);
-                }
-                return false;
-            }
-        });
-
         if (currentItem != null && currentItem.getShouldBeFocused() != null && currentItem.getShouldBeFocused()) {
             holder.text.post(new Runnable() {
                 @Override
@@ -177,33 +192,6 @@ public class CheckableItemAdapter extends RecyclerView.Adapter<CheckableItemAdap
                 }
             });
             currentItem.setShouldBeFocused(false);
-        }
-    }
-
-
-    private class PositionTextWatcher implements TextWatcher {
-        private int position;
-
-        public void updatePosition(int position) {
-            this.position = position;
-        }
-
-        @Override
-        public void beforeTextChanged(CharSequence charSequence, int i, int i2, int i3) {
-            // no op
-        }
-
-        @Override
-        public void onTextChanged(CharSequence s, int i, int i2, int i3) {
-            if (!onBind) {
-                if (s != null && !s.toString().equals("") && checkableItemList.size() > position)
-                    onItemClickListener.onTextChanged(position, s.toString());
-            }
-        }
-
-        @Override
-        public void afterTextChanged(Editable editable) {
-            // no op
         }
     }
 

@@ -193,8 +193,18 @@ public class NewNoteFragment extends Fragment implements CheckableItemAdapter.On
                 int position_dragged = viewHolder.getAdapterPosition();
                 int position_target = target.getAdapterPosition();
 
-                Collections.swap(checkableItemList, position_dragged, position_target);
-                mAdapter.notifyItemMoved(position_dragged, position_target);
+                //Swap notes position
+                if (position_dragged < position_target) {
+                    for (int i = position_dragged; i < position_target; i++) {
+                        Collections.swap(checkableItemList, i, i + 1);
+                        mAdapter.notifyItemMoved(i, i + 1);
+                    }
+                } else {
+                    for (int i = position_dragged; i > position_target; i--) {
+                        Collections.swap(checkableItemList, i, i - 1);
+                        mAdapter.notifyItemMoved(i, i - 1);
+                    }
+                }
 
                 return false;
             }
@@ -296,8 +306,8 @@ public class NewNoteFragment extends Fragment implements CheckableItemAdapter.On
     }
 
     @Override
-    public void onStartDrag(RecyclerView.ViewHolder viewHolder) {
-        helper.startDrag(viewHolder);
+    public void onStartDrag(int position) {
+        helper.startDrag(recyclerView.getChildViewHolder(Objects.requireNonNull(Objects.requireNonNull(recyclerView.getLayoutManager()).getChildAt(position))));
     }
 
     @Override
