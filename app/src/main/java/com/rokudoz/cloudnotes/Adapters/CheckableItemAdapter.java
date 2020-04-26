@@ -95,7 +95,7 @@ public class CheckableItemAdapter extends RecyclerView.Adapter<CheckableItemAdap
                 @Override
                 public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
                     boolean handled = false;
-                    if (actionId == EditorInfo.IME_ACTION_SEND) {
+                    if (actionId == EditorInfo.IME_ACTION_NEXT) {
                         if (onItemClickListener != null) {
                             int position = getAdapterPosition();
                             if (position != RecyclerView.NO_POSITION) {

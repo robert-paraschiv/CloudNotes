@@ -316,8 +316,16 @@ public class NewNoteFragment extends Fragment implements CheckableItemAdapter.On
 
     @Override
     public void onCheckClick(int position, boolean isChecked) {
+        CheckableItem checkableItem = checkableItemList.get(position);
         checkableItemList.get(position).setChecked(isChecked);
         mAdapter.notifyItemChanged(position);
+
+        //If user checks the item, move it to the end of the list
+        if (isChecked && position < checkableItemList.size() - 1) {
+            checkableItemList.remove(position);
+            checkableItemList.add(checkableItemList.size(), checkableItem);
+            mAdapter.notifyItemMoved(position, checkableItemList.size());
+        }
     }
 
     @Override
