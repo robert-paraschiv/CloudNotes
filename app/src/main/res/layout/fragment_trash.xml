@@ -34,15 +34,29 @@
                 android:layout_toEndOf="@id/trashFragment_backBtn"
                 android:text="Trash" />
 
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/trashFragment_emptyTrashBtn"
+                style="@style/Widget.MaterialComponents.Button.TextButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
+                android:layout_marginEnd="16dp"
+                android:minWidth="0dp"
+                android:minHeight="0dp"
+                android:padding="0dp"
+                app:icon="@drawable/ic_outline_delete_sweep_24"
+                app:iconPadding="0dp" />
+
         </RelativeLayout>
     </com.google.android.material.appbar.MaterialToolbar>
 
     <androidx.recyclerview.widget.RecyclerView
-        android:layout_marginStart="10dp"
-        android:layout_marginEnd="10dp"
         android:id="@+id/trashFragment_recyclerView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@id/trashFragment_toolbar" />
+        android:layout_below="@id/trashFragment_toolbar"
+        android:layout_marginStart="10dp"
+        android:layout_marginEnd="10dp" />
 
 </RelativeLayout>

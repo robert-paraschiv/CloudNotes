@@ -1,5 +1,7 @@
 package com.rokudoz.cloudnotes.Fragments.Trash;
 
+import android.app.AlertDialog;
+import android.app.Dialog;
 import android.os.Bundle;
 
 import androidx.annotation.Nullable;
@@ -11,7 +13,10 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
+import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.button.MaterialButton;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.CollectionReference;
@@ -22,21 +27,26 @@ import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.firestore.WriteBatch;
 import com.rokudoz.cloudnotes.Adapters.HomePageAdapter;
 import com.rokudoz.cloudnotes.Adapters.NoteEditsAdapter;
 import com.rokudoz.cloudnotes.Adapters.TrashNotesAdapter;
+import com.rokudoz.cloudnotes.Fragments.EditNoteFragmentDirections;
 import com.rokudoz.cloudnotes.Fragments.NoteEditsFragment;
 import com.rokudoz.cloudnotes.Models.Note;
 import com.rokudoz.cloudnotes.R;
+import com.rokudoz.cloudnotes.Utils.BannerAdManager;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+import static com.rokudoz.cloudnotes.App.HIDE_BANNER;
+
 public class TrashFragment extends Fragment implements NoteEditsAdapter.OnItemClickListener, TrashNotesAdapter.OnItemClickListener {
     private static final String TAG = "TrashFragment";
 
-    private MaterialButton backBtn;
+    private MaterialButton backBtn, emptyTrashBtn;
     private RecyclerView recyclerView;
 
     private TrashNotesAdapter noteEditsAdapter;
@@ -57,6 +67,7 @@ public class TrashFragment extends Fragment implements NoteEditsAdapter.OnItemCl
         view = inflater.inflate(R.layout.fragment_trash, container, false);
 
         backBtn = view.findViewById(R.id.trashFragment_backBtn);
+        emptyTrashBtn = view.findViewById(R.id.trashFragment_emptyTrashBtn);
         recyclerView = view.findViewById(R.id.trashFragment_recyclerView);
 
 
@@ -68,9 +79,80 @@ public class TrashFragment extends Fragment implements NoteEditsAdapter.OnItemCl
             }
         });
 
+        emptyTrashBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //Dialog for delete note
+                View dialogView = getLayoutInflater().inflate(R.layout.dialog_show_ad, null);
+                final Dialog dialog = new Dialog(requireContext(), R.style.CustomBottomSheetDialogTheme);
+                MaterialButton confirmBtn = dialogView.findViewById(R.id.dialog_ShowAd_confirmBtn);
+                MaterialButton cancelBtn = dialogView.findViewById(R.id.dialog_ShowAd_cancelBtn);
+                TextView title = dialogView.findViewById(R.id.dialog_ShowAd_title);
+                title.setText("You will not be able to recover these notes after you delete them\nAre you sure you want to delete all notes?");
+                dialog.setContentView(dialogView);
+
+                confirmBtn.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        //Delete note
+                        dialog.cancel();
+                        deleteAllNotes();
+                    }
+                });
+                cancelBtn.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        dialog.cancel();
+                    }
+                });
+
+                dialog.show();
+            }
+        });
+
+        //Show Banner Ad
+        if (getActivity() != null && !HIDE_BANNER) {
+            BannerAdManager bannerAdManager = new BannerAdManager();
+            bannerAdManager.showBannerAd(getActivity());
+        }
 
         setUpRecyclerView();
         return view;
+    }
+
+    private void deleteAllNotes() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(getContext(), R.style.CustomBottomSheetDialogTheme);
+        builder.setCancelable(false);
+        builder.setView(R.layout.dialog_please_wait);
+        final AlertDialog dialog = builder.create();
+        dialog.show();
+
+        final WriteBatch batch = db.batch();
+        usersRef.document(FirebaseAuth.getInstance().getCurrentUser().getUid()).collection("Notes")
+                .whereEqualTo("deleted", true)
+                .get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+            @Override
+            public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                if (queryDocumentSnapshots != null && queryDocumentSnapshots.size() > 0) {
+                    for (DocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
+                        batch.delete(documentSnapshot.getReference());
+                    }
+                    batch.commit().addOnSuccessListener(new OnSuccessListener<Void>() {
+                        @Override
+                        public void onSuccess(Void aVoid) {
+                            Toast.makeText(requireContext(), "Emptied trash", Toast.LENGTH_SHORT).show();
+                            noteList.clear();
+                            noteEditsAdapter.notifyDataSetChanged();
+                            dialog.cancel();
+                            if (Navigation.findNavController(view).getCurrentDestination().getId() == R.id.trashFragment)
+                                Navigation.findNavController(view).navigate(TrashFragmentDirections.actionTrashFragmentToHomeFragment());
+                        }
+                    });
+                }
+            }
+        });
+
+
     }
 
     @Override

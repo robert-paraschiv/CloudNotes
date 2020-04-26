@@ -61,6 +61,7 @@ import com.rokudoz.cloudnotes.LoginActivity;
 import com.rokudoz.cloudnotes.Models.Note;
 import com.rokudoz.cloudnotes.Models.User;
 import com.rokudoz.cloudnotes.R;
+import com.rokudoz.cloudnotes.Utils.BannerAdManager;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -112,9 +113,13 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
 
         sharedPreferences = requireActivity().getSharedPreferences(SETTINGS_PREFS_NAME, MODE_PRIVATE);
         sharedPrefsEditor = requireActivity().getSharedPreferences(SETTINGS_PREFS_NAME, MODE_PRIVATE).edit();
+
+        //Show Banner Ad
         if (getActivity() != null && !HIDE_BANNER) {
-            getActivity().findViewById(R.id.bannerAdCard).setVisibility(View.VISIBLE);
+            BannerAdManager bannerAdManager = new BannerAdManager();
+            bannerAdManager.showBannerAd(getActivity());
         }
+
         materialToolbar = view.findViewById(R.id.homeFragment_toolbar);
 
         userPicture = view.findViewById(R.id.homeFragment_userImage);

@@ -34,15 +34,38 @@
                 android:layout_toEndOf="@id/viewTrashNoteFragment_backBtn"
                 android:text="View note to restore" />
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/viewTrashNoteFragment_deleteBtn"
-                style="@style/Widget.MaterialComponents.Button.TextButton"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 android:layout_alignParentEnd="true"
                 android:layout_centerVertical="true"
-                android:layout_marginEnd="8dp"
-                app:icon="@drawable/ic_baseline_delete_outline_24" />
+                android:orientation="horizontal">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/viewTrashNoteFragment_restoreBtn"
+                    style="@style/Widget.MaterialComponents.Button.TextButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="16dp"
+                    android:minWidth="0dp"
+                    android:minHeight="0dp"
+                    android:padding="0dp"
+                    app:icon="@drawable/ic_outline_restore_24"
+                    app:iconPadding="0dp" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/viewTrashNoteFragment_deleteBtn"
+                    style="@style/Widget.MaterialComponents.Button.TextButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="8dp"
+                    android:minWidth="0dp"
+                    android:minHeight="0dp"
+                    android:padding="0dp"
+                    app:icon="@drawable/ic_baseline_delete_outline_24" />
+            </LinearLayout>
+
+
         </RelativeLayout>
 
     </com.google.android.material.appbar.MaterialToolbar>
@@ -62,7 +85,6 @@
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_above="@id/viewTrashNoteFragment_restoreBtn"
         android:layout_below="@id/viewTrashNoteFragment_title"
         android:layout_marginStart="16dp"
         android:layout_marginTop="8dp"
@@ -82,22 +104,9 @@
         android:id="@+id/viewTrashNoteFragment_recyclerView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_above="@id/viewTrashNoteFragment_restoreBtn"
         android:layout_below="@id/viewTrashNoteFragment_title"
         android:layout_margin="8dp"
         android:visibility="invisible"
         tools:visibility="visible" />
-
-
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/viewTrashNoteFragment_restoreBtn"
-        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
-        android:text="Restore"
-        android:textAllCaps="false"
-        app:cornerRadius="12dp" />
 
 </RelativeLayout>

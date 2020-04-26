@@ -23,6 +23,7 @@ import com.google.firebase.firestore.QuerySnapshot;
 import com.rokudoz.cloudnotes.Adapters.NoteEditsAdapter;
 import com.rokudoz.cloudnotes.Models.Note;
 import com.rokudoz.cloudnotes.R;
+import com.rokudoz.cloudnotes.Utils.BannerAdManager;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -56,8 +57,11 @@ public class NoteEditsFragment extends Fragment implements NoteEditsAdapter.OnIt
             noteID = noteEditsFragmentArgs.getNoteID();
             getNotes(noteID);
         }
+
+        //Show Banner Ad
         if (getActivity() != null && !HIDE_BANNER) {
-            getActivity().findViewById(R.id.bannerAdCard).setVisibility(View.VISIBLE);
+            BannerAdManager bannerAdManager = new BannerAdManager();
+            bannerAdManager.showBannerAd(getActivity());
         }
 
         MaterialButton backBtn = view.findViewById(R.id.noteEditsFragment_backBtn);

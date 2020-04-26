@@ -29,6 +29,7 @@ import com.rokudoz.cloudnotes.Adapters.NonCheckableAdapter;
 import com.rokudoz.cloudnotes.Models.CheckableItem;
 import com.rokudoz.cloudnotes.Models.Note;
 import com.rokudoz.cloudnotes.R;
+import com.rokudoz.cloudnotes.Utils.BannerAdManager;
 
 import java.util.List;
 import java.util.Objects;
@@ -67,8 +68,10 @@ public class ViewNoteEditFragment extends Fragment {
         backBtn = view.findViewById(R.id.viewNoteEditFragment_backBtn);
         recyclerView = view.findViewById(R.id.viewNoteEditFragment_recyclerView);
 
+        //Show Banner Ad
         if (getActivity() != null && !HIDE_BANNER) {
-            getActivity().findViewById(R.id.bannerAdCard).setVisibility(View.VISIBLE);
+            BannerAdManager bannerAdManager = new BannerAdManager();
+            bannerAdManager.showBannerAd(getActivity());
         }
 
         if (getArguments() != null) {

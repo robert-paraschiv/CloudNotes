@@ -35,6 +35,7 @@ import com.rokudoz.cloudnotes.Adapters.CheckableItemAdapter;
 import com.rokudoz.cloudnotes.Models.CheckableItem;
 import com.rokudoz.cloudnotes.Models.Note;
 import com.rokudoz.cloudnotes.R;
+import com.rokudoz.cloudnotes.Utils.BannerAdManager;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -75,8 +76,10 @@ public class NewNoteFragment extends Fragment implements CheckableItemAdapter.On
         addCheckboxBtn = view.findViewById(R.id.newNoteFragment_add_checkbox_Btn);
         rv_scrollview = view.findViewById(R.id.newNoteFragment_scroll_rv);
 
+        //Hide Banner Ad
         if (getActivity() != null) {
-            getActivity().findViewById(R.id.bannerAdCard).setVisibility(View.GONE);
+            BannerAdManager bannerAdManager = new BannerAdManager();
+            bannerAdManager.hideBannerAd(getActivity());
         }
 
         MaterialButton backBtn = view.findViewById(R.id.newNoteFragment_backBtn);

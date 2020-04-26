@@ -41,6 +41,7 @@ import com.rokudoz.cloudnotes.MainActivity;
 import com.rokudoz.cloudnotes.Models.CheckableItem;
 import com.rokudoz.cloudnotes.Models.Note;
 import com.rokudoz.cloudnotes.R;
+import com.rokudoz.cloudnotes.Utils.BannerAdManager;
 import com.rokudoz.cloudnotes.Utils.LastEdit;
 
 import java.text.MessageFormat;
@@ -50,6 +51,8 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
+
+import static com.rokudoz.cloudnotes.App.HIDE_BANNER;
 
 public class EditNoteFragment extends Fragment implements CheckableItemAdapter.OnStartDragListener, CheckableItemAdapter.OnItemClickListener {
     private static final String TAG = "EditNoteFragment";
@@ -102,8 +105,11 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
             noteID = editNoteFragmentArgs.getNoteDocID();
             getNote(noteID);
         }
+
+        //Hide Banner Ad
         if (getActivity() != null) {
-            getActivity().findViewById(R.id.bannerAdCard).setVisibility(View.GONE);
+            BannerAdManager bannerAdManager = new BannerAdManager();
+            bannerAdManager.hideBannerAd(getActivity());
         }
 
         checkboxModeBtn.setOnClickListener(new View.OnClickListener() {
