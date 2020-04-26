@@ -264,7 +264,7 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
                 //allow saving
                 edit = true;
 
-                return false;
+                return true;
             }
 
             @Override

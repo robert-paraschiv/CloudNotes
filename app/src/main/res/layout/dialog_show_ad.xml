@@ -4,7 +4,7 @@
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:background="@drawable/dialog_theme_settings_background"
-    android:minWidth="350dp"
+    android:minWidth="300dp"
     android:orientation="vertical"
     android:padding="8dp">
 
@@ -17,7 +17,7 @@
         android:layout_marginEnd="8dp"
         android:gravity="center_horizontal"
         android:lineSpacingExtra="4dp"
-        android:text="If you enjoy this app could you help me keep it alive by watching an ad?" />
+        android:text="If you find this app useful could you help me keep it alive by watching an ad?" />
 
     <LinearLayout
         android:layout_width="match_parent"

@@ -65,7 +65,8 @@
         android:hint="Note text here"
         android:imeOptions="flagNoExtractUi"
         android:inputType="textMultiLine"
-        tools:visibility="invisible" />
+        android:textSize="15sp"
+        tools:visibility="visible" />
 
     <ScrollView
         android:id="@+id/newNoteFragment_scroll_rv"
@@ -74,7 +75,7 @@
         android:layout_above="@id/newNoteFragment_bottom_card"
         android:layout_below="@id/newNoteFragment_title_textInput"
         android:visibility="invisible"
-        tools:visibility="visible">
+        tools:visibility="invisible">
 
         <RelativeLayout
             android:layout_width="match_parent"

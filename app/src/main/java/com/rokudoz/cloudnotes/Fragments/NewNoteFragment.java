@@ -30,6 +30,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.WriteBatch;
 import com.rokudoz.cloudnotes.Adapters.CheckableItemAdapter;
 import com.rokudoz.cloudnotes.Models.CheckableItem;
 import com.rokudoz.cloudnotes.Models.Note;
@@ -206,7 +207,7 @@ public class NewNoteFragment extends Fragment implements CheckableItemAdapter.On
                     }
                 }
 
-                return false;
+                return true;
             }
 
             @Override
@@ -255,6 +256,7 @@ public class NewNoteFragment extends Fragment implements CheckableItemAdapter.On
                         null, false, noteType, checkableItemList, "Created", 0, false);
             }
 
+            Log.d(TAG, "onStop: note ref " + noteRef);
 
             if (noteRef == null) {
                 final Note finalNote = note;
@@ -275,17 +277,19 @@ public class NewNoteFragment extends Fragment implements CheckableItemAdapter.On
             } else {
                 note.setEdited(true);
                 if (!mNote.getNoteText().equals(textInputEditText.getText().toString()) || !mNote.getNoteTitle().equals(titleInputEditText.getText().toString())) {
+                    note.setEdit_type("Edited");
+                    note.setNumber_of_edits(mNote.getNumber_of_edits() + 1);
+
+                    WriteBatch batch = db.batch();
+                    batch.set(noteRef, note);
+                    batch.set(noteRef.collection("Edits").document(), note);
+
                     final Note finalNote1 = note;
-                    noteRef.set(note).addOnSuccessListener(new OnSuccessListener<Void>() {
+                    batch.commit().addOnSuccessListener(new OnSuccessListener<Void>() {
                         @Override
                         public void onSuccess(Void aVoid) {
-                            noteRef.collection("Edits").add(finalNote1).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
-                                @Override
-                                public void onSuccess(DocumentReference documentReference) {
-                                    Log.d(TAG, "onSuccess: added note");
-                                    mNote = finalNote1;
-                                }
-                            });
+                            Log.d(TAG, "onSuccess: updated note");
+                            mNote = finalNote1;
                         }
                     });
                 }
