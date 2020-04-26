@@ -10,7 +10,8 @@
     <com.google.android.material.appbar.MaterialToolbar
         android:id="@+id/newNoteFragment_toolbar"
         android:layout_width="match_parent"
-        android:layout_height="?actionBarSize">
+        android:layout_height="?actionBarSize"
+        app:contentInsetStart="0dp">
 
         <RelativeLayout
             android:layout_width="match_parent"
@@ -22,7 +23,9 @@
                 android:layout_width="50dp"
                 android:layout_height="50dp"
                 android:layout_centerVertical="true"
-                app:icon="@drawable/ic_baseline_arrow_back_24" />
+                android:layout_marginStart="4dp"
+                app:icon="@drawable/ic_baseline_arrow_back_24"
+                app:iconGravity="start" />
 
             <TextView
                 style="@style/TextAppearance.MaterialComponents.Headline6"
@@ -42,16 +45,17 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/newNoteFragment_toolbar"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="14dp"
-        android:layout_marginEnd="8dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="16dp"
         android:layout_marginBottom="8dp"
         android:background="@null"
         android:gravity="top"
         android:hint="Title"
         android:imeOptions="actionNext"
         android:inputType="textCapSentences"
-        android:maxLines="1" />
+        android:maxLines="1"
+        android:textSize="22sp" />
 
     <com.google.android.material.textfield.TextInputEditText
         android:id="@+id/newNoteFragment_textInput"
@@ -59,7 +63,10 @@
         android:layout_height="match_parent"
         android:layout_above="@id/newNoteFragment_bottom_card"
         android:layout_below="@id/newNoteFragment_title_textInput"
-        android:layout_margin="8dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="8dp"
         android:background="@null"
         android:gravity="top"
         android:hint="Note text here"
