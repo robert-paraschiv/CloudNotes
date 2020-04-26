@@ -146,7 +146,7 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
                     MaterialButton confirmBtn = dialogView.findViewById(R.id.dialog_ShowAd_confirmBtn);
                     MaterialButton cancelBtn = dialogView.findViewById(R.id.dialog_ShowAd_cancelBtn);
                     dialog.setContentView(dialogView);
-                    dialog.setCancelable(false);
+                    dialog.setCancelable(true);
                     confirmBtn.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
@@ -391,18 +391,20 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
                     public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException e) {
                         if (e == null && documentSnapshot != null) {
                             final User user = documentSnapshot.toObject(User.class);
-                            if (user != null && user.getUser_name() != null) {
-                                Log.d(TAG, "onEvent: " + user.getUser_name());
-                            }
-                            if (user != null && user.getUser_profile_picture() != null) {
-                                Glide.with(userPicture).load(user.getUser_profile_picture()).centerCrop().into(userPicture);
-                                userPicture.setOnClickListener(new View.OnClickListener() {
-                                    @Override
-                                    public void onClick(View v) {
-                                        //Settings dialog
-                                        showSettingsBottomSheet(user);
-                                    }
-                                });
+                            if (user != null) {
+                                if (user.getUser_name() != null) {
+                                    Log.d(TAG, "onEvent: " + user.getUser_name());
+                                }
+                                if (user.getUser_profile_picture() != null) {
+                                    Glide.with(requireContext()).load(user.getUser_profile_picture()).centerCrop().into(userPicture);
+                                    userPicture.setOnClickListener(new View.OnClickListener() {
+                                        @Override
+                                        public void onClick(View v) {
+                                            //Settings dialog
+                                            showSettingsBottomSheet(user);
+                                        }
+                                    });
+                                }
                             }
                         }
                     }

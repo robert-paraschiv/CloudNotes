@@ -85,7 +85,8 @@ public class NoteEditsFragment extends Fragment implements NoteEditsAdapter.OnIt
     }
 
     private void getNotes(String noteID) {
-        usersRef.document(FirebaseAuth.getInstance().getCurrentUser().getUid()).collection("Notes").document(noteID).collection("Edits")
+        usersRef.document(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid())
+                .collection("Notes").document(noteID).collection("Edits")
                 .orderBy("creation_date", Query.Direction.DESCENDING)
                 .get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
             @Override

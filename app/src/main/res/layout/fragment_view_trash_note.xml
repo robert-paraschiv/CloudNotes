@@ -9,7 +9,7 @@
     <com.google.android.material.appbar.MaterialToolbar
         android:id="@+id/viewTrashNoteFragment_toolbar"
         android:layout_width="match_parent"
-        android:layout_height="50dp">
+        android:layout_height="?actionBarSize">
 
         <RelativeLayout
             android:layout_width="match_parent"
@@ -46,11 +46,14 @@
 
     <TextView
         android:id="@+id/viewTrashNoteFragment_title"
-        style="@style/TextAppearance.MaterialComponents.Subtitle1"
+        style="@style/TextAppearance.MaterialComponents.Headline6"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/viewTrashNoteFragment_toolbar"
-        android:layout_margin="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="14dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginBottom="8dp"
         tools:text="Title" />
 
     <ScrollView
@@ -89,6 +92,6 @@
         android:layout_centerHorizontal="true"
         android:text="Restore"
         android:textAllCaps="false"
-        app:cornerRadius="18dp" />
+        app:cornerRadius="12dp" />
 
 </RelativeLayout>

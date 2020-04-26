@@ -20,6 +20,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import static com.rokudoz.cloudnotes.App.MAX_HOME_CHECKBOX_NUMBER;
+
 public class NoteEditsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     private static final String TAG = "NoteEditsAdapter";
@@ -81,6 +83,17 @@ public class NoteEditsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
             this.editType = itemView.findViewById(R.id.rv_note_edits_checkboxNote_editType);
 
             itemView.setOnClickListener(this);
+            recyclerView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (mListener != null) {
+                        int position = getAdapterPosition();
+                        if (position != RecyclerView.NO_POSITION) {
+                            mListener.onItemClick(position);
+                        }
+                    }
+                }
+            });
         }
 
         @Override
@@ -187,15 +200,15 @@ public class NoteEditsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
             List<CheckableItem> checkableItemList = new ArrayList<>();
 
             //Only show 4 checkboxes Maximum
-            if (noteList.get(position).getCheckableItemList().size() <= 3) {
+            if (noteList.get(position).getCheckableItemList().size() <= MAX_HOME_CHECKBOX_NUMBER) {
                 checkableItemList.addAll(noteList.get(position).getCheckableItemList());
             } else {
-                for (int i = 0; i <= 3; i++) {
+                for (int i = 0; i <= MAX_HOME_CHECKBOX_NUMBER; i++) {
                     checkableItemList.add(noteList.get(position).getCheckableItemList().get(i));
                 }
             }
-            NonCheckableAdapter homeCheckableAdapter = new NonCheckableAdapter(checkableItemList, position);
-            holder.recyclerView.setAdapter(homeCheckableAdapter);
+            NonCheckableAdapter nonCheckableAdapter = new NonCheckableAdapter(checkableItemList, position);
+            holder.recyclerView.setAdapter(nonCheckableAdapter);
             holder.recyclerView.setHasFixedSize(true);
             holder.recyclerView.suppressLayout(true);
         }

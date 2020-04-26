@@ -20,6 +20,8 @@ import com.rokudoz.cloudnotes.R;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.rokudoz.cloudnotes.App.MAX_HOME_CHECKBOX_NUMBER;
+
 public class HomePageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     private static final String TAG = "StaggeredRecyclerViewAd";
@@ -251,18 +253,17 @@ public class HomePageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             List<CheckableItem> checkableItemList = new ArrayList<>();
 
             //Only show 4 checkboxes Maximum
-            if (noteList.get(position).getCheckableItemList().size() <= 3) {
+            if (noteList.get(position).getCheckableItemList().size() <= MAX_HOME_CHECKBOX_NUMBER) {
                 checkableItemList.addAll(noteList.get(position).getCheckableItemList());
             } else {
-                for (int i = 0; i <= 3; i++) {
+                for (int i = 0; i <= MAX_HOME_CHECKBOX_NUMBER; i++) {
                     checkableItemList.add(noteList.get(position).getCheckableItemList().get(i));
                 }
             }
-            NonCheckableAdapter homeCheckableAdapter = new NonCheckableAdapter(checkableItemList, position);
-            holder.recyclerView.setAdapter(homeCheckableAdapter);
+            NonCheckableAdapter nonCheckableAdapter = new NonCheckableAdapter(checkableItemList, position);
+            holder.recyclerView.setAdapter(nonCheckableAdapter);
             holder.recyclerView.setHasFixedSize(true);
             holder.recyclerView.suppressLayout(true);
-//            homeCheckableAdapter.setOnItemClickListener(this);
         }
     }
 

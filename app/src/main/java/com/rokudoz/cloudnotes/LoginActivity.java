@@ -95,6 +95,8 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                 GoogleSignInAccount account = task.getResult(ApiException.class);
                 if (account != null) {
                     firebaseAuthWithGoogle(account);
+                    userPicture = Objects.requireNonNull(account.getPhotoUrl()).toString();
+                    name = account.getDisplayName();
                 }
             } catch (ApiException e) {
                 // Google Sign In failed, update UI appropriately
@@ -123,10 +125,6 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                             // Sign in success, update UI with the signed-in user's information
                             Log.d(TAG, "signInWithCredential:success");
                             FirebaseUser user = mAuth.getCurrentUser();
-                            if (user != null) {
-                                name = user.getDisplayName();
-                                userPicture = Objects.requireNonNull(user.getPhotoUrl()).toString();
-                            }
 
                             Intent intent = new Intent(LoginActivity.this, MainActivity.class);
                             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
