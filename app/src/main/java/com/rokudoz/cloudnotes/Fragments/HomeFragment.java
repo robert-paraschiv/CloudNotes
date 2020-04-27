@@ -28,6 +28,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatDelegate;
+import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.ItemTouchHelper;
@@ -111,13 +112,20 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.fragment_home, container, false);
 
+        FloatingActionButton addNewNoteBtn = view.findViewById(R.id.homeFragment_addNoteFab);
+
         sharedPreferences = requireActivity().getSharedPreferences(SETTINGS_PREFS_NAME, MODE_PRIVATE);
         sharedPrefsEditor = requireActivity().getSharedPreferences(SETTINGS_PREFS_NAME, MODE_PRIVATE).edit();
 
+        BannerAdManager bannerAdManager = new BannerAdManager();
+
         //Show Banner Ad
         if (getActivity() != null && !HIDE_BANNER) {
-            BannerAdManager bannerAdManager = new BannerAdManager();
             bannerAdManager.showBannerAd(getActivity());
+        } else if (getActivity() != null && HIDE_BANNER) {
+            //Move Add note Fab lower
+            CoordinatorLayout.LayoutParams params = (CoordinatorLayout.LayoutParams) addNewNoteBtn.getLayoutParams();
+            params.setMargins(0, 0, bannerAdManager.convertDpToPixel(getActivity(), 16), bannerAdManager.convertDpToPixel(getActivity(), 16));
         }
 
         materialToolbar = view.findViewById(R.id.homeFragment_toolbar);
@@ -125,7 +133,7 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
         userPicture = view.findViewById(R.id.homeFragment_userImage);
         layoutManagerIcon = view.findViewById(R.id.homeFragment_layoutManagerIcon);
 
-        FloatingActionButton addNewNoteBtn = view.findViewById(R.id.homeFragment_addNoteFab);
+
         addNewNoteBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

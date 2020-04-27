@@ -21,6 +21,7 @@ import com.google.android.gms.ads.rewarded.RewardedAdCallback;
 import com.google.android.gms.ads.rewarded.RewardedAdLoadCallback;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.card.MaterialCardView;
+import com.rokudoz.cloudnotes.Utils.BannerAdManager;
 
 import java.util.Objects;
 
@@ -32,7 +33,6 @@ public class MainActivity extends AppCompatActivity {
 
     NavController navController;
 
-    private MaterialCardView bannerCard;
     private MaterialButton closeAd;
 
     private RewardedAd rewardedAd;
@@ -53,7 +53,6 @@ public class MainActivity extends AppCompatActivity {
 
         sharedPreferences = getSharedPreferences(SETTINGS_PREFS_NAME, MODE_PRIVATE);
 
-        bannerCard = findViewById(R.id.bannerAdCard);
         closeAd = findViewById(R.id.closeAdBtn);
 
 
@@ -109,7 +108,8 @@ public class MainActivity extends AppCompatActivity {
                                             // User earned reward.
                                             //Reset times app opened counter
                                             HIDE_BANNER = true;
-                                            bannerCard.setVisibility(View.GONE);
+                                            BannerAdManager bannerAdManager = new BannerAdManager();
+                                            bannerAdManager.hideBanner_modifyFab(MainActivity.this);
 
 
                                             dialog.cancel();

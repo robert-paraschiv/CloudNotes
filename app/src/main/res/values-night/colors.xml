@@ -18,4 +18,6 @@
     <color name="edit_type_edited">#2962ff</color>
     <color name="edit_type_created">#00e676</color>
     <color name="edit_type_restored">#d50000</color>
+
+    <color name="dialog_please_wait_text_color">#cfcfcf</color>
 </resources>

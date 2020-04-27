@@ -15,6 +15,7 @@
         android:indeterminateTintMode="src_atop" />
 
     <TextView
+        android:textColor="@color/dialog_please_wait_text_color"
         android:id="@+id/dialog_please_wait_textView"
         android:layout_width="0dp"
         android:layout_height="match_parent"
