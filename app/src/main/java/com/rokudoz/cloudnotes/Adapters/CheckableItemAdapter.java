@@ -3,6 +3,7 @@ package com.rokudoz.cloudnotes.Adapters;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.text.Editable;
+import android.text.InputType;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -91,6 +92,8 @@ public class CheckableItemAdapter extends RecyclerView.Adapter<CheckableItemAdap
                     }
                 }
             });
+            this.text.setImeOptions(EditorInfo.IME_ACTION_NEXT);
+            this.text.setRawInputType(InputType.TYPE_CLASS_TEXT);
             this.text.setOnEditorActionListener(new TextView.OnEditorActionListener() {
                 @Override
                 public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
