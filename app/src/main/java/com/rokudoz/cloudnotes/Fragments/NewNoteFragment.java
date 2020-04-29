@@ -250,13 +250,13 @@ public class NewNoteFragment extends Fragment implements CheckableItemAdapter.On
                         Objects.requireNonNull(textInputEditText.getText()).toString(),
                         null,
                         Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid(),
-                        null, false, noteType, null, "Created", 0, false);
+                        null, false, noteType, null, "Created", 0, false, null);
             } else if (noteType.equals("checkbox")) {
                 note = new Note(0, title,
                         "",
                         null,
                         Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid(),
-                        null, false, noteType, checkableItemList, "Created", 0, false);
+                        null, false, noteType, checkableItemList, "Created", 0, false, null);
             }
 
             Log.d(TAG, "onStop: note ref " + noteRef);

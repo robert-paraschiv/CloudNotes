@@ -21,12 +21,13 @@ public class Note {
     private String edit_type;
     private Integer number_of_edits;
     private Boolean deleted;
+    private String backgroundColor;
 
     @ServerTimestamp
     private Date creation_date;
 
     public Note(Integer position, String noteTitle, String noteText, String latest_edit_doc_ID, String user_ID, Date creation_date, Boolean edited, String noteType,
-                List<CheckableItem> checkableItemList, String edit_type, Integer number_of_edits, Boolean deleted) {
+                List<CheckableItem> checkableItemList, String edit_type, Integer number_of_edits, Boolean deleted, String backgroundColor) {
         this.position = position;
         this.noteTitle = noteTitle;
         this.noteText = noteText;
@@ -39,9 +40,18 @@ public class Note {
         this.edit_type = edit_type;
         this.number_of_edits = number_of_edits;
         this.deleted = deleted;
+        this.backgroundColor = backgroundColor;
     }
 
     public Note() {
+    }
+
+    public String getBackgroundColor() {
+        return backgroundColor;
+    }
+
+    public void setBackgroundColor(String backgroundColor) {
+        this.backgroundColor = backgroundColor;
     }
 
     public Boolean getDeleted() {
@@ -172,6 +182,7 @@ public class Note {
                 ", edit_type='" + edit_type + '\'' +
                 ", number_of_edits=" + number_of_edits +
                 ", deleted=" + deleted +
+                ", backgroundColor='" + backgroundColor + '\'' +
                 ", creation_date=" + creation_date +
                 '}';
     }

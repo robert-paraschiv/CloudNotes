@@ -18,6 +18,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
+import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -117,7 +118,15 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
         sharedPreferences = requireActivity().getSharedPreferences(SETTINGS_PREFS_NAME, MODE_PRIVATE);
         sharedPrefsEditor = requireActivity().getSharedPreferences(SETTINGS_PREFS_NAME, MODE_PRIVATE).edit();
 
+        //Reset status bar color
+        Window window = requireActivity().getWindow();
+        window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+        window.setStatusBarColor(getResources().getColor(R.color.status_bar_color));
+        window.setNavigationBarColor(getResources().getColor(R.color.status_bar_color));
+
+
         BannerAdManager bannerAdManager = new BannerAdManager();
+
 
         //Show Banner Ad
         if (getActivity() != null && !HIDE_BANNER) {

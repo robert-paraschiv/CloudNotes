@@ -233,10 +233,35 @@ public class HomePageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         if (noteList.get(position).getNoteTitle() != null)
             holder.noteTitle.setText(noteList.get(position).getNoteTitle());
 
+
         if (selected.contains(noteList.get(position)))
             highlightViewHolder(holder);
         else
             unhighlightViewHolder(holder);
+
+        //Set background color
+        if (noteList.get(position).getBackgroundColor() != null) {
+            switch (noteList.get(position).getBackgroundColor()) {
+                case "yellow":
+                    holder.itemView.setBackgroundColor(mContext.getResources().getColor(R.color.note_background_color_yellow));
+                    break;
+                case "red":
+                    holder.itemView.setBackgroundColor(mContext.getResources().getColor(R.color.note_background_color_red));
+                    break;
+                case "green":
+                    holder.itemView.setBackgroundColor(mContext.getResources().getColor(R.color.note_background_color_green));
+                    break;
+                case "blue":
+                    holder.itemView.setBackgroundColor(mContext.getResources().getColor(R.color.note_background_color_blue));
+                    break;
+                case "orange":
+                    holder.itemView.setBackgroundColor(mContext.getResources().getColor(R.color.note_background_color_orange));
+                    break;
+                case "purple":
+                    holder.itemView.setBackgroundColor(mContext.getResources().getColor(R.color.note_background_color_purple));
+                    break;
+            }
+        }
     }
 
     private void populateCheckBoxViewHolder(CheckboxViewHolder holder, int position) {
@@ -245,6 +270,30 @@ public class HomePageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             highlightViewHolder(holder);
         else
             unhighlightViewHolder(holder);
+
+        //Set background color
+        if (noteList.get(position).getBackgroundColor() != null) {
+            switch (noteList.get(position).getBackgroundColor()) {
+                case "yellow":
+                    holder.itemView.setBackgroundColor(mContext.getResources().getColor(R.color.note_background_color_yellow));
+                    break;
+                case "red":
+                    holder.itemView.setBackgroundColor(mContext.getResources().getColor(R.color.note_background_color_red));
+                    break;
+                case "green":
+                    holder.itemView.setBackgroundColor(mContext.getResources().getColor(R.color.note_background_color_green));
+                    break;
+                case "blue":
+                    holder.itemView.setBackgroundColor(mContext.getResources().getColor(R.color.note_background_color_blue));
+                    break;
+                case "orange":
+                    holder.itemView.setBackgroundColor(mContext.getResources().getColor(R.color.note_background_color_orange));
+                    break;
+                case "purple":
+                    holder.itemView.setBackgroundColor(mContext.getResources().getColor(R.color.note_background_color_purple));
+                    break;
+            }
+        }
 
         if (noteList.get(position).getNoteTitle() != null)
             holder.noteTitle.setText(noteList.get(position).getNoteTitle());

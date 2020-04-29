@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/dialog_settings_background"
+    android:fitsSystemWindows="true"
+    android:orientation="vertical">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal"
+        android:layout_marginTop="12dp"
+        android:text="Choose a color for your note" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="20dp"
+        android:layout_marginTop="8dp"
+        android:gravity="center_horizontal"
+        android:orientation="horizontal"
+        android:padding="14dp">
+
+        <de.hdodenhof.circleimageview.CircleImageView
+            android:id="@+id/noteSettings_color_yellow"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_marginEnd="14dp"
+            android:src="@color/note_background_color_yellow"
+            app:civ_border_color="@color/note_stroke_color"
+            app:civ_border_width="1px" />
+
+        <de.hdodenhof.circleimageview.CircleImageView
+            android:id="@+id/noteSettings_color_red"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_marginEnd="14dp"
+            android:src="@color/note_background_color_red"
+            app:civ_border_color="@color/note_stroke_color"
+            app:civ_border_width="1px" />
+
+        <de.hdodenhof.circleimageview.CircleImageView
+            android:id="@+id/noteSettings_color_blue"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_marginEnd="14dp"
+            android:src="@color/note_background_color_blue"
+            app:civ_border_color="@color/note_stroke_color"
+            app:civ_border_width="1px" />
+
+
+        <de.hdodenhof.circleimageview.CircleImageView
+            android:id="@+id/noteSettings_color_green"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_marginEnd="14dp"
+            android:src="@color/note_background_color_green"
+            app:civ_border_color="@color/note_stroke_color"
+            app:civ_border_width="1px" />
+
+        <de.hdodenhof.circleimageview.CircleImageView
+            android:id="@+id/noteSettings_color_orange"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_marginEnd="14dp"
+            android:src="@color/note_background_color_orange"
+            app:civ_border_color="@color/note_stroke_color"
+            app:civ_border_width="1px" />
+
+        <de.hdodenhof.circleimageview.CircleImageView
+            android:id="@+id/noteSettings_color_purple"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_marginEnd="14dp"
+            android:src="@color/note_background_color_purple"
+            app:civ_border_color="@color/note_stroke_color"
+            app:civ_border_width="1px" />
+
+        <de.hdodenhof.circleimageview.CircleImageView
+            android:id="@+id/noteSettings_color_initial"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:src="#FFFFFF"
+            app:civ_border_color="@color/note_stroke_color"
+            app:civ_border_width="1px" />
+
+    </LinearLayout>
+
+
+</LinearLayout>

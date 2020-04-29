@@ -13,6 +13,7 @@
         android:orientation="horizontal">
 
         <ImageView
+            android:tint="@color/icon_tint_color"
             android:id="@+id/checkableItem_drag_handle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -21,6 +22,7 @@
             android:src="@drawable/ic_outline_drag_indicator_24" />
 
         <com.google.android.material.checkbox.MaterialCheckBox
+            android:buttonTint="@color/icon_tint_color"
             android:id="@+id/checkableItem_checkbox"
             android:layout_width="35dp"
             android:layout_height="35dp"
@@ -51,6 +53,7 @@
         android:orientation="horizontal">
 
         <com.google.android.material.button.MaterialButton
+            app:iconTint="@color/icon_tint_color"
             android:id="@+id/checkableItem_deleteBtn"
             style="@style/Widget.MaterialComponents.Button.TextButton"
             android:layout_width="35dp"

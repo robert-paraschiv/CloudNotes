@@ -13,6 +13,8 @@
     <color name="home_note_selected_background_color">#efefef</color>
     <color name="home_note_selected_stroke_color">#000000</color>
 
+    <color name="icon_tint_color">#000000</color>
+
     <color name="spacer_color">#5f5f5f</color>
 
     <color name="edit_type_edited">#2962ff</color>
@@ -20,4 +22,16 @@
     <color name="edit_type_restored">#d50000</color>
 
     <color name="dialog_please_wait_text_color">#4f4f4f</color>
+
+
+
+    <color name="note_background_color_yellow">#ffff8d</color>
+    <color name="note_background_color_red">#ff8a80</color>
+    <color name="note_background_color_blue">#80d8ff</color>
+    <color name="note_background_color_green">#69f0ae</color>
+    <color name="note_background_color_orange">#ffd180</color>
+    <color name="note_background_color_purple">#ea80fc</color>
+
+
+
 </resources>

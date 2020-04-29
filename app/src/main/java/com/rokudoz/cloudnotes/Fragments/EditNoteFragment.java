@@ -3,6 +3,8 @@ package com.rokudoz.cloudnotes.Fragments;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.DialogInterface;
+import android.graphics.Color;
+import android.os.Build;
 import android.os.Bundle;
 
 import androidx.activity.OnBackPressedCallback;
@@ -18,6 +20,8 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
+import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
@@ -25,7 +29,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.button.MaterialButton;
+import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.auth.FirebaseAuth;
@@ -52,6 +58,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
+import de.hdodenhof.circleimageview.CircleImageView;
+
 import static com.rokudoz.cloudnotes.App.HIDE_BANNER;
 
 public class EditNoteFragment extends Fragment implements CheckableItemAdapter.OnStartDragListener, CheckableItemAdapter.OnItemClickListener {
@@ -62,6 +70,7 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
     boolean edit = false;
 
     private String noteType = "text";
+    private String noteColor = "";
     private String noteID = "";
     private int position = 0;
     private int number_of_edits = 0;
@@ -76,6 +85,7 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
     TextInputEditText titleInput, textInput;
     TextView lastEditTv, numberOfEditsTv;
     MaterialButton backBtn, deleteBtn, checkboxModeBtn, addCheckboxBtn, optionsBtn;
+    MaterialCardView bottomCard;
 
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
     private CollectionReference usersRef = db.collection("Users");
@@ -100,6 +110,7 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
         rv_scrollView = view.findViewById(R.id.editNoteFragment_scroll_rv);
         editLinearLayout = view.findViewById(R.id.editNoteFragment_editLayout);
         optionsBtn = view.findViewById(R.id.editNoteFragment_optionsBtn);
+        bottomCard = view.findViewById(R.id.editNoteFragment_bottomCard);
 
         if (getArguments() != null) {
             EditNoteFragmentArgs editNoteFragmentArgs = EditNoteFragmentArgs.fromBundle(getArguments());
@@ -226,6 +237,29 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
         });
 
         return view;
+    }
+
+    private void setBackgroundColor(int color) {
+        Window window = requireActivity().getWindow();
+        window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+
+        window.setStatusBarColor(color);
+        window.setNavigationBarColor(color);
+
+        bottomCard.setBackgroundColor(color);
+        view.setBackgroundColor(color);
+    }
+
+    private void resetBackgroundColors() {
+        Window window = requireActivity().getWindow();
+        window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+
+        window.setStatusBarColor(getResources().getColor(R.color.fragments_background));
+        window.setNavigationBarColor(getResources().getColor(R.color.fragments_background));
+
+        MaterialCardView cardView = new MaterialCardView(requireContext());
+        bottomCard.setBackgroundColor(cardView.getCardBackgroundColor().getDefaultColor());
+        view.setBackgroundColor(getResources().getColor(R.color.fragments_background));
     }
 
     private void buildRecyclerView() {
@@ -355,17 +389,42 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
                                         editLinearLayout.setOnClickListener(new View.OnClickListener() {
                                             @Override
                                             public void onClick(View v) {
-                                                if (Objects.requireNonNull(Navigation.findNavController(view).getCurrentDestination()).getId() == R.id.editNoteFragment)
+                                                if (Objects.requireNonNull(Navigation.findNavController(view).getCurrentDestination()).getId()
+                                                        == R.id.editNoteFragment)
                                                     Navigation.findNavController(view).navigate(EditNoteFragmentDirections
                                                             .actionEditNoteFragmentToNoteEditsFragment(noteID));
                                             }
                                         });
                                     }
-                                    
+                                    if (mNote.getBackgroundColor() != null) {
+                                        switch (mNote.getBackgroundColor()) {
+                                            case "yellow":
+                                                setBackgroundColor(getResources().getColor(R.color.note_background_color_yellow));
+                                                break;
+                                            case "red":
+                                                setBackgroundColor(getResources().getColor(R.color.note_background_color_red));
+                                                break;
+                                            case "green":
+                                                setBackgroundColor(getResources().getColor(R.color.note_background_color_green));
+                                                break;
+                                            case "blue":
+                                                setBackgroundColor(getResources().getColor(R.color.note_background_color_blue));
+                                                break;
+                                            case "orange":
+                                                setBackgroundColor(getResources().getColor(R.color.note_background_color_orange));
+                                                break;
+                                            case "purple":
+                                                setBackgroundColor(getResources().getColor(R.color.note_background_color_purple));
+                                                break;
+                                        }
+                                    } else {
+                                        resetBackgroundColors();
+                                    }
+
                                     optionsBtn.setOnClickListener(new View.OnClickListener() {
                                         @Override
                                         public void onClick(View v) {
-                                            Toast.makeText(requireContext(), "Not yet :c", Toast.LENGTH_SHORT).show();
+                                            showColorSettings();
                                         }
                                     });
 
@@ -373,6 +432,139 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
                             }
                         }
                     });
+    }
+
+    private void showColorSettings() {
+        //Bottom sheet dialog for "Settings"
+        final View dialogView = getLayoutInflater().inflate(R.layout.dialog_note_settings, (ViewGroup) view, false);
+        final BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(requireContext(),
+                R.style.CustomBottomSheetDialogTheme);
+
+        final CircleImageView yellow, red, blue, green, orange, purple, initial;
+
+        yellow = dialogView.findViewById(R.id.noteSettings_color_yellow);
+        red = dialogView.findViewById(R.id.noteSettings_color_red);
+        blue = dialogView.findViewById(R.id.noteSettings_color_blue);
+        green = dialogView.findViewById(R.id.noteSettings_color_green);
+        orange = dialogView.findViewById(R.id.noteSettings_color_orange);
+        purple = dialogView.findViewById(R.id.noteSettings_color_purple);
+        initial = dialogView.findViewById(R.id.noteSettings_color_initial);
+
+        if (mNote.getBackgroundColor() == null) {
+            initial.setBorderWidth(5);
+        } else {
+            switch (mNote.getBackgroundColor()) {
+                case "yellow":
+                    yellow.setBorderWidth(5);
+                    break;
+                case "red":
+                    red.setBorderWidth(5);
+                    break;
+                case "green":
+                    green.setBorderWidth(5);
+                    break;
+                case "blue":
+                    blue.setBorderWidth(5);
+                    break;
+                case "orange":
+                    orange.setBorderWidth(5);
+                    break;
+                case "purple":
+                    purple.setBorderWidth(5);
+                    break;
+            }
+        }
+
+        yellow.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                updateNoteColor("yellow");
+                setBackgroundColor(getResources().getColor(R.color.note_background_color_yellow));
+                mNote.setBackgroundColor("yellow");
+                yellow.setBorderWidth(5);
+                bottomSheetDialog.cancel();
+            }
+        });
+        red.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                updateNoteColor("red");
+                setBackgroundColor(getResources().getColor(R.color.note_background_color_red));
+                mNote.setBackgroundColor("red");
+                red.setBorderWidth(5);
+                bottomSheetDialog.cancel();
+            }
+        });
+        blue.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                updateNoteColor("blue");
+                setBackgroundColor(getResources().getColor(R.color.note_background_color_blue));
+                mNote.setBackgroundColor("blue");
+                blue.setBorderWidth(5);
+                bottomSheetDialog.cancel();
+            }
+        });
+        green.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                updateNoteColor("green");
+                setBackgroundColor(getResources().getColor(R.color.note_background_color_green));
+                mNote.setBackgroundColor("green");
+                green.setBorderWidth(5);
+                bottomSheetDialog.cancel();
+            }
+        });
+        orange.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                updateNoteColor("orange");
+                setBackgroundColor(getResources().getColor(R.color.note_background_color_orange));
+                mNote.setBackgroundColor("orange");
+                orange.setBorderWidth(5);
+                bottomSheetDialog.cancel();
+            }
+        });
+        purple.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                updateNoteColor("purple");
+                setBackgroundColor(getResources().getColor(R.color.note_background_color_purple));
+                mNote.setBackgroundColor("purple");
+                purple.setBorderWidth(5);
+                bottomSheetDialog.cancel();
+            }
+        });
+        initial.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                updateNoteColor(null);
+                resetBackgroundColors();
+                mNote.setBackgroundColor(null);
+                initial.setBorderWidth(5);
+                bottomSheetDialog.cancel();
+            }
+        });
+
+        bottomSheetDialog.setContentView(dialogView);
+        bottomSheetDialog.show();
+
+        Window window = bottomSheetDialog.getWindow();
+        if (window != null) {
+            window.findViewById(com.google.android.material.R.id.container).setFitsSystemWindows(false);
+            View decorView = window.getDecorView();
+            decorView.setSystemUiVisibility(decorView.getSystemUiVisibility() | View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR);
+        }
+    }
+
+    private void updateNoteColor(final String noteColor) {
+        usersRef.document(FirebaseAuth.getInstance().getCurrentUser().getUid()).collection("Notes").document(noteID)
+                .update("backgroundColor", noteColor).addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+                Log.d(TAG, "onSuccess: updated note color + " + noteColor);
+            }
+        });
     }
 
     @Override
@@ -413,14 +605,16 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
                             Objects.requireNonNull(textInput.getText()).toString(),
                             null,
                             Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid(),
-                            null, true, noteType, null, "Edited", number_of_edits + 1, false);
+                            null, true, noteType, null, "Edited", number_of_edits + 1,
+                            false, mNote.getBackgroundColor());
                 } else if (noteType.equals("checkbox")) {
                     note = new Note(position,
                             title,
                             "",
                             null,
                             Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid(),
-                            null, true, noteType, checkableItemList, "Edited", number_of_edits + 1, false);
+                            null, true, noteType, checkableItemList, "Edited", number_of_edits + 1,
+                            false, mNote.getBackgroundColor());
                 }
 
                 WriteBatch batch = db.batch();
