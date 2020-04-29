@@ -25,6 +25,7 @@ import com.rokudoz.cloudnotes.Adapters.NoteEditsAdapter;
 import com.rokudoz.cloudnotes.Models.Note;
 import com.rokudoz.cloudnotes.R;
 import com.rokudoz.cloudnotes.Utils.BannerAdManager;
+import com.rokudoz.cloudnotes.Utils.ColorFunctions;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -59,6 +60,12 @@ public class NoteEditsFragment extends Fragment implements NoteEditsAdapter.OnIt
             getNotes(noteID);
         }
         recyclerView = view.findViewById(R.id.noteEditsFragment_recyclerView);
+
+        //Reset status bar color
+        if (getActivity() != null) {
+            ColorFunctions colorFunctions = new ColorFunctions();
+            colorFunctions.resetStatus_NavigationBar_Colors(getActivity());
+        }
 
         //Show Banner Ad
         if (getActivity() != null && !HIDE_BANNER) {

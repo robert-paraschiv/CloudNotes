@@ -70,10 +70,10 @@ public class HomePageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                     if (selected.size() > 0) {
                         if (selected.contains(noteList.get(position))) {
                             selected.remove(noteList.get(position));
-                            unhighlightView(itemView);
+                            unhighlightView(itemView, position);
                         } else {
                             selected.add(noteList.get(position));
-                            highlightView(itemView);
+                            highlightView(itemView, position);
                         }
                     }
 
@@ -91,10 +91,10 @@ public class HomePageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                 if (position != RecyclerView.NO_POSITION) {
                     if (selected.contains(noteList.get(position))) {
                         selected.remove(noteList.get(position));
-                        unhighlightView(itemView);
+                        unhighlightView(itemView, position);
                     } else {
                         selected.add(noteList.get(position));
-                        highlightView(itemView);
+                        highlightView(itemView, position);
                     }
                     mListener.onLongItemClick(position);
                 }
@@ -124,10 +124,10 @@ public class HomePageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                             if (selected.size() > 0) {
                                 if (selected.contains(noteList.get(position))) {
                                     selected.remove(noteList.get(position));
-                                    unhighlightView(itemView);
+                                    unhighlightView(itemView, position);
                                 } else {
                                     selected.add(noteList.get(position));
-                                    highlightView(itemView);
+                                    highlightView(itemView, position);
                                 }
                             }
 
@@ -145,10 +145,10 @@ public class HomePageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                         if (position != RecyclerView.NO_POSITION) {
                             if (selected.contains(noteList.get(position))) {
                                 selected.remove(noteList.get(position));
-                                unhighlightView(itemView);
+                                unhighlightView(itemView, position);
                             } else {
                                 selected.add(noteList.get(position));
-                                highlightView(itemView);
+                                highlightView(itemView, position);
                             }
                             mListener.onLongItemClick(position);
                         }
@@ -166,10 +166,10 @@ public class HomePageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                     if (selected.size() > 0) {
                         if (selected.contains(noteList.get(position))) {
                             selected.remove(noteList.get(position));
-                            unhighlightView(itemView);
+                            unhighlightView(itemView, position);
                         } else {
                             selected.add(noteList.get(position));
-                            highlightView(itemView);
+                            highlightView(itemView, position);
                         }
                     }
                     mListener.onItemClick(position);
@@ -184,10 +184,10 @@ public class HomePageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                 if (position != RecyclerView.NO_POSITION) {
                     if (selected.contains(noteList.get(position))) {
                         selected.remove(noteList.get(position));
-                        unhighlightView(itemView);
+                        unhighlightView(itemView, position);
                     } else {
                         selected.add(noteList.get(position));
-                        highlightView(itemView);
+                        highlightView(itemView, position);
                     }
                     mListener.onLongItemClick(position);
                 }
@@ -233,65 +233,38 @@ public class HomePageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         if (noteList.get(position).getNoteTitle() != null)
             holder.noteTitle.setText(noteList.get(position).getNoteTitle());
 
+        //Setup note background
+        if (selected.contains(noteList.get(position))) {
+            if (noteList.get(position).getBackgroundColor() == null) {
+                highlightViewHolder(holder, null);
+            } else {
+                highlightViewHolder(holder, noteList.get(position).getBackgroundColor());
+            }
 
-        if (selected.contains(noteList.get(position)))
-            highlightViewHolder(holder);
-        else
-            unhighlightViewHolder(holder);
-
-        //Set background color
-        if (noteList.get(position).getBackgroundColor() != null) {
-            switch (noteList.get(position).getBackgroundColor()) {
-                case "yellow":
-                    holder.itemView.setBackgroundColor(mContext.getResources().getColor(R.color.note_background_color_yellow));
-                    break;
-                case "red":
-                    holder.itemView.setBackgroundColor(mContext.getResources().getColor(R.color.note_background_color_red));
-                    break;
-                case "green":
-                    holder.itemView.setBackgroundColor(mContext.getResources().getColor(R.color.note_background_color_green));
-                    break;
-                case "blue":
-                    holder.itemView.setBackgroundColor(mContext.getResources().getColor(R.color.note_background_color_blue));
-                    break;
-                case "orange":
-                    holder.itemView.setBackgroundColor(mContext.getResources().getColor(R.color.note_background_color_orange));
-                    break;
-                case "purple":
-                    holder.itemView.setBackgroundColor(mContext.getResources().getColor(R.color.note_background_color_purple));
-                    break;
+        } else {
+            if (noteList.get(position).getBackgroundColor() == null) {
+                unhighlightViewHolder(holder, null);
+            } else {
+                unhighlightViewHolder(holder, noteList.get(position).getBackgroundColor());
             }
         }
     }
 
     private void populateCheckBoxViewHolder(CheckboxViewHolder holder, int position) {
 
-        if (selected.contains(noteList.get(position)))
-            highlightViewHolder(holder);
-        else
-            unhighlightViewHolder(holder);
+        //Setup note background
+        if (selected.contains(noteList.get(position))) {
+            if (noteList.get(position).getBackgroundColor() == null) {
+                highlightViewHolder(holder, null);
+            } else {
+                highlightViewHolder(holder, noteList.get(position).getBackgroundColor());
+            }
 
-        //Set background color
-        if (noteList.get(position).getBackgroundColor() != null) {
-            switch (noteList.get(position).getBackgroundColor()) {
-                case "yellow":
-                    holder.itemView.setBackgroundColor(mContext.getResources().getColor(R.color.note_background_color_yellow));
-                    break;
-                case "red":
-                    holder.itemView.setBackgroundColor(mContext.getResources().getColor(R.color.note_background_color_red));
-                    break;
-                case "green":
-                    holder.itemView.setBackgroundColor(mContext.getResources().getColor(R.color.note_background_color_green));
-                    break;
-                case "blue":
-                    holder.itemView.setBackgroundColor(mContext.getResources().getColor(R.color.note_background_color_blue));
-                    break;
-                case "orange":
-                    holder.itemView.setBackgroundColor(mContext.getResources().getColor(R.color.note_background_color_orange));
-                    break;
-                case "purple":
-                    holder.itemView.setBackgroundColor(mContext.getResources().getColor(R.color.note_background_color_purple));
-                    break;
+        } else {
+            if (noteList.get(position).getBackgroundColor() == null) {
+                unhighlightViewHolder(holder, null);
+            } else {
+                unhighlightViewHolder(holder, noteList.get(position).getBackgroundColor());
             }
         }
 
@@ -316,20 +289,110 @@ public class HomePageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         }
     }
 
-    private void highlightViewHolder(RecyclerView.ViewHolder holder) {
-        holder.itemView.setBackgroundResource(R.drawable.home_note_selected_note_background);
+    private void highlightViewHolder(RecyclerView.ViewHolder holder, String color) {
+        if (color == null) {
+            holder.itemView.setBackgroundResource(R.drawable.home_note_selected_note_background);
+        } else
+            switch (color) {
+                case "yellow":
+                    holder.itemView.setBackgroundResource(R.drawable.home_note_selected_background_yellow);
+                    break;
+                case "red":
+                    holder.itemView.setBackgroundResource(R.drawable.home_note_selected_background_red);
+                    break;
+                case "green":
+                    holder.itemView.setBackgroundResource(R.drawable.home_note_selected_background_green);
+                    break;
+                case "blue":
+                    holder.itemView.setBackgroundResource(R.drawable.home_note_selected_background_blue);
+                    break;
+                case "orange":
+                    holder.itemView.setBackgroundResource(R.drawable.home_note_selected_background_orange);
+                    break;
+                case "purple":
+                    holder.itemView.setBackgroundResource(R.drawable.home_note_selected_background_purple);
+                    break;
+            }
     }
 
-    private void unhighlightViewHolder(RecyclerView.ViewHolder holder) {
-        holder.itemView.setBackgroundResource(R.drawable.home_note_background);
+    private void unhighlightViewHolder(RecyclerView.ViewHolder holder, String color) {
+        if (color == null) {
+            holder.itemView.setBackgroundResource(R.drawable.home_note_background);
+        } else
+            switch (color) {
+                case "yellow":
+                    holder.itemView.setBackgroundResource(R.drawable.home_note_background_yellow);
+                    break;
+                case "red":
+                    holder.itemView.setBackgroundResource(R.drawable.home_note_background_red);
+                    break;
+                case "green":
+                    holder.itemView.setBackgroundResource(R.drawable.home_note_background_green);
+                    break;
+                case "blue":
+                    holder.itemView.setBackgroundResource(R.drawable.home_note_background_blue);
+                    break;
+                case "orange":
+                    holder.itemView.setBackgroundResource(R.drawable.home_note_background_orange);
+                    break;
+                case "purple":
+                    holder.itemView.setBackgroundResource(R.drawable.home_note_background_purple);
+                    break;
+            }
     }
 
-    private void highlightView(View view) {
-        view.setBackgroundResource(R.drawable.home_note_selected_note_background);
+    private void highlightView(View view, int position) {
+        String color = noteList.get(position).getBackgroundColor();
+        if (color == null) {
+            view.setBackgroundResource(R.drawable.home_note_selected_note_background);
+        } else
+            switch (color) {
+                case "yellow":
+                    view.setBackgroundResource(R.drawable.home_note_selected_background_yellow);
+                    break;
+                case "red":
+                    view.setBackgroundResource(R.drawable.home_note_selected_background_red);
+                    break;
+                case "green":
+                    view.setBackgroundResource(R.drawable.home_note_selected_background_green);
+                    break;
+                case "blue":
+                    view.setBackgroundResource(R.drawable.home_note_selected_background_blue);
+                    break;
+                case "orange":
+                    view.setBackgroundResource(R.drawable.home_note_selected_background_orange);
+                    break;
+                case "purple":
+                    view.setBackgroundResource(R.drawable.home_note_selected_background_purple);
+                    break;
+            }
     }
 
-    private void unhighlightView(View view) {
-        view.setBackgroundResource(R.drawable.home_note_background);
+    private void unhighlightView(View view, int position) {
+        String color = noteList.get(position).getBackgroundColor();
+        if (color == null) {
+            view.setBackgroundResource(R.drawable.home_note_background);
+        } else
+            switch (color) {
+                case "yellow":
+                    view.setBackgroundResource(R.drawable.home_note_background_yellow);
+                    break;
+                case "red":
+                    view.setBackgroundResource(R.drawable.home_note_background_red);
+                    break;
+                case "green":
+                    view.setBackgroundResource(R.drawable.home_note_background_green);
+                    break;
+                case "blue":
+                    view.setBackgroundResource(R.drawable.home_note_background_blue);
+                    break;
+                case "orange":
+                    view.setBackgroundResource(R.drawable.home_note_background_orange);
+                    break;
+                case "purple":
+                    view.setBackgroundResource(R.drawable.home_note_background_purple);
+                    break;
+            }
     }
 
     public void addAll(List<Note> items) {

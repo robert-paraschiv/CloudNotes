@@ -36,6 +36,7 @@ import com.rokudoz.cloudnotes.Models.CheckableItem;
 import com.rokudoz.cloudnotes.Models.Note;
 import com.rokudoz.cloudnotes.R;
 import com.rokudoz.cloudnotes.Utils.BannerAdManager;
+import com.rokudoz.cloudnotes.Utils.ColorFunctions;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -75,6 +76,12 @@ public class NewNoteFragment extends Fragment implements CheckableItemAdapter.On
         recyclerView = view.findViewById(R.id.newNoteFragment_checkbox_rv);
         addCheckboxBtn = view.findViewById(R.id.newNoteFragment_add_checkbox_Btn);
         rv_scrollview = view.findViewById(R.id.newNoteFragment_scroll_rv);
+
+        //Reset status bar color
+//        if (getActivity() != null) {
+//            ColorFunctions colorFunctions = new ColorFunctions();
+//            colorFunctions.resetStatus_NavigationBar_Colors(getActivity());
+//        }
 
         //Hide Banner Ad
         if (getActivity() != null) {

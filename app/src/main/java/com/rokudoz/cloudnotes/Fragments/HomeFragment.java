@@ -64,6 +64,7 @@ import com.rokudoz.cloudnotes.Models.Note;
 import com.rokudoz.cloudnotes.Models.User;
 import com.rokudoz.cloudnotes.R;
 import com.rokudoz.cloudnotes.Utils.BannerAdManager;
+import com.rokudoz.cloudnotes.Utils.ColorFunctions;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -119,10 +120,10 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
         sharedPrefsEditor = requireActivity().getSharedPreferences(SETTINGS_PREFS_NAME, MODE_PRIVATE).edit();
 
         //Reset status bar color
-        Window window = requireActivity().getWindow();
-        window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
-        window.setStatusBarColor(getResources().getColor(R.color.status_bar_color));
-        window.setNavigationBarColor(getResources().getColor(R.color.status_bar_color));
+        if (getActivity() != null) {
+            ColorFunctions colorFunctions = new ColorFunctions();
+            colorFunctions.resetStatus_NavigationBar_Colors(getActivity());
+        }
 
 
         BannerAdManager bannerAdManager = new BannerAdManager();
@@ -680,7 +681,30 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
             //Deselect selected items when action bar closes
             for (int i = 0; i < noteList.size(); i++) {
                 if (recyclerView.getLayoutManager() != null && recyclerView.getLayoutManager().getChildAt(i) != null) {
-                    Objects.requireNonNull(recyclerView.getLayoutManager().getChildAt(i)).setBackgroundResource(R.drawable.home_note_background);
+                    if (noteList.get(i).getBackgroundColor() == null) {
+                        Objects.requireNonNull(recyclerView.getLayoutManager().getChildAt(i)).setBackgroundResource(R.drawable.home_note_background);
+                    } else {
+                        switch (noteList.get(i).getBackgroundColor()) {
+                            case "yellow":
+                                Objects.requireNonNull(recyclerView.getLayoutManager().getChildAt(i)).setBackgroundResource(R.drawable.home_note_background_yellow);
+                                break;
+                            case "red":
+                                Objects.requireNonNull(recyclerView.getLayoutManager().getChildAt(i)).setBackgroundResource(R.drawable.home_note_background_red);
+                                break;
+                            case "green":
+                                Objects.requireNonNull(recyclerView.getLayoutManager().getChildAt(i)).setBackgroundResource(R.drawable.home_note_background_green);
+                                break;
+                            case "blue":
+                                Objects.requireNonNull(recyclerView.getLayoutManager().getChildAt(i)).setBackgroundResource(R.drawable.home_note_background_blue);
+                                break;
+                            case "orange":
+                                Objects.requireNonNull(recyclerView.getLayoutManager().getChildAt(i)).setBackgroundResource(R.drawable.home_note_background_orange);
+                                break;
+                            case "purple":
+                                Objects.requireNonNull(recyclerView.getLayoutManager().getChildAt(i)).setBackgroundResource(R.drawable.home_note_background_purple);
+                                break;
+                        }
+                    }
                 }
             }
 

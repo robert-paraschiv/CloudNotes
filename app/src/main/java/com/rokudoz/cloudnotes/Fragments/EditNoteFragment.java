@@ -48,6 +48,7 @@ import com.rokudoz.cloudnotes.Models.CheckableItem;
 import com.rokudoz.cloudnotes.Models.Note;
 import com.rokudoz.cloudnotes.R;
 import com.rokudoz.cloudnotes.Utils.BannerAdManager;
+import com.rokudoz.cloudnotes.Utils.ColorFunctions;
 import com.rokudoz.cloudnotes.Utils.LastEdit;
 
 import java.text.MessageFormat;
@@ -251,16 +252,16 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
     }
 
     private void resetBackgroundColors() {
-        Window window = requireActivity().getWindow();
-        window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+        if (getActivity() != null) {
+            ColorFunctions colorFunctions = new ColorFunctions();
+            colorFunctions.resetStatus_NavigationBar_Colors(getActivity());
 
-        window.setStatusBarColor(getResources().getColor(R.color.fragments_background));
-        window.setNavigationBarColor(getResources().getColor(R.color.fragments_background));
-
-        MaterialCardView cardView = new MaterialCardView(requireContext());
-        bottomCard.setBackgroundColor(cardView.getCardBackgroundColor().getDefaultColor());
-        view.setBackgroundColor(getResources().getColor(R.color.fragments_background));
+            MaterialCardView cardView = new MaterialCardView(requireContext());
+            bottomCard.setBackgroundColor(cardView.getCardBackgroundColor().getDefaultColor());
+            view.setBackgroundColor(getResources().getColor(R.color.fragments_background));
+        }
     }
+
 
     private void buildRecyclerView() {
         mAdapter = new CheckableItemAdapter(checkableItemList);
@@ -396,7 +397,7 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
                                             }
                                         });
                                     }
-                                    if (mNote.getBackgroundColor() != null) {
+                                    if (mNote.getBackgroundColor() != null && getActivity() != null) {
                                         switch (mNote.getBackgroundColor()) {
                                             case "yellow":
                                                 setBackgroundColor(getResources().getColor(R.color.note_background_color_yellow));

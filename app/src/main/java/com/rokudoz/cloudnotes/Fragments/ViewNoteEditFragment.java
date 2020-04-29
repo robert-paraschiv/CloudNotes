@@ -32,6 +32,7 @@ import com.rokudoz.cloudnotes.Models.CheckableItem;
 import com.rokudoz.cloudnotes.Models.Note;
 import com.rokudoz.cloudnotes.R;
 import com.rokudoz.cloudnotes.Utils.BannerAdManager;
+import com.rokudoz.cloudnotes.Utils.ColorFunctions;
 
 import java.util.List;
 import java.util.Objects;
@@ -71,6 +72,13 @@ public class ViewNoteEditFragment extends Fragment {
         restoreBtn = view.findViewById(R.id.viewNoteEditFragment_restoreBtn);
         backBtn = view.findViewById(R.id.viewNoteEditFragment_backBtn);
         recyclerView = view.findViewById(R.id.viewNoteEditFragment_recyclerView);
+
+
+        //Reset status bar color
+        if (getActivity() != null) {
+            ColorFunctions colorFunctions = new ColorFunctions();
+            colorFunctions.resetStatus_NavigationBar_Colors(getActivity());
+        }
 
         //Show Banner Ad
         if (getActivity() != null && !HIDE_BANNER) {

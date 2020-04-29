@@ -34,6 +34,7 @@ import com.rokudoz.cloudnotes.Models.CheckableItem;
 import com.rokudoz.cloudnotes.Models.Note;
 import com.rokudoz.cloudnotes.R;
 import com.rokudoz.cloudnotes.Utils.BannerAdManager;
+import com.rokudoz.cloudnotes.Utils.ColorFunctions;
 
 import java.util.List;
 import java.util.Objects;
@@ -69,6 +70,12 @@ public class ViewTrashNote extends Fragment {
         MaterialButton backBtn = view.findViewById(R.id.viewTrashNoteFragment_backBtn);
         MaterialButton deleteBtn = view.findViewById(R.id.viewTrashNoteFragment_deleteBtn);
         recyclerView = view.findViewById(R.id.viewTrashNoteFragment_recyclerView);
+
+        //Reset status bar color
+        if (getActivity() != null) {
+            ColorFunctions colorFunctions = new ColorFunctions();
+            colorFunctions.resetStatus_NavigationBar_Colors(getActivity());
+        }
 
         //Show Banner Ad
         if (getActivity() != null && !HIDE_BANNER) {

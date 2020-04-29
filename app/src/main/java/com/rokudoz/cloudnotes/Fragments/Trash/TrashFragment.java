@@ -38,6 +38,7 @@ import com.rokudoz.cloudnotes.Fragments.NoteEditsFragment;
 import com.rokudoz.cloudnotes.Models.Note;
 import com.rokudoz.cloudnotes.R;
 import com.rokudoz.cloudnotes.Utils.BannerAdManager;
+import com.rokudoz.cloudnotes.Utils.ColorFunctions;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -72,6 +73,11 @@ public class TrashFragment extends Fragment implements NoteEditsAdapter.OnItemCl
         emptyTrashBtn = view.findViewById(R.id.trashFragment_emptyTrashBtn);
         recyclerView = view.findViewById(R.id.trashFragment_recyclerView);
 
+        //Reset status bar color
+        if (getActivity() != null) {
+            ColorFunctions colorFunctions = new ColorFunctions();
+            colorFunctions.resetStatus_NavigationBar_Colors(getActivity());
+        }
 
         backBtn.setOnClickListener(new View.OnClickListener() {
             @Override
