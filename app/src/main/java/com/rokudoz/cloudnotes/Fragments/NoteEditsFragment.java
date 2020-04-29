@@ -10,6 +10,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -38,7 +39,7 @@ public class NoteEditsFragment extends Fragment implements NoteEditsAdapter.OnIt
     private View view;
 
     private NoteEditsAdapter noteEditsAdapter;
-
+    private RecyclerView recyclerView;
     private List<Note> noteList = new ArrayList<>();
 
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
@@ -57,11 +58,17 @@ public class NoteEditsFragment extends Fragment implements NoteEditsAdapter.OnIt
             noteID = noteEditsFragmentArgs.getNoteID();
             getNotes(noteID);
         }
+        recyclerView = view.findViewById(R.id.noteEditsFragment_recyclerView);
 
         //Show Banner Ad
         if (getActivity() != null && !HIDE_BANNER) {
             BannerAdManager bannerAdManager = new BannerAdManager();
             bannerAdManager.showBannerAd(getActivity());
+            RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) recyclerView.getLayoutParams();
+            params.setMargins(0
+                    , 0
+                    , 0
+                    , bannerAdManager.convertDpToPixel(requireActivity(), 50));
         }
 
         MaterialButton backBtn = view.findViewById(R.id.noteEditsFragment_backBtn);
@@ -80,7 +87,6 @@ public class NoteEditsFragment extends Fragment implements NoteEditsAdapter.OnIt
     }
 
     private void setUpRecyclerView() {
-        RecyclerView recyclerView = view.findViewById(R.id.noteEditsFragment_recyclerView);
         noteEditsAdapter = new NoteEditsAdapter(getActivity(), noteList);
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext());
         recyclerView.setLayoutManager(linearLayoutManager);

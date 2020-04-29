@@ -75,7 +75,7 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
     private Note mNote = new Note();
     TextInputEditText titleInput, textInput;
     TextView lastEditTv, numberOfEditsTv;
-    MaterialButton backBtn, deleteBtn, checkboxModeBtn, addCheckboxBtn;
+    MaterialButton backBtn, deleteBtn, checkboxModeBtn, addCheckboxBtn, optionsBtn;
 
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
     private CollectionReference usersRef = db.collection("Users");
@@ -99,6 +99,7 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
         addCheckboxBtn = view.findViewById(R.id.editNoteFragment_add_checkbox_Btn);
         rv_scrollView = view.findViewById(R.id.editNoteFragment_scroll_rv);
         editLinearLayout = view.findViewById(R.id.editNoteFragment_editLayout);
+        optionsBtn = view.findViewById(R.id.editNoteFragment_optionsBtn);
 
         if (getArguments() != null) {
             EditNoteFragmentArgs editNoteFragmentArgs = EditNoteFragmentArgs.fromBundle(getArguments());
@@ -360,6 +361,13 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
                                             }
                                         });
                                     }
+                                    
+                                    optionsBtn.setOnClickListener(new View.OnClickListener() {
+                                        @Override
+                                        public void onClick(View v) {
+                                            Toast.makeText(requireContext(), "Not yet :c", Toast.LENGTH_SHORT).show();
+                                        }
+                                    });
 
                                 }
                             }

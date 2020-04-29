@@ -5,7 +5,6 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -20,10 +19,7 @@ import com.google.android.gms.ads.rewarded.RewardedAd;
 import com.google.android.gms.ads.rewarded.RewardedAdCallback;
 import com.google.android.gms.ads.rewarded.RewardedAdLoadCallback;
 import com.google.android.material.button.MaterialButton;
-import com.google.android.material.card.MaterialCardView;
 import com.rokudoz.cloudnotes.Utils.BannerAdManager;
-
-import java.util.Objects;
 
 import static com.rokudoz.cloudnotes.App.HIDE_BANNER;
 import static com.rokudoz.cloudnotes.App.SETTINGS_PREFS_NAME;
@@ -109,7 +105,7 @@ public class MainActivity extends AppCompatActivity {
                                             //Reset times app opened counter
                                             HIDE_BANNER = true;
                                             BannerAdManager bannerAdManager = new BannerAdManager();
-                                            bannerAdManager.hideBanner_modifyFab(MainActivity.this);
+                                            bannerAdManager.hideBanner_modify_layouts(MainActivity.this);
 
 
                                             dialog.cancel();

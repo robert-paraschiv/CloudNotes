@@ -144,13 +144,16 @@ public class NoteEditsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         if (noteList.get(position).getNoteText() != null)
             holder.noteText.setText(noteList.get(position).getNoteText());
 
-        LastEdit lastEdit = new LastEdit();
-        Date date = noteList.get(position).getCreation_date();
 
-        holder.editDate.setText(lastEdit.getLastEdit(date.getTime()));
+
+        if (noteList.get(position).getCreation_date() != null) {
+            LastEdit lastEdit = new LastEdit();
+            Date date = noteList.get(position).getCreation_date();
+            holder.editDate.setText(lastEdit.getLastEdit(date.getTime()));
+        }
 
         if (noteList.get(position).getEdit_type() != null) {
-            switch (noteList.get(position).getEdit_type()){
+            switch (noteList.get(position).getEdit_type()) {
                 case "Edited":
                     holder.editType.setTextColor(mContext.getColor(R.color.edit_type_edited));
                     break;
@@ -179,7 +182,7 @@ public class NoteEditsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         }
 
         if (noteList.get(position).getEdit_type() != null) {
-            switch (noteList.get(position).getEdit_type()){
+            switch (noteList.get(position).getEdit_type()) {
                 case "Edited":
                     holder.editType.setTextColor(mContext.getColor(R.color.edit_type_edited));
                     break;

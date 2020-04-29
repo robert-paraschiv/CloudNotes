@@ -65,6 +65,7 @@
         tools:text="Title" />
 
     <ScrollView
+        android:id="@+id/viewNoteEditFragment_textScrollView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_below="@id/viewNoteEditFragment_title"

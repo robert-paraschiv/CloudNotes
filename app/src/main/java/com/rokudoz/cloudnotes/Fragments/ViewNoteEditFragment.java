@@ -13,6 +13,8 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.RelativeLayout;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -41,6 +43,7 @@ public class ViewNoteEditFragment extends Fragment {
 
     private View view;
 
+    private ScrollView textScrollView;
     private TextView titleTv, textTv;
     private MaterialButton restoreBtn, backBtn;
     private RecyclerView recyclerView;
@@ -62,6 +65,7 @@ public class ViewNoteEditFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.fragment_view_note_edit, container, false);
 
+        textScrollView = view.findViewById(R.id.viewNoteEditFragment_textScrollView);
         titleTv = view.findViewById(R.id.viewNoteEditFragment_title);
         textTv = view.findViewById(R.id.viewNoteEditFragment_text);
         restoreBtn = view.findViewById(R.id.viewNoteEditFragment_restoreBtn);
@@ -72,6 +76,17 @@ public class ViewNoteEditFragment extends Fragment {
         if (getActivity() != null && !HIDE_BANNER) {
             BannerAdManager bannerAdManager = new BannerAdManager();
             bannerAdManager.showBannerAd(getActivity());
+            RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) recyclerView.getLayoutParams();
+            params.setMargins(bannerAdManager.convertDpToPixel(requireActivity(), 8)
+                    , bannerAdManager.convertDpToPixel(requireActivity(), 8)
+                    , bannerAdManager.convertDpToPixel(requireActivity(), 8)
+                    , bannerAdManager.convertDpToPixel(requireActivity(), 50));
+
+            RelativeLayout.LayoutParams textParams = (RelativeLayout.LayoutParams) textScrollView.getLayoutParams();
+            textParams.setMargins(bannerAdManager.convertDpToPixel(requireActivity(), 16)
+                    , bannerAdManager.convertDpToPixel(requireActivity(), 8)
+                    , bannerAdManager.convertDpToPixel(requireActivity(), 16)
+                    , bannerAdManager.convertDpToPixel(requireActivity(), 50));
         }
 
         if (getArguments() != null) {

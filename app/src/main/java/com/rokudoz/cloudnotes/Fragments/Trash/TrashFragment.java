@@ -5,6 +5,7 @@ import android.app.Dialog;
 import android.os.Bundle;
 
 import androidx.annotation.Nullable;
+import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -13,6 +14,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -111,9 +113,15 @@ public class TrashFragment extends Fragment implements NoteEditsAdapter.OnItemCl
         });
 
         //Show Banner Ad
+        BannerAdManager bannerAdManager = new BannerAdManager();
         if (getActivity() != null && !HIDE_BANNER) {
-            BannerAdManager bannerAdManager = new BannerAdManager();
             bannerAdManager.showBannerAd(getActivity());
+            RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) recyclerView.getLayoutParams();
+            params.setMargins(bannerAdManager.convertDpToPixel(requireActivity(), 10)
+                    , 0
+                    , bannerAdManager.convertDpToPixel(requireActivity(), 10)
+                    , bannerAdManager.convertDpToPixel(requireActivity(), 50));
+
         }
 
         setUpRecyclerView();
