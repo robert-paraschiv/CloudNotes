@@ -37,6 +37,7 @@ public class NoteEditsFragment extends Fragment implements NoteEditsAdapter.OnIt
     private static final String TAG = "NoteEditsFragment";
 
     private String noteID = "";
+    private String noteColor = "";
     private View view;
 
     private NoteEditsAdapter noteEditsAdapter;
@@ -57,6 +58,7 @@ public class NoteEditsFragment extends Fragment implements NoteEditsAdapter.OnIt
         if (getArguments() != null) {
             NoteEditsFragmentArgs noteEditsFragmentArgs = NoteEditsFragmentArgs.fromBundle(getArguments());
             noteID = noteEditsFragmentArgs.getNoteID();
+            noteColor = noteEditsFragmentArgs.getNoteColor();
             getNotes(noteID);
         }
         recyclerView = view.findViewById(R.id.noteEditsFragment_recyclerView);
@@ -83,7 +85,7 @@ public class NoteEditsFragment extends Fragment implements NoteEditsAdapter.OnIt
             @Override
             public void onClick(View v) {
                 if (Objects.requireNonNull(Navigation.findNavController(view).getCurrentDestination()).getId() == R.id.noteEditsFragment)
-                    Navigation.findNavController(view).navigate(NoteEditsFragmentDirections.actionNoteEditsFragmentToEditNoteFragment(noteID));
+                    Navigation.findNavController(view).navigate(NoteEditsFragmentDirections.actionNoteEditsFragmentToEditNoteFragment(noteID, noteColor));
             }
         });
 
@@ -131,6 +133,7 @@ public class NoteEditsFragment extends Fragment implements NoteEditsAdapter.OnIt
     public void onItemClick(int position) {
         Note note = noteList.get(position);
         if (Objects.requireNonNull(Navigation.findNavController(view).getCurrentDestination()).getId() == R.id.noteEditsFragment)
-            Navigation.findNavController(view).navigate(NoteEditsFragmentDirections.actionNoteEditsFragmentToViewNoteEditFragment(noteID, note.getNote_doc_ID()));
+            Navigation.findNavController(view).navigate(NoteEditsFragmentDirections
+                    .actionNoteEditsFragmentToViewNoteEditFragment(noteID, note.getNote_doc_ID(), noteColor));
     }
 }

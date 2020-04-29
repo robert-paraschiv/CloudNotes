@@ -116,6 +116,7 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
         if (getArguments() != null) {
             EditNoteFragmentArgs editNoteFragmentArgs = EditNoteFragmentArgs.fromBundle(getArguments());
             noteID = editNoteFragmentArgs.getNoteDocID();
+            setupBackgroundColor(editNoteFragmentArgs.getNoteColor());
             getNote(noteID);
         }
 
@@ -393,34 +394,14 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
                                                 if (Objects.requireNonNull(Navigation.findNavController(view).getCurrentDestination()).getId()
                                                         == R.id.editNoteFragment)
                                                     Navigation.findNavController(view).navigate(EditNoteFragmentDirections
-                                                            .actionEditNoteFragmentToNoteEditsFragment(noteID));
+                                                            .actionEditNoteFragmentToNoteEditsFragment(noteID, mNote.getBackgroundColor()));
                                             }
                                         });
                                     }
-                                    if (mNote.getBackgroundColor() != null && getActivity() != null) {
-                                        switch (mNote.getBackgroundColor()) {
-                                            case "yellow":
-                                                setBackgroundColor(getResources().getColor(R.color.note_background_color_yellow));
-                                                break;
-                                            case "red":
-                                                setBackgroundColor(getResources().getColor(R.color.note_background_color_red));
-                                                break;
-                                            case "green":
-                                                setBackgroundColor(getResources().getColor(R.color.note_background_color_green));
-                                                break;
-                                            case "blue":
-                                                setBackgroundColor(getResources().getColor(R.color.note_background_color_blue));
-                                                break;
-                                            case "orange":
-                                                setBackgroundColor(getResources().getColor(R.color.note_background_color_orange));
-                                                break;
-                                            case "purple":
-                                                setBackgroundColor(getResources().getColor(R.color.note_background_color_purple));
-                                                break;
-                                        }
-                                    } else {
-                                        resetBackgroundColors();
-                                    }
+
+                                    //Get note color from DB and set it
+                                    String color = mNote.getBackgroundColor();
+                                    setupBackgroundColor(color);
 
                                     optionsBtn.setOnClickListener(new View.OnClickListener() {
                                         @Override
@@ -433,6 +414,33 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
                             }
                         }
                     });
+    }
+
+    private void setupBackgroundColor(String color) {
+        if (color != null && getActivity() != null) {
+            switch (color) {
+                case "yellow":
+                    setBackgroundColor(getResources().getColor(R.color.note_background_color_yellow));
+                    break;
+                case "red":
+                    setBackgroundColor(getResources().getColor(R.color.note_background_color_red));
+                    break;
+                case "green":
+                    setBackgroundColor(getResources().getColor(R.color.note_background_color_green));
+                    break;
+                case "blue":
+                    setBackgroundColor(getResources().getColor(R.color.note_background_color_blue));
+                    break;
+                case "orange":
+                    setBackgroundColor(getResources().getColor(R.color.note_background_color_orange));
+                    break;
+                case "purple":
+                    setBackgroundColor(getResources().getColor(R.color.note_background_color_purple));
+                    break;
+            }
+        } else {
+            resetBackgroundColors();
+        }
     }
 
     private void showColorSettings() {

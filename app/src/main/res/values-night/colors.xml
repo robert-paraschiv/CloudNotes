@@ -24,11 +24,11 @@
     <color name="dialog_please_wait_text_color">#cfcfcf</color>
 
 
-    <color name="note_background_color_yellow">#cacc5d</color>
-    <color name="note_background_color_red">#c85a54</color>
-    <color name="note_background_color_blue">#49a7cc</color>
-    <color name="note_background_color_green">#2bbd7e</color>
-    <color name="note_background_color_orange">#caa052</color>
-    <color name="note_background_color_purple">#b64fc8</color>
+    <color name="note_background_color_yellow">#DCE775</color>
+    <color name="note_background_color_red">#E57373</color>
+    <color name="note_background_color_blue">#64B5F6</color>
+    <color name="note_background_color_green">#81C784</color>
+    <color name="note_background_color_orange">#FFB74D</color>
+    <color name="note_background_color_purple">#BA68C8</color>
 
 </resources>

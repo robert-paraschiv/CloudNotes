@@ -49,6 +49,10 @@
         <action
             android:id="@+id/action_editNoteFragment_to_noteEditsFragment"
             app:destination="@id/noteEditsFragment" />
+        <argument
+            android:name="noteColor"
+            app:argType="string"
+            app:nullable="true" />
     </fragment>
     <fragment
         android:id="@+id/noteEditsFragment"
@@ -67,6 +71,10 @@
             android:id="@+id/action_noteEditsFragment_to_viewNoteEditFragment"
             app:destination="@id/viewNoteEditFragment"
             app:popUpTo="@id/noteEditsFragment" />
+        <argument
+            android:name="noteColor"
+            app:argType="string"
+            app:nullable="true" />
     </fragment>
     <fragment
         android:id="@+id/viewNoteEditFragment"
@@ -88,6 +96,10 @@
             app:destination="@id/noteEditsFragment"
             app:popUpTo="@id/editNoteFragment"
             app:popUpToInclusive="false" />
+        <argument
+            android:name="noteColor"
+            app:argType="string"
+            app:nullable="true" />
     </fragment>
     <fragment
         android:id="@+id/trashFragment"

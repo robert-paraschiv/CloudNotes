@@ -25,12 +25,12 @@
 
 
 
-    <color name="note_background_color_yellow">#ffff8d</color>
-    <color name="note_background_color_red">#ff8a80</color>
-    <color name="note_background_color_blue">#80d8ff</color>
-    <color name="note_background_color_green">#69f0ae</color>
-    <color name="note_background_color_orange">#ffd180</color>
-    <color name="note_background_color_purple">#ea80fc</color>
+    <color name="note_background_color_yellow">#FFF59D</color>
+    <color name="note_background_color_red">#EF9A9A</color>
+    <color name="note_background_color_blue">#90CAF9</color>
+    <color name="note_background_color_green">#A5D6A7</color>
+    <color name="note_background_color_orange">#FFCC80</color>
+    <color name="note_background_color_purple">#CE93D8</color>
 
 
 

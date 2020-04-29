@@ -93,7 +93,7 @@ public class CheckableItemAdapter extends RecyclerView.Adapter<CheckableItemAdap
                 }
             });
             this.text.setImeOptions(EditorInfo.IME_ACTION_NEXT);
-            this.text.setRawInputType(InputType.TYPE_CLASS_TEXT);
+            this.text.setRawInputType(InputType.TYPE_CLASS_TEXT|InputType.TYPE_TEXT_FLAG_CAP_SENTENCES);
             this.text.setOnEditorActionListener(new TextView.OnEditorActionListener() {
                 @Override
                 public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {

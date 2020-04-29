@@ -52,6 +52,7 @@ public class ViewNoteEditFragment extends Fragment {
     private int nrOfEdits = 0;
 
     String noteID = "";
+    String noteColor = "";
     String note_edit_ID = "";
 
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
@@ -101,6 +102,7 @@ public class ViewNoteEditFragment extends Fragment {
             ViewNoteEditFragmentArgs viewNoteEditFragmentArgs = ViewNoteEditFragmentArgs.fromBundle(getArguments());
             noteID = viewNoteEditFragmentArgs.getNoteID();
             note_edit_ID = viewNoteEditFragmentArgs.getNoteEditID();
+            noteColor = viewNoteEditFragmentArgs.getNoteColor();
             getNote(noteID);
         }
 
@@ -109,7 +111,7 @@ public class ViewNoteEditFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 if (Objects.requireNonNull(Navigation.findNavController(view).getCurrentDestination()).getId() == R.id.viewNoteEditFragment)
-                    Navigation.findNavController(view).navigate(ViewNoteEditFragmentDirections.actionViewNoteEditFragmentToNoteEditsFragment(noteID));
+                    Navigation.findNavController(view).navigate(ViewNoteEditFragmentDirections.actionViewNoteEditFragmentToNoteEditsFragment(noteID, noteColor));
             }
         });
 
@@ -182,7 +184,7 @@ public class ViewNoteEditFragment extends Fragment {
                                                         dialog.cancel();
                                                         if (Objects.requireNonNull(Navigation.findNavController(view).getCurrentDestination()).getId() == R.id.viewNoteEditFragment)
                                                             Navigation.findNavController(view).navigate(ViewNoteEditFragmentDirections
-                                                                    .actionViewNoteEditFragmentToEditNoteFragment(noteID));
+                                                                    .actionViewNoteEditFragmentToEditNoteFragment(noteID, noteColor));
                                                     }
                                                 });
 

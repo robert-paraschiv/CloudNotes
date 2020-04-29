@@ -17,6 +17,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
@@ -24,7 +25,9 @@ import android.widget.ScrollView;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.button.MaterialButton;
+import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.CollectionReference;
@@ -44,6 +47,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
+import de.hdodenhof.circleimageview.CircleImageView;
+
 public class NewNoteFragment extends Fragment implements CheckableItemAdapter.OnStartDragListener, CheckableItemAdapter.OnItemClickListener {
     private static final String TAG = "NewNoteFragment";
 
@@ -54,13 +59,14 @@ public class NewNoteFragment extends Fragment implements CheckableItemAdapter.On
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
     private CollectionReference usersRef = db.collection("Users");
     private DocumentReference noteRef;
-    private Note mNote;
+    private Note mNote = new Note();
 
     private List<CheckableItem> checkableItemList = new ArrayList<>();
     private RecyclerView recyclerView;
     private ScrollView rv_scrollview;
     private CheckableItemAdapter mAdapter;
-    private MaterialButton checkboxModeBtn, addCheckboxBtn;
+    private MaterialButton checkboxModeBtn, addCheckboxBtn, settingsBtn;
+    MaterialCardView bottomCard;
 
     public NewNoteFragment() {
         // Required empty public constructor
@@ -70,12 +76,14 @@ public class NewNoteFragment extends Fragment implements CheckableItemAdapter.On
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.fragment_new_note, container, false);
 
+        bottomCard = view.findViewById(R.id.newNoteFragment_bottom_card);
         textInputEditText = view.findViewById(R.id.newNoteFragment_textInput);
         titleInputEditText = view.findViewById(R.id.newNoteFragment_title_textInput);
         checkboxModeBtn = view.findViewById(R.id.newNoteFragment_CheckBoxModeBtn);
         recyclerView = view.findViewById(R.id.newNoteFragment_checkbox_rv);
         addCheckboxBtn = view.findViewById(R.id.newNoteFragment_add_checkbox_Btn);
         rv_scrollview = view.findViewById(R.id.newNoteFragment_scroll_rv);
+        settingsBtn = view.findViewById(R.id.newNoteFragment_settingsBtn);
 
         //Reset status bar color
 //        if (getActivity() != null) {
@@ -173,6 +181,13 @@ public class NewNoteFragment extends Fragment implements CheckableItemAdapter.On
             }
         });
 
+        settingsBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showColorSettings();
+            }
+        });
+
         buildRecyclerView();
         return view;
     }
@@ -257,13 +272,15 @@ public class NewNoteFragment extends Fragment implements CheckableItemAdapter.On
                         Objects.requireNonNull(textInputEditText.getText()).toString(),
                         null,
                         Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid(),
-                        null, false, noteType, null, "Created", 0, false, null);
+                        null, false, noteType, null, "Created", 0,
+                        false, mNote.getBackgroundColor());
             } else if (noteType.equals("checkbox")) {
                 note = new Note(0, title,
                         "",
                         null,
                         Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid(),
-                        null, false, noteType, checkableItemList, "Created", 0, false, null);
+                        null, false, noteType, checkableItemList, "Created", 0,
+                        false, mNote.getBackgroundColor());
             }
 
             Log.d(TAG, "onStop: note ref " + noteRef);
@@ -318,6 +335,146 @@ public class NewNoteFragment extends Fragment implements CheckableItemAdapter.On
             inputMethodManager.hideSoftInputFromWindow(
                     activity.getCurrentFocus().getWindowToken(), 0);
     }
+
+
+    private void showColorSettings() {
+        //Bottom sheet dialog for "Settings"
+        final View dialogView = getLayoutInflater().inflate(R.layout.dialog_note_settings, (ViewGroup) view, false);
+        final BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(requireContext(),
+                R.style.CustomBottomSheetDialogTheme);
+
+        final CircleImageView yellow, red, blue, green, orange, purple, initial;
+
+        yellow = dialogView.findViewById(R.id.noteSettings_color_yellow);
+        red = dialogView.findViewById(R.id.noteSettings_color_red);
+        blue = dialogView.findViewById(R.id.noteSettings_color_blue);
+        green = dialogView.findViewById(R.id.noteSettings_color_green);
+        orange = dialogView.findViewById(R.id.noteSettings_color_orange);
+        purple = dialogView.findViewById(R.id.noteSettings_color_purple);
+        initial = dialogView.findViewById(R.id.noteSettings_color_initial);
+
+        if (mNote.getBackgroundColor() == null) {
+            initial.setBorderWidth(5);
+        } else {
+            switch (mNote.getBackgroundColor()) {
+                case "yellow":
+                    yellow.setBorderWidth(5);
+                    break;
+                case "red":
+                    red.setBorderWidth(5);
+                    break;
+                case "green":
+                    green.setBorderWidth(5);
+                    break;
+                case "blue":
+                    blue.setBorderWidth(5);
+                    break;
+                case "orange":
+                    orange.setBorderWidth(5);
+                    break;
+                case "purple":
+                    purple.setBorderWidth(5);
+                    break;
+            }
+        }
+
+        yellow.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                setBackgroundColor(getResources().getColor(R.color.note_background_color_yellow));
+                mNote.setBackgroundColor("yellow");
+                yellow.setBorderWidth(5);
+                bottomSheetDialog.cancel();
+            }
+        });
+        red.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                setBackgroundColor(getResources().getColor(R.color.note_background_color_red));
+                mNote.setBackgroundColor("red");
+                red.setBorderWidth(5);
+                bottomSheetDialog.cancel();
+            }
+        });
+        blue.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                setBackgroundColor(getResources().getColor(R.color.note_background_color_blue));
+                mNote.setBackgroundColor("blue");
+                blue.setBorderWidth(5);
+                bottomSheetDialog.cancel();
+            }
+        });
+        green.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                setBackgroundColor(getResources().getColor(R.color.note_background_color_green));
+                mNote.setBackgroundColor("green");
+                green.setBorderWidth(5);
+                bottomSheetDialog.cancel();
+            }
+        });
+        orange.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                setBackgroundColor(getResources().getColor(R.color.note_background_color_orange));
+                mNote.setBackgroundColor("orange");
+                orange.setBorderWidth(5);
+                bottomSheetDialog.cancel();
+            }
+        });
+        purple.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                setBackgroundColor(getResources().getColor(R.color.note_background_color_purple));
+                mNote.setBackgroundColor("purple");
+                purple.setBorderWidth(5);
+                bottomSheetDialog.cancel();
+            }
+        });
+        initial.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                resetBackgroundColors();
+                mNote.setBackgroundColor(null);
+                initial.setBorderWidth(5);
+                bottomSheetDialog.cancel();
+            }
+        });
+
+        bottomSheetDialog.setContentView(dialogView);
+        bottomSheetDialog.show();
+
+        Window window = bottomSheetDialog.getWindow();
+        if (window != null) {
+            window.findViewById(com.google.android.material.R.id.container).setFitsSystemWindows(false);
+            View decorView = window.getDecorView();
+            decorView.setSystemUiVisibility(decorView.getSystemUiVisibility() | View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR);
+        }
+    }
+
+    private void setBackgroundColor(int color) {
+        Window window = requireActivity().getWindow();
+        window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+
+        window.setStatusBarColor(color);
+        window.setNavigationBarColor(color);
+
+        bottomCard.setBackgroundColor(color);
+        view.setBackgroundColor(color);
+    }
+
+    private void resetBackgroundColors() {
+        if (getActivity() != null) {
+            ColorFunctions colorFunctions = new ColorFunctions();
+            colorFunctions.resetStatus_NavigationBar_Colors(getActivity());
+
+            MaterialCardView cardView = new MaterialCardView(requireContext());
+            bottomCard.setBackgroundColor(cardView.getCardBackgroundColor().getDefaultColor());
+            view.setBackgroundColor(getResources().getColor(R.color.fragments_background));
+        }
+    }
+
 
     @Override
     public void onStartDrag(int position) {

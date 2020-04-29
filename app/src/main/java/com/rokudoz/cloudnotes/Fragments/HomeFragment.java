@@ -621,7 +621,8 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
         if (actionMode == null) {
             Note note = noteList.get(position);
             if (Objects.requireNonNull(Navigation.findNavController(view).getCurrentDestination()).getId() == R.id.homeFragment)
-                Navigation.findNavController(view).navigate(HomeFragmentDirections.actionHomeFragmentToEditNoteFragment(note.getNote_doc_ID()));
+                Navigation.findNavController(view).navigate(HomeFragmentDirections
+                        .actionHomeFragmentToEditNoteFragment(note.getNote_doc_ID(), note.getBackgroundColor()));
         } else {
             if (selected == 0) {
                 actionMode.finish();

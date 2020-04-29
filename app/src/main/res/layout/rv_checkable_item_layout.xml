@@ -40,7 +40,7 @@
         android:layout_toStartOf="@id/layoutend"
         android:layout_toEndOf="@id/layoutstart"
         android:imeOptions="actionNext"
-        android:inputType="text|textMultiLine"
+        android:inputType="textMultiLine|textCapSentences"
         tools:hint="Text" />
 
 
