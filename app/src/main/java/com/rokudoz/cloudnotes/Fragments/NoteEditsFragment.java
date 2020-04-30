@@ -6,6 +6,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.RelativeLayout;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -43,6 +44,8 @@ public class NoteEditsFragment extends Fragment implements NoteEditsAdapter.OnIt
 
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
     private CollectionReference usersRef = db.collection("Users");
+
+    private DocumentSnapshot mLastQueriedDocument;
 
     public NoteEditsFragment() {
         // Required empty public constructor
@@ -98,13 +101,31 @@ public class NoteEditsFragment extends Fragment implements NoteEditsAdapter.OnIt
         recyclerView.setLayoutManager(linearLayoutManager);
         recyclerView.setAdapter(noteEditsAdapter);
         noteEditsAdapter.setOnItemClickListener(NoteEditsFragment.this);
+
+        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
+                super.onScrollStateChanged(recyclerView, newState);
+
+                if (!recyclerView.canScrollVertically(1))//Down
+                    getNotes(noteID);
+            }
+        });
     }
 
     private void getNotes(String noteID) {
-        usersRef.document(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid())
-                .collection("Notes").document(noteID).collection("Edits")
-                .orderBy("creation_date", Query.Direction.DESCENDING)
-                .get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+        Query notesQuery;
+        if (mLastQueriedDocument != null) {
+            notesQuery = usersRef.document(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid())
+                    .collection("Notes").document(noteID).collection("Edits")
+                    .orderBy("creation_date", Query.Direction.DESCENDING).startAfter(mLastQueriedDocument).limit(10);
+        } else {
+            notesQuery = usersRef.document(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid())
+                    .collection("Notes").document(noteID).collection("Edits")
+                    .orderBy("creation_date", Query.Direction.DESCENDING).limit(10);
+        }
+
+        notesQuery.get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
             @Override
             public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
                 if (queryDocumentSnapshots != null) {
@@ -120,6 +141,11 @@ public class NoteEditsFragment extends Fragment implements NoteEditsAdapter.OnIt
                                 noteEditsAdapter.notifyItemInserted(noteList.size() - 1);
                             }
                         }
+                    }
+
+                    if (queryDocumentSnapshots.getDocuments().size() != 0) {
+                        mLastQueriedDocument = queryDocumentSnapshots.getDocuments()
+                                .get(queryDocumentSnapshots.getDocuments().size() - 1);
                     }
                 }
             }
