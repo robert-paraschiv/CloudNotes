@@ -1,5 +1,6 @@
 package com.rokudoz.cloudnotes;
 
+import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -71,10 +72,11 @@ public class MainActivity extends AppCompatActivity {
                 // Ad successfully loaded.
                 closeAd.setVisibility(View.VISIBLE);
                 closeAd.setOnClickListener(new View.OnClickListener() {
+                    @SuppressLint("SetTextI18n")
                     @Override
                     public void onClick(View v) {
                         //Dialog for close ad
-                        View dialogView = getLayoutInflater().inflate(R.layout.dialog_show_ad, null);
+                        @SuppressLint("InflateParams") View dialogView = getLayoutInflater().inflate(R.layout.dialog_show_ad, null);
                         final Dialog dialog = new Dialog(MainActivity.this, R.style.CustomBottomSheetDialogTheme);
                         MaterialButton confirmBtn = dialogView.findViewById(R.id.dialog_ShowAd_confirmBtn);
                         MaterialButton cancelBtn = dialogView.findViewById(R.id.dialog_ShowAd_cancelBtn);

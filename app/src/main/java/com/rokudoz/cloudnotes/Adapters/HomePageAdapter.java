@@ -3,13 +3,11 @@ package com.rokudoz.cloudnotes.Adapters;
 import android.content.Context;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -26,7 +24,7 @@ public class HomePageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
     private static final String TAG = "StaggeredRecyclerViewAd";
     private OnItemClickListener mListener;
-    private List<Note> noteList = new ArrayList<>();
+    private List<Note> noteList;
     private List<Note> selected = new ArrayList<>();
     private Context mContext;
 
@@ -196,8 +194,9 @@ public class HomePageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         }
     }
 
+    @NonNull
     @Override
-    public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         switch (viewType) {
             case CHECKBOX_TYPE:
                 View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.rv_home_checkbox_note_item, parent, false);
@@ -395,27 +394,10 @@ public class HomePageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             }
     }
 
-    public void addAll(List<Note> items) {
-        clearAll(false);
-        this.noteList = items;
-        notifyDataSetChanged();
-    }
-
-    public void clearAll(boolean isNotify) {
-        noteList.clear();
-        selected.clear();
-        if (isNotify) notifyDataSetChanged();
-    }
 
     public void clearSelected() {
         selected.clear();
 //        notifyDataSetChanged();
-    }
-
-    public void selectAll() {
-        selected.clear();
-        selected.addAll(noteList);
-        notifyDataSetChanged();
     }
 
     public List<Note> getSelected() {

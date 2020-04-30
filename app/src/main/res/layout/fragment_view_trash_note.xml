@@ -24,7 +24,8 @@
                 android:layout_centerVertical="true"
                 android:layout_marginStart="4dp"
                 app:icon="@drawable/ic_baseline_arrow_back_24"
-                app:iconGravity="start" />
+                app:iconGravity="start"
+                app:iconTint="@color/icon_tint_color" />
 
             <TextView
                 style="@style/TextAppearance.MaterialComponents.Headline6"
@@ -51,7 +52,8 @@
                     android:minHeight="0dp"
                     android:padding="0dp"
                     app:icon="@drawable/ic_outline_restore_24"
-                    app:iconPadding="0dp" />
+                    app:iconPadding="0dp"
+                    app:iconTint="@color/icon_tint_color" />
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/viewTrashNoteFragment_deleteBtn"
@@ -62,7 +64,8 @@
                     android:minWidth="0dp"
                     android:minHeight="0dp"
                     android:padding="0dp"
-                    app:icon="@drawable/ic_baseline_delete_outline_24" />
+                    app:icon="@drawable/ic_baseline_delete_outline_24"
+                    app:iconTint="@color/icon_tint_color" />
             </LinearLayout>
 
 

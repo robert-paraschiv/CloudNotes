@@ -1,17 +1,15 @@
 package com.rokudoz.cloudnotes.Fragments;
 
 import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.RelativeLayout;
 
 import androidx.fragment.app.Fragment;
 import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.RelativeLayout;
-import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.button.MaterialButton;
@@ -34,7 +32,6 @@ import java.util.Objects;
 import static com.rokudoz.cloudnotes.App.HIDE_BANNER;
 
 public class NoteEditsFragment extends Fragment implements NoteEditsAdapter.OnItemClickListener {
-    private static final String TAG = "NoteEditsFragment";
 
     private String noteID = "";
     private String noteColor = "";

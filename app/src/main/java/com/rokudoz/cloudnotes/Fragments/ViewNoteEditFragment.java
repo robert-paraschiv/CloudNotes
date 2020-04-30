@@ -1,15 +1,7 @@
 package com.rokudoz.cloudnotes.Fragments;
 
 import android.app.AlertDialog;
-import android.app.ProgressDialog;
 import android.os.Bundle;
-
-import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
-import androidx.navigation.Navigation;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,6 +9,12 @@ import android.widget.RelativeLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+import androidx.navigation.Navigation;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.button.MaterialButton;
@@ -40,15 +38,12 @@ import java.util.Objects;
 import static com.rokudoz.cloudnotes.App.HIDE_BANNER;
 
 public class ViewNoteEditFragment extends Fragment {
-    private static final String TAG = "ViewNoteEditFragment";
 
     private View view;
 
-    private ScrollView textScrollView;
     private TextView titleTv, textTv;
-    private MaterialButton restoreBtn, backBtn;
+    private MaterialButton restoreBtn;
     private RecyclerView recyclerView;
-    private NonCheckableAdapter mAdapter;
     private int nrOfEdits = 0;
 
     String noteID = "";
@@ -67,11 +62,11 @@ public class ViewNoteEditFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.fragment_view_note_edit, container, false);
 
-        textScrollView = view.findViewById(R.id.viewNoteEditFragment_textScrollView);
+        ScrollView textScrollView = view.findViewById(R.id.viewNoteEditFragment_textScrollView);
         titleTv = view.findViewById(R.id.viewNoteEditFragment_title);
         textTv = view.findViewById(R.id.viewNoteEditFragment_text);
         restoreBtn = view.findViewById(R.id.viewNoteEditFragment_restoreBtn);
-        backBtn = view.findViewById(R.id.viewNoteEditFragment_backBtn);
+        MaterialButton backBtn = view.findViewById(R.id.viewNoteEditFragment_backBtn);
         recyclerView = view.findViewById(R.id.viewNoteEditFragment_recyclerView);
 
 
@@ -121,12 +116,13 @@ public class ViewNoteEditFragment extends Fragment {
 
     private void buildRecyclerView(List<CheckableItem> checkableItemList) {
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        mAdapter = new NonCheckableAdapter(checkableItemList, 0);
+        NonCheckableAdapter mAdapter = new NonCheckableAdapter(checkableItemList, 0);
         recyclerView.setAdapter(mAdapter);
     }
 
     private void getNote(final String noteID) {
-        usersRef.document(FirebaseAuth.getInstance().getCurrentUser().getUid()).collection("Notes").document(noteID).addSnapshotListener(new EventListener<DocumentSnapshot>() {
+        usersRef.document(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid())
+                .collection("Notes").document(noteID).addSnapshotListener(new EventListener<DocumentSnapshot>() {
             @Override
             public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException e) {
                 if (documentSnapshot != null && e == null) {

@@ -25,7 +25,8 @@
                 android:layout_centerVertical="true"
                 android:layout_marginStart="4dp"
                 app:icon="@drawable/ic_baseline_arrow_back_24"
-                app:iconGravity="start" />
+                app:iconGravity="start"
+                app:iconTint="@color/icon_tint_color" />
 
             <TextView
                 style="@style/TextAppearance.MaterialComponents.Headline6"

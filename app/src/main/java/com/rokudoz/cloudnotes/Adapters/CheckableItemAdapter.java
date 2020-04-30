@@ -11,7 +11,6 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.CompoundButton;
@@ -28,7 +27,6 @@ import com.google.android.material.textfield.TextInputEditText;
 import com.rokudoz.cloudnotes.Models.CheckableItem;
 import com.rokudoz.cloudnotes.R;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class CheckableItemAdapter extends RecyclerView.Adapter<CheckableItemAdapter.ViewHolder> {
@@ -38,7 +36,7 @@ public class CheckableItemAdapter extends RecyclerView.Adapter<CheckableItemAdap
 
     private OnStartDragListener onStartDragListener;
     private OnItemClickListener onItemClickListener;
-    private List<CheckableItem> checkableItemList = new ArrayList<>();
+    private List<CheckableItem> checkableItemList;
 
 
     public interface OnStartDragListener {
@@ -172,7 +170,7 @@ public class CheckableItemAdapter extends RecyclerView.Adapter<CheckableItemAdap
 
     @SuppressLint("ClickableViewAccessibility")
     @Override
-    public void onBindViewHolder(final ViewHolder holder, final int position) {
+    public void onBindViewHolder(@NonNull final ViewHolder holder, final int position) {
         Log.d(TAG, "onBindViewHolder: called.");
         CheckableItem currentItem = checkableItemList.get(position);
 

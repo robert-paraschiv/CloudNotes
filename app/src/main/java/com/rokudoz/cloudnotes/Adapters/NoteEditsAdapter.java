@@ -1,5 +1,6 @@
 package com.rokudoz.cloudnotes.Adapters;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -30,7 +31,7 @@ public class NoteEditsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     private static final int CHECKBOX_TYPE = 1;
 
     private OnItemClickListener mListener;
-    private List<Note> noteList = new ArrayList<>();
+    private List<Note> noteList;
     private Context mContext;
 
 
@@ -140,6 +141,7 @@ public class NoteEditsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         }
     }
 
+    @SuppressLint("SetTextI18n")
     private void populateTextViewHolder(TextNoteViewHolder holder, int position) {
         if (noteList.get(position).getNoteText() != null)
             holder.noteText.setText(noteList.get(position).getNoteText());
@@ -172,6 +174,7 @@ public class NoteEditsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
 
     }
 
+    @SuppressLint("SetTextI18n")
     private void populateCheckBoxViewHolder(CheckboxViewHolder holder, int position) {
 
 

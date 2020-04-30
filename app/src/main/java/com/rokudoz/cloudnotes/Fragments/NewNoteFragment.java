@@ -3,16 +3,6 @@ package com.rokudoz.cloudnotes.Fragments;
 import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
-
-import androidx.activity.OnBackPressedCallback;
-import androidx.annotation.NonNull;
-import androidx.core.widget.NestedScrollView;
-import androidx.fragment.app.Fragment;
-import androidx.navigation.Navigation;
-import androidx.recyclerview.widget.ItemTouchHelper;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -20,9 +10,15 @@ import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.EditText;
 import android.widget.ScrollView;
-import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
+import androidx.fragment.app.Fragment;
+import androidx.navigation.Navigation;
+import androidx.recyclerview.widget.ItemTouchHelper;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
@@ -65,8 +61,10 @@ public class NewNoteFragment extends Fragment implements CheckableItemAdapter.On
     private RecyclerView recyclerView;
     private ScrollView rv_scrollview;
     private CheckableItemAdapter mAdapter;
-    private MaterialButton checkboxModeBtn, addCheckboxBtn, settingsBtn;
+    private MaterialButton checkboxModeBtn;
+    private MaterialButton addCheckboxBtn;
     MaterialCardView bottomCard;
+    private boolean discard = false;
 
     public NewNoteFragment() {
         // Required empty public constructor
@@ -83,7 +81,8 @@ public class NewNoteFragment extends Fragment implements CheckableItemAdapter.On
         recyclerView = view.findViewById(R.id.newNoteFragment_checkbox_rv);
         addCheckboxBtn = view.findViewById(R.id.newNoteFragment_add_checkbox_Btn);
         rv_scrollview = view.findViewById(R.id.newNoteFragment_scroll_rv);
-        settingsBtn = view.findViewById(R.id.newNoteFragment_settingsBtn);
+        MaterialButton settingsBtn = view.findViewById(R.id.newNoteFragment_settingsBtn);
+        MaterialButton discardBtn = view.findViewById(R.id.newNoteFragment_discardBtn);
 
         //Reset status bar color
 //        if (getActivity() != null) {
@@ -113,7 +112,7 @@ public class NewNoteFragment extends Fragment implements CheckableItemAdapter.On
         titleInputEditText.post(new Runnable() {
             public void run() {
                 titleInputEditText.requestFocusFromTouch();
-                InputMethodManager lManager = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+                InputMethodManager lManager = (InputMethodManager) requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
                 lManager.showSoftInput(titleInputEditText, 0);
             }
         });
@@ -129,7 +128,7 @@ public class NewNoteFragment extends Fragment implements CheckableItemAdapter.On
                     mAdapter.notifyDataSetChanged();
 
                     noteType = "checkbox";
-                    List<String> textList = new ArrayList<String>(Arrays.asList(Objects.requireNonNull(textInputEditText.getText()).toString().split("\n")));
+                    List<String> textList = new ArrayList<>(Arrays.asList(Objects.requireNonNull(textInputEditText.getText()).toString().split("\n")));
                     textInputEditText.setText("");
                     textInputEditText.setVisibility(View.GONE);
 
@@ -185,6 +184,19 @@ public class NewNoteFragment extends Fragment implements CheckableItemAdapter.On
             @Override
             public void onClick(View v) {
                 showColorSettings();
+            }
+        });
+
+        discardBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (getActivity() != null)
+                    hideSoftKeyboard(getActivity());
+                if (Objects.requireNonNull(Navigation.findNavController(view).getCurrentDestination()).getId() == R.id.newNoteFragment)
+                    Navigation.findNavController(view).navigate(NewNoteFragmentDirections.actionNewNoteFragmentToHomeFragment());
+
+                //TODO add code
+                discard = true;
             }
         });
 
@@ -247,6 +259,12 @@ public class NewNoteFragment extends Fragment implements CheckableItemAdapter.On
     public void onStop() {
         super.onStop();
         Log.d(TAG, "onStop: ");
+
+        if (discard) {
+            Log.d(TAG, "onStop: discarded");
+            return;
+        }
+
         for (CheckableItem checkableItem : checkableItemList) {
             Log.d(TAG, "onStop: " + checkableItem.toString());
         }
@@ -261,8 +279,8 @@ public class NewNoteFragment extends Fragment implements CheckableItemAdapter.On
                 || !empty) {
 
             Note note = new Note();
-            String title = "";
-            if (titleInputEditText.getText().toString().trim().equals("")) {
+            String title;
+            if (Objects.requireNonNull(titleInputEditText.getText()).toString().trim().equals("")) {
                 title = "";
             } else {
                 title = titleInputEditText.getText().toString();
@@ -287,7 +305,7 @@ public class NewNoteFragment extends Fragment implements CheckableItemAdapter.On
 
             if (noteRef == null) {
                 final Note finalNote = note;
-                usersRef.document(FirebaseAuth.getInstance().getCurrentUser().getUid()).collection("Notes").add(note)
+                usersRef.document(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid()).collection("Notes").add(note)
                         .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
                             @Override
                             public void onSuccess(DocumentReference documentReference) {
@@ -381,7 +399,7 @@ public class NewNoteFragment extends Fragment implements CheckableItemAdapter.On
         yellow.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                setBackgroundColor(getResources().getColor(R.color.note_background_color_yellow));
+                setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.note_background_color_yellow));
                 mNote.setBackgroundColor("yellow");
                 yellow.setBorderWidth(5);
                 bottomSheetDialog.cancel();
@@ -390,7 +408,7 @@ public class NewNoteFragment extends Fragment implements CheckableItemAdapter.On
         red.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                setBackgroundColor(getResources().getColor(R.color.note_background_color_red));
+                setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.note_background_color_red));
                 mNote.setBackgroundColor("red");
                 red.setBorderWidth(5);
                 bottomSheetDialog.cancel();
@@ -399,7 +417,7 @@ public class NewNoteFragment extends Fragment implements CheckableItemAdapter.On
         blue.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                setBackgroundColor(getResources().getColor(R.color.note_background_color_blue));
+                setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.note_background_color_blue));
                 mNote.setBackgroundColor("blue");
                 blue.setBorderWidth(5);
                 bottomSheetDialog.cancel();
@@ -408,7 +426,7 @@ public class NewNoteFragment extends Fragment implements CheckableItemAdapter.On
         green.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                setBackgroundColor(getResources().getColor(R.color.note_background_color_green));
+                setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.note_background_color_green));
                 mNote.setBackgroundColor("green");
                 green.setBorderWidth(5);
                 bottomSheetDialog.cancel();
@@ -417,7 +435,7 @@ public class NewNoteFragment extends Fragment implements CheckableItemAdapter.On
         orange.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                setBackgroundColor(getResources().getColor(R.color.note_background_color_orange));
+                setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.note_background_color_orange));
                 mNote.setBackgroundColor("orange");
                 orange.setBorderWidth(5);
                 bottomSheetDialog.cancel();
@@ -426,7 +444,7 @@ public class NewNoteFragment extends Fragment implements CheckableItemAdapter.On
         purple.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                setBackgroundColor(getResources().getColor(R.color.note_background_color_purple));
+                setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.note_background_color_purple));
                 mNote.setBackgroundColor("purple");
                 purple.setBorderWidth(5);
                 bottomSheetDialog.cancel();
@@ -471,7 +489,7 @@ public class NewNoteFragment extends Fragment implements CheckableItemAdapter.On
 
             MaterialCardView cardView = new MaterialCardView(requireContext());
             bottomCard.setBackgroundColor(cardView.getCardBackgroundColor().getDefaultColor());
-            view.setBackgroundColor(getResources().getColor(R.color.fragments_background));
+            view.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.fragments_background));
         }
     }
 

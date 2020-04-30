@@ -22,7 +22,7 @@ public class TrashNotesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
 
     private static final String TAG = "StaggeredRecyclerViewAd";
     private OnItemClickListener mListener;
-    private List<Note> noteList = new ArrayList<>();
+    private List<Note> noteList;
     private Context mContext;
 
     private static final int TEXT_TYPE = 0;
@@ -100,8 +100,9 @@ public class TrashNotesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         }
     }
 
+    @NonNull
     @Override
-    public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         switch (viewType) {
             case CHECKBOX_TYPE:
                 View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.rv_home_checkbox_note_item, parent, false);

@@ -1,21 +1,9 @@
 package com.rokudoz.cloudnotes.Fragments;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Dialog;
-import android.content.DialogInterface;
-import android.graphics.Color;
-import android.os.Build;
 import android.os.Bundle;
-
-import androidx.activity.OnBackPressedCallback;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
-import androidx.navigation.Navigation;
-import androidx.recyclerview.widget.ItemTouchHelper;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -28,11 +16,19 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
+import androidx.fragment.app.Fragment;
+import androidx.navigation.Navigation;
+import androidx.recyclerview.widget.ItemTouchHelper;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.card.MaterialCardView;
-import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.CollectionReference;
@@ -40,10 +36,8 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
-import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.WriteBatch;
 import com.rokudoz.cloudnotes.Adapters.CheckableItemAdapter;
-import com.rokudoz.cloudnotes.MainActivity;
 import com.rokudoz.cloudnotes.Models.CheckableItem;
 import com.rokudoz.cloudnotes.Models.Note;
 import com.rokudoz.cloudnotes.R;
@@ -61,8 +55,6 @@ import java.util.Objects;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
-import static com.rokudoz.cloudnotes.App.HIDE_BANNER;
-
 public class EditNoteFragment extends Fragment implements CheckableItemAdapter.OnStartDragListener, CheckableItemAdapter.OnItemClickListener {
     private static final String TAG = "EditNoteFragment";
 
@@ -71,7 +63,6 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
     boolean edit = false;
 
     private String noteType = "text";
-    private String noteColor = "";
     private String noteID = "";
     private int position = 0;
     private int number_of_edits = 0;
@@ -136,7 +127,7 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
                     mAdapter.notifyDataSetChanged();
 
                     noteType = "checkbox";
-                    List<String> textList = new ArrayList<String>(Arrays.asList(Objects.requireNonNull(textInput.getText()).toString().split("\n")));
+                    List<String> textList = new ArrayList<>(Arrays.asList(Objects.requireNonNull(textInput.getText()).toString().split("\n")));
                     textInput.setText("");
                     textInput.setVisibility(View.GONE);
 
@@ -194,11 +185,12 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
         });
 
         deleteBtn.setOnClickListener(new View.OnClickListener() {
+            @SuppressLint("SetTextI18n")
             @Override
             public void onClick(View v) {
 
                 //Dialog for delete note
-                View dialogView = getLayoutInflater().inflate(R.layout.dialog_show_ad, null);
+                View dialogView = getLayoutInflater().inflate(R.layout.dialog_show_ad, (ViewGroup) view,false);
                 final Dialog dialog = new Dialog(requireContext(), R.style.CustomBottomSheetDialogTheme);
                 MaterialButton confirmBtn = dialogView.findViewById(R.id.dialog_ShowAd_confirmBtn);
                 MaterialButton cancelBtn = dialogView.findViewById(R.id.dialog_ShowAd_cancelBtn);
@@ -210,7 +202,8 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
                     @Override
                     public void onClick(View v) {
                         //Delete note
-                        usersRef.document(FirebaseAuth.getInstance().getCurrentUser().getUid()).collection("Notes").document(noteID)
+                        usersRef.document(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid())
+                                .collection("Notes").document(noteID)
                                 .update("deleted", true).addOnSuccessListener(new OnSuccessListener<Void>() {
                             @Override
                             public void onSuccess(Void aVoid) {
@@ -259,7 +252,7 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
 
             MaterialCardView cardView = new MaterialCardView(requireContext());
             bottomCard.setBackgroundColor(cardView.getCardBackgroundColor().getDefaultColor());
-            view.setBackgroundColor(getResources().getColor(R.color.fragments_background));
+            view.setBackgroundColor(ContextCompat.getColor(requireContext(),R.color.fragments_background));
         }
     }
 
@@ -331,11 +324,11 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
         if (FirebaseAuth.getInstance().getCurrentUser() != null)
             usersRef.document(FirebaseAuth.getInstance().getCurrentUser().getUid()).collection("Notes").document(noteID)
                     .addSnapshotListener(new EventListener<DocumentSnapshot>() {
+                        @SuppressLint("SetTextI18n")
                         @Override
                         public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException e) {
                             if (documentSnapshot != null && e == null) {
-                                Note note = documentSnapshot.toObject(Note.class);
-                                mNote = note;
+                                mNote = documentSnapshot.toObject(Note.class);
                                 if (mNote != null) {
                                     mNote.setNote_doc_ID(documentSnapshot.getId());
                                     titleInput.setText(mNote.getNoteTitle());
@@ -420,22 +413,22 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
         if (color != null && getActivity() != null) {
             switch (color) {
                 case "yellow":
-                    setBackgroundColor(getResources().getColor(R.color.note_background_color_yellow));
+                    setBackgroundColor(ContextCompat.getColor(requireContext(),R.color.note_background_color_yellow));
                     break;
                 case "red":
-                    setBackgroundColor(getResources().getColor(R.color.note_background_color_red));
+                    setBackgroundColor(ContextCompat.getColor(requireContext(),R.color.note_background_color_red));
                     break;
                 case "green":
-                    setBackgroundColor(getResources().getColor(R.color.note_background_color_green));
+                    setBackgroundColor(ContextCompat.getColor(requireContext(),R.color.note_background_color_green));
                     break;
                 case "blue":
-                    setBackgroundColor(getResources().getColor(R.color.note_background_color_blue));
+                    setBackgroundColor(ContextCompat.getColor(requireContext(),R.color.note_background_color_blue));
                     break;
                 case "orange":
-                    setBackgroundColor(getResources().getColor(R.color.note_background_color_orange));
+                    setBackgroundColor(ContextCompat.getColor(requireContext(),R.color.note_background_color_orange));
                     break;
                 case "purple":
-                    setBackgroundColor(getResources().getColor(R.color.note_background_color_purple));
+                    setBackgroundColor(ContextCompat.getColor(requireContext(),R.color.note_background_color_purple));
                     break;
             }
         } else {
@@ -488,7 +481,7 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
             @Override
             public void onClick(View v) {
                 updateNoteColor("yellow");
-                setBackgroundColor(getResources().getColor(R.color.note_background_color_yellow));
+                setBackgroundColor(ContextCompat.getColor(requireContext(),R.color.note_background_color_yellow));
                 mNote.setBackgroundColor("yellow");
                 yellow.setBorderWidth(5);
                 bottomSheetDialog.cancel();
@@ -498,7 +491,7 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
             @Override
             public void onClick(View v) {
                 updateNoteColor("red");
-                setBackgroundColor(getResources().getColor(R.color.note_background_color_red));
+                setBackgroundColor(ContextCompat.getColor(requireContext(),R.color.note_background_color_red));
                 mNote.setBackgroundColor("red");
                 red.setBorderWidth(5);
                 bottomSheetDialog.cancel();
@@ -508,7 +501,7 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
             @Override
             public void onClick(View v) {
                 updateNoteColor("blue");
-                setBackgroundColor(getResources().getColor(R.color.note_background_color_blue));
+                setBackgroundColor(ContextCompat.getColor(requireContext(),R.color.note_background_color_blue));
                 mNote.setBackgroundColor("blue");
                 blue.setBorderWidth(5);
                 bottomSheetDialog.cancel();
@@ -518,7 +511,7 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
             @Override
             public void onClick(View v) {
                 updateNoteColor("green");
-                setBackgroundColor(getResources().getColor(R.color.note_background_color_green));
+                setBackgroundColor(ContextCompat.getColor(requireContext(),R.color.note_background_color_green));
                 mNote.setBackgroundColor("green");
                 green.setBorderWidth(5);
                 bottomSheetDialog.cancel();
@@ -528,7 +521,7 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
             @Override
             public void onClick(View v) {
                 updateNoteColor("orange");
-                setBackgroundColor(getResources().getColor(R.color.note_background_color_orange));
+                setBackgroundColor(ContextCompat.getColor(requireContext(),R.color.note_background_color_orange));
                 mNote.setBackgroundColor("orange");
                 orange.setBorderWidth(5);
                 bottomSheetDialog.cancel();
@@ -538,7 +531,7 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
             @Override
             public void onClick(View v) {
                 updateNoteColor("purple");
-                setBackgroundColor(getResources().getColor(R.color.note_background_color_purple));
+                setBackgroundColor(ContextCompat.getColor(requireContext(),R.color.note_background_color_purple));
                 mNote.setBackgroundColor("purple");
                 purple.setBorderWidth(5);
                 bottomSheetDialog.cancel();
@@ -567,7 +560,7 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
     }
 
     private void updateNoteColor(final String noteColor) {
-        usersRef.document(FirebaseAuth.getInstance().getCurrentUser().getUid()).collection("Notes").document(noteID)
+        usersRef.document(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid()).collection("Notes").document(noteID)
                 .update("backgroundColor", noteColor).addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override
             public void onSuccess(Void aVoid) {
@@ -595,15 +588,19 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
                 }
             }
             for (CheckableItem item : oldList) {
-                if (!checkableItemList.contains(item))
+                if (!checkableItemList.contains(item)) {
                     edit = true;
+                    break;
+                }
             }
             Log.d(TAG, "onStop: " + edit);
 
-            if (!mNote.getNoteText().equals(textInput.getText().toString()) || !mNote.getNoteTitle().equals(titleInput.getText().toString()) || edit) {
+            if (!mNote.getNoteText().equals(Objects.requireNonNull(textInput.getText()).toString())
+                    || !mNote.getNoteTitle().equals(Objects.requireNonNull(titleInput.getText()).toString())
+                    || edit) {
                 Note note = new Note();
-                String title = "";
-                if (titleInput.getText().toString().trim().equals("")) {
+                String title;
+                if (Objects.requireNonNull(titleInput.getText()).toString().trim().equals("")) {
                     title = "";
                 } else {
                     title = titleInput.getText().toString();
@@ -627,7 +624,8 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
                 }
 
                 WriteBatch batch = db.batch();
-                batch.set(usersRef.document(FirebaseAuth.getInstance().getCurrentUser().getUid()).collection("Notes").document(noteID), note);
+                batch.set(usersRef.document(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid())
+                        .collection("Notes").document(noteID), note);
                 batch.set(usersRef.document(FirebaseAuth.getInstance().getCurrentUser().getUid()).collection("Notes").document(noteID)
                         .collection("Edits").document(), note);
 

@@ -35,6 +35,17 @@
                 android:layout_centerVertical="true"
                 android:layout_toEndOf="@id/newNoteFragment_backBtn"
                 android:text="New Note" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/newNoteFragment_discardBtn"
+                style="@style/Widget.MaterialComponents.Button.TextButton"
+                android:layout_width="35dp"
+                android:layout_height="35dp"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
+                android:layout_marginEnd="16dp"
+                app:icon="@drawable/ic_outline_cancel_24"
+                app:iconTint="@color/icon_tint_color" />
         </RelativeLayout>
 
 

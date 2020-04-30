@@ -12,20 +12,18 @@ import com.google.android.material.checkbox.MaterialCheckBox;
 import com.rokudoz.cloudnotes.Models.CheckableItem;
 import com.rokudoz.cloudnotes.R;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class NonCheckableAdapter extends RecyclerView.Adapter<NonCheckableAdapter.ViewHolder> {
-    private static final String TAG = "HomeCheckableItemAdapter";
-    int position = 0;
-    private List<CheckableItem> checkableItemList = new ArrayList<>();
+    int position;
+    private List<CheckableItem> checkableItemList;
 
     public NonCheckableAdapter(List<CheckableItem> checkableItemList, int position) {
         this.checkableItemList = checkableItemList;
         this.position = position;
     }
 
-    public class ViewHolder extends RecyclerView.ViewHolder{
+    public static class ViewHolder extends RecyclerView.ViewHolder{
 
         TextView text;
         MaterialCheckBox checkBox;

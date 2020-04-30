@@ -5,7 +5,6 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.util.TypedValue;
 import android.view.View;
-import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
