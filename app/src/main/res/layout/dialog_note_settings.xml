@@ -9,13 +9,16 @@
     android:orientation="vertical">
 
     <com.google.android.material.button.MaterialButton
+        android:id="@+id/noteSettings_addCollaboratorBtn"
         style="@style/Widget.MaterialComponents.Button.TextButton"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="18dp"
         android:layout_marginTop="4dp"
+        android:layout_marginEnd="18dp"
         android:padding="0dp"
         android:text="Collaborator"
+        android:textAlignment="viewStart"
         android:textAllCaps="false"
         android:textColor="@color/dialog_please_wait_text_color"
         app:icon="@drawable/ic_outline_person_add_24"

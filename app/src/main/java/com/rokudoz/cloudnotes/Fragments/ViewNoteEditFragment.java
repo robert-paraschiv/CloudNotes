@@ -125,7 +125,7 @@ public class ViewNoteEditFragment extends Fragment {
             @Override
             public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException e) {
                 if (documentSnapshot != null && e == null) {
-                    Note originalNote = documentSnapshot.toObject(Note.class);
+                    final Note originalNote = documentSnapshot.toObject(Note.class);
                     if (originalNote != null) {
                         originalNote.setNote_doc_ID(documentSnapshot.getId());
                         if (originalNote.getNumber_of_edits() != null)
@@ -164,7 +164,7 @@ public class ViewNoteEditFragment extends Fragment {
 
                                                 note.setNumber_of_edits(nrOfEdits + 1);
 
-
+                                                note.setUsers(originalNote.getUsers());
                                                 note.setEdited(true);
                                                 note.setEdit_type("Restored");
                                                 note.setCreation_date(null);

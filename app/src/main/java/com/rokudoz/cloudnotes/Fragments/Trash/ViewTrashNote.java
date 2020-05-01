@@ -116,7 +116,7 @@ public class ViewTrashNote extends Fragment {
                     public void onClick(View v) {
                         //Delete note
                         final WriteBatch batch = db.batch();
-                        usersRef.document(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid()).collection("Notes").document(noteID)
+                        db.collection("Notes").document(noteID)
                                 .collection("Edits").get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
                             @Override
                             public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
@@ -124,8 +124,7 @@ public class ViewTrashNote extends Fragment {
                                     for (DocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
                                         batch.delete(documentSnapshot.getReference());
                                     }
-                                    batch.delete(usersRef.document(FirebaseAuth.getInstance().getCurrentUser().getUid())
-                                            .collection("Notes").document(noteID));
+                                    batch.delete(db.collection("Notes").document(noteID));
                                     batch.commit().addOnSuccessListener(new OnSuccessListener<Void>() {
                                         @Override
                                         public void onSuccess(Void aVoid) {
@@ -172,7 +171,7 @@ public class ViewTrashNote extends Fragment {
     }
 
     private void getNote(final String noteID) {
-        usersRef.document(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid()).collection("Notes").document(noteID)
+        db.collection("Notes").document(noteID)
                 .addSnapshotListener(new EventListener<DocumentSnapshot>() {
                     @Override
                     public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException e) {
@@ -203,7 +202,7 @@ public class ViewTrashNote extends Fragment {
                                         final AlertDialog dialog = builder.create();
                                         dialog.show();
 
-                                        usersRef.document(FirebaseAuth.getInstance().getCurrentUser().getUid()).collection("Notes").document(noteID)
+                                        db.collection("Notes").document(noteID)
                                                 .update("deleted", false).addOnSuccessListener(new OnSuccessListener<Void>() {
                                             @Override
                                             public void onSuccess(Void aVoid) {

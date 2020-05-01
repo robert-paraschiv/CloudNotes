@@ -392,8 +392,7 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
         //If the user has rearranged any notes, update their position
         for (Note note : noteList) {
             if (note.getChangedPos() != null && note.getChangedPos()) {
-                usersRef.document(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid())
-                        .collection("Notes").document(note.getNote_doc_ID())
+                db.collection("Notes").document(note.getNote_doc_ID())
                         .update("position", note.getPosition()).addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
@@ -718,7 +717,7 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
         dialog.show();
         final int[] notesdeleted = {0};
         for (final Note note : notesToDelete) {
-            usersRef.document(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid()).collection("Notes")
+            db.collection("Notes")
                     .document(note.getNote_doc_ID())
                     .update("deleted", true).addOnSuccessListener(new OnSuccessListener<Void>() {
                 @Override

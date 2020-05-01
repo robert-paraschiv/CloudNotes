@@ -368,6 +368,7 @@ public class NewNoteFragment extends Fragment implements CheckableItemAdapter.On
                 R.style.CustomBottomSheetDialogTheme);
 
         final CircleImageView yellow, red, blue, green, orange, purple, initial;
+        final MaterialButton collaboratorsBtn;
 
         yellow = dialogView.findViewById(R.id.noteSettings_color_yellow);
         red = dialogView.findViewById(R.id.noteSettings_color_red);
@@ -376,6 +377,7 @@ public class NewNoteFragment extends Fragment implements CheckableItemAdapter.On
         orange = dialogView.findViewById(R.id.noteSettings_color_orange);
         purple = dialogView.findViewById(R.id.noteSettings_color_purple);
         initial = dialogView.findViewById(R.id.noteSettings_color_initial);
+        collaboratorsBtn = dialogView.findViewById(R.id.noteSettings_addCollaboratorBtn);
 
         if (mNote.getBackgroundColor() == null) {
             initial.setBorderWidth(5);
@@ -463,6 +465,14 @@ public class NewNoteFragment extends Fragment implements CheckableItemAdapter.On
                 mNote.setBackgroundColor(null);
                 initial.setBorderWidth(5);
                 bottomSheetDialog.cancel();
+            }
+        });
+
+        collaboratorsBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                bottomSheetDialog.cancel();
+                //TODO FULL SCREEN DIALOG HERE
             }
         });
 
