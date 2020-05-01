@@ -334,40 +334,41 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
     private void getNotes(String uid) {
         noteList.clear();
         staggeredRecyclerViewAdapter.notifyDataSetChanged();
-        notesListener = usersRef.document(uid).collection("Notes")
-                .whereEqualTo("deleted", false)
-                .orderBy("position", Query.Direction.ASCENDING)
-                .addSnapshotListener(new EventListener<QuerySnapshot>() {
-                    @Override
-                    public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) {
-                        if (queryDocumentSnapshots != null && e == null) {
-                            for (DocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
-                                Note note = documentSnapshot.toObject(Note.class);
-                                if (note != null) {
-                                    note.setNote_doc_ID(documentSnapshot.getId());
-                                    if (noteList.contains(note)) {
-                                        if (note.getDeleted()) {
-                                            int notePosition = noteList.indexOf(note);
-                                            noteList.remove(note);
-                                            staggeredRecyclerViewAdapter.notifyItemRemoved(notePosition);
+        if (FirebaseAuth.getInstance().getCurrentUser() != null && FirebaseAuth.getInstance().getCurrentUser().getEmail() != null)
+            notesListener = db.collection("Notes").whereArrayContains("users", FirebaseAuth.getInstance().getCurrentUser().getEmail())
+                    .whereEqualTo("deleted", false)
+                    .orderBy("position", Query.Direction.ASCENDING)
+                    .addSnapshotListener(new EventListener<QuerySnapshot>() {
+                        @Override
+                        public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) {
+                            if (queryDocumentSnapshots != null && e == null) {
+                                for (DocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
+                                    Note note = documentSnapshot.toObject(Note.class);
+                                    if (note != null) {
+                                        note.setNote_doc_ID(documentSnapshot.getId());
+                                        if (noteList.contains(note)) {
+                                            if (note.getDeleted()) {
+                                                int notePosition = noteList.indexOf(note);
+                                                noteList.remove(note);
+                                                staggeredRecyclerViewAdapter.notifyItemRemoved(notePosition);
+                                            } else {
+                                                noteList.set(noteList.indexOf(note), note);
+                                                staggeredRecyclerViewAdapter.notifyItemChanged(noteList.indexOf(note));
+                                            }
                                         } else {
-                                            noteList.set(noteList.indexOf(note), note);
-                                            staggeredRecyclerViewAdapter.notifyItemChanged(noteList.indexOf(note));
-                                        }
-                                    } else {
-                                        if (!note.getDeleted()) {
-                                            noteList.add(note);
-                                            staggeredRecyclerViewAdapter.notifyItemInserted(noteList.size() - 1);
+                                            if (!note.getDeleted()) {
+                                                noteList.add(note);
+                                                staggeredRecyclerViewAdapter.notifyItemInserted(noteList.size() - 1);
+                                            }
                                         }
                                     }
-                                }
-                                if (note != null) {
-                                    Log.d(TAG, "onEvent: " + note.toString());
+                                    if (note != null) {
+                                        Log.d(TAG, "onEvent: " + note.toString());
+                                    }
                                 }
                             }
                         }
-                    }
-                });
+                    });
     }
 
     @Override

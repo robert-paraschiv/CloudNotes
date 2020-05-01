@@ -143,7 +143,8 @@ public class TrashFragment extends Fragment implements NoteEditsAdapter.OnItemCl
         dialog.show();
 
         final WriteBatch batch = db.batch();
-        usersRef.document(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid()).collection("Notes")
+        db.collection("Notes")
+                .whereArrayContains("users", FirebaseAuth.getInstance().getCurrentUser().getUid())
                 .whereEqualTo("deleted", true)
                 .get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
             @Override
@@ -189,38 +190,39 @@ public class TrashFragment extends Fragment implements NoteEditsAdapter.OnItemCl
     private void getNotes() {
         noteList.clear();
         noteEditsAdapter.notifyDataSetChanged();
-        notesListener = usersRef.document(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid())
-                .collection("Notes")
-                .whereEqualTo("deleted", true)
-                .orderBy("creation_date", Query.Direction.DESCENDING)
-                .addSnapshotListener(new EventListener<QuerySnapshot>() {
-                    @Override
-                    public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) {
-                        if (queryDocumentSnapshots != null && queryDocumentSnapshots.size() > 0 && e == null) {
-                            for (DocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
-                                Note note = documentSnapshot.toObject(Note.class);
-                                if (note != null) {
-                                    note.setNote_doc_ID(documentSnapshot.getId());
-                                    if (noteList.contains(note)) {
-                                        if (note.getDeleted()) {
-                                            noteList.set(noteList.indexOf(note), note);
-                                            noteEditsAdapter.notifyItemChanged(noteList.indexOf(note));
+        if (FirebaseAuth.getInstance().getCurrentUser() != null && FirebaseAuth.getInstance().getCurrentUser().getEmail() != null)
+            notesListener = db.collection("Notes")
+                    .whereArrayContains("users", FirebaseAuth.getInstance().getCurrentUser().getEmail())
+                    .whereEqualTo("deleted", true)
+                    .orderBy("creation_date", Query.Direction.DESCENDING)
+                    .addSnapshotListener(new EventListener<QuerySnapshot>() {
+                        @Override
+                        public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) {
+                            if (queryDocumentSnapshots != null && queryDocumentSnapshots.size() > 0 && e == null) {
+                                for (DocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
+                                    Note note = documentSnapshot.toObject(Note.class);
+                                    if (note != null) {
+                                        note.setNote_doc_ID(documentSnapshot.getId());
+                                        if (noteList.contains(note)) {
+                                            if (note.getDeleted()) {
+                                                noteList.set(noteList.indexOf(note), note);
+                                                noteEditsAdapter.notifyItemChanged(noteList.indexOf(note));
+                                            } else {
+                                                int notePosition = noteList.indexOf(note);
+                                                noteList.remove(note);
+                                                noteEditsAdapter.notifyItemRemoved(notePosition);
+                                            }
                                         } else {
-                                            int notePosition = noteList.indexOf(note);
-                                            noteList.remove(note);
-                                            noteEditsAdapter.notifyItemRemoved(notePosition);
-                                        }
-                                    } else {
-                                        if (note.getDeleted()) {
-                                            noteList.add(note);
-                                            noteEditsAdapter.notifyItemInserted(noteList.size() - 1);
+                                            if (note.getDeleted()) {
+                                                noteList.add(note);
+                                                noteEditsAdapter.notifyItemInserted(noteList.size() - 1);
+                                            }
                                         }
                                     }
                                 }
                             }
                         }
-                    }
-                });
+                    });
     }
 
     private void setUpRecyclerView() {

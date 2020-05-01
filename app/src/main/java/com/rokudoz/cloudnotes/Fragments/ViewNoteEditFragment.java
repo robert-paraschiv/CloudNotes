@@ -121,8 +121,7 @@ public class ViewNoteEditFragment extends Fragment {
     }
 
     private void getNote(final String noteID) {
-        usersRef.document(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid())
-                .collection("Notes").document(noteID).addSnapshotListener(new EventListener<DocumentSnapshot>() {
+        db.collection("Notes").document(noteID).addSnapshotListener(new EventListener<DocumentSnapshot>() {
             @Override
             public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException e) {
                 if (documentSnapshot != null && e == null) {
@@ -132,7 +131,7 @@ public class ViewNoteEditFragment extends Fragment {
                         if (originalNote.getNumber_of_edits() != null)
                             nrOfEdits = originalNote.getNumber_of_edits();
 
-                        usersRef.document(FirebaseAuth.getInstance().getCurrentUser().getUid()).collection("Notes").document(noteID)
+                        db.collection("Notes").document(noteID)
                                 .collection("Edits").document(note_edit_ID).addSnapshotListener(new EventListener<DocumentSnapshot>() {
                             @Override
                             public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException e) {
@@ -170,8 +169,8 @@ public class ViewNoteEditFragment extends Fragment {
                                                 note.setEdit_type("Restored");
                                                 note.setCreation_date(null);
                                                 WriteBatch batch = db.batch();
-                                                batch.set(usersRef.document(FirebaseAuth.getInstance().getCurrentUser().getUid()).collection("Notes").document(noteID), note);
-                                                batch.set(usersRef.document(FirebaseAuth.getInstance().getCurrentUser().getUid()).collection("Notes").document(noteID)
+                                                batch.set(db.collection("Notes").document(noteID), note);
+                                                batch.set(db.collection("Notes").document(noteID)
                                                         .collection("Edits").document(), note);
                                                 batch.commit().addOnSuccessListener(new OnSuccessListener<Void>() {
                                                     @Override

@@ -8,21 +8,44 @@
     android:fitsSystemWindows="true"
     android:orientation="vertical">
 
+    <com.google.android.material.button.MaterialButton
+        style="@style/Widget.MaterialComponents.Button.TextButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="18dp"
+        android:layout_marginTop="4dp"
+        android:padding="0dp"
+        android:text="Collaborator"
+        android:textAllCaps="false"
+        android:textColor="@color/dialog_please_wait_text_color"
+        app:icon="@drawable/ic_outline_person_add_24"
+        app:iconTint="@color/icon_tint_color" />
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="1px"
+        android:layout_marginStart="18dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="18dp"
+        android:src="@color/spacer_color" />
+
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="center_horizontal"
-        android:layout_marginTop="12dp"
+        android:layout_marginStart="18dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="18dp"
+        android:gravity="start"
         android:text="Choose a color for your note" />
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="20dp"
+        android:layout_marginStart="18dp"
         android:layout_marginTop="8dp"
-        android:gravity="center_horizontal"
-        android:orientation="horizontal"
-        android:padding="14dp">
+        android:layout_marginEnd="18dp"
+        android:layout_marginBottom="30dp"
+        android:orientation="horizontal">
 
         <de.hdodenhof.circleimageview.CircleImageView
             android:id="@+id/noteSettings_color_yellow"

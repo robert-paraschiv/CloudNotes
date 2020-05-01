@@ -33,6 +33,7 @@ import com.google.firebase.firestore.WriteBatch;
 import com.rokudoz.cloudnotes.Adapters.CheckableItemAdapter;
 import com.rokudoz.cloudnotes.Models.CheckableItem;
 import com.rokudoz.cloudnotes.Models.Note;
+import com.rokudoz.cloudnotes.Models.User;
 import com.rokudoz.cloudnotes.R;
 import com.rokudoz.cloudnotes.Utils.BannerAdManager;
 import com.rokudoz.cloudnotes.Utils.ColorFunctions;
@@ -40,6 +41,7 @@ import com.rokudoz.cloudnotes.Utils.ColorFunctions;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
@@ -285,27 +287,31 @@ public class NewNoteFragment extends Fragment implements CheckableItemAdapter.On
             } else {
                 title = titleInputEditText.getText().toString();
             }
+
+            List<String> userList = new ArrayList<>();
+            userList.add(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getEmail());
+
             if (noteType.equals("text")) {
                 note = new Note(0, title,
                         Objects.requireNonNull(textInputEditText.getText()).toString(),
                         null,
                         Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid(),
                         null, false, noteType, null, "Created", 0,
-                        false, mNote.getBackgroundColor());
+                        false, mNote.getBackgroundColor(), userList);
             } else if (noteType.equals("checkbox")) {
                 note = new Note(0, title,
                         "",
                         null,
                         Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid(),
                         null, false, noteType, checkableItemList, "Created", 0,
-                        false, mNote.getBackgroundColor());
+                        false, mNote.getBackgroundColor(), userList);
             }
 
             Log.d(TAG, "onStop: note ref " + noteRef);
 
             if (noteRef == null) {
                 final Note finalNote = note;
-                usersRef.document(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid()).collection("Notes").add(note)
+                db.collection("Notes").add(note)
                         .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
                             @Override
                             public void onSuccess(DocumentReference documentReference) {

@@ -22,12 +22,13 @@ public class Note {
     private Integer number_of_edits;
     private Boolean deleted;
     private String backgroundColor;
+    private List<String> users;
 
     @ServerTimestamp
     private Date creation_date;
 
     public Note(Integer position, String noteTitle, String noteText, String latest_edit_doc_ID, String user_ID, Date creation_date, Boolean edited, String noteType,
-                List<CheckableItem> checkableItemList, String edit_type, Integer number_of_edits, Boolean deleted, String backgroundColor) {
+                List<CheckableItem> checkableItemList, String edit_type, Integer number_of_edits, Boolean deleted, String backgroundColor, List<String> users) {
         this.position = position;
         this.noteTitle = noteTitle;
         this.noteText = noteText;
@@ -41,9 +42,19 @@ public class Note {
         this.number_of_edits = number_of_edits;
         this.deleted = deleted;
         this.backgroundColor = backgroundColor;
+        this.users = users;
     }
 
     public Note() {
+    }
+
+
+    public List<String> getUsers() {
+        return users;
+    }
+
+    public void setUsers(List<String> users) {
+        this.users = users;
     }
 
     public String getBackgroundColor() {

@@ -190,7 +190,7 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
             public void onClick(View v) {
 
                 //Dialog for delete note
-                View dialogView = getLayoutInflater().inflate(R.layout.dialog_show_ad, (ViewGroup) view,false);
+                View dialogView = getLayoutInflater().inflate(R.layout.dialog_show_ad, (ViewGroup) view, false);
                 final Dialog dialog = new Dialog(requireContext(), R.style.CustomBottomSheetDialogTheme);
                 MaterialButton confirmBtn = dialogView.findViewById(R.id.dialog_ShowAd_confirmBtn);
                 MaterialButton cancelBtn = dialogView.findViewById(R.id.dialog_ShowAd_cancelBtn);
@@ -202,8 +202,7 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
                     @Override
                     public void onClick(View v) {
                         //Delete note
-                        usersRef.document(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid())
-                                .collection("Notes").document(noteID)
+                        db.collection("Notes").document(noteID)
                                 .update("deleted", true).addOnSuccessListener(new OnSuccessListener<Void>() {
                             @Override
                             public void onSuccess(Void aVoid) {
@@ -252,7 +251,7 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
 
             MaterialCardView cardView = new MaterialCardView(requireContext());
             bottomCard.setBackgroundColor(cardView.getCardBackgroundColor().getDefaultColor());
-            view.setBackgroundColor(ContextCompat.getColor(requireContext(),R.color.fragments_background));
+            view.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.fragments_background));
         }
     }
 
@@ -322,7 +321,7 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
 
     private void getNote(final String noteID) {
         if (FirebaseAuth.getInstance().getCurrentUser() != null)
-            usersRef.document(FirebaseAuth.getInstance().getCurrentUser().getUid()).collection("Notes").document(noteID)
+            db.collection("Notes").document(noteID)
                     .addSnapshotListener(new EventListener<DocumentSnapshot>() {
                         @SuppressLint("SetTextI18n")
                         @Override
@@ -413,22 +412,22 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
         if (color != null && getActivity() != null) {
             switch (color) {
                 case "yellow":
-                    setBackgroundColor(ContextCompat.getColor(requireContext(),R.color.note_background_color_yellow));
+                    setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.note_background_color_yellow));
                     break;
                 case "red":
-                    setBackgroundColor(ContextCompat.getColor(requireContext(),R.color.note_background_color_red));
+                    setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.note_background_color_red));
                     break;
                 case "green":
-                    setBackgroundColor(ContextCompat.getColor(requireContext(),R.color.note_background_color_green));
+                    setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.note_background_color_green));
                     break;
                 case "blue":
-                    setBackgroundColor(ContextCompat.getColor(requireContext(),R.color.note_background_color_blue));
+                    setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.note_background_color_blue));
                     break;
                 case "orange":
-                    setBackgroundColor(ContextCompat.getColor(requireContext(),R.color.note_background_color_orange));
+                    setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.note_background_color_orange));
                     break;
                 case "purple":
-                    setBackgroundColor(ContextCompat.getColor(requireContext(),R.color.note_background_color_purple));
+                    setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.note_background_color_purple));
                     break;
             }
         } else {
@@ -481,7 +480,7 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
             @Override
             public void onClick(View v) {
                 updateNoteColor("yellow");
-                setBackgroundColor(ContextCompat.getColor(requireContext(),R.color.note_background_color_yellow));
+                setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.note_background_color_yellow));
                 mNote.setBackgroundColor("yellow");
                 yellow.setBorderWidth(5);
                 bottomSheetDialog.cancel();
@@ -491,7 +490,7 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
             @Override
             public void onClick(View v) {
                 updateNoteColor("red");
-                setBackgroundColor(ContextCompat.getColor(requireContext(),R.color.note_background_color_red));
+                setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.note_background_color_red));
                 mNote.setBackgroundColor("red");
                 red.setBorderWidth(5);
                 bottomSheetDialog.cancel();
@@ -501,7 +500,7 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
             @Override
             public void onClick(View v) {
                 updateNoteColor("blue");
-                setBackgroundColor(ContextCompat.getColor(requireContext(),R.color.note_background_color_blue));
+                setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.note_background_color_blue));
                 mNote.setBackgroundColor("blue");
                 blue.setBorderWidth(5);
                 bottomSheetDialog.cancel();
@@ -511,7 +510,7 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
             @Override
             public void onClick(View v) {
                 updateNoteColor("green");
-                setBackgroundColor(ContextCompat.getColor(requireContext(),R.color.note_background_color_green));
+                setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.note_background_color_green));
                 mNote.setBackgroundColor("green");
                 green.setBorderWidth(5);
                 bottomSheetDialog.cancel();
@@ -521,7 +520,7 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
             @Override
             public void onClick(View v) {
                 updateNoteColor("orange");
-                setBackgroundColor(ContextCompat.getColor(requireContext(),R.color.note_background_color_orange));
+                setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.note_background_color_orange));
                 mNote.setBackgroundColor("orange");
                 orange.setBorderWidth(5);
                 bottomSheetDialog.cancel();
@@ -531,7 +530,7 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
             @Override
             public void onClick(View v) {
                 updateNoteColor("purple");
-                setBackgroundColor(ContextCompat.getColor(requireContext(),R.color.note_background_color_purple));
+                setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.note_background_color_purple));
                 mNote.setBackgroundColor("purple");
                 purple.setBorderWidth(5);
                 bottomSheetDialog.cancel();
@@ -560,7 +559,7 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
     }
 
     private void updateNoteColor(final String noteColor) {
-        usersRef.document(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid()).collection("Notes").document(noteID)
+        db.collection("Notes").document(noteID)
                 .update("backgroundColor", noteColor).addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override
             public void onSuccess(Void aVoid) {
@@ -612,7 +611,7 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
                             null,
                             Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid(),
                             null, true, noteType, null, "Edited", number_of_edits + 1,
-                            false, mNote.getBackgroundColor());
+                            false, mNote.getBackgroundColor(), mNote.getUsers());
                 } else if (noteType.equals("checkbox")) {
                     note = new Note(position,
                             title,
@@ -620,14 +619,12 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
                             null,
                             Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid(),
                             null, true, noteType, checkableItemList, "Edited", number_of_edits + 1,
-                            false, mNote.getBackgroundColor());
+                            false, mNote.getBackgroundColor(), mNote.getUsers());
                 }
 
                 WriteBatch batch = db.batch();
-                batch.set(usersRef.document(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid())
-                        .collection("Notes").document(noteID), note);
-                batch.set(usersRef.document(FirebaseAuth.getInstance().getCurrentUser().getUid()).collection("Notes").document(noteID)
-                        .collection("Edits").document(), note);
+                batch.set(db.collection("Notes").document(noteID), note);
+                batch.set(db.collection("Notes").document(noteID).collection("Edits").document(), note);
 
                 batch.commit().addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override

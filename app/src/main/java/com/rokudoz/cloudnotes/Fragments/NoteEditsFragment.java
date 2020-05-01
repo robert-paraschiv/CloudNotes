@@ -116,12 +116,10 @@ public class NoteEditsFragment extends Fragment implements NoteEditsAdapter.OnIt
     private void getNotes(String noteID) {
         Query notesQuery;
         if (mLastQueriedDocument != null) {
-            notesQuery = usersRef.document(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid())
-                    .collection("Notes").document(noteID).collection("Edits")
+            notesQuery = db.collection("Notes").document(noteID).collection("Edits")
                     .orderBy("creation_date", Query.Direction.DESCENDING).startAfter(mLastQueriedDocument).limit(10);
         } else {
-            notesQuery = usersRef.document(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid())
-                    .collection("Notes").document(noteID).collection("Edits")
+            notesQuery = db.collection("Notes").document(noteID).collection("Edits")
                     .orderBy("creation_date", Query.Direction.DESCENDING).limit(10);
         }
 
