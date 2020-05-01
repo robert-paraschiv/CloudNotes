@@ -15,12 +15,17 @@ import androidx.navigation.fragment.NavHostFragment;
 
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
+import com.google.android.gms.ads.MobileAds;
+import com.google.android.gms.ads.RequestConfiguration;
 import com.google.android.gms.ads.rewarded.RewardItem;
 import com.google.android.gms.ads.rewarded.RewardedAd;
 import com.google.android.gms.ads.rewarded.RewardedAdCallback;
 import com.google.android.gms.ads.rewarded.RewardedAdLoadCallback;
 import com.google.android.material.button.MaterialButton;
 import com.rokudoz.cloudnotes.Utils.BannerAdManager;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static com.rokudoz.cloudnotes.App.HIDE_BANNER;
 import static com.rokudoz.cloudnotes.App.SETTINGS_PREFS_NAME;
@@ -34,8 +39,6 @@ public class MainActivity extends AppCompatActivity {
 
     private RewardedAd rewardedAd;
     SharedPreferences sharedPreferences;
-
-    private AdView mBannerAd;
 
 
     @Override
@@ -54,13 +57,17 @@ public class MainActivity extends AppCompatActivity {
 
 
         //Banner ad section
-        mBannerAd = findViewById(R.id.banner_adView);
-        AdRequest adRequest = new AdRequest.Builder()
-                .addTestDevice("4129AB584AC9547A6DDCE83E28748843") // Mi 9T Pro
-                .addTestDevice("B141CB779F883EF84EA9A32A7D068B76") // RedMi 5 Plus
-                .addTestDevice(AdRequest.DEVICE_ID_EMULATOR).build();
-
-        mBannerAd.loadAd(adRequest);
+        AdView mBannerAd = findViewById(R.id.banner_adView);
+        List<String> testDevices = new ArrayList<>();
+        testDevices.add("4129AB584AC9547A6DDCE83E28748843");
+        testDevices.add("B141CB779F883EF84EA9A32A7D068B76");
+        testDevices.add(AdRequest.DEVICE_ID_EMULATOR);
+        RequestConfiguration requestConfiguration
+                = new RequestConfiguration.Builder()
+                .setTestDeviceIds(testDevices)
+                .build();
+        MobileAds.setRequestConfiguration(requestConfiguration);
+        mBannerAd.loadAd(new AdRequest.Builder().build());
 
 
         //Rewarded ad section
@@ -138,16 +145,12 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onRewardedAdFailedToLoad(int errorCode) {
                 // Ad failed to load.
+                Log.d(TAG, "onRewardedAdFailedToLoad: Ad failed to load");
             }
         };
 
-        AdRequest rewardedAdRequest = new AdRequest.Builder()
-                .addTestDevice("4129AB584AC9547A6DDCE83E28748843") // Mi 9T Pro
-                .addTestDevice("B141CB779F883EF84EA9A32A7D068B76") // RedMi 5 Plus
-                .addTestDevice(AdRequest.DEVICE_ID_EMULATOR).build();
-
         if (!HIDE_BANNER)
-            rewardedAd.loadAd(rewardedAdRequest, adLoadCallback);
+            rewardedAd.loadAd(new AdRequest.Builder().build(), adLoadCallback);
 
 
     }
