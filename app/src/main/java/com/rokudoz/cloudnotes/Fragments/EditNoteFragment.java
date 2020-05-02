@@ -57,9 +57,11 @@ import java.util.Objects;
 import de.hdodenhof.circleimageview.CircleImageView;
 
 public class EditNoteFragment extends Fragment implements CheckableItemAdapter.OnStartDragListener,
-        CheckableItemAdapter.OnItemClickListener,FullBottomSheetDialogFragment.ExampleDialogListener {
+        CheckableItemAdapter.OnItemClickListener, FullBottomSheetDialogFragment.ExampleDialogListener {
 
     private static final String TAG = "EditNoteFragment";
+
+    int _note_background_color;
 
     private View view;
     private LinearLayout editLinearLayout;
@@ -106,6 +108,8 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
         editLinearLayout = view.findViewById(R.id.editNoteFragment_editLayout);
         optionsBtn = view.findViewById(R.id.editNoteFragment_optionsBtn);
         bottomCard = view.findViewById(R.id.editNoteFragment_bottomCard);
+
+        _note_background_color = ContextCompat.getColor(requireContext(), R.color.fragments_background);
 
         if (getArguments() != null) {
             EditNoteFragmentArgs editNoteFragmentArgs = EditNoteFragmentArgs.fromBundle(getArguments());
@@ -243,6 +247,7 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
         window.setStatusBarColor(color);
         window.setNavigationBarColor(color);
 
+        _note_background_color = color;
         bottomCard.setBackgroundColor(color);
         view.setBackgroundColor(color);
     }
@@ -255,6 +260,7 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
             MaterialCardView cardView = new MaterialCardView(requireContext());
             bottomCard.setBackgroundColor(cardView.getCardBackgroundColor().getDefaultColor());
             view.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.fragments_background));
+            _note_background_color = ContextCompat.getColor(requireContext(), R.color.fragments_background);
         }
     }
 
@@ -552,13 +558,15 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
             }
         });
 
+
         collaboratorsBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 bottomSheetDialog.cancel();
                 //TODO FULL SCREEN DIALOG HERE
-                FullBottomSheetDialogFragment fullBottomSheetDialogFragment = new FullBottomSheetDialogFragment("EDIT NOTE FRAGMENT");
-                fullBottomSheetDialogFragment.setTargetFragment(EditNoteFragment.this,2);
+                FullBottomSheetDialogFragment fullBottomSheetDialogFragment =
+                        new FullBottomSheetDialogFragment(_note_background_color);
+                fullBottomSheetDialogFragment.setTargetFragment(EditNoteFragment.this, 2);
                 fullBottomSheetDialogFragment.show(getParentFragmentManager(), "");
             }
         });

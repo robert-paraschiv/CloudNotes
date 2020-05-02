@@ -5,15 +5,19 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.res.Resources;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
+import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
 
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
@@ -29,10 +33,10 @@ import java.util.Objects;
 public class FullBottomSheetDialogFragment extends BottomSheetDialogFragment {
 
     private ExampleDialogListener listener;
-    private String text = "";
+    private int backgroundColor;
 
-    public FullBottomSheetDialogFragment(String text) {
-        this.text = text;
+    public FullBottomSheetDialogFragment(int backgroundColor) {
+        this.backgroundColor = backgroundColor;
     }
 
     @Override
@@ -46,7 +50,14 @@ public class FullBottomSheetDialogFragment extends BottomSheetDialogFragment {
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         final BottomSheetDialog dialog = (BottomSheetDialog) super.onCreateDialog(savedInstanceState);
 
+        //Don't allow dialog to dim background (status bar, nav bar etc)
+        Objects.requireNonNull(dialog.getWindow()).setDimAmount(0);
+
         View view = getLayoutInflater().inflate(R.layout.dialog_collaborators, null);
+
+        view.setBackgroundColor(backgroundColor);
+
+
         dialog.setOnShowListener(new DialogInterface.OnShowListener() {
             @Override
             public void onShow(DialogInterface dialogInterface) {
@@ -60,7 +71,7 @@ public class FullBottomSheetDialogFragment extends BottomSheetDialogFragment {
         saveBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                listener.applyTexts(text);
+                listener.applyTexts(""+backgroundColor);
                 dialog.cancel();
             }
         });

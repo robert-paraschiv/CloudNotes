@@ -57,6 +57,8 @@ public class NewNoteFragment extends Fragment implements CheckableItemAdapter.On
 
     private static final String TAG = "NewNoteFragment";
 
+    int _note_background_color;
+
     ItemTouchHelper helper;
     private String noteType = "text";
     private View view;
@@ -93,6 +95,7 @@ public class NewNoteFragment extends Fragment implements CheckableItemAdapter.On
         MaterialButton settingsBtn = view.findViewById(R.id.newNoteFragment_settingsBtn);
         MaterialButton discardBtn = view.findViewById(R.id.newNoteFragment_discardBtn);
 
+        _note_background_color = ContextCompat.getColor(requireContext(), R.color.fragments_background);
         //Reset status bar color
 //        if (getActivity() != null) {
 //            ColorFunctions colorFunctions = new ColorFunctions();
@@ -481,8 +484,9 @@ public class NewNoteFragment extends Fragment implements CheckableItemAdapter.On
                 bottomSheetDialog.cancel();
                 //TODO FULL SCREEN DIALOG HERE
 
-                FullBottomSheetDialogFragment fullBottomSheetDialogFragment = new FullBottomSheetDialogFragment("NEW NOTE FRAGMENT");
-                fullBottomSheetDialogFragment.setTargetFragment(NewNoteFragment.this,1);
+                FullBottomSheetDialogFragment fullBottomSheetDialogFragment
+                        = new FullBottomSheetDialogFragment(_note_background_color);
+                fullBottomSheetDialogFragment.setTargetFragment(NewNoteFragment.this, 1);
                 fullBottomSheetDialogFragment.show(getParentFragmentManager(), "");
             }
         });
@@ -504,7 +508,7 @@ public class NewNoteFragment extends Fragment implements CheckableItemAdapter.On
 
         window.setStatusBarColor(color);
         window.setNavigationBarColor(color);
-
+        _note_background_color = color;
         bottomCard.setBackgroundColor(color);
         view.setBackgroundColor(color);
     }
@@ -517,6 +521,7 @@ public class NewNoteFragment extends Fragment implements CheckableItemAdapter.On
             MaterialCardView cardView = new MaterialCardView(requireContext());
             bottomCard.setBackgroundColor(cardView.getCardBackgroundColor().getDefaultColor());
             view.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.fragments_background));
+            _note_background_color = ContextCompat.getColor(requireContext(), R.color.fragments_background);
         }
     }
 
