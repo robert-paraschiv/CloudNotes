@@ -2,6 +2,7 @@ package com.rokudoz.cloudnotes.Fragments;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -10,7 +11,9 @@ import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.FrameLayout;
 import android.widget.ScrollView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
@@ -21,6 +24,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.card.MaterialCardView;
@@ -31,6 +35,7 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.WriteBatch;
 import com.rokudoz.cloudnotes.Adapters.CheckableItemAdapter;
+import com.rokudoz.cloudnotes.Dialogs.FullBottomSheetDialogFragment;
 import com.rokudoz.cloudnotes.Models.CheckableItem;
 import com.rokudoz.cloudnotes.Models.Note;
 import com.rokudoz.cloudnotes.Models.User;
@@ -47,7 +52,9 @@ import java.util.Objects;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
-public class NewNoteFragment extends Fragment implements CheckableItemAdapter.OnStartDragListener, CheckableItemAdapter.OnItemClickListener {
+public class NewNoteFragment extends Fragment implements CheckableItemAdapter.OnStartDragListener,
+        CheckableItemAdapter.OnItemClickListener, FullBottomSheetDialogFragment.ExampleDialogListener {
+
     private static final String TAG = "NewNoteFragment";
 
     ItemTouchHelper helper;
@@ -473,6 +480,10 @@ public class NewNoteFragment extends Fragment implements CheckableItemAdapter.On
             public void onClick(View v) {
                 bottomSheetDialog.cancel();
                 //TODO FULL SCREEN DIALOG HERE
+
+                FullBottomSheetDialogFragment fullBottomSheetDialogFragment = new FullBottomSheetDialogFragment("NEW NOTE FRAGMENT");
+                fullBottomSheetDialogFragment.setTargetFragment(NewNoteFragment.this,1);
+                fullBottomSheetDialogFragment.show(getParentFragmentManager(), "");
             }
         });
 
@@ -547,5 +558,11 @@ public class NewNoteFragment extends Fragment implements CheckableItemAdapter.On
         checkableItem.setShouldBeFocused(true);
         checkableItemList.add(position + 1, checkableItem);
         mAdapter.notifyItemInserted(position + 1);
+    }
+
+    @Override
+    public void applyTexts(String text) {
+        //TODO implement
+        Toast.makeText(requireContext(), text, Toast.LENGTH_SHORT).show();
     }
 }

@@ -38,6 +38,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.WriteBatch;
 import com.rokudoz.cloudnotes.Adapters.CheckableItemAdapter;
+import com.rokudoz.cloudnotes.Dialogs.FullBottomSheetDialogFragment;
 import com.rokudoz.cloudnotes.Models.CheckableItem;
 import com.rokudoz.cloudnotes.Models.Note;
 import com.rokudoz.cloudnotes.R;
@@ -55,7 +56,9 @@ import java.util.Objects;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
-public class EditNoteFragment extends Fragment implements CheckableItemAdapter.OnStartDragListener, CheckableItemAdapter.OnItemClickListener {
+public class EditNoteFragment extends Fragment implements CheckableItemAdapter.OnStartDragListener,
+        CheckableItemAdapter.OnItemClickListener,FullBottomSheetDialogFragment.ExampleDialogListener {
+
     private static final String TAG = "EditNoteFragment";
 
     private View view;
@@ -554,6 +557,9 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
             public void onClick(View v) {
                 bottomSheetDialog.cancel();
                 //TODO FULL SCREEN DIALOG HERE
+                FullBottomSheetDialogFragment fullBottomSheetDialogFragment = new FullBottomSheetDialogFragment("EDIT NOTE FRAGMENT");
+                fullBottomSheetDialogFragment.setTargetFragment(EditNoteFragment.this,2);
+                fullBottomSheetDialogFragment.show(getParentFragmentManager(), "");
             }
         });
 
@@ -687,5 +693,11 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
         checkableItem.setShouldBeFocused(true);
         checkableItemList.add(position + 1, checkableItem);
         mAdapter.notifyItemInserted(position + 1);
+    }
+
+    @Override
+    public void applyTexts(String text) {
+        //TODO implement
+        Toast.makeText(requireContext(), text, Toast.LENGTH_SHORT).show();
     }
 }
