@@ -319,13 +319,13 @@ public class NewNoteFragment extends Fragment implements CheckableItemAdapter.On
                         Objects.requireNonNull(textInputEditText.getText()).toString(),
                         Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getEmail(),
                         null, false, noteType, null, "Created", 0,
-                        false, mNote.getBackgroundColor(), mNote.getUsers(), mNote.getCollaboratorList());
+                        false, mNote.getBackgroundColor(), mNote.getUsers(), mNote.getCollaboratorList(), Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getEmail());
             } else if (noteType.equals("checkbox")) {
                 note = new Note(0, title,
                         "",
                         Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getEmail(),
                         null, false, noteType, checkableItemList, "Created", 0,
-                        false, mNote.getBackgroundColor(), mNote.getUsers(), mNote.getCollaboratorList());
+                        false, mNote.getBackgroundColor(), mNote.getUsers(), mNote.getCollaboratorList(), Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getEmail());
             }
 
             Log.d(TAG, "onStop: note ref " + noteRef);
@@ -609,6 +609,8 @@ public class NewNoteFragment extends Fragment implements CheckableItemAdapter.On
         for (final Collaborator collaborator : collaboratorList) {
             if (!collaborator.getUser_email().trim().equals("")) {
                 userList.add(collaborator.getUser_email());
+
+                //Get users pictures from db
                 db.collection("Users").whereEqualTo("email", collaborator.getUser_email()).get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
                     @Override
                     public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
@@ -621,7 +623,7 @@ public class NewNoteFragment extends Fragment implements CheckableItemAdapter.On
                                     collaborators.add(new Collaborator(user.getEmail(), user.getUser_profile_picture(), collaborator.getCreator()));
                                 }
 
-
+                                //finished getting user pictures
                                 if (collaborators.size() == userList.size()) {
                                     mNote.setUsers(userList);
                                     mNote.setCollaboratorList(collaborators);

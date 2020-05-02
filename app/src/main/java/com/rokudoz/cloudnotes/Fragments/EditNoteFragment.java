@@ -66,6 +66,8 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
 
     int _note_background_color;
 
+    private boolean retrievedNote = false;
+
     private View view;
     private LinearLayout editLinearLayout;
     boolean edit = false;
@@ -213,6 +215,7 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
                     public void onClick(View v) {
                         //Delete note
 
+                        //If current user is the creator of the note, delete it
                         if (mNote.getCreator_user_email().equals(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getEmail())) {
                             db.collection("Notes").document(noteID)
                                     .update("deleted", true).addOnSuccessListener(new OnSuccessListener<Void>() {
@@ -226,7 +229,7 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
                                     dialog.cancel();
                                 }
                             });
-                        } else {
+                        } else { //The current user isn't the creator of the note, update it and remove current user from collaborators
                             for (int i = 0; i < mNote.getCollaboratorList().size(); i++) {
                                 if (mNote.getCollaboratorList().get(i).getUser_email().equals(FirebaseAuth.getInstance().getCurrentUser().getEmail())) {
                                     mNote.getCollaboratorList().remove(i);
@@ -370,7 +373,7 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
                         @SuppressLint("SetTextI18n")
                         @Override
                         public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException e) {
-                            if (documentSnapshot != null && e == null) {
+                            if (documentSnapshot != null && e == null && !retrievedNote) {
                                 mNote = documentSnapshot.toObject(Note.class);
                                 if (mNote != null) {
                                     mNote.setNote_doc_ID(documentSnapshot.getId());
@@ -445,8 +448,11 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
                                             showColorSettings();
                                         }
                                     });
-
+                                    retrievedNote = true;
                                 }
+                            } else if (retrievedNote) {
+                                if (getActivity() != null)
+                                    Toast.makeText(getActivity(), "Someone edited this note since you opened it", Toast.LENGTH_SHORT).show();
                             }
                         }
                     });
@@ -619,6 +625,7 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
 
                 FullBottomSheetDialogFragment fullBottomSheetDialogFragment =
                         new FullBottomSheetDialogFragment(_note_background_color, collaboratorList, isOwner);
+                fullBottomSheetDialogFragment.setCancelable(false);
                 fullBottomSheetDialogFragment.setTargetFragment(EditNoteFragment.this, 2);
                 fullBottomSheetDialogFragment.show(getParentFragmentManager(), "");
             }
@@ -648,6 +655,8 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
     @Override
     public void onStop() {
         super.onStop();
+        //reset retrievedNote
+        retrievedNote = false;
         Log.d(TAG, "onStop: ");
         for (CheckableItem checkableItem : checkableItemList) {
             Log.d(TAG, "onStop: " + checkableItem.toString());
@@ -655,9 +664,9 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
         if (mNote != null) {
 
             for (CheckableItem item : checkableItemList) {
-                if (!oldList.contains(item)) {
+                if (!oldList.contains(item) && !item.getText().equals("")) {
                     edit = true;
-                } else {
+                } else if (oldList.contains(item)) {
                     if (oldList.get(oldList.indexOf(item)).getChecked() != item.getChecked()) {
                         edit = true;
                     }
@@ -687,14 +696,14 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
                             Objects.requireNonNull(textInput.getText()).toString(),
                             mNote.getCreator_user_email(),
                             null, true, noteType, null, "Edited", number_of_edits + 1,
-                            false, mNote.getBackgroundColor(), mNote.getUsers(), mNote.getCollaboratorList());
+                            false, mNote.getBackgroundColor(), mNote.getUsers(), mNote.getCollaboratorList(), Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getEmail());
                 } else if (noteType.equals("checkbox")) {
                     note = new Note(position,
                             title,
                             "",
                             mNote.getCreator_user_email(),
                             null, true, noteType, checkableItemList, "Edited", number_of_edits + 1,
-                            false, mNote.getBackgroundColor(), mNote.getUsers(), mNote.getCollaboratorList());
+                            false, mNote.getBackgroundColor(), mNote.getUsers(), mNote.getCollaboratorList(), Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getEmail());
                 }
 
                 WriteBatch batch = db.batch();

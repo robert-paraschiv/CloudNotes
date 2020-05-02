@@ -144,7 +144,7 @@ public class TrashFragment extends Fragment implements NoteEditsAdapter.OnItemCl
 
         final WriteBatch batch = db.batch();
         db.collection("Notes")
-                .whereArrayContains("users", Objects.requireNonNull(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getEmail()))
+                .whereEqualTo("creator_user_email", Objects.requireNonNull(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getEmail()))
                 .whereEqualTo("deleted", true)
                 .get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
             @Override
@@ -192,7 +192,7 @@ public class TrashFragment extends Fragment implements NoteEditsAdapter.OnItemCl
         noteEditsAdapter.notifyDataSetChanged();
         if (FirebaseAuth.getInstance().getCurrentUser() != null && FirebaseAuth.getInstance().getCurrentUser().getEmail() != null)
             notesListener = db.collection("Notes")
-                    .whereArrayContains("users", FirebaseAuth.getInstance().getCurrentUser().getEmail())
+                    .whereEqualTo("creator_user_email", FirebaseAuth.getInstance().getCurrentUser().getEmail())
                     .whereEqualTo("deleted", true)
                     .orderBy("creation_date", Query.Direction.DESCENDING)
                     .addSnapshotListener(new EventListener<QuerySnapshot>() {

@@ -51,10 +51,10 @@ public class FullBottomSheetDialogFragment extends BottomSheetDialogFragment imp
     private CollaboratorsAdapter mAdapter;
     private boolean isOwner = false;
 
-    public FullBottomSheetDialogFragment(int backgroundColor, List<Collaborator> collaboratorList,boolean isOwner) {
+    public FullBottomSheetDialogFragment(int backgroundColor, List<Collaborator> collaboratorList, boolean isOwner) {
         this.backgroundColor = backgroundColor;
         this.collaboratorList = collaboratorList;
-        this.isOwner=isOwner;
+        this.isOwner = isOwner;
     }
 
     @Override
@@ -68,7 +68,6 @@ public class FullBottomSheetDialogFragment extends BottomSheetDialogFragment imp
     public Dialog onCreateDialog(Bundle savedInstanceState) {
 //        final BottomSheetDialog dialog = (BottomSheetDialog) super.onCreateDialog(savedInstanceState);
         final BottomSheetDialog dialog = new BottomSheetDialog(requireContext(), R.style.CustomBottomSheetDialogTheme);
-
         //Don't allow dialog to dim background (status bar, nav bar etc)
         Objects.requireNonNull(dialog.getWindow()).setDimAmount(0);
 
@@ -138,7 +137,7 @@ public class FullBottomSheetDialogFragment extends BottomSheetDialogFragment imp
     }
 
     private void buildRecyclerView() {
-        mAdapter = new CollaboratorsAdapter(collaboratorList,isOwner);
+        mAdapter = new CollaboratorsAdapter(collaboratorList, isOwner);
         recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
         recyclerView.setAdapter(mAdapter);
         mAdapter.setOnItemClickListener(this);
@@ -169,7 +168,7 @@ public class FullBottomSheetDialogFragment extends BottomSheetDialogFragment imp
     private void setupFullHeight(BottomSheetDialog bottomSheetDialog) {
         FrameLayout bottomSheet = (FrameLayout) bottomSheetDialog.findViewById(R.id.design_bottom_sheet);
         if (bottomSheet != null) {
-            BottomSheetBehavior behavior = BottomSheetBehavior.from(bottomSheet);
+            final BottomSheetBehavior behavior = BottomSheetBehavior.from(bottomSheet);
             ViewGroup.LayoutParams layoutParams = bottomSheet.getLayoutParams();
 
             int windowHeight = getWindowHeight();
@@ -178,6 +177,21 @@ public class FullBottomSheetDialogFragment extends BottomSheetDialogFragment imp
             }
             bottomSheet.setLayoutParams(layoutParams);
             behavior.setState(BottomSheetBehavior.STATE_EXPANDED);
+            behavior.setHideable(false);
+
+            //If the user drags down the dialog to cancel it, disable dragging
+            behavior.addBottomSheetCallback(new BottomSheetBehavior.BottomSheetCallback() {
+                @Override
+                public void onStateChanged(@NonNull View bottomSheet, int newState) {
+                    if (newState == BottomSheetBehavior.STATE_DRAGGING)
+                        behavior.setState(BottomSheetBehavior.STATE_EXPANDED);
+                }
+
+                @Override
+                public void onSlide(@NonNull View bottomSheet, float slideOffset) {
+
+                }
+            });
         }
     }
 

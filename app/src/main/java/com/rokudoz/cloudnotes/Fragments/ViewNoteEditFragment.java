@@ -164,6 +164,8 @@ public class ViewNoteEditFragment extends Fragment {
 
                                                 note.setNumber_of_edits(nrOfEdits + 1);
 
+                                                note.setCollaboratorList(originalNote.getCollaboratorList());
+                                                note.setLast_edited_by_user(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getEmail());
                                                 note.setUsers(originalNote.getUsers());
                                                 note.setEdited(true);
                                                 note.setEdit_type("Restored");

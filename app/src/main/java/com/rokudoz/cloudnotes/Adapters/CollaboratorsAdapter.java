@@ -84,7 +84,7 @@ public class CollaboratorsAdapter extends RecyclerView.Adapter<CollaboratorsAdap
                 }
             });
             this.email.setImeOptions(EditorInfo.IME_ACTION_NEXT);
-            this.email.setRawInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_CAP_SENTENCES);
+            this.email.setRawInputType(InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS);
             this.email.setOnEditorActionListener(new TextView.OnEditorActionListener() {
                 @Override
                 public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {

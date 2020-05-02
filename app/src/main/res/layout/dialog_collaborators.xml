@@ -20,7 +20,7 @@
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/dialog_collaborators_backBtn"
                 style="@style/Widget.MaterialComponents.Button.TextButton"
-                android:layout_width="55dp"
+                android:layout_width="35dp"
                 android:layout_height="40dp"
                 android:layout_alignParentStart="true"
                 android:layout_centerVertical="true"
@@ -34,7 +34,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_centerVertical="true"
-                android:layout_marginStart="8dp"
+                android:layout_marginStart="12dp"
                 android:layout_marginEnd="8dp"
                 android:layout_toStartOf="@id/dialog_collaborators_saveBtn"
                 android:layout_toEndOf="@id/dialog_collaborators_backBtn"
@@ -58,6 +58,7 @@
     </com.google.android.material.appbar.MaterialToolbar>
 
     <androidx.recyclerview.widget.RecyclerView
+        android:layout_marginTop="12dp"
         android:id="@+id/dialog_collaborators_rv"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />

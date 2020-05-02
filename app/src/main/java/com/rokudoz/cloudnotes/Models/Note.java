@@ -22,13 +22,14 @@ public class Note {
     private String backgroundColor;
     private List<String> users;
     private List<Collaborator> collaboratorList;
+    private String last_edited_by_user;
 
     @ServerTimestamp
     private Date creation_date;
 
     public Note(Integer position, String noteTitle, String noteText, String creator_user_email, Date creation_date, Boolean edited, String noteType,
                 List<CheckableItem> checkableItemList, String edit_type, Integer number_of_edits, Boolean deleted, String backgroundColor, List<String> users,
-                List<Collaborator> collaboratorList) {
+                List<Collaborator> collaboratorList, String last_edited_by_user) {
         this.position = position;
         this.noteTitle = noteTitle;
         this.noteText = noteText;
@@ -43,11 +44,19 @@ public class Note {
         this.backgroundColor = backgroundColor;
         this.users = users;
         this.collaboratorList = collaboratorList;
+        this.last_edited_by_user = last_edited_by_user;
     }
 
     public Note() {
     }
 
+    public String getLast_edited_by_user() {
+        return last_edited_by_user;
+    }
+
+    public void setLast_edited_by_user(String last_edited_by_user) {
+        this.last_edited_by_user = last_edited_by_user;
+    }
 
     public List<Collaborator> getCollaboratorList() {
         return collaboratorList;

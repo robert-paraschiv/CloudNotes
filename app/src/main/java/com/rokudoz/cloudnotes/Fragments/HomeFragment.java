@@ -54,6 +54,7 @@ import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.firestore.WriteBatch;
 import com.rokudoz.cloudnotes.Adapters.HomePageAdapter;
 import com.rokudoz.cloudnotes.LoginActivity;
 import com.rokudoz.cloudnotes.Models.Note;
@@ -717,20 +718,52 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
         dialog.show();
         final int[] notesdeleted = {0};
         for (final Note note : notesToDelete) {
-            db.collection("Notes")
-                    .document(note.getNote_doc_ID())
-                    .update("deleted", true).addOnSuccessListener(new OnSuccessListener<Void>() {
-                @Override
-                public void onSuccess(Void aVoid) {
-                    Log.d(TAG, "onSuccess: Deleted note " + note.getNoteTitle());
-                    notesdeleted[0]++;
-                    if (notesdeleted[0] == notesToDelete.size()) {
-                        //Clear notes list and get them all again
-                        getNotes(FirebaseAuth.getInstance().getCurrentUser().getUid());
-                        dialog.cancel();
+
+            //If current user is the creator of the note, delete it
+            if (note.getCreator_user_email().equals(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getEmail())) {
+                db.collection("Notes")
+                        .document(note.getNote_doc_ID())
+                        .update("deleted", true).addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        Log.d(TAG, "onSuccess: Deleted note " + note.getNoteTitle());
+                        notesdeleted[0]++;
+                        if (notesdeleted[0] == notesToDelete.size()) {
+                            //Clear notes list and get them all again
+                            getNotes(FirebaseAuth.getInstance().getCurrentUser().getUid());
+                            dialog.cancel();
+                        }
+                    }
+                });
+            } else {  //The current user isn't the creator of the note, update it and remove current user from collaborators
+                for (int i = 0; i < note.getCollaboratorList().size(); i++) {
+                    if (note.getCollaboratorList().get(i).getUser_email().equals(FirebaseAuth.getInstance().getCurrentUser().getEmail())) {
+                        note.getCollaboratorList().remove(i);
+                        break;
                     }
                 }
-            });
+                for (int i = 0; i < note.getUsers().size(); i++) {
+                    if (note.getUsers().get(i).equals(FirebaseAuth.getInstance().getCurrentUser().getEmail())) {
+                        note.getUsers().remove(i);
+                        break;
+                    }
+                }
+                WriteBatch batch = db.batch();
+                batch.update(db.collection("Notes").document(note.getNote_doc_ID()), "users", note.getUsers());
+                batch.update(db.collection("Notes").document(note.getNote_doc_ID()), "collaboratorList", note.getCollaboratorList());
+                batch.commit().addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        Log.d(TAG, "onSuccess: updated collaborators successfully");
+                        notesdeleted[0]++;
+                        if (notesdeleted[0] == notesToDelete.size()) {
+                            //Clear notes list and get them all again
+                            getNotes(FirebaseAuth.getInstance().getCurrentUser().getUid());
+                            dialog.cancel();
+                        }
+                    }
+                });
+            }
         }
     }
 }
