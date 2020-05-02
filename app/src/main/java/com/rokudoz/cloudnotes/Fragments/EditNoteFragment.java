@@ -769,12 +769,18 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
         boolean stillCollaborator = false;
         final List<Collaborator> collaborators = new ArrayList<>();
         final List<String> userList = new ArrayList<>();
+
+        //Get collaborators emails into user array and find if current user removed himself or not
         for (final Collaborator collaborator : collaboratorList) {
             if (!collaborator.getUser_email().trim().equals("")) {
                 userList.add(collaborator.getUser_email());
                 if (collaborator.getUser_email().equals(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getEmail()))
                     stillCollaborator = true;
-
+            }
+        }
+        //Get collaborators pictures
+        for (final Collaborator collaborator : collaboratorList) {
+            if (!collaborator.getUser_email().trim().equals("")) {
                 final boolean finalStillCollaborator = stillCollaborator;
                 db.collection("Users").whereEqualTo("email", collaborator.getUser_email()).get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
                     @Override

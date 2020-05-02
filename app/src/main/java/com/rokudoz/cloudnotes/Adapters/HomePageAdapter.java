@@ -50,11 +50,13 @@ public class HomePageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener, View.OnLongClickListener {
 
         TextView noteTitle, noteText;
+        RecyclerView collaboratorsRv;
 
         public ViewHolder(View itemView) {
             super(itemView);
             this.noteTitle = itemView.findViewById(R.id.rv_home_note_TitleTV);
             this.noteText = itemView.findViewById(R.id.rv_home_note_textTv);
+            this.collaboratorsRv = itemView.findViewById(R.id.rv_home_note_collaboratorsRV);
 
             itemView.setOnClickListener(this);
             itemView.setOnLongClickListener(this);
@@ -104,12 +106,13 @@ public class HomePageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     public class CheckboxViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener, View.OnLongClickListener {
 
         TextView noteTitle;
-        RecyclerView recyclerView;
+        RecyclerView recyclerView, collaboratorsRv;
 
         public CheckboxViewHolder(final View itemView) {
             super(itemView);
             this.noteTitle = itemView.findViewById(R.id.rv_home_checkboxNote_TitleTV);
             this.recyclerView = itemView.findViewById(R.id.rv_home_checkboxNote_recyclerView);
+            this.collaboratorsRv = itemView.findViewById(R.id.rv_home_checkboxNote_collaboratorsRV);
 
             itemView.setOnClickListener(this);
             itemView.setOnLongClickListener(this);
@@ -227,64 +230,95 @@ public class HomePageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     }
 
     private void populateTextViewHolder(ViewHolder holder, int position) {
-        if (noteList.get(position).getNoteText() != null)
-            holder.noteText.setText(noteList.get(position).getNoteText());
-        if (noteList.get(position).getNoteTitle() != null)
-            holder.noteTitle.setText(noteList.get(position).getNoteTitle());
+        Note currentItem = noteList.get(position);
+        if (currentItem.getNoteText() != null)
+            holder.noteText.setText(currentItem.getNoteText());
+        if (currentItem.getNoteTitle() != null)
+            holder.noteTitle.setText(currentItem.getNoteTitle());
 
         //Setup note background
-        if (selected.contains(noteList.get(position))) {
-            if (noteList.get(position).getBackgroundColor() == null) {
+        if (selected.contains(currentItem)) {
+            if (currentItem.getBackgroundColor() == null) {
                 highlightViewHolder(holder, null);
             } else {
-                highlightViewHolder(holder, noteList.get(position).getBackgroundColor());
+                highlightViewHolder(holder, currentItem.getBackgroundColor());
             }
 
         } else {
-            if (noteList.get(position).getBackgroundColor() == null) {
+            if (currentItem.getBackgroundColor() == null) {
                 unhighlightViewHolder(holder, null);
             } else {
-                unhighlightViewHolder(holder, noteList.get(position).getBackgroundColor());
+                unhighlightViewHolder(holder, currentItem.getBackgroundColor());
             }
+        }
+
+        //Setup collaborators
+        if (currentItem.getCollaboratorList() != null && currentItem.getCollaboratorList().size() > 1) {
+            holder.collaboratorsRv.setVisibility(View.VISIBLE);
+            CollaboratorHomeAdapter collaboratorHomeAdapter = new CollaboratorHomeAdapter(currentItem.getCollaboratorList());
+            holder.collaboratorsRv.setLayoutManager(new LinearLayoutManager(mContext, RecyclerView.HORIZONTAL, false));
+            holder.collaboratorsRv.setAdapter(collaboratorHomeAdapter);
+            holder.collaboratorsRv.setHasFixedSize(true);
+            holder.collaboratorsRv.suppressLayout(true);
+        } else {
+            holder.collaboratorsRv.setVisibility(View.GONE);
         }
     }
 
     private void populateCheckBoxViewHolder(CheckboxViewHolder holder, int position) {
+        Note currentItem = noteList.get(position);
 
         //Setup note background
-        if (selected.contains(noteList.get(position))) {
-            if (noteList.get(position).getBackgroundColor() == null) {
+        if (selected.contains(currentItem)) {
+            if (currentItem.getBackgroundColor() == null) {
                 highlightViewHolder(holder, null);
             } else {
-                highlightViewHolder(holder, noteList.get(position).getBackgroundColor());
+                highlightViewHolder(holder, currentItem.getBackgroundColor());
             }
 
         } else {
-            if (noteList.get(position).getBackgroundColor() == null) {
+            if (currentItem.getBackgroundColor() == null) {
                 unhighlightViewHolder(holder, null);
             } else {
-                unhighlightViewHolder(holder, noteList.get(position).getBackgroundColor());
+                unhighlightViewHolder(holder, currentItem.getBackgroundColor());
             }
         }
 
-        if (noteList.get(position).getNoteTitle() != null)
-            holder.noteTitle.setText(noteList.get(position).getNoteTitle());
-        if (noteList.get(position).getCheckableItemList() != null && noteList.get(position).getCheckableItemList().size() > 0) {
+        if (currentItem.getNoteTitle() != null)
+            holder.noteTitle.setText(currentItem.getNoteTitle());
+
+        //Setup Checkboxes
+        if (currentItem.getCheckableItemList() != null && currentItem.getCheckableItemList().size() > 0) {
             holder.recyclerView.setLayoutManager(new LinearLayoutManager(mContext));
             List<CheckableItem> checkableItemList = new ArrayList<>();
 
             //Only show 4 checkboxes Maximum
-            if (noteList.get(position).getCheckableItemList().size() <= MAX_HOME_CHECKBOX_NUMBER) {
-                checkableItemList.addAll(noteList.get(position).getCheckableItemList());
+            if (currentItem.getCheckableItemList().size() <= MAX_HOME_CHECKBOX_NUMBER) {
+                checkableItemList.addAll(currentItem.getCheckableItemList());
             } else {
                 for (int i = 0; i <= MAX_HOME_CHECKBOX_NUMBER; i++) {
-                    checkableItemList.add(noteList.get(position).getCheckableItemList().get(i));
+                    checkableItemList.add(currentItem.getCheckableItemList().get(i));
                 }
             }
             NonCheckableAdapter nonCheckableAdapter = new NonCheckableAdapter(checkableItemList, position);
             holder.recyclerView.setAdapter(nonCheckableAdapter);
             holder.recyclerView.setHasFixedSize(true);
             holder.recyclerView.suppressLayout(true);
+        }
+
+        //Setup collaborators
+        //TODO DO
+        //Setup collaborators
+        if (currentItem.getCollaboratorList() != null && currentItem.getCollaboratorList().size() > 1) {
+            holder.collaboratorsRv.setVisibility(View.VISIBLE);
+            CollaboratorHomeAdapter collaboratorHomeAdapter = new CollaboratorHomeAdapter(currentItem.getCollaboratorList());
+            holder.collaboratorsRv.setLayoutManager(new LinearLayoutManager(mContext, RecyclerView.HORIZONTAL, false));
+            holder.collaboratorsRv.setAdapter(collaboratorHomeAdapter);
+            holder.collaboratorsRv.setHasFixedSize(true);
+            holder.collaboratorsRv.suppressLayout(true);
+
+        } else {
+            holder.collaboratorsRv.setVisibility(View.GONE);
         }
     }
 

@@ -606,11 +606,17 @@ public class NewNoteFragment extends Fragment implements CheckableItemAdapter.On
         //TODO implement
         final List<Collaborator> collaborators = new ArrayList<>();
         final List<String> userList = new ArrayList<>();
+
+        //Get collaborators emails into user array
         for (final Collaborator collaborator : collaboratorList) {
             if (!collaborator.getUser_email().trim().equals("")) {
                 userList.add(collaborator.getUser_email());
+            }
+        }
 
-                //Get users pictures from db
+        //Get collaborators pictures from db
+        for (final Collaborator collaborator : collaboratorList) {
+            if (!collaborator.getUser_email().trim().equals("")) {
                 db.collection("Users").whereEqualTo("email", collaborator.getUser_email()).get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
                     @Override
                     public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
@@ -636,6 +642,7 @@ public class NewNoteFragment extends Fragment implements CheckableItemAdapter.On
                 });
             }
         }
+
 
     }
 }

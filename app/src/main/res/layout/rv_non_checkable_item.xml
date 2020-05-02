@@ -4,28 +4,31 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginTop="4dp"
-    android:layout_marginBottom="4dp">
+    android:layout_marginTop="4dp">
 
     <com.google.android.material.checkbox.MaterialCheckBox
         android:id="@+id/homeCheckableItem_checkbox"
         android:layout_width="25dp"
         android:layout_height="25dp"
         android:layout_centerVertical="true"
+        android:layout_marginStart="-3dp"
         android:buttonTint="@color/icon_tint_color"
         android:clickable="false"
-        android:focusable="false" />
+        android:focusable="false"
+        android:scaleX="0.8"
+        android:scaleY="0.8" />
 
     <TextView
         android:id="@+id/homeCheckableItem_textView"
         android:layout_width="match_parent"
         android:layout_height="25dp"
         android:layout_centerVertical="true"
-        android:layout_marginStart="8dp"
+        android:layout_marginStart="6dp"
         android:layout_marginEnd="8dp"
         android:layout_toEndOf="@id/homeCheckableItem_checkbox"
         android:gravity="center_vertical"
         android:maxLines="1"
+        android:textSize="12sp"
         tools:text="YEEEEEEEEE" />
 
 </RelativeLayout>
