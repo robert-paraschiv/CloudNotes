@@ -144,7 +144,7 @@ public class TrashFragment extends Fragment implements NoteEditsAdapter.OnItemCl
 
         final WriteBatch batch = db.batch();
         db.collection("Notes")
-                .whereArrayContains("users", FirebaseAuth.getInstance().getCurrentUser().getUid())
+                .whereArrayContains("users", Objects.requireNonNull(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getEmail()))
                 .whereEqualTo("deleted", true)
                 .get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
             @Override

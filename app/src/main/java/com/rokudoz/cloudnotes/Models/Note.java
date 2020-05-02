@@ -1,6 +1,5 @@
 package com.rokudoz.cloudnotes.Models;
 
-import com.google.firebase.firestore.Exclude;
 import com.google.firebase.firestore.ServerTimestamp;
 
 import java.util.Date;
@@ -12,8 +11,7 @@ public class Note {
     private String note_doc_ID;
     private String noteTitle;
     private String noteText;
-    private String latest_edit_doc_ID;
-    private String user_ID;
+    private String creator_user_email;
     private Boolean edited;
     private String noteType;
     private List<CheckableItem> checkableItemList;
@@ -23,17 +21,18 @@ public class Note {
     private Boolean deleted;
     private String backgroundColor;
     private List<String> users;
+    private List<Collaborator> collaboratorList;
 
     @ServerTimestamp
     private Date creation_date;
 
-    public Note(Integer position, String noteTitle, String noteText, String latest_edit_doc_ID, String user_ID, Date creation_date, Boolean edited, String noteType,
-                List<CheckableItem> checkableItemList, String edit_type, Integer number_of_edits, Boolean deleted, String backgroundColor, List<String> users) {
+    public Note(Integer position, String noteTitle, String noteText, String creator_user_email, Date creation_date, Boolean edited, String noteType,
+                List<CheckableItem> checkableItemList, String edit_type, Integer number_of_edits, Boolean deleted, String backgroundColor, List<String> users,
+                List<Collaborator> collaboratorList) {
         this.position = position;
         this.noteTitle = noteTitle;
         this.noteText = noteText;
-        this.latest_edit_doc_ID = latest_edit_doc_ID;
-        this.user_ID = user_ID;
+        this.creator_user_email = creator_user_email;
         this.creation_date = creation_date;
         this.edited = edited;
         this.noteType = noteType;
@@ -43,11 +42,20 @@ public class Note {
         this.deleted = deleted;
         this.backgroundColor = backgroundColor;
         this.users = users;
+        this.collaboratorList = collaboratorList;
     }
 
     public Note() {
     }
 
+
+    public List<Collaborator> getCollaboratorList() {
+        return collaboratorList;
+    }
+
+    public void setCollaboratorList(List<Collaborator> collaboratorList) {
+        this.collaboratorList = collaboratorList;
+    }
 
     public List<String> getUsers() {
         return users;
@@ -145,20 +153,13 @@ public class Note {
         this.noteText = noteText;
     }
 
-    public String getLatest_edit_doc_ID() {
-        return latest_edit_doc_ID;
+
+    public String getCreator_user_email() {
+        return creator_user_email;
     }
 
-    public void setLatest_edit_doc_ID(String latest_edit_doc_ID) {
-        this.latest_edit_doc_ID = latest_edit_doc_ID;
-    }
-
-    public String getUser_ID() {
-        return user_ID;
-    }
-
-    public void setUser_ID(String user_ID) {
-        this.user_ID = user_ID;
+    public void setCreator_user_email(String creator_user_email) {
+        this.creator_user_email = creator_user_email;
     }
 
     public Date getCreation_date() {
@@ -184,8 +185,7 @@ public class Note {
                 ", note_doc_ID='" + note_doc_ID + '\'' +
                 ", noteTitle='" + noteTitle + '\'' +
                 ", noteText='" + noteText + '\'' +
-                ", latest_edit_doc_ID='" + latest_edit_doc_ID + '\'' +
-                ", user_ID='" + user_ID + '\'' +
+                ", user_ID='" + creator_user_email + '\'' +
                 ", edited=" + edited +
                 ", noteType='" + noteType + '\'' +
                 ", checkableItemList=" + checkableItemList +

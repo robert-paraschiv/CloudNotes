@@ -36,11 +36,14 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.WriteBatch;
 import com.rokudoz.cloudnotes.Adapters.CheckableItemAdapter;
 import com.rokudoz.cloudnotes.Dialogs.FullBottomSheetDialogFragment;
 import com.rokudoz.cloudnotes.Models.CheckableItem;
+import com.rokudoz.cloudnotes.Models.Collaborator;
 import com.rokudoz.cloudnotes.Models.Note;
+import com.rokudoz.cloudnotes.Models.User;
 import com.rokudoz.cloudnotes.R;
 import com.rokudoz.cloudnotes.Utils.BannerAdManager;
 import com.rokudoz.cloudnotes.Utils.ColorFunctions;
@@ -209,18 +212,50 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
                     @Override
                     public void onClick(View v) {
                         //Delete note
-                        db.collection("Notes").document(noteID)
-                                .update("deleted", true).addOnSuccessListener(new OnSuccessListener<Void>() {
-                            @Override
-                            public void onSuccess(Void aVoid) {
-                                Toast.makeText(getContext(), "Deleted note", Toast.LENGTH_SHORT).show();
-                                hideSoftKeyboard(requireActivity());
-                                if (Objects.requireNonNull(Navigation.findNavController(view).getCurrentDestination()).getId()
-                                        == R.id.editNoteFragment)
-                                    Navigation.findNavController(view).navigate(EditNoteFragmentDirections.actionEditNoteFragmentToHomeFragment());
-                                dialog.cancel();
+
+                        if (mNote.getCreator_user_email().equals(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getEmail())) {
+                            db.collection("Notes").document(noteID)
+                                    .update("deleted", true).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                @Override
+                                public void onSuccess(Void aVoid) {
+                                    Toast.makeText(getContext(), "Deleted note", Toast.LENGTH_SHORT).show();
+                                    hideSoftKeyboard(requireActivity());
+                                    if (Objects.requireNonNull(Navigation.findNavController(view).getCurrentDestination()).getId()
+                                            == R.id.editNoteFragment)
+                                        Navigation.findNavController(view).navigate(EditNoteFragmentDirections.actionEditNoteFragmentToHomeFragment());
+                                    dialog.cancel();
+                                }
+                            });
+                        } else {
+                            for (int i = 0; i < mNote.getCollaboratorList().size(); i++) {
+                                if (mNote.getCollaboratorList().get(i).getUser_email().equals(FirebaseAuth.getInstance().getCurrentUser().getEmail())) {
+                                    mNote.getCollaboratorList().remove(i);
+                                    break;
+                                }
                             }
-                        });
+                            for (int i = 0; i < mNote.getUsers().size(); i++) {
+                                if (mNote.getUsers().get(i).equals(FirebaseAuth.getInstance().getCurrentUser().getEmail())) {
+                                    mNote.getUsers().remove(i);
+                                    break;
+                                }
+                            }
+                            WriteBatch batch = db.batch();
+                            batch.update(db.collection("Notes").document(noteID), "users", mNote.getUsers());
+                            batch.update(db.collection("Notes").document(noteID), "collaboratorList", mNote.getCollaboratorList());
+                            batch.commit().addOnSuccessListener(new OnSuccessListener<Void>() {
+                                @Override
+                                public void onSuccess(Void aVoid) {
+                                    Log.d(TAG, "onSuccess: updated collaborators successfully");
+                                    if (Objects.requireNonNull(Navigation.findNavController(view).getCurrentDestination()).getId()
+                                            == R.id.editNoteFragment)
+                                        Navigation.findNavController(view).navigate(EditNoteFragmentDirections.actionEditNoteFragmentToHomeFragment());
+                                    dialog.cancel();
+                                }
+                            });
+
+
+                        }
+
 
                     }
                 });
@@ -564,8 +599,26 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
             public void onClick(View v) {
                 bottomSheetDialog.cancel();
                 //TODO FULL SCREEN DIALOG HERE
+
+                boolean isOwner = Objects.equals(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getEmail(), mNote.getCreator_user_email());
+
+                List<Collaborator> collaboratorList = new ArrayList<>();
+
+                //if note has no collaborators yet, add the current user
+                if (mNote.getCollaboratorList() == null) {
+                    collaboratorList.add(new Collaborator(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getEmail(),
+                            Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser().getPhotoUrl()).toString(), true));
+                    mNote.setCollaboratorList(collaboratorList);
+                } else if (mNote.getCollaboratorList().size() == 0) {
+                    collaboratorList.add(new Collaborator(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getEmail(),
+                            Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser().getPhotoUrl()).toString(), true));
+                    mNote.setCollaboratorList(collaboratorList);
+                } else {
+                    collaboratorList.addAll(mNote.getCollaboratorList());
+                }
+
                 FullBottomSheetDialogFragment fullBottomSheetDialogFragment =
-                        new FullBottomSheetDialogFragment(_note_background_color);
+                        new FullBottomSheetDialogFragment(_note_background_color, collaboratorList, isOwner);
                 fullBottomSheetDialogFragment.setTargetFragment(EditNoteFragment.this, 2);
                 fullBottomSheetDialogFragment.show(getParentFragmentManager(), "");
             }
@@ -632,18 +685,16 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
                     note = new Note(position,
                             title,
                             Objects.requireNonNull(textInput.getText()).toString(),
-                            null,
-                            Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid(),
+                            mNote.getCreator_user_email(),
                             null, true, noteType, null, "Edited", number_of_edits + 1,
-                            false, mNote.getBackgroundColor(), mNote.getUsers());
+                            false, mNote.getBackgroundColor(), mNote.getUsers(), mNote.getCollaboratorList());
                 } else if (noteType.equals("checkbox")) {
                     note = new Note(position,
                             title,
                             "",
-                            null,
-                            Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid(),
+                            mNote.getCreator_user_email(),
                             null, true, noteType, checkableItemList, "Edited", number_of_edits + 1,
-                            false, mNote.getBackgroundColor(), mNote.getUsers());
+                            false, mNote.getBackgroundColor(), mNote.getUsers(), mNote.getCollaboratorList());
                 }
 
                 WriteBatch batch = db.batch();
@@ -704,8 +755,55 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
     }
 
     @Override
-    public void applyTexts(String text) {
+    public void getCollaborators(final List<Collaborator> collaboratorList) {
         //TODO implement
-        Toast.makeText(requireContext(), text, Toast.LENGTH_SHORT).show();
+        boolean stillCollaborator = false;
+        final List<Collaborator> collaborators = new ArrayList<>();
+        final List<String> userList = new ArrayList<>();
+        for (final Collaborator collaborator : collaboratorList) {
+            if (!collaborator.getUser_email().trim().equals("")) {
+                userList.add(collaborator.getUser_email());
+                if (collaborator.getUser_email().equals(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getEmail()))
+                    stillCollaborator = true;
+
+                final boolean finalStillCollaborator = stillCollaborator;
+                db.collection("Users").whereEqualTo("email", collaborator.getUser_email()).get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+                    @Override
+                    public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                        if (queryDocumentSnapshots != null && queryDocumentSnapshots.size() > 0) {
+                            User user = queryDocumentSnapshots.getDocuments().get(0).toObject(User.class);
+                            if (user != null) {
+                                if (collaborator.getCreator()) {
+                                    collaborators.add(0, new Collaborator(user.getEmail(), user.getUser_profile_picture(), collaborator.getCreator()));
+                                } else {
+                                    collaborators.add(new Collaborator(user.getEmail(), user.getUser_profile_picture(), collaborator.getCreator()));
+                                }
+
+
+                                if (collaborators.size() == userList.size()) {
+                                    WriteBatch batch = db.batch();
+                                    batch.update(db.collection("Notes").document(noteID), "users", userList);
+                                    batch.update(db.collection("Notes").document(noteID), "collaboratorList", collaborators);
+                                    batch.commit().addOnSuccessListener(new OnSuccessListener<Void>() {
+                                        @Override
+                                        public void onSuccess(Void aVoid) {
+                                            Log.d(TAG, "onSuccess: updated collaborators successfully");
+                                        }
+                                    });
+                                    mNote.setUsers(userList);
+                                    mNote.setCollaboratorList(collaborators);
+
+                                    if (!finalStillCollaborator) {
+                                        Navigation.findNavController(view).popBackStack();
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+        }
+
+        Log.d(TAG, "getCollaborators: " + collaboratorList.toString());
     }
 }

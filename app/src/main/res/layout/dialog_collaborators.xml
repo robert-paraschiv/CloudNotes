@@ -57,4 +57,9 @@
 
     </com.google.android.material.appbar.MaterialToolbar>
 
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/dialog_collaborators_rv"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
 </LinearLayout>
