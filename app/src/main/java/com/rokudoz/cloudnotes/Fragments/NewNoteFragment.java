@@ -2,7 +2,6 @@ package com.rokudoz.cloudnotes.Fragments;
 
 import android.app.Activity;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -11,9 +10,7 @@ import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.FrameLayout;
 import android.widget.ScrollView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
@@ -24,7 +21,6 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.card.MaterialCardView;
@@ -36,6 +32,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.WriteBatch;
 import com.rokudoz.cloudnotes.Adapters.CheckableItemAdapter;
+import com.rokudoz.cloudnotes.Adapters.CollaboratorNotesAdapter;
 import com.rokudoz.cloudnotes.Dialogs.FullBottomSheetDialogFragment;
 import com.rokudoz.cloudnotes.Models.CheckableItem;
 import com.rokudoz.cloudnotes.Models.Collaborator;
@@ -48,14 +45,13 @@ import com.rokudoz.cloudnotes.Utils.ColorFunctions;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
 public class NewNoteFragment extends Fragment implements CheckableItemAdapter.OnStartDragListener,
-        CheckableItemAdapter.OnItemClickListener, FullBottomSheetDialogFragment.ExampleDialogListener {
+        CheckableItemAdapter.OnItemClickListener, FullBottomSheetDialogFragment.ExampleDialogListener, CollaboratorNotesAdapter.OnItemClickListener {
 
     private static final String TAG = "NewNoteFragment";
 
@@ -71,9 +67,11 @@ public class NewNoteFragment extends Fragment implements CheckableItemAdapter.On
     private Note mNote = new Note();
 
     private List<CheckableItem> checkableItemList = new ArrayList<>();
-    private RecyclerView recyclerView;
+    private RecyclerView recyclerView, collaboratorsRV;
     private ScrollView rv_scrollview;
     private CheckableItemAdapter mAdapter;
+    private CollaboratorNotesAdapter collaboratorNotesAdapter;
+    private List<Collaborator> mCollaboratorsList = new ArrayList<>();
     private MaterialButton checkboxModeBtn;
     private MaterialButton addCheckboxBtn;
     MaterialCardView bottomCard;
@@ -95,6 +93,7 @@ public class NewNoteFragment extends Fragment implements CheckableItemAdapter.On
         recyclerView = view.findViewById(R.id.newNoteFragment_checkbox_rv);
         addCheckboxBtn = view.findViewById(R.id.newNoteFragment_add_checkbox_Btn);
         rv_scrollview = view.findViewById(R.id.newNoteFragment_scroll_rv);
+        collaboratorsRV = view.findViewById(R.id.newNoteFragment_collaboratorsRV);
         MaterialButton settingsBtn = view.findViewById(R.id.newNoteFragment_settingsBtn);
         MaterialButton discardBtn = view.findViewById(R.id.newNoteFragment_discardBtn);
 
@@ -228,6 +227,11 @@ public class NewNoteFragment extends Fragment implements CheckableItemAdapter.On
     }
 
     private void buildRecyclerView() {
+        collaboratorNotesAdapter = new CollaboratorNotesAdapter(mCollaboratorsList);
+        collaboratorsRV.setLayoutManager(new LinearLayoutManager(getContext(), RecyclerView.HORIZONTAL, false));
+        collaboratorsRV.setAdapter(collaboratorNotesAdapter);
+        collaboratorNotesAdapter.setOnItemClickListener(this);
+
         mAdapter = new CheckableItemAdapter(checkableItemList);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         recyclerView.setAdapter(mAdapter);
@@ -505,25 +509,7 @@ public class NewNoteFragment extends Fragment implements CheckableItemAdapter.On
                 bottomSheetDialog.cancel();
                 //TODO FULL SCREEN DIALOG HERE
 
-                List<Collaborator> collaboratorList = new ArrayList<>();
-
-                //if note has no collaborators yet, add the current user
-                if (mNote.getCollaboratorList() == null) {
-                    collaboratorList.add(new Collaborator(FirebaseAuth.getInstance().getCurrentUser().getEmail(),
-                            FirebaseAuth.getInstance().getCurrentUser().getPhotoUrl().toString(), true));
-                    mNote.setCollaboratorList(collaboratorList);
-                } else if (mNote.getCollaboratorList().size() == 0) {
-                    collaboratorList.add(new Collaborator(FirebaseAuth.getInstance().getCurrentUser().getEmail(),
-                            FirebaseAuth.getInstance().getCurrentUser().getPhotoUrl().toString(), true));
-                    mNote.setCollaboratorList(collaboratorList);
-                } else {
-                    collaboratorList.addAll(mNote.getCollaboratorList());
-                }
-
-                FullBottomSheetDialogFragment fullBottomSheetDialogFragment
-                        = new FullBottomSheetDialogFragment(_note_background_color, collaboratorList, true);
-                fullBottomSheetDialogFragment.setTargetFragment(NewNoteFragment.this, 1);
-                fullBottomSheetDialogFragment.show(getParentFragmentManager(), "");
+                showCollaboratorsDialog();
             }
         });
 
@@ -536,6 +522,28 @@ public class NewNoteFragment extends Fragment implements CheckableItemAdapter.On
             View decorView = window.getDecorView();
             decorView.setSystemUiVisibility(decorView.getSystemUiVisibility() | View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR);
         }
+    }
+
+    private void showCollaboratorsDialog() {
+        List<Collaborator> collaboratorList = new ArrayList<>();
+
+        //if note has no collaborators yet, add the current user
+        if (mNote.getCollaboratorList() == null) {
+            collaboratorList.add(new Collaborator(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getEmail(),
+                    Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser().getPhotoUrl()).toString(), true));
+            mNote.setCollaboratorList(collaboratorList);
+        } else if (mNote.getCollaboratorList().size() == 0) {
+            collaboratorList.add(new Collaborator(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getEmail(),
+                    Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser().getPhotoUrl()).toString(), true));
+            mNote.setCollaboratorList(collaboratorList);
+        } else {
+            collaboratorList.addAll(mNote.getCollaboratorList());
+        }
+
+        FullBottomSheetDialogFragment fullBottomSheetDialogFragment
+                = new FullBottomSheetDialogFragment(_note_background_color, collaboratorList, true);
+        fullBottomSheetDialogFragment.setTargetFragment(NewNoteFragment.this, 1);
+        fullBottomSheetDialogFragment.show(getParentFragmentManager(), "");
     }
 
     private void setBackgroundColor(int color) {
@@ -643,6 +651,19 @@ public class NewNoteFragment extends Fragment implements CheckableItemAdapter.On
                                         mNote.setCollaboratorList(collaborators);
                                         collaboratorsUpdated = true;
                                         Log.d(TAG, "getCollaborators: " + collaboratorList.toString());
+
+
+                                        if (mNote.getCollaboratorList() != null) {
+                                            if (mNote.getCollaboratorList().size() > 1) {
+                                                collaboratorsRV.setVisibility(View.VISIBLE);
+                                                mCollaboratorsList.clear();
+                                                mCollaboratorsList.addAll(mNote.getCollaboratorList());
+                                                collaboratorNotesAdapter.notifyDataSetChanged();
+                                            } else {
+                                                collaboratorsRV.setVisibility(View.GONE);
+                                            }
+
+                                        }
                                     }
                                 }
                             }
@@ -653,5 +674,10 @@ public class NewNoteFragment extends Fragment implements CheckableItemAdapter.On
         }
 
 
+    }
+
+    @Override
+    public void onCollaboratorClick(int position) {
+        showCollaboratorsDialog();
     }
 }

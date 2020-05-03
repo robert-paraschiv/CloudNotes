@@ -111,6 +111,7 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.fragment_home, container, false);
 
+        recyclerView = view.findViewById(R.id.homeFragment_recyclerView);
         FloatingActionButton addNewNoteBtn = view.findViewById(R.id.homeFragment_addNoteFab);
 
         sharedPreferences = requireActivity().getSharedPreferences(SETTINGS_PREFS_NAME, MODE_PRIVATE);
@@ -133,6 +134,15 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
             //Move Add note Fab lower
             CoordinatorLayout.LayoutParams params = (CoordinatorLayout.LayoutParams) addNewNoteBtn.getLayoutParams();
             params.setMargins(0, 0, bannerAdManager.convertDpToPixel(getActivity(), 16), bannerAdManager.convertDpToPixel(getActivity(), 16));
+
+            //Move recyclerview lower
+            CoordinatorLayout.LayoutParams recyclerviewParams = (CoordinatorLayout.LayoutParams) recyclerView.getLayoutParams();
+            recyclerviewParams.setMargins( bannerAdManager.convertDpToPixel(getActivity(), 4),
+                    bannerAdManager.convertDpToPixel(getActivity(), 60),
+                    bannerAdManager.convertDpToPixel(getActivity(), 4),
+                    0);
+//            recyclerView.setLayoutParams(recyclerviewParams);
+            Log.d(TAG, "onCreateView: modified recyclerview");
         }
 
         materialToolbar = view.findViewById(R.id.homeFragment_toolbar);
@@ -237,7 +247,6 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
     }
 
     private void buildRecyclerView() {
-        recyclerView = view.findViewById(R.id.homeFragment_recyclerView);
         staggeredRecyclerViewAdapter = new HomePageAdapter(getActivity(), noteList);
 
         //Get last user selected type of home layout and apply it

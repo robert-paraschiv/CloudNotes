@@ -39,6 +39,7 @@ import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.WriteBatch;
 import com.rokudoz.cloudnotes.Adapters.CheckableItemAdapter;
+import com.rokudoz.cloudnotes.Adapters.CollaboratorNotesAdapter;
 import com.rokudoz.cloudnotes.Dialogs.FullBottomSheetDialogFragment;
 import com.rokudoz.cloudnotes.Models.CheckableItem;
 import com.rokudoz.cloudnotes.Models.Collaborator;
@@ -60,7 +61,7 @@ import java.util.Objects;
 import de.hdodenhof.circleimageview.CircleImageView;
 
 public class EditNoteFragment extends Fragment implements CheckableItemAdapter.OnStartDragListener,
-        CheckableItemAdapter.OnItemClickListener, FullBottomSheetDialogFragment.ExampleDialogListener {
+        CheckableItemAdapter.OnItemClickListener, FullBottomSheetDialogFragment.ExampleDialogListener, CollaboratorNotesAdapter.OnItemClickListener {
 
     private static final String TAG = "EditNoteFragment";
 
@@ -78,10 +79,13 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
     private int number_of_edits = 0;
     private List<CheckableItem> checkableItemList = new ArrayList<>();
     private List<CheckableItem> oldList = new ArrayList<>();
-    private RecyclerView recyclerView;
+    private RecyclerView recyclerView, collaboratorsRV;
     private ScrollView rv_scrollView;
     private CheckableItemAdapter mAdapter;
+    private CollaboratorNotesAdapter collaboratorNotesAdapter;
     private ItemTouchHelper helper;
+
+    private List<Collaborator> mCollaboratorsList = new ArrayList<>();
 
     private Note mNote = new Note();
     TextInputEditText titleInput, textInput;
@@ -113,6 +117,7 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
         editLinearLayout = view.findViewById(R.id.editNoteFragment_editLayout);
         optionsBtn = view.findViewById(R.id.editNoteFragment_optionsBtn);
         bottomCard = view.findViewById(R.id.editNoteFragment_bottomCard);
+        collaboratorsRV = view.findViewById(R.id.editNoteFragment_collaboratorsRV);
 
         _note_background_color = ContextCompat.getColor(requireContext(), R.color.fragments_background);
 
@@ -304,6 +309,11 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
 
 
     private void buildRecyclerView() {
+        collaboratorNotesAdapter = new CollaboratorNotesAdapter(mCollaboratorsList);
+        collaboratorsRV.setLayoutManager(new LinearLayoutManager(getContext(), RecyclerView.HORIZONTAL, false));
+        collaboratorsRV.setAdapter(collaboratorNotesAdapter);
+        collaboratorNotesAdapter.setOnItemClickListener(this);
+
         mAdapter = new CheckableItemAdapter(checkableItemList);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         recyclerView.setAdapter(mAdapter);
@@ -449,6 +459,18 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
                                         }
                                     });
                                     retrievedNote = true;
+
+                                    Log.d(TAG, "onEvent: " + mNote.getCollaboratorList().toString());
+
+                                    if (mNote.getCollaboratorList().size() > 1) {
+                                        collaboratorsRV.setVisibility(View.VISIBLE);
+                                        mCollaboratorsList.clear();
+                                        mCollaboratorsList.addAll(mNote.getCollaboratorList());
+                                        collaboratorNotesAdapter.notifyDataSetChanged();
+
+                                    } else {
+                                        collaboratorsRV.setVisibility(View.GONE);
+                                    }
                                 }
                             } else if (retrievedNote) {
                                 Log.d(TAG, "onEvent: GOT EVENT again");
@@ -603,30 +625,8 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
             @Override
             public void onClick(View v) {
                 bottomSheetDialog.cancel();
-                //TODO FULL SCREEN DIALOG HERE
 
-                boolean isOwner = Objects.equals(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getEmail(), mNote.getCreator_user_email());
-
-                List<Collaborator> collaboratorList = new ArrayList<>();
-
-                //if note has no collaborators yet, add the current user
-                if (mNote.getCollaboratorList() == null) {
-                    collaboratorList.add(new Collaborator(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getEmail(),
-                            Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser().getPhotoUrl()).toString(), true));
-                    mNote.setCollaboratorList(collaboratorList);
-                } else if (mNote.getCollaboratorList().size() == 0) {
-                    collaboratorList.add(new Collaborator(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getEmail(),
-                            Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser().getPhotoUrl()).toString(), true));
-                    mNote.setCollaboratorList(collaboratorList);
-                } else {
-                    collaboratorList.addAll(mNote.getCollaboratorList());
-                }
-
-                FullBottomSheetDialogFragment fullBottomSheetDialogFragment =
-                        new FullBottomSheetDialogFragment(_note_background_color, collaboratorList, isOwner);
-                fullBottomSheetDialogFragment.setCancelable(false);
-                fullBottomSheetDialogFragment.setTargetFragment(EditNoteFragment.this, 2);
-                fullBottomSheetDialogFragment.show(getParentFragmentManager(), "");
+                showCollaboratorsDialog();
             }
         });
 
@@ -639,6 +639,31 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
             View decorView = window.getDecorView();
             decorView.setSystemUiVisibility(decorView.getSystemUiVisibility() | View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR);
         }
+    }
+
+    private void showCollaboratorsDialog() {
+        boolean isOwner = Objects.equals(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getEmail(), mNote.getCreator_user_email());
+
+        List<Collaborator> collaboratorList = new ArrayList<>();
+
+        //if note has no collaborators yet, add the current user
+        if (mNote.getCollaboratorList() == null) {
+            collaboratorList.add(new Collaborator(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getEmail(),
+                    Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser().getPhotoUrl()).toString(), true));
+            mNote.setCollaboratorList(collaboratorList);
+        } else if (mNote.getCollaboratorList().size() == 0) {
+            collaboratorList.add(new Collaborator(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getEmail(),
+                    Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser().getPhotoUrl()).toString(), true));
+            mNote.setCollaboratorList(collaboratorList);
+        } else {
+            collaboratorList.addAll(mNote.getCollaboratorList());
+        }
+
+        FullBottomSheetDialogFragment fullBottomSheetDialogFragment =
+                new FullBottomSheetDialogFragment(_note_background_color, collaboratorList, isOwner);
+        fullBottomSheetDialogFragment.setCancelable(false);
+        fullBottomSheetDialogFragment.setTargetFragment(EditNoteFragment.this, 2);
+        fullBottomSheetDialogFragment.show(getParentFragmentManager(), "");
     }
 
     private void updateNoteColor(final String noteColor) {
@@ -795,7 +820,7 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
                                         break;
                                     }
                                 }
-                                if (!containsAlready){
+                                if (!containsAlready) {
                                     if (collaborator.getCreator()) {
                                         collaborators.add(0, new Collaborator(user.getEmail(), user.getUser_profile_picture(), collaborator.getCreator()));
                                     } else {
@@ -816,6 +841,18 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
                                         mNote.setUsers(userList);
                                         mNote.setCollaboratorList(collaborators);
 
+                                        if (mNote.getCollaboratorList() != null) {
+                                            if (mNote.getCollaboratorList().size() > 1) {
+                                                collaboratorsRV.setVisibility(View.VISIBLE);
+                                                mCollaboratorsList.clear();
+                                                mCollaboratorsList.addAll(mNote.getCollaboratorList());
+                                                collaboratorNotesAdapter.notifyDataSetChanged();
+                                            } else {
+                                                collaboratorsRV.setVisibility(View.GONE);
+                                            }
+
+                                        }
+
                                         if (!finalStillCollaborator) {
                                             Navigation.findNavController(view).popBackStack();
                                         }
@@ -829,5 +866,10 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
         }
 
         Log.d(TAG, "getCollaborators: " + collaboratorList.toString());
+    }
+
+    @Override
+    public void onCollaboratorClick(int position) {
+        showCollaboratorsDialog();
     }
 }

@@ -3,6 +3,7 @@ package com.rokudoz.cloudnotes.Utils;
 import android.app.Activity;
 import android.content.Context;
 import android.content.res.Resources;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.View;
 import android.widget.RelativeLayout;
@@ -10,6 +11,8 @@ import android.widget.RelativeLayout;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 
 import com.rokudoz.cloudnotes.R;
+
+import static android.content.ContentValues.TAG;
 
 public class BannerAdManager {
     public BannerAdManager() {
@@ -34,6 +37,17 @@ public class BannerAdManager {
 
             activity.findViewById(R.id.homeFragment_addNoteFab).setLayoutParams(params);
         }
+        if (activity.findViewById(R.id.homeFragment_recyclerView) != null) {
+            CoordinatorLayout.LayoutParams params = (CoordinatorLayout.LayoutParams) activity.findViewById(R.id.homeFragment_recyclerView).getLayoutParams();
+            params.setMargins(convertDpToPixel(activity, 4),
+                    convertDpToPixel(activity, 60),
+                    convertDpToPixel(activity, 4),
+                    0);
+
+            activity.findViewById(R.id.homeFragment_recyclerView).setLayoutParams(params);
+            Log.d(TAG, "hideBanner_modify_layouts: modified home recyclerview");
+        }else
+            Log.d(TAG, "hideBanner_modify_layouts: home recyclerview null");
 
         //Move trash fragment recyclerview lower
         if (activity.findViewById(R.id.trashFragment_recyclerView) != null) {

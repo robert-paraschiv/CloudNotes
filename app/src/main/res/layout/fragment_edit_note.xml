@@ -47,16 +47,24 @@
                 app:icon="@drawable/ic_baseline_delete_outline_24"
                 app:iconTint="@color/icon_tint_color" />
         </RelativeLayout>
-
-
     </com.google.android.material.appbar.MaterialToolbar>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/editNoteFragment_collaboratorsRV"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/editNoteFragment_toolbar"
+        android:layout_marginStart="10dp"
+        android:layout_marginEnd="10dp"
+        android:visibility="gone"
+        tools:visibility="visible" />
 
     <com.google.android.material.textfield.TextInputEditText
         android:id="@+id/editNoteFragment_titleEditText"
         style="@style/TextAppearance.MaterialComponents.Headline6"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/editNoteFragment_toolbar"
+        android:layout_below="@id/editNoteFragment_collaboratorsRV"
         android:layout_marginStart="16dp"
         android:layout_marginTop="16dp"
         android:layout_marginEnd="16dp"
@@ -116,6 +124,7 @@
         </RelativeLayout>
 
     </ScrollView>
+
 
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/editNoteFragment_bottomCard"
