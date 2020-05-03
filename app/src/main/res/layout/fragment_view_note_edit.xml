@@ -54,12 +54,55 @@
 
     </com.google.android.material.appbar.MaterialToolbar>
 
+    <LinearLayout
+        android:id="@+id/viewNoteEditFragment_creatorLayout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/viewNoteEditFragment_toolbar"
+        android:layout_alignParentStart="true"
+        android:layout_marginStart="16dp"
+        android:orientation="horizontal">
+
+        <de.hdodenhof.circleimageview.CircleImageView
+            android:id="@+id/viewNoteEditFragment_creatorPicture"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginEnd="8dp"
+            tools:src="@color/colorPrimary" />
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/viewNoteEditFragment_creatorEmail"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:textSize="14sp"
+                tools:text="paraschivlongin@gmail.com" />
+
+            <TextView
+                android:id="@+id/viewNoteEditFragment_createdTimestamp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_marginTop="-4dp"
+                android:textSize="12sp"
+                tools:text="Yesterday at 10:30" />
+        </LinearLayout>
+
+
+    </LinearLayout>
+
     <TextView
         android:id="@+id/viewNoteEditFragment_title"
         style="@style/TextAppearance.MaterialComponents.Headline6"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/viewNoteEditFragment_toolbar"
+        android:layout_below="@id/viewNoteEditFragment_creatorLayout"
         android:layout_marginStart="16dp"
         android:layout_marginTop="16dp"
         android:layout_marginEnd="16dp"

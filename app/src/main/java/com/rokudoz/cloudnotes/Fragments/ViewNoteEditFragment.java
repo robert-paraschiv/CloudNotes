@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
@@ -16,6 +17,7 @@ import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.button.MaterialButton;
 import com.google.firebase.auth.FirebaseAuth;
@@ -31,9 +33,13 @@ import com.rokudoz.cloudnotes.Models.Note;
 import com.rokudoz.cloudnotes.R;
 import com.rokudoz.cloudnotes.Utils.BannerAdManager;
 import com.rokudoz.cloudnotes.Utils.ColorFunctions;
+import com.rokudoz.cloudnotes.Utils.LastEdit;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Objects;
+
+import de.hdodenhof.circleimageview.CircleImageView;
 
 import static com.rokudoz.cloudnotes.App.HIDE_BANNER;
 
@@ -45,6 +51,13 @@ public class ViewNoteEditFragment extends Fragment {
     private MaterialButton restoreBtn;
     private RecyclerView recyclerView;
     private int nrOfEdits = 0;
+
+    //Creator layout
+    LinearLayout creatorLayout;
+    CircleImageView creatorPicture;
+    TextView creatorEmail, createdTimestamp;
+    boolean hasCollaborators = false;
+
 
     String noteID = "";
     String noteColor = "";
@@ -69,6 +82,10 @@ public class ViewNoteEditFragment extends Fragment {
         MaterialButton backBtn = view.findViewById(R.id.viewNoteEditFragment_backBtn);
         recyclerView = view.findViewById(R.id.viewNoteEditFragment_recyclerView);
 
+        createdTimestamp = view.findViewById(R.id.viewNoteEditFragment_createdTimestamp);
+        creatorLayout = view.findViewById(R.id.viewNoteEditFragment_creatorLayout);
+        creatorPicture = view.findViewById(R.id.viewNoteEditFragment_creatorPicture);
+        creatorEmail = view.findViewById(R.id.viewNoteEditFragment_creatorEmail);
 
         //Reset status bar color
         if (getActivity() != null) {
@@ -131,6 +148,7 @@ public class ViewNoteEditFragment extends Fragment {
                         if (originalNote.getNumber_of_edits() != null)
                             nrOfEdits = originalNote.getNumber_of_edits();
 
+
                         db.collection("Notes").document(noteID)
                                 .collection("Edits").document(note_edit_ID).addSnapshotListener(new EventListener<DocumentSnapshot>() {
                             @Override
@@ -151,6 +169,31 @@ public class ViewNoteEditFragment extends Fragment {
                                                 buildRecyclerView(note.getCheckableItemList());
                                         } else {
                                             recyclerView.setVisibility(View.INVISIBLE);
+                                        }
+
+                                        if (note.getCollaboratorList() != null && note.getCollaboratorList().size() > 1) {
+                                            hasCollaborators = true;
+                                            creatorLayout.setVisibility(View.VISIBLE);
+
+                                            String userPictureUrl = "";
+                                            creatorEmail.setText(note.getLast_edited_by_user());
+                                            for (int i = 0; i < note.getCollaboratorList().size(); i++) {
+                                                if (note.getCollaboratorList().get(i).getUser_email().equals(note.getLast_edited_by_user())) {
+                                                    userPictureUrl = note.getCollaboratorList().get(i).getUser_picture();
+                                                    Glide.with(creatorPicture).load(userPictureUrl).centerCrop().into(creatorPicture);
+                                                    break;
+                                                }
+                                            }
+
+                                            if (note.getCreation_date() != null) {
+                                                LastEdit lastEdit = new LastEdit();
+                                                Date date = note.getCreation_date();
+                                                createdTimestamp.setText(lastEdit.getLastEdit(date.getTime()));
+                                            }
+
+                                        } else {
+                                            hasCollaborators = false;
+                                            creatorLayout.setVisibility(View.GONE);
                                         }
 
                                         restoreBtn.setOnClickListener(new View.OnClickListener() {
@@ -179,7 +222,8 @@ public class ViewNoteEditFragment extends Fragment {
                                                     public void onSuccess(Void aVoid) {
                                                         Toast.makeText(getContext(), "Restored note successfully", Toast.LENGTH_SHORT).show();
                                                         dialog.cancel();
-                                                        if (Objects.requireNonNull(Navigation.findNavController(view).getCurrentDestination()).getId() == R.id.viewNoteEditFragment)
+                                                        if (Objects.requireNonNull(Navigation.findNavController(view).getCurrentDestination()).getId()
+                                                                == R.id.viewNoteEditFragment)
                                                             Navigation.findNavController(view).navigate(ViewNoteEditFragmentDirections
                                                                     .actionViewNoteEditFragmentToEditNoteFragment(noteID, noteColor));
                                                     }
