@@ -1,5 +1,6 @@
 package com.rokudoz.cloudnotes.Models;
 
+import com.google.firebase.firestore.Exclude;
 import com.google.firebase.firestore.ServerTimestamp;
 
 import java.util.Date;
@@ -23,6 +24,7 @@ public class Note {
     private List<String> users;
     private List<Collaborator> collaboratorList;
     private String last_edited_by_user;
+    private Boolean has_collaborators;
 
     @ServerTimestamp
     private Date creation_date;
@@ -48,6 +50,15 @@ public class Note {
     }
 
     public Note() {
+    }
+
+    @Exclude
+    public Boolean getHas_collaborators() {
+        return has_collaborators;
+    }
+
+    public void setHas_collaborators(Boolean has_collaborators) {
+        this.has_collaborators = has_collaborators;
     }
 
     public String getLast_edited_by_user() {

@@ -75,6 +75,9 @@
             android:name="noteColor"
             app:argType="string"
             app:nullable="true" />
+        <argument
+            android:name="note_has_collaborators"
+            app:argType="boolean" />
     </fragment>
     <fragment
         android:id="@+id/viewNoteEditFragment"

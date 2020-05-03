@@ -106,7 +106,7 @@ public class ViewNoteEditFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 if (Objects.requireNonNull(Navigation.findNavController(view).getCurrentDestination()).getId() == R.id.viewNoteEditFragment)
-                    Navigation.findNavController(view).navigate(ViewNoteEditFragmentDirections.actionViewNoteEditFragmentToNoteEditsFragment(noteID, noteColor));
+                    Navigation.findNavController(view).popBackStack();
             }
         });
 

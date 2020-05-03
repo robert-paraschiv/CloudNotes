@@ -6,12 +6,14 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
 import com.rokudoz.cloudnotes.Models.CheckableItem;
 import com.rokudoz.cloudnotes.Models.Note;
 import com.rokudoz.cloudnotes.R;
@@ -20,6 +22,8 @@ import com.rokudoz.cloudnotes.Utils.LastEdit;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+
+import de.hdodenhof.circleimageview.CircleImageView;
 
 import static com.rokudoz.cloudnotes.App.MAX_HOME_CHECKBOX_NUMBER;
 
@@ -50,13 +54,18 @@ public class NoteEditsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
 
     public class TextNoteViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
-        TextView editDate, noteText, editType;
+        TextView editDate, noteText, editType, creatorEmail;
+        CircleImageView creatorPicture;
+        LinearLayout creatorLayout;
 
         public TextNoteViewHolder(View itemView) {
             super(itemView);
             this.editDate = itemView.findViewById(R.id.rv_note_edits_dateTv);
             this.noteText = itemView.findViewById(R.id.rv_note_edits_text);
             this.editType = itemView.findViewById(R.id.rv_note_edits_editType);
+            this.creatorEmail = itemView.findViewById(R.id.rv_note_edits_creatorEmail);
+            this.creatorPicture = itemView.findViewById(R.id.rv_note_edits_creatorPicture);
+            this.creatorLayout = itemView.findViewById(R.id.rv_note_edits_creatorLayout);
 
             itemView.setOnClickListener(this);
         }
@@ -74,7 +83,9 @@ public class NoteEditsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
 
     public class CheckboxViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
-        TextView noteDate, editType;
+        TextView noteDate, editType, creatorEmail;
+        CircleImageView creatorPicture;
+        LinearLayout creatorLayout;
         RecyclerView recyclerView;
 
         public CheckboxViewHolder(View itemView) {
@@ -82,6 +93,9 @@ public class NoteEditsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
             this.noteDate = itemView.findViewById(R.id.rv_note_edits_checkboxNote_dateTv);
             this.recyclerView = itemView.findViewById(R.id.rv_note_edits_checkboxNote_recyclerView);
             this.editType = itemView.findViewById(R.id.rv_note_edits_checkboxNote_editType);
+            this.creatorEmail = itemView.findViewById(R.id.rv_note_edits_checkboxNote_creatorEmail);
+            this.creatorPicture = itemView.findViewById(R.id.rv_note_edits_checkboxNote_creatorPicture);
+            this.creatorLayout = itemView.findViewById(R.id.rv_note_edits_checkboxNote_creatorLayout);
 
             itemView.setOnClickListener(this);
             recyclerView.setOnClickListener(new View.OnClickListener() {
@@ -143,19 +157,20 @@ public class NoteEditsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
 
     @SuppressLint("SetTextI18n")
     private void populateTextViewHolder(TextNoteViewHolder holder, int position) {
-        if (noteList.get(position).getNoteText() != null)
-            holder.noteText.setText(noteList.get(position).getNoteText());
+        Note currentItem = noteList.get(position);
+
+        if (currentItem.getNoteText() != null)
+            holder.noteText.setText(currentItem.getNoteText());
 
 
-
-        if (noteList.get(position).getCreation_date() != null) {
+        if (currentItem.getCreation_date() != null) {
             LastEdit lastEdit = new LastEdit();
-            Date date = noteList.get(position).getCreation_date();
+            Date date = currentItem.getCreation_date();
             holder.editDate.setText(lastEdit.getLastEdit(date.getTime()));
         }
 
-        if (noteList.get(position).getEdit_type() != null) {
-            switch (noteList.get(position).getEdit_type()) {
+        if (currentItem.getEdit_type() != null) {
+            switch (currentItem.getEdit_type()) {
                 case "Edited":
                     holder.editType.setTextColor(mContext.getColor(R.color.edit_type_edited));
                     break;
@@ -166,26 +181,45 @@ public class NoteEditsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                     holder.editType.setTextColor(mContext.getColor(R.color.edit_type_created));
                     break;
             }
-            holder.editType.setText(noteList.get(position).getEdit_type());
+            holder.editType.setText(currentItem.getEdit_type());
         } else {
             holder.editType.setText("Created");
             holder.editType.setTextColor(mContext.getColor(R.color.edit_type_created));
+        }
+
+        if (currentItem.getCollaboratorList() != null && currentItem.getLast_edited_by_user() != null && currentItem.getHas_collaborators() != null) {
+            if (currentItem.getHas_collaborators()) {
+                holder.creatorLayout.setVisibility(View.VISIBLE);
+                holder.creatorEmail.setText(currentItem.getLast_edited_by_user());
+                String creator_picture = "";
+                for (int i = 0; i < currentItem.getCollaboratorList().size(); i++) {
+                    if (currentItem.getLast_edited_by_user().equals(currentItem.getCollaboratorList().get(i).getUser_email())) {
+                        creator_picture = currentItem.getCollaboratorList().get(i).getUser_picture();
+                        break;
+                    }
+                }
+                Glide.with(holder.creatorPicture).load(creator_picture).centerCrop().into(holder.creatorPicture);
+            } else {
+                holder.creatorLayout.setVisibility(View.GONE);
+            }
+        } else {
+            holder.creatorLayout.setVisibility(View.GONE);
         }
 
     }
 
     @SuppressLint("SetTextI18n")
     private void populateCheckBoxViewHolder(CheckboxViewHolder holder, int position) {
-
+        Note currentItem = noteList.get(position);
 
         LastEdit lastEdit = new LastEdit();
-        if (noteList.get(position).getCreation_date() != null) {
-            Date date = noteList.get(position).getCreation_date();
+        if (currentItem.getCreation_date() != null) {
+            Date date = currentItem.getCreation_date();
             holder.noteDate.setText(lastEdit.getLastEdit(date.getTime()));
         }
 
-        if (noteList.get(position).getEdit_type() != null) {
-            switch (noteList.get(position).getEdit_type()) {
+        if (currentItem.getEdit_type() != null) {
+            switch (currentItem.getEdit_type()) {
                 case "Edited":
                     holder.editType.setTextColor(mContext.getColor(R.color.edit_type_edited));
                     break;
@@ -196,27 +230,46 @@ public class NoteEditsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                     holder.editType.setTextColor(mContext.getColor(R.color.edit_type_created));
                     break;
             }
-            holder.editType.setText(noteList.get(position).getEdit_type());
+            holder.editType.setText(currentItem.getEdit_type());
         } else {
             holder.editType.setText("Created");
         }
 
-        if (noteList.get(position).getCheckableItemList() != null && noteList.get(position).getCheckableItemList().size() > 0) {
+        if (currentItem.getCheckableItemList() != null && currentItem.getCheckableItemList().size() > 0) {
             holder.recyclerView.setLayoutManager(new LinearLayoutManager(mContext));
             List<CheckableItem> checkableItemList = new ArrayList<>();
 
             //Only show 4 checkboxes Maximum
-            if (noteList.get(position).getCheckableItemList().size() <= MAX_HOME_CHECKBOX_NUMBER) {
-                checkableItemList.addAll(noteList.get(position).getCheckableItemList());
+            if (currentItem.getCheckableItemList().size() <= MAX_HOME_CHECKBOX_NUMBER) {
+                checkableItemList.addAll(currentItem.getCheckableItemList());
             } else {
                 for (int i = 0; i <= MAX_HOME_CHECKBOX_NUMBER; i++) {
-                    checkableItemList.add(noteList.get(position).getCheckableItemList().get(i));
+                    checkableItemList.add(currentItem.getCheckableItemList().get(i));
                 }
             }
             NonCheckableAdapter nonCheckableAdapter = new NonCheckableAdapter(checkableItemList, position);
             holder.recyclerView.setAdapter(nonCheckableAdapter);
             holder.recyclerView.setHasFixedSize(true);
             holder.recyclerView.suppressLayout(true);
+        }
+
+        if (currentItem.getCollaboratorList() != null && currentItem.getLast_edited_by_user() != null && currentItem.getHas_collaborators() != null) {
+            if (currentItem.getHas_collaborators()) {
+                holder.creatorLayout.setVisibility(View.VISIBLE);
+                holder.creatorEmail.setText(currentItem.getLast_edited_by_user());
+                String creator_picture = "";
+                for (int i = 0; i < currentItem.getCollaboratorList().size(); i++) {
+                    if (currentItem.getLast_edited_by_user().equals(currentItem.getCollaboratorList().get(i).getUser_email())) {
+                        creator_picture = currentItem.getCollaboratorList().get(i).getUser_picture();
+                        break;
+                    }
+                }
+                Glide.with(holder.creatorPicture).load(creator_picture).centerCrop().into(holder.creatorPicture);
+            } else {
+                holder.creatorLayout.setVisibility(View.GONE);
+            }
+        } else {
+            holder.creatorLayout.setVisibility(View.GONE);
         }
     }
 

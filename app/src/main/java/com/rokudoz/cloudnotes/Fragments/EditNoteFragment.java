@@ -440,10 +440,14 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
                                         editLinearLayout.setOnClickListener(new View.OnClickListener() {
                                             @Override
                                             public void onClick(View v) {
+                                                boolean hasCollaborators = false;
+                                                if (mNote.getCollaboratorList().size() > 1)
+                                                    hasCollaborators = true;
+
                                                 if (Objects.requireNonNull(Navigation.findNavController(view).getCurrentDestination()).getId()
                                                         == R.id.editNoteFragment)
                                                     Navigation.findNavController(view).navigate(EditNoteFragmentDirections
-                                                            .actionEditNoteFragmentToNoteEditsFragment(noteID, mNote.getBackgroundColor()));
+                                                            .actionEditNoteFragmentToNoteEditsFragment(noteID, mNote.getBackgroundColor(), hasCollaborators));
                                             }
                                         });
                                     }
@@ -473,10 +477,64 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
                                     }
                                 }
                             } else if (retrievedNote) {
+                                if (documentSnapshot != null && e == null) {
+                                    Note newNote = documentSnapshot.toObject(Note.class);
+                                    checkNoteEvent(newNote);
+                                }
                                 Log.d(TAG, "onEvent: GOT EVENT again");
                             }
                         }
                     });
+    }
+
+    private void checkNoteEvent(Note note) {
+        //Snapshot listener received new event, need to check if note has been modified or just added collaborators
+
+        if (note != null && mNote != null) {
+            boolean newNoteIsDifferent = false;
+
+            if (!note.getNoteType().equals(mNote.getNoteType())) {
+                newNoteIsDifferent = true;
+
+
+            } else {
+                if (note.getNoteType().equals("text"))
+                    if (!note.getNoteText().equals(mNote.getNoteText()))
+                        newNoteIsDifferent = true;
+                if (note.getNoteType().equals("checkbox")) {
+                    //TODO implement code lul
+                    if (note.getCheckableItemList() != null && mNote.getCheckableItemList() != null) {
+                        if (note.getCheckableItemList().size() != mNote.getCheckableItemList().size())
+                            newNoteIsDifferent = true;
+
+                        for (CheckableItem item : note.getCheckableItemList()) {
+                            if (!oldList.contains(item) && !item.getText().equals("")) {
+                                newNoteIsDifferent = true;
+                            } else if (oldList.contains(item)) {
+                                if (oldList.get(oldList.indexOf(item)).getChecked() != item.getChecked()) {
+                                    newNoteIsDifferent = true;
+                                }
+                            }
+                        }
+                        for (CheckableItem item : oldList) {
+                            if (!note.getCheckableItemList().contains(item)) {
+                                newNoteIsDifferent = true;
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+
+            if (note.getNoteTitle().equals(mNote.getNoteTitle()))
+                newNoteIsDifferent = true;
+
+
+            if (newNoteIsDifferent && getActivity() != null)
+                Toast.makeText(getActivity(), "Someone has just edited this note", Toast.LENGTH_SHORT).show();
+
+        }
+
     }
 
     private void setupBackgroundColor(String color) {
@@ -661,7 +719,7 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
 
         FullBottomSheetDialogFragment fullBottomSheetDialogFragment =
                 new FullBottomSheetDialogFragment(_note_background_color, collaboratorList, isOwner);
-        fullBottomSheetDialogFragment.setCancelable(false);
+//        fullBottomSheetDialogFragment.setCancelable(false);
         fullBottomSheetDialogFragment.setTargetFragment(EditNoteFragment.this, 2);
         fullBottomSheetDialogFragment.show(getParentFragmentManager(), "");
     }
@@ -720,14 +778,16 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
                             Objects.requireNonNull(textInput.getText()).toString(),
                             mNote.getCreator_user_email(),
                             null, true, noteType, null, "Edited", number_of_edits + 1,
-                            false, mNote.getBackgroundColor(), mNote.getUsers(), mNote.getCollaboratorList(), Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getEmail());
+                            false, mNote.getBackgroundColor(), mNote.getUsers(), mNote.getCollaboratorList(),
+                            Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getEmail());
                 } else if (noteType.equals("checkbox")) {
                     note = new Note(position,
                             title,
                             "",
                             mNote.getCreator_user_email(),
                             null, true, noteType, checkableItemList, "Edited", number_of_edits + 1,
-                            false, mNote.getBackgroundColor(), mNote.getUsers(), mNote.getCollaboratorList(), Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getEmail());
+                            false, mNote.getBackgroundColor(), mNote.getUsers(), mNote.getCollaboratorList(),
+                            Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getEmail());
                 }
 
                 WriteBatch batch = db.batch();
@@ -789,7 +849,6 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
 
     @Override
     public void getCollaborators(final List<Collaborator> collaboratorList) {
-        //TODO implement
         boolean stillCollaborator = false;
         final List<Collaborator> collaborators = new ArrayList<>();
         final List<String> userList = new ArrayList<>();
@@ -806,62 +865,63 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
         for (final Collaborator collaborator : collaboratorList) {
             if (!collaborator.getUser_email().trim().equals("")) {
                 final boolean finalStillCollaborator = stillCollaborator;
-                db.collection("Users").whereEqualTo("email", collaborator.getUser_email()).get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
-                    @Override
-                    public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
-                        if (queryDocumentSnapshots != null && queryDocumentSnapshots.size() > 0) {
-                            User user = queryDocumentSnapshots.getDocuments().get(0).toObject(User.class);
-                            if (user != null) {
+                db.collection("Users").whereEqualTo("email", collaborator.getUser_email()).get()
+                        .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+                            @Override
+                            public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                                if (queryDocumentSnapshots != null && queryDocumentSnapshots.size() > 0) {
+                                    User user = queryDocumentSnapshots.getDocuments().get(0).toObject(User.class);
+                                    if (user != null) {
 
-                                boolean containsAlready = false;
-                                for (int i = 0; i < collaborators.size(); i++) {
-                                    if (user.getEmail().equals(collaborators.get(i).getUser_email())) {
-                                        containsAlready = true;
-                                        break;
-                                    }
-                                }
-                                if (!containsAlready) {
-                                    if (collaborator.getCreator()) {
-                                        collaborators.add(0, new Collaborator(user.getEmail(), user.getUser_profile_picture(), collaborator.getCreator()));
-                                    } else {
-                                        collaborators.add(new Collaborator(user.getEmail(), user.getUser_profile_picture(), collaborator.getCreator()));
-                                    }
-
-
-                                    if (collaborators.size() == userList.size()) {
-                                        WriteBatch batch = db.batch();
-                                        batch.update(db.collection("Notes").document(noteID), "users", userList);
-                                        batch.update(db.collection("Notes").document(noteID), "collaboratorList", collaborators);
-                                        batch.commit().addOnSuccessListener(new OnSuccessListener<Void>() {
-                                            @Override
-                                            public void onSuccess(Void aVoid) {
-                                                Log.d(TAG, "onSuccess: updated collaborators successfully");
+                                        boolean containsAlready = false;
+                                        for (int i = 0; i < collaborators.size(); i++) {
+                                            if (user.getEmail().equals(collaborators.get(i).getUser_email())) {
+                                                containsAlready = true;
+                                                break;
                                             }
-                                        });
-                                        mNote.setUsers(userList);
-                                        mNote.setCollaboratorList(collaborators);
-
-                                        if (mNote.getCollaboratorList() != null) {
-                                            if (mNote.getCollaboratorList().size() > 1) {
-                                                collaboratorsRV.setVisibility(View.VISIBLE);
-                                                mCollaboratorsList.clear();
-                                                mCollaboratorsList.addAll(mNote.getCollaboratorList());
-                                                collaboratorNotesAdapter.notifyDataSetChanged();
-                                            } else {
-                                                collaboratorsRV.setVisibility(View.GONE);
-                                            }
-
                                         }
+                                        if (!containsAlready) {
+                                            if (collaborator.getCreator()) {
+                                                collaborators.add(0, new Collaborator(user.getEmail(), user.getUser_profile_picture(), collaborator.getCreator()));
+                                            } else {
+                                                collaborators.add(new Collaborator(user.getEmail(), user.getUser_profile_picture(), collaborator.getCreator()));
+                                            }
 
-                                        if (!finalStillCollaborator) {
-                                            Navigation.findNavController(view).popBackStack();
+
+                                            if (collaborators.size() == userList.size()) {
+                                                WriteBatch batch = db.batch();
+                                                batch.update(db.collection("Notes").document(noteID), "users", userList);
+                                                batch.update(db.collection("Notes").document(noteID), "collaboratorList", collaborators);
+                                                batch.commit().addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                    @Override
+                                                    public void onSuccess(Void aVoid) {
+                                                        Log.d(TAG, "onSuccess: updated collaborators successfully");
+                                                    }
+                                                });
+                                                mNote.setUsers(userList);
+                                                mNote.setCollaboratorList(collaborators);
+
+                                                if (mNote.getCollaboratorList() != null) {
+                                                    if (mNote.getCollaboratorList().size() > 1) {
+                                                        collaboratorsRV.setVisibility(View.VISIBLE);
+                                                        mCollaboratorsList.clear();
+                                                        mCollaboratorsList.addAll(mNote.getCollaboratorList());
+                                                        collaboratorNotesAdapter.notifyDataSetChanged();
+                                                    } else {
+                                                        collaboratorsRV.setVisibility(View.GONE);
+                                                    }
+
+                                                }
+
+                                                if (!finalStillCollaborator) {
+                                                    Navigation.findNavController(view).popBackStack();
+                                                }
+                                            }
                                         }
                                     }
                                 }
                             }
-                        }
-                    }
-                });
+                        });
             }
         }
 

@@ -37,7 +37,7 @@ public class CollaboratorNotesAdapter extends RecyclerView.Adapter<CollaboratorN
 
         public ViewHolder(final View itemView) {
             super(itemView);
-            this.picture = itemView.findViewById(R.id.rv_collaborator_home_picture);
+            this.picture = itemView.findViewById(R.id.rv_collaborator_note_picture);
 
             itemView.setOnClickListener(this);
         }
@@ -56,7 +56,7 @@ public class CollaboratorNotesAdapter extends RecyclerView.Adapter<CollaboratorN
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.rv_collaborator_home, parent, false);
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.rv_collaborator_note, parent, false);
         return new ViewHolder(view);
     }
 

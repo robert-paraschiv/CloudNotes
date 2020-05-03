@@ -36,6 +36,7 @@ public class NoteEditsFragment extends Fragment implements NoteEditsAdapter.OnIt
 
     private String noteID = "";
     private String noteColor = "";
+    private Boolean note_has_collaborators = false;
     private View view;
 
     private NoteEditsAdapter noteEditsAdapter;
@@ -59,6 +60,7 @@ public class NoteEditsFragment extends Fragment implements NoteEditsAdapter.OnIt
             NoteEditsFragmentArgs noteEditsFragmentArgs = NoteEditsFragmentArgs.fromBundle(getArguments());
             noteID = noteEditsFragmentArgs.getNoteID();
             noteColor = noteEditsFragmentArgs.getNoteColor();
+            note_has_collaborators = noteEditsFragmentArgs.getNoteHasCollaborators();
             getNotes(noteID);
         }
         recyclerView = view.findViewById(R.id.noteEditsFragment_recyclerView);
@@ -131,6 +133,7 @@ public class NoteEditsFragment extends Fragment implements NoteEditsAdapter.OnIt
                         Note note = documentSnapshot.toObject(Note.class);
                         if (note != null) {
                             note.setNote_doc_ID(documentSnapshot.getId());
+                            note.setHas_collaborators(note_has_collaborators);
                             if (noteList.contains(note)) {
                                 noteList.set(noteList.indexOf(note), note);
                                 noteEditsAdapter.notifyItemChanged(noteList.indexOf(note));
