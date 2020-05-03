@@ -152,6 +152,14 @@ public class TrashFragment extends Fragment implements NoteEditsAdapter.OnItemCl
                 if (queryDocumentSnapshots != null && queryDocumentSnapshots.size() > 0) {
                     for (DocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
                         batch.delete(documentSnapshot.getReference());
+                        documentSnapshot.getReference().collection("Edits").get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+                            @Override
+                            public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                                if (queryDocumentSnapshots != null && queryDocumentSnapshots.size() > 0)
+                                    for (DocumentSnapshot documentSnapshot : queryDocumentSnapshots)
+                                        batch.delete(documentSnapshot.getReference());
+                            }
+                        });
                     }
                     batch.commit().addOnSuccessListener(new OnSuccessListener<Void>() {
                         @Override

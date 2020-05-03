@@ -115,6 +115,7 @@ public class ViewTrashNote extends Fragment {
                     @Override
                     public void onClick(View v) {
                         //Delete note
+                        dialog.cancel();
                         final WriteBatch batch = db.batch();
                         db.collection("Notes").document(noteID)
                                 .collection("Edits").get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {

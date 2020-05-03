@@ -1,6 +1,10 @@
 package com.rokudoz.cloudnotes.Models;
 
+import androidx.annotation.Nullable;
+
 import com.google.firebase.firestore.Exclude;
+
+import java.util.Objects;
 
 public class Collaborator {
     private String user_email;

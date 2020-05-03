@@ -609,7 +609,7 @@ public class NewNoteFragment extends Fragment implements CheckableItemAdapter.On
 
         //Get collaborators emails into user array
         for (final Collaborator collaborator : collaboratorList) {
-            if (!collaborator.getUser_email().trim().equals("")) {
+            if (!collaborator.getUser_email().trim().equals("") && !userList.contains(collaborator.getUser_email())) {
                 userList.add(collaborator.getUser_email());
             }
         }
@@ -623,18 +623,27 @@ public class NewNoteFragment extends Fragment implements CheckableItemAdapter.On
                         if (queryDocumentSnapshots != null && queryDocumentSnapshots.size() > 0) {
                             User user = queryDocumentSnapshots.getDocuments().get(0).toObject(User.class);
                             if (user != null) {
-                                if (collaborator.getCreator()) {
-                                    collaborators.add(0, new Collaborator(user.getEmail(), user.getUser_profile_picture(), collaborator.getCreator()));
-                                } else {
-                                    collaborators.add(new Collaborator(user.getEmail(), user.getUser_profile_picture(), collaborator.getCreator()));
+                                boolean containsAlready = false;
+                                for (int i = 0; i < collaborators.size(); i++) {
+                                    if (user.getEmail().equals(collaborators.get(i).getUser_email())) {
+                                        containsAlready = true;
+                                        break;
+                                    }
                                 }
+                                if (!containsAlready) {
+                                    if (collaborator.getCreator()) {
+                                        collaborators.add(0, new Collaborator(user.getEmail(), user.getUser_profile_picture(), collaborator.getCreator()));
+                                    } else {
+                                        collaborators.add(new Collaborator(user.getEmail(), user.getUser_profile_picture(), collaborator.getCreator()));
+                                    }
 
-                                //finished getting user pictures
-                                if (collaborators.size() == userList.size()) {
-                                    mNote.setUsers(userList);
-                                    mNote.setCollaboratorList(collaborators);
-                                    collaboratorsUpdated = true;
-                                    Log.d(TAG, "getCollaborators: " + collaboratorList.toString());
+                                    //finished getting user pictures
+                                    if (collaborators.size() == userList.size()) {
+                                        mNote.setUsers(userList);
+                                        mNote.setCollaboratorList(collaborators);
+                                        collaboratorsUpdated = true;
+                                        Log.d(TAG, "getCollaborators: " + collaboratorList.toString());
+                                    }
                                 }
                             }
                         }

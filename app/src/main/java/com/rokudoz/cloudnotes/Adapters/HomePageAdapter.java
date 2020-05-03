@@ -12,6 +12,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.rokudoz.cloudnotes.Models.CheckableItem;
+import com.rokudoz.cloudnotes.Models.Collaborator;
 import com.rokudoz.cloudnotes.Models.Note;
 import com.rokudoz.cloudnotes.R;
 
@@ -19,6 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.rokudoz.cloudnotes.App.MAX_HOME_CHECKBOX_NUMBER;
+import static com.rokudoz.cloudnotes.App.MAX_HOME_COLLABORATORS_PICTURES;
 
 public class HomePageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
@@ -310,8 +312,17 @@ public class HomePageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         //TODO DO
         //Setup collaborators
         if (currentItem.getCollaboratorList() != null && currentItem.getCollaboratorList().size() > 1) {
+            List<Collaborator> collaborators = new ArrayList<>();
+            if (currentItem.getCollaboratorList().size() < MAX_HOME_COLLABORATORS_PICTURES) {
+                collaborators.addAll(currentItem.getCollaboratorList());
+            } else {
+                for (int i = 0; i < MAX_HOME_COLLABORATORS_PICTURES; i++) {
+                    collaborators.add(currentItem.getCollaboratorList().get(i));
+                }
+            }
+
             holder.collaboratorsRv.setVisibility(View.VISIBLE);
-            CollaboratorHomeAdapter collaboratorHomeAdapter = new CollaboratorHomeAdapter(currentItem.getCollaboratorList());
+            CollaboratorHomeAdapter collaboratorHomeAdapter = new CollaboratorHomeAdapter(collaborators);
             holder.collaboratorsRv.setLayoutManager(new LinearLayoutManager(mContext, RecyclerView.HORIZONTAL, false));
             holder.collaboratorsRv.setAdapter(collaboratorHomeAdapter);
             holder.collaboratorsRv.setHasFixedSize(true);

@@ -451,8 +451,7 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
                                     retrievedNote = true;
                                 }
                             } else if (retrievedNote) {
-                                if (getActivity() != null)
-                                    Toast.makeText(getActivity(), "Someone edited this note since you opened it", Toast.LENGTH_SHORT).show();
+                                Log.d(TAG, "onEvent: GOT EVENT again");
                             }
                         }
                     });
@@ -772,7 +771,7 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
 
         //Get collaborators emails into user array and find if current user removed himself or not
         for (final Collaborator collaborator : collaboratorList) {
-            if (!collaborator.getUser_email().trim().equals("")) {
+            if (!collaborator.getUser_email().trim().equals("") && !userList.contains(collaborator.getUser_email())) {
                 userList.add(collaborator.getUser_email());
                 if (collaborator.getUser_email().equals(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getEmail()))
                     stillCollaborator = true;
@@ -788,28 +787,38 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
                         if (queryDocumentSnapshots != null && queryDocumentSnapshots.size() > 0) {
                             User user = queryDocumentSnapshots.getDocuments().get(0).toObject(User.class);
                             if (user != null) {
-                                if (collaborator.getCreator()) {
-                                    collaborators.add(0, new Collaborator(user.getEmail(), user.getUser_profile_picture(), collaborator.getCreator()));
-                                } else {
-                                    collaborators.add(new Collaborator(user.getEmail(), user.getUser_profile_picture(), collaborator.getCreator()));
+
+                                boolean containsAlready = false;
+                                for (int i = 0; i < collaborators.size(); i++) {
+                                    if (user.getEmail().equals(collaborators.get(i).getUser_email())) {
+                                        containsAlready = true;
+                                        break;
+                                    }
                                 }
+                                if (!containsAlready){
+                                    if (collaborator.getCreator()) {
+                                        collaborators.add(0, new Collaborator(user.getEmail(), user.getUser_profile_picture(), collaborator.getCreator()));
+                                    } else {
+                                        collaborators.add(new Collaborator(user.getEmail(), user.getUser_profile_picture(), collaborator.getCreator()));
+                                    }
 
 
-                                if (collaborators.size() == userList.size()) {
-                                    WriteBatch batch = db.batch();
-                                    batch.update(db.collection("Notes").document(noteID), "users", userList);
-                                    batch.update(db.collection("Notes").document(noteID), "collaboratorList", collaborators);
-                                    batch.commit().addOnSuccessListener(new OnSuccessListener<Void>() {
-                                        @Override
-                                        public void onSuccess(Void aVoid) {
-                                            Log.d(TAG, "onSuccess: updated collaborators successfully");
+                                    if (collaborators.size() == userList.size()) {
+                                        WriteBatch batch = db.batch();
+                                        batch.update(db.collection("Notes").document(noteID), "users", userList);
+                                        batch.update(db.collection("Notes").document(noteID), "collaboratorList", collaborators);
+                                        batch.commit().addOnSuccessListener(new OnSuccessListener<Void>() {
+                                            @Override
+                                            public void onSuccess(Void aVoid) {
+                                                Log.d(TAG, "onSuccess: updated collaborators successfully");
+                                            }
+                                        });
+                                        mNote.setUsers(userList);
+                                        mNote.setCollaboratorList(collaborators);
+
+                                        if (!finalStillCollaborator) {
+                                            Navigation.findNavController(view).popBackStack();
                                         }
-                                    });
-                                    mNote.setUsers(userList);
-                                    mNote.setCollaboratorList(collaborators);
-
-                                    if (!finalStillCollaborator) {
-                                        Navigation.findNavController(view).popBackStack();
                                     }
                                 }
                             }
