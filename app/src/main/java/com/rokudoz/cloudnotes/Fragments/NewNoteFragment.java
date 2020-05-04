@@ -10,7 +10,7 @@ import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.ScrollView;
+import android.widget.RelativeLayout;
 
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
@@ -68,7 +68,7 @@ public class NewNoteFragment extends Fragment implements CheckableItemAdapter.On
 
     private List<CheckableItem> checkableItemList = new ArrayList<>();
     private RecyclerView recyclerView, collaboratorsRV;
-    private ScrollView rv_scrollview;
+    private RelativeLayout rv_checkableList_layout;
     private CheckableItemAdapter mAdapter;
     private CollaboratorNotesAdapter collaboratorNotesAdapter;
     private List<Collaborator> mCollaboratorsList = new ArrayList<>();
@@ -92,7 +92,7 @@ public class NewNoteFragment extends Fragment implements CheckableItemAdapter.On
         checkboxModeBtn = view.findViewById(R.id.newNoteFragment_CheckBoxModeBtn);
         recyclerView = view.findViewById(R.id.newNoteFragment_checkbox_rv);
         addCheckboxBtn = view.findViewById(R.id.newNoteFragment_add_checkbox_Btn);
-        rv_scrollview = view.findViewById(R.id.newNoteFragment_scroll_rv);
+        rv_checkableList_layout = view.findViewById(R.id.newNoteFragment_scroll_rv);
         collaboratorsRV = view.findViewById(R.id.newNoteFragment_collaboratorsRV);
         MaterialButton settingsBtn = view.findViewById(R.id.newNoteFragment_settingsBtn);
         MaterialButton discardBtn = view.findViewById(R.id.newNoteFragment_discardBtn);
@@ -126,7 +126,7 @@ public class NewNoteFragment extends Fragment implements CheckableItemAdapter.On
                 if (getActivity() != null)
                     hideSoftKeyboard(getActivity());
                 if (Objects.requireNonNull(Navigation.findNavController(view).getCurrentDestination()).getId() == R.id.newNoteFragment)
-                    Navigation.findNavController(view).navigate(NewNoteFragmentDirections.actionNewNoteFragmentToHomeFragment());
+                    Navigation.findNavController(view).popBackStack();
             }
         });
 
@@ -168,7 +168,7 @@ public class NewNoteFragment extends Fragment implements CheckableItemAdapter.On
                         mAdapter.notifyItemInserted(checkableItemList.size() - 1);
                     }
 
-                    rv_scrollview.setVisibility(View.VISIBLE);
+                    rv_checkableList_layout.setVisibility(View.VISIBLE);
                     checkboxModeBtn.setIconResource(R.drawable.ic_outline_text_fields_24);
                     Log.d(TAG, "onClick: " + textList.toString());
                     Log.d(TAG, "onClick: " + checkableItemList.toString());
@@ -192,7 +192,7 @@ public class NewNoteFragment extends Fragment implements CheckableItemAdapter.On
                     checkableItemList.clear();
                     mAdapter.notifyDataSetChanged();
 
-                    rv_scrollview.setVisibility(View.INVISIBLE);
+                    rv_checkableList_layout.setVisibility(View.INVISIBLE);
                     checkboxModeBtn.setIconResource(R.drawable.ic_outline_check_box_24);
                     Log.d(TAG, "onClick: " + checkableItemList.toString());
                     Log.d(TAG, "onClick: " + text);

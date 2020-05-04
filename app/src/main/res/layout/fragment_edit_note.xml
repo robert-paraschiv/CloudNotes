@@ -49,80 +49,87 @@
         </RelativeLayout>
     </com.google.android.material.appbar.MaterialToolbar>
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/editNoteFragment_collaboratorsRV"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/editNoteFragment_toolbar"
-        android:layout_marginStart="10dp"
-        android:layout_marginEnd="10dp"
-        android:visibility="gone"
-        tools:visibility="visible" />
-
-    <com.google.android.material.textfield.TextInputEditText
-        android:id="@+id/editNoteFragment_titleEditText"
-        style="@style/TextAppearance.MaterialComponents.Headline6"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/editNoteFragment_collaboratorsRV"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="16dp"
-        android:layout_marginEnd="16dp"
-        android:layout_marginBottom="8dp"
-        android:background="@null"
-        android:hint="Title"
-        android:maxLines="1"
-        android:textSize="22sp" />
-
-    <com.google.android.material.textfield.TextInputEditText
-        android:id="@+id/editNoteFragment_textEditText"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_above="@id/editNoteFragment_bottomCard"
-        android:layout_below="@id/editNoteFragment_titleEditText"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="16dp"
-        android:background="@null"
-        android:gravity="top"
-        android:hint="Text"
-        android:imeOptions="flagNoExtractUi"
-        android:inputType="textMultiLine"
-        android:textSize="15sp"
-        tools:visibility="visible" />
-
     <ScrollView
-        android:id="@+id/editNoteFragment_scroll_rv"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:layout_above="@id/editNoteFragment_bottomCard"
-        android:layout_below="@id/editNoteFragment_titleEditText"
-        android:visibility="invisible"
-        tools:visibility="invisible">
+        android:layout_below="@id/editNoteFragment_toolbar">
 
         <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_margin="8dp">
+            android:layout_height="wrap_content">
 
             <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/editNoteFragment_checkbox_rv"
+                android:id="@+id/editNoteFragment_collaboratorsRV"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:layout_marginEnd="10dp"
+                android:visibility="gone"
+                tools:visibility="visible" />
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/editNoteFragment_add_checkbox_Btn"
-                style="@style/Widget.MaterialComponents.Button.TextButton"
-                android:layout_width="35dp"
-                android:layout_height="35dp"
-                android:layout_below="@id/editNoteFragment_checkbox_rv"
-                android:layout_alignParentStart="true"
-                android:layout_marginStart="25dp"
-                app:icon="@drawable/ic_baseline_add_24"
-                app:iconGravity="textStart"
-                app:iconTint="@color/icon_tint_color" />
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/editNoteFragment_titleEditText"
+                style="@style/TextAppearance.MaterialComponents.Headline6"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/editNoteFragment_collaboratorsRV"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="16dp"
+                android:layout_marginEnd="16dp"
+                android:layout_marginBottom="8dp"
+                android:background="@null"
+                android:hint="Title"
+                android:maxLines="1"
+                android:textSize="22sp" />
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/editNoteFragment_textEditText"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_below="@id/editNoteFragment_titleEditText"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="16dp"
+                android:background="@null"
+                android:gravity="top"
+                android:hint="Text"
+                android:imeOptions="flagNoExtractUi"
+                android:inputType="textMultiLine"
+                android:minHeight="300dp"
+                android:textSize="15sp"
+                tools:visibility="visible" />
+
+
+            <RelativeLayout
+                android:id="@+id/editNoteFragment_scroll_rv"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/editNoteFragment_titleEditText"
+                android:layout_margin="8dp"
+                android:visibility="invisible"
+                tools:visibility="invisible">
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/editNoteFragment_checkbox_rv"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/editNoteFragment_add_checkbox_Btn"
+                    style="@style/Widget.MaterialComponents.Button.TextButton"
+                    android:layout_width="35dp"
+                    android:layout_height="35dp"
+                    android:layout_below="@id/editNoteFragment_checkbox_rv"
+                    android:layout_alignParentStart="true"
+                    android:layout_marginStart="25dp"
+                    app:icon="@drawable/ic_baseline_add_24"
+                    app:iconGravity="textStart"
+                    app:iconTint="@color/icon_tint_color" />
+            </RelativeLayout>
+
+
         </RelativeLayout>
-
     </ScrollView>
 
 

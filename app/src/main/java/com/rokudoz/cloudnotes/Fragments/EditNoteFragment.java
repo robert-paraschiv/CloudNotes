@@ -12,7 +12,7 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.LinearLayout;
-import android.widget.ScrollView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -80,7 +80,7 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
     private List<CheckableItem> checkableItemList = new ArrayList<>();
     private List<CheckableItem> oldList = new ArrayList<>();
     private RecyclerView recyclerView, collaboratorsRV;
-    private ScrollView rv_scrollView;
+    private RelativeLayout rv_checkbox_Layout;
     private CheckableItemAdapter mAdapter;
     private CollaboratorNotesAdapter collaboratorNotesAdapter;
     private ItemTouchHelper helper;
@@ -113,7 +113,7 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
         recyclerView = view.findViewById(R.id.editNoteFragment_checkbox_rv);
         checkboxModeBtn = view.findViewById(R.id.editNoteFragment_CheckBoxModeBtn);
         addCheckboxBtn = view.findViewById(R.id.editNoteFragment_add_checkbox_Btn);
-        rv_scrollView = view.findViewById(R.id.editNoteFragment_scroll_rv);
+        rv_checkbox_Layout = view.findViewById(R.id.editNoteFragment_scroll_rv);
         editLinearLayout = view.findViewById(R.id.editNoteFragment_editLayout);
         optionsBtn = view.findViewById(R.id.editNoteFragment_optionsBtn);
         bottomCard = view.findViewById(R.id.editNoteFragment_bottomCard);
@@ -153,7 +153,7 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
                         mAdapter.notifyItemInserted(checkableItemList.size() - 1);
                     }
 
-                    rv_scrollView.setVisibility(View.VISIBLE);
+                    rv_checkbox_Layout.setVisibility(View.VISIBLE);
                     checkboxModeBtn.setIconResource(R.drawable.ic_outline_text_fields_24);
                     Log.d(TAG, "onClick: " + textList.toString());
                     Log.d(TAG, "onClick: " + checkableItemList.toString());
@@ -177,7 +177,7 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
                     checkableItemList.clear();
                     mAdapter.notifyDataSetChanged();
 
-                    rv_scrollView.setVisibility(View.INVISIBLE);
+                    rv_checkbox_Layout.setVisibility(View.INVISIBLE);
                     checkboxModeBtn.setIconResource(R.drawable.ic_outline_check_box_24);
                     Log.d(TAG, "onClick: " + checkableItemList.toString());
                     Log.d(TAG, "onClick: " + text);
@@ -196,7 +196,7 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
             public void onClick(View v) {
                 hideSoftKeyboard(requireActivity());
                 if (Objects.requireNonNull(Navigation.findNavController(view).getCurrentDestination()).getId() == R.id.editNoteFragment)
-                    Navigation.findNavController(view).navigate(EditNoteFragmentDirections.actionEditNoteFragmentToHomeFragment());
+                    Navigation.findNavController(view).popBackStack();
 
             }
         });
@@ -404,7 +404,7 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
                                         textInput.setVisibility(View.VISIBLE);
                                         checkableItemList.clear();
                                         mAdapter.notifyDataSetChanged();
-                                        rv_scrollView.setVisibility(View.GONE);
+                                        rv_checkbox_Layout.setVisibility(View.GONE);
                                         checkboxModeBtn.setIconResource(R.drawable.ic_outline_check_box_24);
                                     } else if (noteType.equals("checkbox")) {
                                         textInput.setText("");
@@ -420,7 +420,7 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
 
                                             Log.d(TAG, "onEvent: " + oldList.toString());
                                         }
-                                        rv_scrollView.setVisibility(View.VISIBLE);
+                                        rv_checkbox_Layout.setVisibility(View.VISIBLE);
                                         checkboxModeBtn.setIconResource(R.drawable.ic_outline_text_fields_24);
                                     }
                                     checkboxModeBtn.setVisibility(View.VISIBLE);
