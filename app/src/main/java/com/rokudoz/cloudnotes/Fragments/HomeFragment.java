@@ -99,7 +99,7 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
 
     private CircleImageView userPicture;
 
-    private RewardedAd rewardedAd;
+    private RewardedAd supportAppRewardedAd;
     SharedPreferences sharedPreferences;
     SharedPreferences.Editor sharedPrefsEditor;
 
@@ -107,6 +107,7 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
         // Required empty public constructor
     }
 
+    @SuppressLint("CommitPrefEdits")
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.fragment_home, container, false);
@@ -159,86 +160,6 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
 
             }
         });
-
-        rewardedAd = new RewardedAd(requireContext(), getResources().getString(R.string.rewarded_ad_unit_id));
-
-        RewardedAdLoadCallback adLoadCallback = new RewardedAdLoadCallback() {
-            @Override
-            public void onRewardedAdLoaded() {
-                // Ad successfully loaded.
-                Log.d(TAG, "onRewardedAdLoaded: rewarded ad loaded");
-
-                if (sharedPreferences.getInt("TimesStartedCounter", 0) >= 5) {
-
-                    //Dialog for sign out
-                    View dialogView = getLayoutInflater().inflate(R.layout.dialog_show_ad, (ViewGroup) view, false);
-                    final Dialog dialog = new Dialog(requireActivity(), R.style.CustomBottomSheetDialogTheme);
-                    MaterialButton confirmBtn = dialogView.findViewById(R.id.dialog_ShowAd_confirmBtn);
-                    MaterialButton cancelBtn = dialogView.findViewById(R.id.dialog_ShowAd_cancelBtn);
-                    dialog.setContentView(dialogView);
-                    dialog.setCancelable(true);
-                    confirmBtn.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            if (rewardedAd.isLoaded()) {
-                                RewardedAdCallback adCallback = new RewardedAdCallback() {
-                                    @Override
-                                    public void onRewardedAdOpened() {
-                                        // Ad opened.
-                                    }
-
-                                    @Override
-                                    public void onRewardedAdClosed() {
-                                        // Ad closed.
-                                    }
-
-                                    @Override
-                                    public void onUserEarnedReward(@NonNull RewardItem reward) {
-                                        // User earned reward.
-                                        //Reset times app opened counter
-
-                                        sharedPrefsEditor.putInt("TimesStartedCounter", 0);
-                                        sharedPrefsEditor.apply();
-                                        dialog.cancel();
-                                    }
-
-                                    @Override
-                                    public void onRewardedAdFailedToShow(int errorCode) {
-                                        // Ad failed to display.
-                                    }
-                                };
-                                rewardedAd.show(getActivity(), adCallback);
-                            } else {
-                                Log.d("TAG", "The rewarded ad wasn't loaded yet.");
-                            }
-                        }
-                    });
-                    cancelBtn.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            dialog.cancel();
-                        }
-                    });
-
-                    dialog.show();
-                }
-            }
-
-            @Override
-            public void onRewardedAdFailedToLoad(int errorCode) {
-                // Ad failed to load.
-            }
-        };
-
-        AdRequest adRequest = new AdRequest.Builder()
-                .addTestDevice("4129AB584AC9547A6DDCE83E28748843") // Mi 9T Pro
-                .addTestDevice("B141CB779F883EF84EA9A32A7D068B76") // RedMi 5 Plus
-                .addTestDevice(AdRequest.DEVICE_ID_EMULATOR).build();
-
-        if (sharedPreferences.getInt("TimesStartedCounter", 0) >= 5 && !ASKED_ALREADY) {
-            rewardedAd.loadAd(adRequest, adLoadCallback);
-            ASKED_ALREADY = true;
-        }
 
         buildRecyclerView();
         setupFirebaseAuth();

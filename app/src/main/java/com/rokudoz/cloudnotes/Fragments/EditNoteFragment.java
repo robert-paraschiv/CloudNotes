@@ -490,7 +490,7 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
     private void checkNoteEvent(Note note) {
         //Snapshot listener received new event, need to check if note has been modified or just added collaborators
 
-        if (note != null && mNote != null) {
+        if (note != null && mNote != null && !note.getLast_edited_by_user().equals(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getEmail())) {
             boolean newNoteIsDifferent = false;
 
             if (!note.getNoteType().equals(mNote.getNoteType())) {

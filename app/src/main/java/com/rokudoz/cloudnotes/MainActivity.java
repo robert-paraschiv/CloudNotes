@@ -6,6 +6,7 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -27,6 +28,7 @@ import com.rokudoz.cloudnotes.Utils.BannerAdManager;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.rokudoz.cloudnotes.App.ASKED_ALREADY;
 import static com.rokudoz.cloudnotes.App.HIDE_BANNER;
 import static com.rokudoz.cloudnotes.App.SETTINGS_PREFS_NAME;
 
@@ -37,10 +39,11 @@ public class MainActivity extends AppCompatActivity {
 
     private MaterialButton closeAd;
 
-    private RewardedAd rewardedAd;
+    private RewardedAd closeBannerRewardedAd, supportAppRewardedAd;
     SharedPreferences sharedPreferences;
+    SharedPreferences.Editor sharedPrefsEditor;
 
-
+    @SuppressLint("CommitPrefEdits")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -52,6 +55,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         sharedPreferences = getSharedPreferences(SETTINGS_PREFS_NAME, MODE_PRIVATE);
+        sharedPrefsEditor = getSharedPreferences(SETTINGS_PREFS_NAME, MODE_PRIVATE).edit();
 
         closeAd = findViewById(R.id.closeAdBtn);
 
@@ -70,8 +74,15 @@ public class MainActivity extends AppCompatActivity {
         mBannerAd.loadAd(new AdRequest.Builder().build());
 
 
+        //Show ads
+        showSupportAppRewardedAd();
+        showCloseBannerRewardedAd();
+
+    }
+
+    private void showCloseBannerRewardedAd() {
         //Rewarded ad section
-        rewardedAd = new RewardedAd(MainActivity.this, getResources().getString(R.string.rewarded_ad_unit_id));
+        closeBannerRewardedAd = new RewardedAd(MainActivity.this, getResources().getString(R.string.rewarded_ad_unit_id));
 
         RewardedAdLoadCallback adLoadCallback = new RewardedAdLoadCallback() {
             @Override
@@ -96,7 +107,7 @@ public class MainActivity extends AppCompatActivity {
                         confirmBtn.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
-                                if (rewardedAd.isLoaded()) {
+                                if (closeBannerRewardedAd.isLoaded()) {
                                     RewardedAdCallback adCallback = new RewardedAdCallback() {
                                         @Override
                                         public void onRewardedAdOpened() {
@@ -125,7 +136,7 @@ public class MainActivity extends AppCompatActivity {
                                             // Ad failed to display.
                                         }
                                     };
-                                    rewardedAd.show(MainActivity.this, adCallback);
+                                    closeBannerRewardedAd.show(MainActivity.this, adCallback);
                                 } else {
                                     Log.d("TAG", "The rewarded ad wasn't loaded yet.");
                                 }
@@ -150,9 +161,84 @@ public class MainActivity extends AppCompatActivity {
         };
 
         if (!HIDE_BANNER)
-            rewardedAd.loadAd(new AdRequest.Builder().build(), adLoadCallback);
+            closeBannerRewardedAd.loadAd(new AdRequest.Builder().build(), adLoadCallback);
+    }
 
+    private void showSupportAppRewardedAd() {
+        supportAppRewardedAd = new RewardedAd(MainActivity.this, getResources().getString(R.string.rewarded_ad_unit_id));
 
+        RewardedAdLoadCallback adLoadCallback = new RewardedAdLoadCallback() {
+            @Override
+            public void onRewardedAdLoaded() {
+                // Ad successfully loaded.
+                Log.d(TAG, "onRewardedAdLoaded: rewarded ad loaded");
+
+                if (sharedPreferences.getInt("TimesStartedCounter", 0) >= 5) {
+
+                    //Dialog for watch ad to support app
+                    View dialogView = getLayoutInflater().inflate(R.layout.dialog_show_ad, null);
+                    final Dialog dialog = new Dialog(MainActivity.this, R.style.CustomBottomSheetDialogTheme);
+                    MaterialButton confirmBtn = dialogView.findViewById(R.id.dialog_ShowAd_confirmBtn);
+                    MaterialButton cancelBtn = dialogView.findViewById(R.id.dialog_ShowAd_cancelBtn);
+                    dialog.setContentView(dialogView);
+                    dialog.setCancelable(true);
+                    confirmBtn.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            if (supportAppRewardedAd.isLoaded()) {
+                                RewardedAdCallback adCallback = new RewardedAdCallback() {
+                                    @Override
+                                    public void onRewardedAdOpened() {
+                                        // Ad opened.
+                                    }
+
+                                    @Override
+                                    public void onRewardedAdClosed() {
+                                        // Ad closed.
+                                    }
+
+                                    @Override
+                                    public void onUserEarnedReward(@NonNull RewardItem reward) {
+                                        // User earned reward.
+                                        //Reset times app opened counter
+
+                                        sharedPrefsEditor.putInt("TimesStartedCounter", 0);
+                                        sharedPrefsEditor.apply();
+                                        dialog.cancel();
+                                    }
+
+                                    @Override
+                                    public void onRewardedAdFailedToShow(int errorCode) {
+                                        // Ad failed to display.
+                                    }
+                                };
+                                supportAppRewardedAd.show(MainActivity.this, adCallback);
+                            } else {
+                                Log.d("TAG", "The rewarded ad wasn't loaded yet.");
+                            }
+                        }
+                    });
+                    cancelBtn.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            dialog.cancel();
+                        }
+                    });
+
+                    dialog.show();
+                }
+            }
+
+            @Override
+            public void onRewardedAdFailedToLoad(int errorCode) {
+                // Ad failed to load.
+            }
+        };
+
+        if (sharedPreferences.getInt("TimesStartedCounter", 0) >= 5 && !ASKED_ALREADY) {
+            supportAppRewardedAd.loadAd(new AdRequest.Builder().build(), adLoadCallback);
+            ASKED_ALREADY = true;
+        }
     }
 
 
