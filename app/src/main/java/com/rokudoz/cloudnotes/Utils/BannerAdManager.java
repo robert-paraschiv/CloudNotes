@@ -37,14 +37,14 @@ public class BannerAdManager {
 
             activity.findViewById(R.id.homeFragment_addNoteFab).setLayoutParams(params);
         }
-        if (activity.findViewById(R.id.homeFragment_recyclerView) != null) {
-            CoordinatorLayout.LayoutParams params = (CoordinatorLayout.LayoutParams) activity.findViewById(R.id.homeFragment_recyclerView).getLayoutParams();
+        if (activity.findViewById(R.id.homeFragment_recyclerView_layout) != null) {
+            CoordinatorLayout.LayoutParams params = (CoordinatorLayout.LayoutParams) activity.findViewById(R.id.homeFragment_recyclerView_layout).getLayoutParams();
             params.setMargins(convertDpToPixel(activity, 4),
                     convertDpToPixel(activity, 60),
                     convertDpToPixel(activity, 4),
                     0);
 
-            activity.findViewById(R.id.homeFragment_recyclerView).setLayoutParams(params);
+            activity.findViewById(R.id.homeFragment_recyclerView_layout).setLayoutParams(params);
             Log.d(TAG, "hideBanner_modify_layouts: modified home recyclerview");
         }else
             Log.d(TAG, "hideBanner_modify_layouts: home recyclerview null");

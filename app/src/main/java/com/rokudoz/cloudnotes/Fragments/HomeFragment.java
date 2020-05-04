@@ -136,8 +136,8 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
             params.setMargins(0, 0, bannerAdManager.convertDpToPixel(getActivity(), 16), bannerAdManager.convertDpToPixel(getActivity(), 16));
 
             //Move recyclerview lower
-            CoordinatorLayout.LayoutParams recyclerviewParams = (CoordinatorLayout.LayoutParams) recyclerView.getLayoutParams();
-            recyclerviewParams.setMargins( bannerAdManager.convertDpToPixel(getActivity(), 4),
+            CoordinatorLayout.LayoutParams recyclerviewParams = (CoordinatorLayout.LayoutParams) view.findViewById(R.id.homeFragment_recyclerView_layout).getLayoutParams();
+            recyclerviewParams.setMargins(bannerAdManager.convertDpToPixel(getActivity(), 4),
                     bannerAdManager.convertDpToPixel(getActivity(), 60),
                     bannerAdManager.convertDpToPixel(getActivity(), 4),
                     0);
@@ -304,6 +304,8 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
                         staggeredRecyclerViewAdapter.notifyItemMoved(i, i - 1);
                     }
                 }
+
+                recyclerView.scrollToPosition(toPosition);
 
                 //Update notes individual position in the list
                 noteList.get(fromPosition).setChangedPos(true);

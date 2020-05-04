@@ -465,4 +465,8 @@ public class HomePageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     }
 
 
+    @Override
+    public long getItemId(int position) {
+        return position;
+    }
 }

@@ -9,22 +9,22 @@
     tools:context=".Fragments.HomeFragment">
 
     <com.google.android.material.appbar.MaterialToolbar
-        app:contentInsetStart="0dp"
         android:id="@+id/homeFragment_toolbar"
         android:layout_width="match_parent"
-        android:layout_height="?actionBarSize">
+        android:layout_height="?actionBarSize"
+        app:contentInsetStart="0dp">
 
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
             <TextView
-                android:layout_marginStart="18dp"
                 style="@style/TextAppearance.MaterialComponents.Headline6"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentStart="true"
                 android:layout_centerVertical="true"
+                android:layout_marginStart="18dp"
                 android:layout_marginEnd="8dp"
                 android:layout_toStartOf="@id/homeFragment_layoutManagerIcon"
                 android:text="Home" />
@@ -53,15 +53,22 @@
 
     </com.google.android.material.appbar.MaterialToolbar>
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/homeFragment_recyclerView"
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/homeFragment_recyclerView_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_alignParentStart="true"
         android:layout_marginStart="4dp"
         android:layout_marginTop="60dp"
         android:layout_marginEnd="4dp"
-        android:layout_marginBottom="50dp" />
+        android:layout_marginBottom="50dp">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/homeFragment_recyclerView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+    </androidx.core.widget.NestedScrollView>
 
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
