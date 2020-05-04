@@ -526,7 +526,7 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
                 }
             }
 
-            if (note.getNoteTitle().equals(mNote.getNoteTitle()))
+            if (!note.getNoteTitle().equals(mNote.getNoteTitle()))
                 newNoteIsDifferent = true;
 
 
@@ -707,10 +707,12 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
         //if note has no collaborators yet, add the current user
         if (mNote.getCollaboratorList() == null) {
             collaboratorList.add(new Collaborator(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getEmail(),
+                    Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getDisplayName(),
                     Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser().getPhotoUrl()).toString(), true));
             mNote.setCollaboratorList(collaboratorList);
         } else if (mNote.getCollaboratorList().size() == 0) {
             collaboratorList.add(new Collaborator(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getEmail(),
+                    Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getDisplayName(),
                     Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser().getPhotoUrl()).toString(), true));
             mNote.setCollaboratorList(collaboratorList);
         } else {
@@ -882,9 +884,11 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
                                         }
                                         if (!containsAlready) {
                                             if (collaborator.getCreator()) {
-                                                collaborators.add(0, new Collaborator(user.getEmail(), user.getUser_profile_picture(), collaborator.getCreator()));
+                                                collaborators.add(0, new Collaborator(user.getEmail(), user.getUser_name(),
+                                                        user.getUser_profile_picture(), collaborator.getCreator()));
                                             } else {
-                                                collaborators.add(new Collaborator(user.getEmail(), user.getUser_profile_picture(), collaborator.getCreator()));
+                                                collaborators.add(new Collaborator(user.getEmail(), user.getUser_name(),
+                                                        user.getUser_profile_picture(), collaborator.getCreator()));
                                             }
 
 

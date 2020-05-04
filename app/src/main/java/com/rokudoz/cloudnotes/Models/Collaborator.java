@@ -8,6 +8,7 @@ import java.util.Objects;
 
 public class Collaborator {
     private String user_email;
+    private String user_name;
     private String user_picture;
     private Boolean shouldBeFocused;
     private Boolean isCreator;
@@ -15,10 +16,11 @@ public class Collaborator {
     public Collaborator() {
     }
 
-    public Collaborator(String user_email, String user_picture,Boolean isCreator) {
+    public Collaborator(String user_email, String user_name, String user_picture, Boolean isCreator) {
         this.user_email = user_email;
+        this.user_name = user_name;
         this.user_picture = user_picture;
-        this.isCreator=isCreator;
+        this.isCreator = isCreator;
     }
 
     public Boolean getCreator() {
@@ -55,6 +57,14 @@ public class Collaborator {
         this.shouldBeFocused = shouldBeFocused;
     }
 
+    public String getUser_name() {
+        return user_name;
+    }
+
+    public void setUser_name(String user_name) {
+        this.user_name = user_name;
+    }
+
     @Override
     public String toString() {
         return "Collaborator{" +
@@ -64,4 +74,6 @@ public class Collaborator {
                 ", isCreator=" + isCreator +
                 '}';
     }
+
+
 }

@@ -192,13 +192,19 @@ public class NoteEditsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                 holder.creatorLayout.setVisibility(View.VISIBLE);
                 holder.creatorEmail.setText(currentItem.getLast_edited_by_user());
                 String creator_picture = "";
+                String creator_name = "";
                 for (int i = 0; i < currentItem.getCollaboratorList().size(); i++) {
                     if (currentItem.getLast_edited_by_user().equals(currentItem.getCollaboratorList().get(i).getUser_email())) {
                         creator_picture = currentItem.getCollaboratorList().get(i).getUser_picture();
+                        if (currentItem.getCollaboratorList().get(i).getUser_name() == null) {
+                            creator_name = currentItem.getLast_edited_by_user();
+                        } else
+                            creator_name = currentItem.getCollaboratorList().get(i).getUser_name();
                         break;
                     }
                 }
                 Glide.with(holder.creatorPicture).load(creator_picture).centerCrop().into(holder.creatorPicture);
+                holder.creatorEmail.setText(creator_name);
             } else {
                 holder.creatorLayout.setVisibility(View.GONE);
             }
@@ -256,15 +262,20 @@ public class NoteEditsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         if (currentItem.getCollaboratorList() != null && currentItem.getLast_edited_by_user() != null && currentItem.getHas_collaborators() != null) {
             if (currentItem.getHas_collaborators()) {
                 holder.creatorLayout.setVisibility(View.VISIBLE);
-                holder.creatorEmail.setText(currentItem.getLast_edited_by_user());
                 String creator_picture = "";
+                String creator_name = "";
                 for (int i = 0; i < currentItem.getCollaboratorList().size(); i++) {
                     if (currentItem.getLast_edited_by_user().equals(currentItem.getCollaboratorList().get(i).getUser_email())) {
                         creator_picture = currentItem.getCollaboratorList().get(i).getUser_picture();
+                        if (currentItem.getCollaboratorList().get(i).getUser_name() == null) {
+                            creator_name = currentItem.getLast_edited_by_user();
+                        } else
+                            creator_name = currentItem.getCollaboratorList().get(i).getUser_name();
                         break;
                     }
                 }
                 Glide.with(holder.creatorPicture).load(creator_picture).centerCrop().into(holder.creatorPicture);
+                holder.creatorEmail.setText(creator_name);
             } else {
                 holder.creatorLayout.setVisibility(View.GONE);
             }

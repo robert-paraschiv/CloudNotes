@@ -176,11 +176,17 @@ public class ViewNoteEditFragment extends Fragment {
                                             creatorLayout.setVisibility(View.VISIBLE);
 
                                             String userPictureUrl = "";
-                                            creatorEmail.setText(note.getLast_edited_by_user());
+                                            String userName = "";
                                             for (int i = 0; i < note.getCollaboratorList().size(); i++) {
                                                 if (note.getCollaboratorList().get(i).getUser_email().equals(note.getLast_edited_by_user())) {
                                                     userPictureUrl = note.getCollaboratorList().get(i).getUser_picture();
                                                     Glide.with(creatorPicture).load(userPictureUrl).centerCrop().into(creatorPicture);
+                                                    if (note.getCollaboratorList().get(i).getUser_name() == null) {
+                                                        creatorEmail.setText(note.getLast_edited_by_user());
+                                                    } else {
+                                                        userName = note.getCollaboratorList().get(i).getUser_name();
+                                                        creatorEmail.setText(userName);
+                                                    }
                                                     break;
                                                 }
                                             }

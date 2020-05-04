@@ -100,6 +100,7 @@ public class NewNoteFragment extends Fragment implements CheckableItemAdapter.On
         if (FirebaseAuth.getInstance().getCurrentUser() != null) {
             List<Collaborator> collaborators = new ArrayList<>();
             collaborators.add(new Collaborator(FirebaseAuth.getInstance().getCurrentUser().getEmail(),
+                    Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getDisplayName(),
                     Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser().getPhotoUrl()).toString(), true));
             mNote.setCollaboratorList(collaborators);
         }
@@ -323,13 +324,15 @@ public class NewNoteFragment extends Fragment implements CheckableItemAdapter.On
                         Objects.requireNonNull(textInputEditText.getText()).toString(),
                         Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getEmail(),
                         null, false, noteType, null, "Created", 0,
-                        false, mNote.getBackgroundColor(), mNote.getUsers(), mNote.getCollaboratorList(), Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getEmail());
+                        false, mNote.getBackgroundColor(), mNote.getUsers(), mNote.getCollaboratorList(),
+                        Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getEmail());
             } else if (noteType.equals("checkbox")) {
                 note = new Note(0, title,
                         "",
                         Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getEmail(),
                         null, false, noteType, checkableItemList, "Created", 0,
-                        false, mNote.getBackgroundColor(), mNote.getUsers(), mNote.getCollaboratorList(), Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getEmail());
+                        false, mNote.getBackgroundColor(), mNote.getUsers(), mNote.getCollaboratorList(),
+                        Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getEmail());
             }
 
             Log.d(TAG, "onStop: note ref " + noteRef);
@@ -530,10 +533,12 @@ public class NewNoteFragment extends Fragment implements CheckableItemAdapter.On
         //if note has no collaborators yet, add the current user
         if (mNote.getCollaboratorList() == null) {
             collaboratorList.add(new Collaborator(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getEmail(),
+                    Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getDisplayName(),
                     Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser().getPhotoUrl()).toString(), true));
             mNote.setCollaboratorList(collaboratorList);
         } else if (mNote.getCollaboratorList().size() == 0) {
             collaboratorList.add(new Collaborator(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getEmail(),
+                    Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getDisplayName(),
                     Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser().getPhotoUrl()).toString(), true));
             mNote.setCollaboratorList(collaboratorList);
         } else {
@@ -625,7 +630,8 @@ public class NewNoteFragment extends Fragment implements CheckableItemAdapter.On
         //Get collaborators pictures from db
         for (final Collaborator collaborator : collaboratorList) {
             if (!collaborator.getUser_email().trim().equals("")) {
-                db.collection("Users").whereEqualTo("email", collaborator.getUser_email()).get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+                db.collection("Users").whereEqualTo("email", collaborator.getUser_email()).get()
+                        .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
                     @Override
                     public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
                         if (queryDocumentSnapshots != null && queryDocumentSnapshots.size() > 0) {
@@ -640,9 +646,11 @@ public class NewNoteFragment extends Fragment implements CheckableItemAdapter.On
                                 }
                                 if (!containsAlready) {
                                     if (collaborator.getCreator()) {
-                                        collaborators.add(0, new Collaborator(user.getEmail(), user.getUser_profile_picture(), collaborator.getCreator()));
+                                        collaborators.add(0, new Collaborator(user.getEmail(), user.getUser_name(),
+                                                user.getUser_profile_picture(), collaborator.getCreator()));
                                     } else {
-                                        collaborators.add(new Collaborator(user.getEmail(), user.getUser_profile_picture(), collaborator.getCreator()));
+                                        collaborators.add(new Collaborator(user.getEmail(), user.getUser_name(),
+                                                user.getUser_profile_picture(), collaborator.getCreator()));
                                     }
 
                                     //finished getting user pictures
