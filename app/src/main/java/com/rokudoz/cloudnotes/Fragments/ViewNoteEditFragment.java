@@ -6,6 +6,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
@@ -52,6 +53,8 @@ public class ViewNoteEditFragment extends Fragment {
     private RecyclerView recyclerView;
     private int nrOfEdits = 0;
 
+    private ProgressBar progressBar;
+
     //Creator layout
     LinearLayout creatorLayout;
     CircleImageView creatorPicture;
@@ -81,6 +84,8 @@ public class ViewNoteEditFragment extends Fragment {
         restoreBtn = view.findViewById(R.id.viewNoteEditFragment_restoreBtn);
         MaterialButton backBtn = view.findViewById(R.id.viewNoteEditFragment_backBtn);
         recyclerView = view.findViewById(R.id.viewNoteEditFragment_recyclerView);
+
+        progressBar = view.findViewById(R.id.viewNoteEditFragment_progressBar);
 
         createdTimestamp = view.findViewById(R.id.viewNoteEditFragment_createdTimestamp);
         creatorLayout = view.findViewById(R.id.viewNoteEditFragment_creatorLayout);
@@ -145,6 +150,9 @@ public class ViewNoteEditFragment extends Fragment {
                     final Note originalNote = documentSnapshot.toObject(Note.class);
                     if (originalNote != null) {
                         originalNote.setNote_doc_ID(documentSnapshot.getId());
+
+                        //hide progress bar
+                        progressBar.setVisibility(View.GONE);
                         if (originalNote.getNumber_of_edits() != null)
                             nrOfEdits = originalNote.getNumber_of_edits();
 

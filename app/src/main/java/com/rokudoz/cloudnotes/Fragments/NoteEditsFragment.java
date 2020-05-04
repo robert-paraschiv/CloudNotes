@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 
 import androidx.annotation.NonNull;
@@ -39,6 +40,8 @@ public class NoteEditsFragment extends Fragment implements NoteEditsAdapter.OnIt
     private Boolean note_has_collaborators = false;
     private View view;
 
+    private ProgressBar progressBar;
+
     private NoteEditsAdapter noteEditsAdapter;
     private RecyclerView recyclerView;
     private List<Note> noteList = new ArrayList<>();
@@ -55,6 +58,8 @@ public class NoteEditsFragment extends Fragment implements NoteEditsAdapter.OnIt
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.fragment_note_edits, container, false);
+
+        progressBar = view.findViewById(R.id.noteEditsFragment_progressBar);
 
         if (getArguments() != null) {
             NoteEditsFragmentArgs noteEditsFragmentArgs = NoteEditsFragmentArgs.fromBundle(getArguments());
@@ -87,9 +92,14 @@ public class NoteEditsFragment extends Fragment implements NoteEditsAdapter.OnIt
             @Override
             public void onClick(View v) {
                 if (Objects.requireNonNull(Navigation.findNavController(view).getCurrentDestination()).getId() == R.id.noteEditsFragment)
-                    Navigation.findNavController(view).navigate(NoteEditsFragmentDirections.actionNoteEditsFragmentToEditNoteFragment(noteID, noteColor));
+                    Navigation.findNavController(view).popBackStack();
+//                    Navigation.findNavController(view).navigate(NoteEditsFragmentDirections.actionNoteEditsFragmentToEditNoteFragment(noteID, noteColor));
             }
         });
+
+        //If user comes back from another fragment, hide progress bar
+        if (noteList != null && noteList.size() > 0)
+            progressBar.setVisibility(View.GONE);
 
 
         setUpRecyclerView();
@@ -130,6 +140,9 @@ public class NoteEditsFragment extends Fragment implements NoteEditsAdapter.OnIt
             public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
                 if (queryDocumentSnapshots != null) {
                     for (DocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
+                        //hide progress bar
+                        progressBar.setVisibility(View.GONE);
+
                         Note note = documentSnapshot.toObject(Note.class);
                         if (note != null) {
                             note.setNote_doc_ID(documentSnapshot.getId());

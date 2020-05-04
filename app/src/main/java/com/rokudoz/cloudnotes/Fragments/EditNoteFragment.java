@@ -12,6 +12,7 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -69,6 +70,8 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
 
     private boolean retrievedNote = false;
 
+    private ProgressBar progressBar;
+
     private View view;
     private LinearLayout editLinearLayout;
     boolean edit = false;
@@ -118,6 +121,7 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
         optionsBtn = view.findViewById(R.id.editNoteFragment_optionsBtn);
         bottomCard = view.findViewById(R.id.editNoteFragment_bottomCard);
         collaboratorsRV = view.findViewById(R.id.editNoteFragment_collaboratorsRV);
+        progressBar = view.findViewById(R.id.editNoteFragment_progressBar);
 
         _note_background_color = ContextCompat.getColor(requireContext(), R.color.fragments_background);
 
@@ -280,6 +284,10 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
             }
         });
 
+        //If user comes back from another fragment, hide progress bar
+        if (mNote.getNoteTitle() != null)
+            progressBar.setVisibility(View.GONE);
+
         return view;
     }
 
@@ -384,6 +392,9 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
                         @Override
                         public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException e) {
                             if (documentSnapshot != null && e == null && !retrievedNote) {
+                                //hide progress bar
+                                progressBar.setVisibility(View.GONE);
+
                                 mNote = documentSnapshot.toObject(Note.class);
                                 if (mNote != null) {
                                     mNote.setNote_doc_ID(documentSnapshot.getId());

@@ -139,7 +139,7 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
             //Move recyclerview lower
             CoordinatorLayout.LayoutParams recyclerviewParams = (CoordinatorLayout.LayoutParams) view.findViewById(R.id.homeFragment_recyclerView_layout).getLayoutParams();
             recyclerviewParams.setMargins(bannerAdManager.convertDpToPixel(getActivity(), 4),
-                    bannerAdManager.convertDpToPixel(getActivity(), 60),
+                    0,
                     bannerAdManager.convertDpToPixel(getActivity(), 4),
                     0);
 //            recyclerView.setLayoutParams(recyclerviewParams);

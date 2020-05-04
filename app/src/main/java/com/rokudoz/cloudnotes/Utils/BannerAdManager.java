@@ -40,7 +40,7 @@ public class BannerAdManager {
         if (activity.findViewById(R.id.homeFragment_recyclerView_layout) != null) {
             CoordinatorLayout.LayoutParams params = (CoordinatorLayout.LayoutParams) activity.findViewById(R.id.homeFragment_recyclerView_layout).getLayoutParams();
             params.setMargins(convertDpToPixel(activity, 4),
-                    convertDpToPixel(activity, 60),
+                    0,
                     convertDpToPixel(activity, 4),
                     0);
 
