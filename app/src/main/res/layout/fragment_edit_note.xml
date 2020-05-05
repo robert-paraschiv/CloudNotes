@@ -5,6 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/fragments_background"
+    android:id="@+id/editNoteFragment_rootLayout"
     tools:context=".Fragments.EditNoteFragment">
 
     <com.google.android.material.appbar.MaterialToolbar
@@ -62,25 +63,17 @@
         android:layout_above="@id/editNoteFragment_bottomCard"
         android:layout_below="@id/editNoteFragment_toolbar">
 
-        <RelativeLayout
+        <LinearLayout
+            android:orientation="vertical"
+            android:id="@+id/contentLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
-
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/editNoteFragment_collaboratorsRV"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="10dp"
-                android:layout_marginEnd="10dp"
-                android:visibility="gone"
-                tools:visibility="visible" />
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/editNoteFragment_titleEditText"
                 style="@style/TextAppearance.MaterialComponents.Headline6"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_below="@id/editNoteFragment_collaboratorsRV"
                 android:layout_marginStart="16dp"
                 android:layout_marginTop="16dp"
                 android:layout_marginEnd="16dp"
@@ -94,7 +87,6 @@
                 android:id="@+id/editNoteFragment_textEditText"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_below="@id/editNoteFragment_titleEditText"
                 android:layout_marginStart="16dp"
                 android:layout_marginTop="8dp"
                 android:layout_marginEnd="16dp"
@@ -112,7 +104,6 @@
                 android:id="@+id/editNoteFragment_scroll_rv"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_below="@id/editNoteFragment_titleEditText"
                 android:layout_margin="8dp"
                 android:visibility="invisible"
                 tools:visibility="invisible">
@@ -135,8 +126,17 @@
                     app:iconTint="@color/icon_tint_color" />
             </RelativeLayout>
 
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/editNoteFragment_collaboratorsRV"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:layout_marginEnd="10dp"
+                android:visibility="gone"
+                tools:visibility="visible" />
 
-        </RelativeLayout>
+        </LinearLayout>
+
     </ScrollView>
 
 
