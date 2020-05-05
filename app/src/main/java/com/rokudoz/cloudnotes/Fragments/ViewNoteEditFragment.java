@@ -238,8 +238,7 @@ public class ViewNoteEditFragment extends Fragment {
                                                         dialog.cancel();
                                                         if (Objects.requireNonNull(Navigation.findNavController(view).getCurrentDestination()).getId()
                                                                 == R.id.viewNoteEditFragment)
-                                                            Navigation.findNavController(view).navigate(ViewNoteEditFragmentDirections
-                                                                    .actionViewNoteEditFragmentToEditNoteFragment(noteID, noteColor));
+                                                            Navigation.findNavController(view).popBackStack();
                                                     }
                                                 });
 

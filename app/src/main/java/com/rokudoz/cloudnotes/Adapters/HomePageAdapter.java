@@ -5,6 +5,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -35,7 +36,7 @@ public class HomePageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
 
     public interface OnItemClickListener {
-        void onItemClick(int position);
+        void onItemClick(int position, TextView title, TextView text, RecyclerView checkboxRv, RecyclerView collaboratorsRv, RelativeLayout rootLayout);
 
         void onLongItemClick(int position);
     }
@@ -53,12 +54,14 @@ public class HomePageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
         TextView noteTitle, noteText;
         RecyclerView collaboratorsRv;
+        RelativeLayout relativeLayout;
 
         public ViewHolder(View itemView) {
             super(itemView);
             this.noteTitle = itemView.findViewById(R.id.rv_home_note_TitleTV);
             this.noteText = itemView.findViewById(R.id.rv_home_note_textTv);
             this.collaboratorsRv = itemView.findViewById(R.id.rv_home_note_collaboratorsRV);
+            this.relativeLayout = itemView.findViewById(R.id.rv_home_note_layout);
 
             itemView.setOnClickListener(this);
             itemView.setOnLongClickListener(this);
@@ -79,7 +82,7 @@ public class HomePageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                         }
                     }
 
-                    mListener.onItemClick(position);
+                    mListener.onItemClick(position, noteTitle, noteText, null, collaboratorsRv, relativeLayout);
                 }
             }
 
@@ -109,12 +112,15 @@ public class HomePageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
         TextView noteTitle;
         RecyclerView recyclerView, collaboratorsRv;
+        RelativeLayout relativeLayout;
 
         public CheckboxViewHolder(final View itemView) {
             super(itemView);
             this.noteTitle = itemView.findViewById(R.id.rv_home_checkboxNote_TitleTV);
             this.recyclerView = itemView.findViewById(R.id.rv_home_checkboxNote_recyclerView);
             this.collaboratorsRv = itemView.findViewById(R.id.rv_home_checkboxNote_collaboratorsRV);
+            this.relativeLayout = itemView.findViewById(R.id.rv_home_checkbox_note_layout);
+
 
             itemView.setOnClickListener(this);
             itemView.setOnLongClickListener(this);
@@ -134,7 +140,7 @@ public class HomePageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                                 }
                             }
 
-                            mListener.onItemClick(position);
+                            mListener.onItemClick(position, noteTitle, null, recyclerView, collaboratorsRv, relativeLayout);
                         }
                     }
                 }
@@ -175,7 +181,7 @@ public class HomePageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                             highlightView(itemView, position);
                         }
                     }
-                    mListener.onItemClick(position);
+                    mListener.onItemClick(position, noteTitle, null, recyclerView, collaboratorsRv, relativeLayout);
                 }
             }
         }
@@ -233,6 +239,12 @@ public class HomePageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
     private void populateTextViewHolder(ViewHolder holder, int position) {
         Note currentItem = noteList.get(position);
+
+        holder.noteTitle.setTransitionName("note_home_title" + position);
+        holder.noteText.setTransitionName("note_home_text" + position);
+        holder.collaboratorsRv.setTransitionName("note_home_collaborators" + position);
+        holder.relativeLayout.setTransitionName("note_home_relativeLayout" + position);
+
         if (currentItem.getNoteText() != null)
             holder.noteText.setText(currentItem.getNoteText());
         if (currentItem.getNoteTitle() != null)
@@ -269,6 +281,12 @@ public class HomePageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
     private void populateCheckBoxViewHolder(CheckboxViewHolder holder, int position) {
         Note currentItem = noteList.get(position);
+
+
+        holder.noteTitle.setTransitionName("note_home_title" + position);
+        holder.recyclerView.setTransitionName("note_home_checkbox" + position);
+        holder.collaboratorsRv.setTransitionName("note_home_collaborators" + position);
+        holder.relativeLayout.setTransitionName("note_home_relativeLayout" + position);
 
         //Setup note background
         if (selected.contains(currentItem)) {

@@ -19,6 +19,7 @@ import android.view.Window;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RadioGroup;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -27,11 +28,15 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.fragment.app.Fragment;
+import androidx.navigation.NavDirections;
 import androidx.navigation.Navigation;
+import androidx.navigation.fragment.FragmentNavigator;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.StaggeredGridLayoutManager;
+import androidx.transition.ChangeBounds;
+import androidx.transition.TransitionInflater;
 
 import com.bumptech.glide.Glide;
 import com.google.android.gms.ads.AdRequest;
@@ -164,11 +169,24 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
         buildRecyclerView();
         setupFirebaseAuth();
 
+        setSharedElementEnterTransition(TransitionInflater.from(getActivity()).inflateTransition(R.transition.move));
+        setSharedElementReturnTransition(TransitionInflater.from(getActivity()).inflateTransition(R.transition.move));
+        setEnterTransition(TransitionInflater.from(getActivity()).inflateTransition(R.transition.move));
+        setExitTransition(TransitionInflater.from(getActivity()).inflateTransition(R.transition.move));
+
+
+//        setSharedElementEnterTransition(new ChangeBounds());
+//        setSharedElementReturnTransition(new ChangeBounds());
+//        setEnterTransition(new ChangeBounds());
+//        setExitTransition(new ChangeBounds());
+
+
         return view;
     }
 
     private void buildRecyclerView() {
         staggeredRecyclerViewAdapter = new HomePageAdapter(getActivity(), noteList);
+
 
         //Get last user selected type of home layout and apply it
         if (sharedPreferences.getInt("home_layout_manager_type", 0) == LAYOUT_STAGGERED_TYPE) {
@@ -543,41 +561,6 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
         };
     }
 
-    @Override
-    public void onItemClick(int position) {
-        Log.d(TAG, "onItemClick: " + position);
-        int selected = staggeredRecyclerViewAdapter.getSelected().size();
-        if (actionMode == null) {
-            Note note = noteList.get(position);
-            if (Objects.requireNonNull(Navigation.findNavController(view).getCurrentDestination()).getId() == R.id.homeFragment)
-                Navigation.findNavController(view).navigate(HomeFragmentDirections
-                        .actionHomeFragmentToEditNoteFragment(note.getNote_doc_ID(), note.getBackgroundColor()));
-        } else {
-            if (selected == 0) {
-                actionMode.finish();
-            } else {
-                actionMode.setTitle("" + selected);
-            }
-        }
-    }
-
-    @Override
-    public void onLongItemClick(int position) {
-        int selected = staggeredRecyclerViewAdapter.getSelected().size();
-        if (actionMode == null) {
-            actionMode = materialToolbar.startActionMode(actionModeCallback);
-            if (actionMode != null) {
-                actionMode.setTitle("" + selected);
-            }
-        } else {
-            if (selected == 0) {
-                actionMode.finish();
-            } else {
-                actionMode.setTitle("" + selected);
-            }
-        }
-    }
-
 
     private ActionMode.Callback actionModeCallback = new ActionMode.Callback() {
         @Override
@@ -695,6 +678,67 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
                         }
                     }
                 });
+            }
+        }
+    }
+
+
+    @Override
+    public void onItemClick(int position, TextView title, TextView text, RecyclerView checkboxRv, RecyclerView collaboratorsRv, RelativeLayout rootLayout) {
+        Log.d(TAG, "onItemClick: " + position);
+        int selected = staggeredRecyclerViewAdapter.getSelected().size();
+        if (actionMode == null) {
+            Note note = noteList.get(position);
+            if (Objects.requireNonNull(Navigation.findNavController(view).getCurrentDestination()).getId() == R.id.homeFragment) {
+                FragmentNavigator.Extras extras = null;
+                Log.d(TAG, "onCreateView: note position " + position);
+
+                if (checkboxRv == null && text != null) {
+                    extras = new FragmentNavigator.Extras.Builder()
+                            .addSharedElement(title, "note_home_title" + position)
+                            .addSharedElement(text, "note_home_text" + position)
+                            .addSharedElement(collaboratorsRv, "note_home_collaborators" + position)
+//                            .addSharedElement(rootLayout, "note_home_relativeLayout" + position)
+                            .build();
+                } else if (checkboxRv != null && text == null) {
+                    extras = new FragmentNavigator.Extras.Builder()
+                            .addSharedElement(title, "note_home_title" + position)
+                            .addSharedElement(checkboxRv, "note_home_checkbox" + position)
+                            .addSharedElement(collaboratorsRv, "note_home_collaborators" + position)
+//                            .addSharedElement(rootLayout, "note_home_relativeLayout" + position)
+                            .build();
+                }
+
+                NavDirections navDirections = HomeFragmentDirections
+                        .actionHomeFragmentToEditNoteFragment(note.getNote_doc_ID(), note.getBackgroundColor(), position);
+                if (extras != null) {
+                    Navigation.findNavController(view).navigate(navDirections, extras);
+                }
+            }
+
+
+        } else {
+            if (selected == 0) {
+                actionMode.finish();
+            } else {
+                actionMode.setTitle("" + selected);
+            }
+        }
+    }
+
+    @Override
+    public void onLongItemClick(int position) {
+        int selected = staggeredRecyclerViewAdapter.getSelected().size();
+        if (actionMode == null) {
+            actionMode = materialToolbar.startActionMode(actionModeCallback);
+            if (actionMode != null) {
+                actionMode.setTitle("" + selected);
+            }
+        } else {
+            if (selected == 0) {
+                actionMode.finish();
+            } else {
+                actionMode.setTitle("" + selected);
             }
         }
     }

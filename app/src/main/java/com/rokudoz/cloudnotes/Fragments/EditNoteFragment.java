@@ -25,6 +25,9 @@ import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.transition.ChangeBounds;
+import androidx.transition.Explode;
+import androidx.transition.TransitionInflater;
 
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
@@ -76,6 +79,8 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
     private LinearLayout editLinearLayout;
     boolean edit = false;
 
+    private int notePosition = 0;
+
     private String noteType = "text";
     private String noteID = "";
     private int position = 0;
@@ -95,6 +100,8 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
     TextView lastEditTv, numberOfEditsTv;
     MaterialButton backBtn, deleteBtn, checkboxModeBtn, addCheckboxBtn, optionsBtn;
     MaterialCardView bottomCard;
+
+    private RelativeLayout rootLayout;
 
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
     private CollectionReference usersRef = db.collection("Users");
@@ -122,12 +129,23 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
         bottomCard = view.findViewById(R.id.editNoteFragment_bottomCard);
         collaboratorsRV = view.findViewById(R.id.editNoteFragment_collaboratorsRV);
         progressBar = view.findViewById(R.id.editNoteFragment_progressBar);
+        rootLayout = view.findViewById(R.id.editNoteFragment_rootLayout);
 
         _note_background_color = ContextCompat.getColor(requireContext(), R.color.fragments_background);
 
         if (getArguments() != null) {
             EditNoteFragmentArgs editNoteFragmentArgs = EditNoteFragmentArgs.fromBundle(getArguments());
             noteID = editNoteFragmentArgs.getNoteDocID();
+            notePosition = editNoteFragmentArgs.getPosition();
+
+            //Shared element transition
+            titleInput.setTransitionName("note_home_title" + notePosition);
+            textInput.setTransitionName("note_home_text" + notePosition);
+            collaboratorsRV.setTransitionName("note_home_collaborators" + notePosition);
+            recyclerView.setTransitionName("note_home_checkbox" + notePosition);
+            rootLayout.setTransitionName("note_home_relativeLayout" + notePosition);
+
+            Log.d(TAG, "onCreateView: note position " + notePosition);
             setupBackgroundColor(editNoteFragmentArgs.getNoteColor());
             getNote(noteID);
         }
@@ -138,59 +156,7 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
             bannerAdManager.hideBannerAd(getActivity());
         }
 
-        checkboxModeBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (noteType.equals("text")) {
-                    checkboxModeBtn.setEnabled(false);
-
-                    checkableItemList.clear();
-                    mAdapter.notifyDataSetChanged();
-
-                    noteType = "checkbox";
-                    List<String> textList = new ArrayList<>(Arrays.asList(Objects.requireNonNull(textInput.getText()).toString().split("\n")));
-                    textInput.setText("");
-                    textInput.setVisibility(View.GONE);
-
-                    for (int i = 0; i < textList.size(); i++) {
-                        checkableItemList.add(new CheckableItem(textList.get(i), false));
-                        mAdapter.notifyItemInserted(checkableItemList.size() - 1);
-                    }
-
-                    rv_checkbox_Layout.setVisibility(View.VISIBLE);
-                    checkboxModeBtn.setIconResource(R.drawable.ic_outline_text_fields_24);
-                    Log.d(TAG, "onClick: " + textList.toString());
-                    Log.d(TAG, "onClick: " + checkableItemList.toString());
-                    checkboxModeBtn.setEnabled(true);
-
-                } else if (noteType.equals("checkbox")) {
-                    checkboxModeBtn.setEnabled(false);
-
-                    StringBuilder text = new StringBuilder();
-                    for (int i = 0; i < checkableItemList.size(); i++) {
-                        if (i == checkableItemList.size() - 1) {
-                            text.append(checkableItemList.get(i).getText());
-                        } else {
-                            text.append(checkableItemList.get(i).getText()).append("\n");
-                        }
-                    }
-                    noteType = "text";
-                    textInput.setText(text);
-                    textInput.setVisibility(View.VISIBLE);
-
-                    checkableItemList.clear();
-                    mAdapter.notifyDataSetChanged();
-
-                    rv_checkbox_Layout.setVisibility(View.INVISIBLE);
-                    checkboxModeBtn.setIconResource(R.drawable.ic_outline_check_box_24);
-                    Log.d(TAG, "onClick: " + checkableItemList.toString());
-                    Log.d(TAG, "onClick: " + text);
-
-                    checkboxModeBtn.setEnabled(true);
-                }
-
-            }
-        });
+        setupCheckboxModeButton();
 
         buildRecyclerView();
 
@@ -205,6 +171,35 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
             }
         });
 
+        setupDeleteNoteBtn();
+
+        //If user comes back from another fragment, hide progress bar
+        if (mNote.getNoteTitle() != null)
+            progressBar.setVisibility(View.GONE);
+
+////
+//        setSharedElementEnterTransition(TransitionInflater.from(getActivity()).inflateTransition(R.transition.move));
+//        setSharedElementReturnTransition(TransitionInflater.from(getActivity()).inflateTransition(R.transition.move));
+//        setEnterTransition(TransitionInflater.from(getActivity()).inflateTransition(R.transition.move));
+//        setExitTransition(TransitionInflater.from(getActivity()).inflateTransition(R.transition.move));
+
+//        setSharedElementEnterTransition(new ChangeBounds());
+//        setSharedElementReturnTransition(new ChangeBounds());
+//        setEnterTransition(new ChangeBounds());
+//        setExitTransition(new ChangeBounds());
+
+        setSharedElementEnterTransition(new Explode());
+        setSharedElementReturnTransition(new Explode());
+        setEnterTransition(new Explode());
+        setExitTransition(new Explode());
+
+
+        postponeEnterTransition();
+
+        return view;
+    }
+
+    private void setupDeleteNoteBtn() {
         deleteBtn.setOnClickListener(new View.OnClickListener() {
             @SuppressLint("SetTextI18n")
             @Override
@@ -283,12 +278,62 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
 
             }
         });
+    }
 
-        //If user comes back from another fragment, hide progress bar
-        if (mNote.getNoteTitle() != null)
-            progressBar.setVisibility(View.GONE);
+    private void setupCheckboxModeButton() {
+        checkboxModeBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (noteType.equals("text")) {
+                    checkboxModeBtn.setEnabled(false);
 
-        return view;
+                    checkableItemList.clear();
+                    mAdapter.notifyDataSetChanged();
+
+                    noteType = "checkbox";
+                    List<String> textList = new ArrayList<>(Arrays.asList(Objects.requireNonNull(textInput.getText()).toString().split("\n")));
+                    textInput.setText("");
+                    textInput.setVisibility(View.GONE);
+
+                    for (int i = 0; i < textList.size(); i++) {
+                        checkableItemList.add(new CheckableItem(textList.get(i), false));
+                        mAdapter.notifyItemInserted(checkableItemList.size() - 1);
+                    }
+
+                    rv_checkbox_Layout.setVisibility(View.VISIBLE);
+                    checkboxModeBtn.setIconResource(R.drawable.ic_outline_text_fields_24);
+                    Log.d(TAG, "onClick: " + textList.toString());
+                    Log.d(TAG, "onClick: " + checkableItemList.toString());
+                    checkboxModeBtn.setEnabled(true);
+
+                } else if (noteType.equals("checkbox")) {
+                    checkboxModeBtn.setEnabled(false);
+
+                    StringBuilder text = new StringBuilder();
+                    for (int i = 0; i < checkableItemList.size(); i++) {
+                        if (i == checkableItemList.size() - 1) {
+                            text.append(checkableItemList.get(i).getText());
+                        } else {
+                            text.append(checkableItemList.get(i).getText()).append("\n");
+                        }
+                    }
+                    noteType = "text";
+                    textInput.setText(text);
+                    textInput.setVisibility(View.VISIBLE);
+
+                    checkableItemList.clear();
+                    mAdapter.notifyDataSetChanged();
+
+                    rv_checkbox_Layout.setVisibility(View.INVISIBLE);
+                    checkboxModeBtn.setIconResource(R.drawable.ic_outline_check_box_24);
+                    Log.d(TAG, "onClick: " + checkableItemList.toString());
+                    Log.d(TAG, "onClick: " + text);
+
+                    checkboxModeBtn.setEnabled(true);
+                }
+
+            }
+        });
     }
 
     private void setBackgroundColor(int color) {
@@ -395,6 +440,7 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
                                 //hide progress bar
                                 progressBar.setVisibility(View.GONE);
 
+
                                 mNote = documentSnapshot.toObject(Note.class);
                                 if (mNote != null) {
                                     mNote.setNote_doc_ID(documentSnapshot.getId());
@@ -485,7 +531,12 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
 
                                     } else {
                                         collaboratorsRV.setVisibility(View.GONE);
+
                                     }
+
+
+                                    //Start enter animation after info retrieved
+                                    startPostponedEnterTransition();
                                 }
                             } else if (retrievedNote) {
                                 if (documentSnapshot != null && e == null) {
