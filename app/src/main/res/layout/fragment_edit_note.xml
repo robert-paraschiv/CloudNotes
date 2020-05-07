@@ -57,7 +57,7 @@
         android:layout_centerInParent="true"
         android:indeterminateTint="@color/icon_tint_color" />
 
-    <ScrollView
+    <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_above="@id/editNoteFragment_bottomCard"
@@ -137,7 +137,7 @@
 
         </LinearLayout>
 
-    </ScrollView>
+    </androidx.core.widget.NestedScrollView>
 
 
     <com.google.android.material.card.MaterialCardView

@@ -54,7 +54,7 @@ public class ViewNoteEditFragment extends Fragment {
     private int nrOfEdits = 0;
 
     private ProgressBar progressBar;
-
+    ScrollView textScrollView;
     //Creator layout
     LinearLayout creatorLayout;
     CircleImageView creatorPicture;
@@ -78,7 +78,7 @@ public class ViewNoteEditFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.fragment_view_note_edit, container, false);
 
-        ScrollView textScrollView = view.findViewById(R.id.viewNoteEditFragment_textScrollView);
+        textScrollView = view.findViewById(R.id.viewNoteEditFragment_textScrollView);
         titleTv = view.findViewById(R.id.viewNoteEditFragment_title);
         textTv = view.findViewById(R.id.viewNoteEditFragment_text);
         restoreBtn = view.findViewById(R.id.viewNoteEditFragment_restoreBtn);
@@ -102,13 +102,13 @@ public class ViewNoteEditFragment extends Fragment {
         if (getActivity() != null && !HIDE_BANNER) {
             BannerAdManager bannerAdManager = new BannerAdManager();
             bannerAdManager.showBannerAd(getActivity());
-            RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) recyclerView.getLayoutParams();
+            LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) recyclerView.getLayoutParams();
             params.setMargins(bannerAdManager.convertDpToPixel(requireActivity(), 8)
                     , bannerAdManager.convertDpToPixel(requireActivity(), 8)
                     , bannerAdManager.convertDpToPixel(requireActivity(), 8)
                     , bannerAdManager.convertDpToPixel(requireActivity(), 50));
 
-            RelativeLayout.LayoutParams textParams = (RelativeLayout.LayoutParams) textScrollView.getLayoutParams();
+            LinearLayout.LayoutParams textParams = (LinearLayout.LayoutParams) textScrollView.getLayoutParams();
             textParams.setMargins(bannerAdManager.convertDpToPixel(requireActivity(), 16)
                     , bannerAdManager.convertDpToPixel(requireActivity(), 8)
                     , bannerAdManager.convertDpToPixel(requireActivity(), 16)
@@ -172,11 +172,11 @@ public class ViewNoteEditFragment extends Fragment {
 
                                         if (note.getNoteType() != null && note.getNoteType().equals("checkbox")) {
                                             recyclerView.setVisibility(View.VISIBLE);
-                                            textTv.setVisibility(View.INVISIBLE);
+                                            textScrollView.setVisibility(View.GONE);
                                             if (note.getCheckableItemList() != null)
                                                 buildRecyclerView(note.getCheckableItemList());
                                         } else {
-                                            recyclerView.setVisibility(View.INVISIBLE);
+                                            recyclerView.setVisibility(View.GONE);
                                         }
 
                                         if (note.getCollaboratorList() != null && note.getCollaboratorList().size() > 1) {
