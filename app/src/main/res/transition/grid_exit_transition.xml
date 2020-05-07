@@ -6,5 +6,4 @@
     <fade>
         <targets android:targetId="@id/rv_home_note_rootLayout" />
     </fade>
-    <changeTransform/>
 </transitionSet>

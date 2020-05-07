@@ -87,8 +87,6 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
     private LinearLayout editLinearLayout;
     boolean edit = false;
 
-    private int notePosition = 0;
-
     private String noteType = "text";
     private String noteID = "";
     private int position = 0;
@@ -122,6 +120,8 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.fragment_edit_note, container, false);
 
+        postponeEnterTransition();
+
         textInput = view.findViewById(R.id.editNoteFragment_textEditText);
         titleInput = view.findViewById(R.id.editNoteFragment_titleEditText);
         backBtn = view.findViewById(R.id.editNoteFragment_backBtn);
@@ -144,7 +144,7 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
         if (getArguments() != null) {
             EditNoteFragmentArgs editNoteFragmentArgs = EditNoteFragmentArgs.fromBundle(getArguments());
             noteID = editNoteFragmentArgs.getNoteDocID();
-            notePosition = editNoteFragmentArgs.getPosition();
+            int notePosition = editNoteFragmentArgs.getPosition();
 
             //Shared element transition
             titleInput.setTransitionName("note_home_title" + notePosition);
@@ -189,7 +189,7 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
 //        setSharedElementEnterTransition(TransitionInflater.from(getActivity()).inflateTransition(R.transition.move));
 //        setSharedElementReturnTransition(TransitionInflater.from(getActivity()).inflateTransition(R.transition.move));
 //        setEnterTransition(TransitionInflater.from(getActivity()).inflateTransition(R.transition.move));
-//        setExitTransition(TransitionInflater.from(getActivity()).inflateTransition(R.transition.move));
+//        setExitTransition(TransitionInflater.from(getActivity()).inflateTransition(R.transition.grid_exit_transition));
 
 //        setSharedElementEnterTransition(new ChangeBounds());
 //        setSharedElementReturnTransition(new ChangeBounds());
@@ -197,23 +197,20 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
 //        setExitTransition(new ChangeBounds());
 
         Explode explode = new Explode();
-        explode.setDuration(400);
         ChangeBounds changeBounds = new ChangeBounds();
-        changeBounds.setDuration(400);
 
 
 
 
 
         setSharedElementEnterTransition(TransitionInflater.from(getActivity()).inflateTransition(R.transition.image_shared_element_transition));
+        setEnterTransition(explode);
+
+
 //        setSharedElementReturnTransition(explode);
-//        setEnterTransition(explode);
-        setExitTransition(TransitionInflater.from(getActivity()).inflateTransition(R.transition.grid_exit_transition));
+//        setExitTransition(TransitionInflater.from(getActivity()).inflateTransition(R.transition.grid_exit_transition));
 
-        setAllowEnterTransitionOverlap(false);
-        setAllowReturnTransitionOverlap(false);
 
-        postponeEnterTransition();
 
         return view;
     }

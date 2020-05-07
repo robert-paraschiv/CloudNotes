@@ -17,7 +17,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.view.Window;
-import android.view.animation.Interpolator;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RadioGroup;
@@ -29,10 +28,9 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
-import androidx.core.app.SharedElementCallback;
 import androidx.fragment.app.Fragment;
-import androidx.interpolator.view.animation.FastOutSlowInInterpolator;
 import androidx.navigation.NavDirections;
+import androidx.navigation.NavOptions;
 import androidx.navigation.Navigation;
 import androidx.navigation.fragment.FragmentNavigator;
 import androidx.recyclerview.widget.ItemTouchHelper;
@@ -41,17 +39,10 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 import androidx.transition.ChangeBounds;
 import androidx.transition.Explode;
-import androidx.transition.Fade;
-import androidx.transition.Transition;
 import androidx.transition.TransitionInflater;
-import androidx.transition.TransitionValues;
 
 import com.bumptech.glide.Glide;
-import com.google.android.gms.ads.AdRequest;
-import com.google.android.gms.ads.rewarded.RewardItem;
 import com.google.android.gms.ads.rewarded.RewardedAd;
-import com.google.android.gms.ads.rewarded.RewardedAdCallback;
-import com.google.android.gms.ads.rewarded.RewardedAdLoadCallback;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
@@ -79,13 +70,11 @@ import com.rokudoz.cloudnotes.Utils.ColorFunctions;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
 import static android.content.Context.MODE_PRIVATE;
-import static com.rokudoz.cloudnotes.App.ASKED_ALREADY;
 import static com.rokudoz.cloudnotes.App.HIDE_BANNER;
 import static com.rokudoz.cloudnotes.App.SETTINGS_PREFS_NAME;
 
@@ -138,6 +127,15 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
             colorFunctions.resetStatus_NavigationBar_Colors(getActivity());
         }
 
+        postponeEnterTransition();
+        recyclerView.getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
+            @Override
+            public boolean onPreDraw() {
+                recyclerView.getViewTreeObserver().removeOnPreDrawListener(this);
+                startPostponedEnterTransition();
+                return true;
+            }
+        });
 
         BannerAdManager bannerAdManager = new BannerAdManager();
 
@@ -175,24 +173,23 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
             }
         });
 
-        buildRecyclerView();
+        if (savedInstanceState == null)
+            buildRecyclerView();
         setupFirebaseAuth();
 
 
         //Animations
         Explode explode = new Explode();
-        explode.setDuration(400);
         ChangeBounds changeBounds = new ChangeBounds();
-        changeBounds.setDuration(400);
 
 
-        setSharedElementEnterTransition(TransitionInflater.from(getActivity()).inflateTransition(R.transition.image_shared_element_transition));
-//        setSharedElementReturnTransition(explode);
-//        setEnterTransition(explode);
+//        setSharedElementReturnTransition(changeBounds);
         setExitTransition(TransitionInflater.from(getActivity()).inflateTransition(R.transition.grid_exit_transition));
+//        setExitTransition(explode);
 
-        setAllowEnterTransitionOverlap(false);
-        setAllowReturnTransitionOverlap(false);
+
+//        setSharedElementEnterTransition(TransitionInflater.from(getActivity()).inflateTransition(R.transition.image_shared_element_transition));
+//        setEnterTransition(TransitionInflater.from(getActivity()).inflateTransition(android.R.transition.move));
 
 
         return view;
@@ -201,14 +198,6 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
     private void buildRecyclerView() {
 
         staggeredRecyclerViewAdapter = new HomePageAdapter(getActivity(), noteList);
-
-        recyclerView.getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
-            @Override
-            public boolean onPreDraw() {
-                startPostponedEnterTransition();
-                return true;
-            }
-        });
 
         //Get last user selected type of home layout and apply it
         if (sharedPreferences.getInt("home_layout_manager_type", 0) == LAYOUT_STAGGERED_TYPE) {
@@ -717,21 +706,26 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
                             .addSharedElement(title, title.getTransitionName())
                             .addSharedElement(text, text.getTransitionName())
                             .addSharedElement(collaboratorsRv, collaboratorsRv.getTransitionName())
-                            .addSharedElement(rootLayout, rootLayout.getTransitionName())
+//                            .addSharedElement(rootLayout, rootLayout.getTransitionName())
                             .build();
+                    Log.d(TAG, "onItemClick: CHECKBOX NULL");
+
                 } else if (checkboxRv != null && text == null) {
                     extras = new FragmentNavigator.Extras.Builder()
                             .addSharedElement(title, title.getTransitionName())
                             .addSharedElement(checkboxRv, checkboxRv.getTransitionName())
                             .addSharedElement(collaboratorsRv, collaboratorsRv.getTransitionName())
-                            .addSharedElement(rootLayout, rootLayout.getTransitionName())
+//                            .addSharedElement(rootLayout, rootLayout.getTransitionName())
                             .build();
+                    Log.d(TAG, "onItemClick: TEXT NULL");
+
                 }
 
                 NavDirections navDirections = HomeFragmentDirections
                         .actionHomeFragmentToEditNoteFragment(note.getNote_doc_ID(), note.getBackgroundColor(), position);
                 if (extras != null) {
-                    Navigation.findNavController(view).navigate(navDirections, extras);
+                    Log.d(TAG, "onItemClick: extras not null");
+                    Navigation.findNavController(view).navigate(navDirections,extras);
                 }
             }
 
