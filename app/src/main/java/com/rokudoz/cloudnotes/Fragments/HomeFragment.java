@@ -15,7 +15,9 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.view.Window;
+import android.view.animation.Interpolator;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RadioGroup;
@@ -27,7 +29,9 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
+import androidx.core.app.SharedElementCallback;
 import androidx.fragment.app.Fragment;
+import androidx.interpolator.view.animation.FastOutSlowInInterpolator;
 import androidx.navigation.NavDirections;
 import androidx.navigation.Navigation;
 import androidx.navigation.fragment.FragmentNavigator;
@@ -36,7 +40,11 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 import androidx.transition.ChangeBounds;
+import androidx.transition.Explode;
+import androidx.transition.Fade;
+import androidx.transition.Transition;
 import androidx.transition.TransitionInflater;
+import androidx.transition.TransitionValues;
 
 import com.bumptech.glide.Glide;
 import com.google.android.gms.ads.AdRequest;
@@ -71,6 +79,7 @@ import com.rokudoz.cloudnotes.Utils.ColorFunctions;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 import de.hdodenhof.circleimageview.CircleImageView;
@@ -169,24 +178,37 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
         buildRecyclerView();
         setupFirebaseAuth();
 
-        setSharedElementEnterTransition(TransitionInflater.from(getActivity()).inflateTransition(R.transition.move));
-        setSharedElementReturnTransition(TransitionInflater.from(getActivity()).inflateTransition(R.transition.move));
-        setEnterTransition(TransitionInflater.from(getActivity()).inflateTransition(R.transition.move));
-        setExitTransition(TransitionInflater.from(getActivity()).inflateTransition(R.transition.move));
+
+        //Animations
+        Explode explode = new Explode();
+        explode.setDuration(400);
+        ChangeBounds changeBounds = new ChangeBounds();
+        changeBounds.setDuration(400);
 
 
-//        setSharedElementEnterTransition(new ChangeBounds());
-//        setSharedElementReturnTransition(new ChangeBounds());
-//        setEnterTransition(new ChangeBounds());
-//        setExitTransition(new ChangeBounds());
+        setSharedElementEnterTransition(TransitionInflater.from(getActivity()).inflateTransition(R.transition.image_shared_element_transition));
+//        setSharedElementReturnTransition(explode);
+//        setEnterTransition(explode);
+        setExitTransition(TransitionInflater.from(getActivity()).inflateTransition(R.transition.grid_exit_transition));
+
+        setAllowEnterTransitionOverlap(false);
+        setAllowReturnTransitionOverlap(false);
 
 
         return view;
     }
 
     private void buildRecyclerView() {
+
         staggeredRecyclerViewAdapter = new HomePageAdapter(getActivity(), noteList);
 
+        recyclerView.getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
+            @Override
+            public boolean onPreDraw() {
+                startPostponedEnterTransition();
+                return true;
+            }
+        });
 
         //Get last user selected type of home layout and apply it
         if (sharedPreferences.getInt("home_layout_manager_type", 0) == LAYOUT_STAGGERED_TYPE) {
@@ -312,9 +334,6 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
                                                 staggeredRecyclerViewAdapter.notifyItemInserted(noteList.size() - 1);
                                             }
                                         }
-                                    }
-                                    if (note != null) {
-                                        Log.d(TAG, "onEvent: " + note.toString());
                                     }
                                 }
                             }
@@ -684,7 +703,7 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
 
 
     @Override
-    public void onItemClick(int position, TextView title, TextView text, RecyclerView checkboxRv, RecyclerView collaboratorsRv, RelativeLayout rootLayout) {
+    public void onItemClick(final int position, final TextView title, final TextView text, final RecyclerView checkboxRv, final RecyclerView collaboratorsRv, final RelativeLayout rootLayout) {
         Log.d(TAG, "onItemClick: " + position);
         int selected = staggeredRecyclerViewAdapter.getSelected().size();
         if (actionMode == null) {
@@ -695,17 +714,17 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
 
                 if (checkboxRv == null && text != null) {
                     extras = new FragmentNavigator.Extras.Builder()
-                            .addSharedElement(title, "note_home_title" + position)
-                            .addSharedElement(text, "note_home_text" + position)
-                            .addSharedElement(collaboratorsRv, "note_home_collaborators" + position)
-//                            .addSharedElement(rootLayout, "note_home_relativeLayout" + position)
+                            .addSharedElement(title, title.getTransitionName())
+                            .addSharedElement(text, text.getTransitionName())
+                            .addSharedElement(collaboratorsRv, collaboratorsRv.getTransitionName())
+                            .addSharedElement(rootLayout, rootLayout.getTransitionName())
                             .build();
                 } else if (checkboxRv != null && text == null) {
                     extras = new FragmentNavigator.Extras.Builder()
-                            .addSharedElement(title, "note_home_title" + position)
-                            .addSharedElement(checkboxRv, "note_home_checkbox" + position)
-                            .addSharedElement(collaboratorsRv, "note_home_collaborators" + position)
-//                            .addSharedElement(rootLayout, "note_home_relativeLayout" + position)
+                            .addSharedElement(title, title.getTransitionName())
+                            .addSharedElement(checkboxRv, checkboxRv.getTransitionName())
+                            .addSharedElement(collaboratorsRv, collaboratorsRv.getTransitionName())
+                            .addSharedElement(rootLayout, rootLayout.getTransitionName())
                             .build();
                 }
 

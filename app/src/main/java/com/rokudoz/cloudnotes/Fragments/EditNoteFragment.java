@@ -19,6 +19,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.app.SharedElementCallback;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.Navigation;
@@ -26,8 +27,12 @@ import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.transition.ChangeBounds;
+import androidx.transition.ChangeImageTransform;
+import androidx.transition.ChangeTransform;
 import androidx.transition.Explode;
+import androidx.transition.Fade;
 import androidx.transition.TransitionInflater;
+import androidx.transition.TransitionSet;
 
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
@@ -60,9 +65,12 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 import de.hdodenhof.circleimageview.CircleImageView;
+
+import static android.transition.TransitionSet.ORDERING_TOGETHER;
 
 public class EditNoteFragment extends Fragment implements CheckableItemAdapter.OnStartDragListener,
         CheckableItemAdapter.OnItemClickListener, FullBottomSheetDialogFragment.ExampleDialogListener, CollaboratorNotesAdapter.OnItemClickListener {
@@ -129,7 +137,7 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
         bottomCard = view.findViewById(R.id.editNoteFragment_bottomCard);
         collaboratorsRV = view.findViewById(R.id.editNoteFragment_collaboratorsRV);
         progressBar = view.findViewById(R.id.editNoteFragment_progressBar);
-        rootLayout = view.findViewById(R.id.editNoteFragment_rootLayout);
+        rootLayout = view.findViewById(R.id.rv_home_note_rootLayout);
 
         _note_background_color = ContextCompat.getColor(requireContext(), R.color.fragments_background);
 
@@ -188,11 +196,22 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
 //        setEnterTransition(new ChangeBounds());
 //        setExitTransition(new ChangeBounds());
 
-        setSharedElementEnterTransition(new Explode());
-        setSharedElementReturnTransition(new Explode());
-        setEnterTransition(new Explode());
-        setExitTransition(new Explode());
+        Explode explode = new Explode();
+        explode.setDuration(400);
+        ChangeBounds changeBounds = new ChangeBounds();
+        changeBounds.setDuration(400);
 
+
+
+
+
+        setSharedElementEnterTransition(TransitionInflater.from(getActivity()).inflateTransition(R.transition.image_shared_element_transition));
+//        setSharedElementReturnTransition(explode);
+//        setEnterTransition(explode);
+        setExitTransition(TransitionInflater.from(getActivity()).inflateTransition(R.transition.grid_exit_transition));
+
+        setAllowEnterTransitionOverlap(false);
+        setAllowReturnTransitionOverlap(false);
 
         postponeEnterTransition();
 
@@ -999,3 +1018,4 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
         showCollaboratorsDialog();
     }
 }
+

@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
@@ -73,9 +74,8 @@ public class MainActivity extends AppCompatActivity {
         MobileAds.setRequestConfiguration(requestConfiguration);
         mBannerAd.loadAd(new AdRequest.Builder().build());
 
-
         //Show ads
-        showSupportAppRewardedAd();
+//        showSupportAppRewardedAd();
         showCloseBannerRewardedAd();
 
     }

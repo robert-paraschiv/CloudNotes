@@ -61,7 +61,7 @@ public class HomePageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             this.noteTitle = itemView.findViewById(R.id.rv_home_note_TitleTV);
             this.noteText = itemView.findViewById(R.id.rv_home_note_textTv);
             this.collaboratorsRv = itemView.findViewById(R.id.rv_home_note_collaboratorsRV);
-            this.relativeLayout = itemView.findViewById(R.id.rv_home_note_layout);
+            this.relativeLayout = itemView.findViewById(R.id.rv_home_note_rootLayout);
 
             itemView.setOnClickListener(this);
             itemView.setOnLongClickListener(this);
@@ -119,7 +119,7 @@ public class HomePageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             this.noteTitle = itemView.findViewById(R.id.rv_home_checkboxNote_TitleTV);
             this.recyclerView = itemView.findViewById(R.id.rv_home_checkboxNote_recyclerView);
             this.collaboratorsRv = itemView.findViewById(R.id.rv_home_checkboxNote_collaboratorsRV);
-            this.relativeLayout = itemView.findViewById(R.id.rv_home_checkbox_note_layout);
+            this.relativeLayout = itemView.findViewById(R.id.rv_home_note_rootLayout);
 
 
             itemView.setOnClickListener(this);
