@@ -1,61 +1,94 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:ads="http://schemas.android.com/apk/res-auto"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainActivity">
+    android:background="@color/fragments_background"
+    android:fitsSystemWindows="true"
+    tools:context=".Fragments.HomeFragment">
 
-    <androidx.fragment.app.FragmentContainerView
-        android:id="@+id/nav_host_fragment"
-        android:name="androidx.navigation.fragment.NavHostFragment"
+    <com.google.android.material.appbar.AppBarLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/fragments_background"
+        android:fitsSystemWindows="true"
+        app:elevation="0dp">
+
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/homeFragment_toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?actionBarSize"
+            app:contentInsetStart="0dp"
+            app:layout_scrollFlags="scroll|enterAlways|snap">
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    style="@style/TextAppearance.MaterialComponents.Headline6"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentStart="true"
+                    android:layout_centerVertical="true"
+                    android:layout_marginStart="18dp"
+                    android:layout_marginEnd="8dp"
+                    android:layout_toStartOf="@id/homeFragment_layoutManagerIcon"
+                    android:text="Home" />
+
+                <ImageView
+                    android:id="@+id/homeFragment_layoutManagerIcon"
+                    android:layout_width="22dp"
+                    android:layout_height="22dp"
+                    android:layout_centerVertical="true"
+                    android:layout_marginEnd="18dp"
+                    android:layout_toStartOf="@id/homeFragment_userImage"
+                    android:scaleType="centerCrop"
+                    android:src="@drawable/ic_outline_dashboard_24" />
+
+                <de.hdodenhof.circleimageview.CircleImageView
+                    android:id="@+id/homeFragment_userImage"
+                    android:layout_width="35dp"
+                    android:layout_height="35dp"
+                    android:layout_alignParentEnd="true"
+                    android:layout_centerVertical="true"
+                    android:layout_marginEnd="18dp"
+                    tools:src="@color/colorPrimary" />
+
+            </RelativeLayout>
+
+
+        </com.google.android.material.appbar.MaterialToolbar>
+    </com.google.android.material.appbar.AppBarLayout>
+
+
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/homeFragment_recyclerView_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        app:defaultNavHost="true"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:navGraph="@navigation/nav_graph" />
+        android:layout_alignParentStart="true"
+        android:layout_marginStart="4dp"
+        android:layout_marginEnd="4dp"
+        android:layout_marginBottom="50dp"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-    <FrameLayout
-        android:id="@+id/banner_ad_layout"
-        android:layout_width="match_parent"
-        android:layout_height="65dp"
-        android:layout_alignParentBottom="true">
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/closeAdBtn"
-            style="@style/Widget.MaterialComponents.Button"
-            android:layout_width="30dp"
-            android:layout_height="40dp"
-            android:layout_marginTop="-4dp"
-            android:layout_marginStart="16dp"
-            android:elevation="2dp"
-            android:padding="0dp"
-            android:text="X"
-            android:textAllCaps="false"
-            android:visibility="invisible"
-            ads:cornerRadius="40dp"
-            tools:visibility="visible" />
-
-
-        <com.google.android.material.card.MaterialCardView
-            android:id="@+id/bannerAdCard"
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/homeFragment_recyclerView"
             android:layout_width="match_parent"
-            android:layout_height="50dp"
-            android:layout_gravity="bottom"
-            android:background="@color/fragments_background">
+            android:layout_height="match_parent" />
 
-            <com.google.android.gms.ads.AdView
-                android:id="@+id/banner_adView"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                ads:adSize="BANNER"
-                ads:adUnitId="@string/banner_ad_unit_id" />
-        </com.google.android.material.card.MaterialCardView>
-    </FrameLayout>
+    </androidx.core.widget.NestedScrollView>
 
-</RelativeLayout>
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/homeFragment_addNoteFab"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="66dp"
+        android:elevation="2dp"
+        android:src="@drawable/ic_baseline_add_24" />
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

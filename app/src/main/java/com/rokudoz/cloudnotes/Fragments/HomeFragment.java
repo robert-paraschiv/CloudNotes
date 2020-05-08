@@ -1,12 +1,14 @@
 package com.rokudoz.cloudnotes.Fragments;
 
 import android.annotation.SuppressLint;
+import android.app.ActivityOptions;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
+import android.transition.Transition;
 import android.util.Log;
 import android.view.ActionMode;
 import android.view.LayoutInflater;
@@ -28,6 +30,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
+import androidx.core.app.ActivityOptionsCompat;
+import androidx.core.util.Pair;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavDirections;
 import androidx.navigation.NavOptions;
@@ -60,6 +64,7 @@ import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.WriteBatch;
 import com.rokudoz.cloudnotes.Adapters.HomePageAdapter;
+import com.rokudoz.cloudnotes.EditNoteActivity;
 import com.rokudoz.cloudnotes.LoginActivity;
 import com.rokudoz.cloudnotes.Models.Note;
 import com.rokudoz.cloudnotes.Models.User;
@@ -127,15 +132,15 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
             colorFunctions.resetStatus_NavigationBar_Colors(getActivity());
         }
 
-        postponeEnterTransition();
-        recyclerView.getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
-            @Override
-            public boolean onPreDraw() {
-                recyclerView.getViewTreeObserver().removeOnPreDrawListener(this);
-                startPostponedEnterTransition();
-                return true;
-            }
-        });
+//        postponeEnterTransition();
+//        recyclerView.getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
+//            @Override
+//            public boolean onPreDraw() {
+//                recyclerView.getViewTreeObserver().removeOnPreDrawListener(this);
+//                startPostponedEnterTransition();
+//                return true;
+//            }
+//        });
 
         BannerAdManager bannerAdManager = new BannerAdManager();
 
@@ -184,7 +189,7 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
 
 
 //        setSharedElementReturnTransition(changeBounds);
-        setExitTransition(TransitionInflater.from(getActivity()).inflateTransition(R.transition.grid_exit_transition));
+//        setExitTransition(TransitionInflater.from(getActivity()).inflateTransition(R.transition.grid_exit_transition));
 //        setExitTransition(explode);
 
 
@@ -721,12 +726,32 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
 
                 }
 
-                NavDirections navDirections = HomeFragmentDirections
-                        .actionHomeFragmentToEditNoteFragment(note.getNote_doc_ID(), note.getBackgroundColor(), position);
-                if (extras != null) {
-                    Log.d(TAG, "onItemClick: extras not null");
-                    Navigation.findNavController(view).navigate(navDirections,extras);
-                }
+//                NavDirections navDirections = HomeFragmentDirections
+//                        .actionHomeFragmentToEditNoteFragment(note.getNote_doc_ID(), note.getBackgroundColor(), position);
+//                if (extras != null) {
+//                    Log.d(TAG, "onItemClick: extras not null");
+//                    Navigation.findNavController(view).navigate(navDirections, extras);
+//                }
+
+                Transition explode = new android.transition.Explode();
+//                getActivity().getWindow().setExitTransition(explode);
+
+                Intent intent = new Intent(requireActivity(), EditNoteActivity.class);
+                // create the transition animation - the images in the layouts
+                // of both activities are defined with android:transitionName="robot"
+                intent.putExtra("transition_name", rootLayout.getTransitionName());
+                intent.putExtra("backgroundColor", note.getBackgroundColor());
+//                Pair<View, String> pair1 = Pair.create((View) title, title.getTransitionName());
+//                Pair<View, String> pair2 = Pair.create((View) text, text.getTransitionName());
+//                Pair<View, String> pair3 = Pair.create((View)checkboxRv, checkboxRv.getTransitionName());
+//                Pair<View, String> pair4 = Pair.create((View) collaboratorsRv, collaboratorsRv.getTransitionName());
+
+                Log.d(TAG, "onItemClick: "+rootLayout.getTransitionName());
+
+                ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(requireActivity(), rootLayout, rootLayout.getTransitionName());
+                // start the new activity
+                startActivity(intent, options.toBundle());
+
             }
 
 

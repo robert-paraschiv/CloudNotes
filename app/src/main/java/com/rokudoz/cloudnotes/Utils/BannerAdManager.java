@@ -19,15 +19,15 @@ public class BannerAdManager {
     }
 
     public void showBannerAd(Activity activity) {
-        activity.findViewById(R.id.banner_ad_layout).setVisibility(View.VISIBLE);
+//        activity.findViewById(R.id.banner_ad_layout).setVisibility(View.VISIBLE);
     }
 
     public void hideBannerAd(Activity activity) {
-        activity.findViewById(R.id.banner_ad_layout).setVisibility(View.GONE);
+//        activity.findViewById(R.id.banner_ad_layout).setVisibility(View.GONE);
     }
 
     public void hideBanner_modify_layouts(Activity activity) {
-        activity.findViewById(R.id.banner_ad_layout).setVisibility(View.GONE);
+//        activity.findViewById(R.id.banner_ad_layout).setVisibility(View.GONE);
 
         //Move Home Add note Fab lower
         if (activity.findViewById(R.id.homeFragment_addNoteFab) != null) {

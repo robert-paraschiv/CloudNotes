@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:background="@color/fragments_background"
     android:fitsSystemWindows="true"
-    tools:context=".Fragments.HomeFragment">
+    tools:context=".MainActivity">
 
     <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"

@@ -203,8 +203,8 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
 
 
 
-        setSharedElementEnterTransition(TransitionInflater.from(getActivity()).inflateTransition(R.transition.image_shared_element_transition));
-        setEnterTransition(explode);
+//        setSharedElementEnterTransition(TransitionInflater.from(getActivity()).inflateTransition(R.transition.image_shared_element_transition));
+//        setEnterTransition(explode);
 
 
 //        setSharedElementReturnTransition(explode);
