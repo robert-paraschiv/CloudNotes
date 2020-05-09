@@ -240,12 +240,7 @@ public class HomePageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     private void populateTextViewHolder(ViewHolder holder, int position) {
         Note currentItem = noteList.get(position);
 
-        String positions = "" + position;
-
-        holder.noteTitle.setTransitionName("note_home_title" + positions);
-        holder.noteText.setTransitionName("note_home_text" + positions);
-        holder.collaboratorsRv.setTransitionName("note_home_collaborators" + positions);
-        holder.relativeLayout.setTransitionName("note_home_relativeLayout" + positions);
+        holder.relativeLayout.setTransitionName(currentItem.getNote_doc_ID());
 
         if (currentItem.getNoteText() != null)
             holder.noteText.setText(currentItem.getNoteText());
@@ -284,12 +279,7 @@ public class HomePageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     private void populateCheckBoxViewHolder(CheckboxViewHolder holder, int position) {
         Note currentItem = noteList.get(position);
 
-        String positions = "" + position;
-
-        holder.noteTitle.setTransitionName("note_home_title" + positions);
-        holder.recyclerView.setTransitionName("note_home_checkbox" + positions);
-        holder.collaboratorsRv.setTransitionName("note_home_collaborators" + positions);
-        holder.relativeLayout.setTransitionName("note_home_relativeLayout" + positions);
+        holder.relativeLayout.setTransitionName(currentItem.getNote_doc_ID());
 
         //Setup note background
         if (selected.contains(currentItem)) {

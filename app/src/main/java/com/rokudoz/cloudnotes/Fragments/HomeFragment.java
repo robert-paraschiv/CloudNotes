@@ -86,7 +86,7 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
 
     private ActionMode actionMode;
     private MaterialToolbar materialToolbar;
-
+    FloatingActionButton addNewNoteBtn;
     private View view;
     private RecyclerView recyclerView;
     ItemTouchHelper helper;
@@ -113,29 +113,46 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
     @SuppressLint("CommitPrefEdits")
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        view = inflater.inflate(R.layout.fragment_home, container, false);
+        if (view == null) {
+            view = inflater.inflate(R.layout.fragment_home, container, false);
+            recyclerView = view.findViewById(R.id.homeFragment_recyclerView);
+            addNewNoteBtn = view.findViewById(R.id.homeFragment_addNoteFab);
 
-        recyclerView = view.findViewById(R.id.homeFragment_recyclerView);
-        FloatingActionButton addNewNoteBtn = view.findViewById(R.id.homeFragment_addNoteFab);
+            sharedPreferences = requireActivity().getSharedPreferences(SETTINGS_PREFS_NAME, MODE_PRIVATE);
+            sharedPrefsEditor = requireActivity().getSharedPreferences(SETTINGS_PREFS_NAME, MODE_PRIVATE).edit();
 
-        sharedPreferences = requireActivity().getSharedPreferences(SETTINGS_PREFS_NAME, MODE_PRIVATE);
-        sharedPrefsEditor = requireActivity().getSharedPreferences(SETTINGS_PREFS_NAME, MODE_PRIVATE).edit();
 
-        //Reset status bar color
-        if (getActivity() != null) {
-            ColorFunctions colorFunctions = new ColorFunctions();
-            colorFunctions.resetStatus_NavigationBar_Colors(getActivity());
+            postponeEnterTransition();
+            recyclerView.getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
+                @Override
+                public boolean onPreDraw() {
+                    recyclerView.getViewTreeObserver().removeOnPreDrawListener(this);
+                    startPostponedEnterTransition();
+                    return true;
+                }
+            });
+
+
+            materialToolbar = view.findViewById(R.id.homeFragment_toolbar);
+
+            userPicture = view.findViewById(R.id.homeFragment_userImage);
+            layoutManagerIcon = view.findViewById(R.id.homeFragment_layoutManagerIcon);
+
+
+            addNewNoteBtn.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (Objects.requireNonNull(Navigation.findNavController(view).getCurrentDestination()).getId() == R.id.homeFragment)
+                        Navigation.findNavController(view).navigate(HomeFragmentDirections.actionHomeFragmentToNewNoteFragment());
+
+                }
+            });
+
+            buildRecyclerView();
+            setupFirebaseAuth();
+
+            setExitTransition(TransitionInflater.from(getActivity()).inflateTransition(R.transition.grid_exit_transition));
         }
-
-        postponeEnterTransition();
-        recyclerView.getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
-            @Override
-            public boolean onPreDraw() {
-                recyclerView.getViewTreeObserver().removeOnPreDrawListener(this);
-                startPostponedEnterTransition();
-                return true;
-            }
-        });
 
         BannerAdManager bannerAdManager = new BannerAdManager();
 
@@ -158,38 +175,11 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
             Log.d(TAG, "onCreateView: modified recyclerview");
         }
 
-        materialToolbar = view.findViewById(R.id.homeFragment_toolbar);
-
-        userPicture = view.findViewById(R.id.homeFragment_userImage);
-        layoutManagerIcon = view.findViewById(R.id.homeFragment_layoutManagerIcon);
-
-
-        addNewNoteBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (Objects.requireNonNull(Navigation.findNavController(view).getCurrentDestination()).getId() == R.id.homeFragment)
-                    Navigation.findNavController(view).navigate(HomeFragmentDirections.actionHomeFragmentToNewNoteFragment());
-
-            }
-        });
-
-        if (savedInstanceState == null)
-            buildRecyclerView();
-        setupFirebaseAuth();
-
-
-        //Animations
-        Explode explode = new Explode();
-        ChangeBounds changeBounds = new ChangeBounds();
-
-
-//        setSharedElementReturnTransition(changeBounds);
-        setExitTransition(TransitionInflater.from(getActivity()).inflateTransition(R.transition.grid_exit_transition));
-//        setExitTransition(explode);
-
-
-//        setSharedElementEnterTransition(TransitionInflater.from(getActivity()).inflateTransition(R.transition.image_shared_element_transition));
-//        setEnterTransition(TransitionInflater.from(getActivity()).inflateTransition(android.R.transition.move));
+        //Reset status bar color
+        if (getActivity() != null) {
+            ColorFunctions colorFunctions = new ColorFunctions();
+            colorFunctions.resetStatus_NavigationBar_Colors(getActivity());
+        }
 
 
         return view;
@@ -294,8 +284,8 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
     }
 
     private void getNotes(String uid) {
-        noteList.clear();
-        staggeredRecyclerViewAdapter.notifyDataSetChanged();
+//        noteList.clear();
+//        staggeredRecyclerViewAdapter.notifyDataSetChanged();
         if (FirebaseAuth.getInstance().getCurrentUser() != null && FirebaseAuth.getInstance().getCurrentUser().getEmail() != null)
             notesListener = db.collection("Notes").whereArrayContains("users", FirebaseAuth.getInstance().getCurrentUser().getEmail())
                     .whereEqualTo("deleted", false)
@@ -314,8 +304,9 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
                                                 noteList.remove(note);
                                                 staggeredRecyclerViewAdapter.notifyItemRemoved(notePosition);
                                             } else {
-                                                noteList.set(noteList.indexOf(note), note);
-                                                staggeredRecyclerViewAdapter.notifyItemChanged(noteList.indexOf(note));
+                                                //TODO need to check if note is different
+//                                                noteList.set(noteList.indexOf(note), note);
+//                                                staggeredRecyclerViewAdapter.notifyItemChanged(noteList.indexOf(note));
                                             }
                                         } else {
                                             if (!note.getDeleted()) {
@@ -703,29 +694,29 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
 
                 if (checkboxRv == null && text != null) {
                     extras = new FragmentNavigator.Extras.Builder()
-                            .addSharedElement(title, title.getTransitionName())
-                            .addSharedElement(text, text.getTransitionName())
-                            .addSharedElement(collaboratorsRv, collaboratorsRv.getTransitionName())
-//                            .addSharedElement(rootLayout, rootLayout.getTransitionName())
+//                            .addSharedElement(title, title.getTransitionName())
+//                            .addSharedElement(text, text.getTransitionName())
+//                            .addSharedElement(collaboratorsRv, collaboratorsRv.getTransitionName())
+                            .addSharedElement(rootLayout, rootLayout.getTransitionName())
                             .build();
                     Log.d(TAG, "onItemClick: CHECKBOX NULL");
 
                 } else if (checkboxRv != null && text == null) {
                     extras = new FragmentNavigator.Extras.Builder()
-                            .addSharedElement(title, title.getTransitionName())
-                            .addSharedElement(checkboxRv, checkboxRv.getTransitionName())
-                            .addSharedElement(collaboratorsRv, collaboratorsRv.getTransitionName())
-//                            .addSharedElement(rootLayout, rootLayout.getTransitionName())
+//                            .addSharedElement(title, title.getTransitionName())
+//                            .addSharedElement(checkboxRv, checkboxRv.getTransitionName())
+//                            .addSharedElement(collaboratorsRv, collaboratorsRv.getTransitionName())
+                            .addSharedElement(rootLayout, rootLayout.getTransitionName())
                             .build();
                     Log.d(TAG, "onItemClick: TEXT NULL");
 
                 }
 
                 NavDirections navDirections = HomeFragmentDirections
-                        .actionHomeFragmentToEditNoteFragment(note.getNote_doc_ID(), note.getBackgroundColor(), position);
+                        .actionHomeFragmentToEditNoteFragment(note.getNote_doc_ID(), note.getBackgroundColor(), position, rootLayout.getTransitionName());
                 if (extras != null) {
                     Log.d(TAG, "onItemClick: extras not null");
-                    Navigation.findNavController(view).navigate(navDirections,extras);
+                    Navigation.findNavController(view).navigate(navDirections, extras);
                 }
             }
 

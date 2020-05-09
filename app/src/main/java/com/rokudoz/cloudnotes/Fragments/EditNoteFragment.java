@@ -151,7 +151,7 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
             textInput.setTransitionName("note_home_text" + notePosition);
             collaboratorsRV.setTransitionName("note_home_collaborators" + notePosition);
             recyclerView.setTransitionName("note_home_checkbox" + notePosition);
-            rootLayout.setTransitionName("note_home_relativeLayout" + notePosition);
+            rootLayout.setTransitionName(editNoteFragmentArgs.getTransitionName());
 
             Log.d(TAG, "onCreateView: note position " + notePosition);
             setupBackgroundColor(editNoteFragmentArgs.getNoteColor());
@@ -185,32 +185,9 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
         if (mNote.getNoteTitle() != null)
             progressBar.setVisibility(View.GONE);
 
-////
-//        setSharedElementEnterTransition(TransitionInflater.from(getActivity()).inflateTransition(R.transition.move));
-//        setSharedElementReturnTransition(TransitionInflater.from(getActivity()).inflateTransition(R.transition.move));
-//        setEnterTransition(TransitionInflater.from(getActivity()).inflateTransition(R.transition.move));
-//        setExitTransition(TransitionInflater.from(getActivity()).inflateTransition(R.transition.grid_exit_transition));
-
-//        setSharedElementEnterTransition(new ChangeBounds());
-//        setSharedElementReturnTransition(new ChangeBounds());
-//        setEnterTransition(new ChangeBounds());
-//        setExitTransition(new ChangeBounds());
-
-        Explode explode = new Explode();
-        ChangeBounds changeBounds = new ChangeBounds();
-
-
-
-
-
-        setSharedElementEnterTransition(TransitionInflater.from(getActivity()).inflateTransition(R.transition.image_shared_element_transition));
-        setEnterTransition(explode);
-
-
-//        setSharedElementReturnTransition(explode);
-//        setExitTransition(TransitionInflater.from(getActivity()).inflateTransition(R.transition.grid_exit_transition));
-
-
+        setSharedElementEnterTransition(TransitionInflater.from(getActivity()).inflateTransition(android.R.transition.move)
+                .excludeTarget(R.id.editNoteFragment_toolbar, true)
+                .excludeTarget(R.id.editNoteFragment_bottomCard, true));
 
         return view;
     }
@@ -245,7 +222,7 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
                                     hideSoftKeyboard(requireActivity());
                                     if (Objects.requireNonNull(Navigation.findNavController(view).getCurrentDestination()).getId()
                                             == R.id.editNoteFragment)
-                                        Navigation.findNavController(view).navigate(EditNoteFragmentDirections.actionEditNoteFragmentToHomeFragment());
+                                        Navigation.findNavController(view).popBackStack();
                                     dialog.cancel();
                                 }
                             });
@@ -271,7 +248,7 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
                                     Log.d(TAG, "onSuccess: updated collaborators successfully");
                                     if (Objects.requireNonNull(Navigation.findNavController(view).getCurrentDestination()).getId()
                                             == R.id.editNoteFragment)
-                                        Navigation.findNavController(view).navigate(EditNoteFragmentDirections.actionEditNoteFragmentToHomeFragment());
+                                        Navigation.findNavController(view).popBackStack();
                                     dialog.cancel();
                                 }
                             });
