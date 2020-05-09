@@ -197,6 +197,20 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
             colorFunctions.resetStatus_NavigationBar_Colors(getActivity());
         }
 
+        if (getArguments() != null) {
+            HomeFragmentArgs homeFragmentArgs = HomeFragmentArgs.fromBundle(getArguments());
+            if (homeFragmentArgs.getNoteId() != null) {
+                Note note = new Note();
+                note.setNote_doc_ID(homeFragmentArgs.getNoteId());
+                Log.d(TAG, "onCreateView: " + note.getNote_doc_ID());
+                if (noteList.size() > 0 && noteList.contains(note)) {
+                    int position = noteList.indexOf(note);
+                    noteList.remove(position);
+                    staggeredRecyclerViewAdapter.notifyItemRemoved(position);
+                    Log.d(TAG, "onCreateView: removed note");
+                }
+            }
+        }
 
         return view;
     }
@@ -333,8 +347,13 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
                                             }
                                         } else {
                                             if (!note.getDeleted()) {
-                                                noteList.add(note);
-                                                staggeredRecyclerViewAdapter.notifyItemInserted(noteList.size() - 1);
+                                                if (noteList.size() >= note.getPosition()) {
+                                                    noteList.add(note.getPosition(), note);
+                                                    staggeredRecyclerViewAdapter.notifyItemInserted(noteList.indexOf(note));
+                                                } else {
+                                                    noteList.add(note);
+                                                    staggeredRecyclerViewAdapter.notifyItemInserted(noteList.size() - 1);
+                                                }
                                             }
                                         }
                                     }

@@ -248,9 +248,12 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
                                 @Override
                                 public void onSuccess(Void aVoid) {
                                     Log.d(TAG, "onSuccess: updated collaborators successfully");
+
+                                    //Current user is not a collaborator anymore, delete it from his home screen
                                     if (Objects.requireNonNull(Navigation.findNavController(view).getCurrentDestination()).getId()
-                                            == R.id.editNoteFragment)
-                                        Navigation.findNavController(view).popBackStack();
+                                            == R.id.editNoteFragment){
+                                        Navigation.findNavController(view).navigate(EditNoteFragmentDirections.actionEditNoteFragmentToHomeFragment(noteID));
+                                    }
                                     dialog.cancel();
                                 }
                             });
@@ -974,7 +977,11 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
                                                 }
 
                                                 if (!finalStillCollaborator) {
-                                                    Navigation.findNavController(view).popBackStack();
+                                                    //Current user is not a collaborator anymore, delete it from his home screen
+                                                    if (Navigation.findNavController(view).getCurrentDestination().getId() == R.id.editNoteFragment) {
+                                                        Navigation.findNavController(view).navigate(EditNoteFragmentDirections.actionEditNoteFragmentToHomeFragment(noteID));
+                                                    }
+//                                                    Navigation.findNavController(view).popBackStack();
                                                 }
                                             }
                                         }

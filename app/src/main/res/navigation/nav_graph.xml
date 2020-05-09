@@ -9,7 +9,7 @@
         android:id="@+id/homeFragment"
         android:name="com.rokudoz.cloudnotes.Fragments.HomeFragment"
         android:label="fragment_home"
-        tools:layout="@layout/fragment_home" >
+        tools:layout="@layout/fragment_home">
         <action
             android:id="@+id/action_homeFragment_to_newNoteFragment"
             app:destination="@id/newNoteFragment"
@@ -21,12 +21,17 @@
             android:id="@+id/action_homeFragment_to_trashFragment"
             app:destination="@id/trashFragment"
             app:popUpTo="@id/homeFragment" />
+        <argument
+            android:name="note_id"
+            app:argType="string"
+            app:nullable="true"
+            android:defaultValue="@null" />
     </fragment>
     <fragment
         android:id="@+id/newNoteFragment"
         android:name="com.rokudoz.cloudnotes.Fragments.NewNoteFragment"
         android:label="fragment_new_note"
-        tools:layout="@layout/fragment_new_note" >
+        tools:layout="@layout/fragment_new_note">
         <action
             android:id="@+id/action_newNoteFragment_to_homeFragment"
             app:destination="@id/homeFragment"
@@ -37,7 +42,7 @@
         android:id="@+id/editNoteFragment"
         android:name="com.rokudoz.cloudnotes.Fragments.EditNoteFragment"
         android:label="fragment_edit_note"
-        tools:layout="@layout/fragment_edit_note" >
+        tools:layout="@layout/fragment_edit_note">
         <argument
             android:name="note_doc_ID"
             app:argType="string" />
@@ -55,12 +60,19 @@
             android:name="transition_name"
             app:argType="string"
             app:nullable="true" />
+        <action
+            android:id="@+id/action_editNoteFragment_to_homeFragment"
+            app:destination="@id/homeFragment" >
+            <argument
+                android:name="note_id"
+                app:argType="string" />
+        </action>
     </fragment>
     <fragment
         android:id="@+id/noteEditsFragment"
         android:name="com.rokudoz.cloudnotes.Fragments.NoteEditsFragment"
         android:label="fragment_note_edits"
-        tools:layout="@layout/fragment_note_edits" >
+        tools:layout="@layout/fragment_note_edits">
         <action
             android:id="@+id/action_noteEditsFragment_to_editNoteFragment"
             app:destination="@id/editNoteFragment"
@@ -85,7 +97,7 @@
         android:id="@+id/viewNoteEditFragment"
         android:name="com.rokudoz.cloudnotes.Fragments.ViewNoteEditFragment"
         android:label="fragment_view_note_edit"
-        tools:layout="@layout/fragment_view_note_edit" >
+        tools:layout="@layout/fragment_view_note_edit">
         <action
             android:id="@+id/action_viewNoteEditFragment_to_editNoteFragment"
             app:destination="@id/editNoteFragment"
@@ -110,7 +122,7 @@
         android:id="@+id/trashFragment"
         android:name="com.rokudoz.cloudnotes.Fragments.Trash.TrashFragment"
         android:label="fragment_trash"
-        tools:layout="@layout/fragment_trash" >
+        tools:layout="@layout/fragment_trash">
         <action
             android:id="@+id/action_trashFragment_to_viewTrashNote"
             app:destination="@id/viewTrashNote" />
@@ -124,7 +136,7 @@
         android:id="@+id/viewTrashNote"
         android:name="com.rokudoz.cloudnotes.Fragments.Trash.ViewTrashNote"
         android:label="fragment_view_trash_note"
-        tools:layout="@layout/fragment_view_trash_note" >
+        tools:layout="@layout/fragment_view_trash_note">
         <action
             android:id="@+id/action_viewTrashNote_to_homeFragment"
             app:destination="@id/homeFragment"
