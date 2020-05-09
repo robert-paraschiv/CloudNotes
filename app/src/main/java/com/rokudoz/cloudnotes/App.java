@@ -16,6 +16,7 @@ public class App extends Application {
     public static boolean ASKED_ALREADY = false;
     public static int MAX_HOME_CHECKBOX_NUMBER = 5;
     public static int MAX_HOME_COLLABORATORS_PICTURES = 5;
+    public static int TRANSITION_DURATION = 250;
 
 
     @Override

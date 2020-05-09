@@ -71,6 +71,7 @@ import java.util.Objects;
 import de.hdodenhof.circleimageview.CircleImageView;
 
 import static android.transition.TransitionSet.ORDERING_TOGETHER;
+import static com.rokudoz.cloudnotes.App.TRANSITION_DURATION;
 
 public class EditNoteFragment extends Fragment implements CheckableItemAdapter.OnStartDragListener,
         CheckableItemAdapter.OnItemClickListener, FullBottomSheetDialogFragment.ExampleDialogListener, CollaboratorNotesAdapter.OnItemClickListener {
@@ -185,7 +186,8 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
         if (mNote.getNoteTitle() != null)
             progressBar.setVisibility(View.GONE);
 
-        setSharedElementEnterTransition(TransitionInflater.from(getActivity()).inflateTransition(android.R.transition.move)
+        setSharedElementEnterTransition(TransitionInflater.from(getActivity()).inflateTransition(R.transition.move)
+                .setDuration(TRANSITION_DURATION)  // Enter transition duration must be equal to other fragment Exit transition duration
                 .excludeTarget(R.id.editNoteFragment_toolbar, true)
                 .excludeTarget(R.id.editNoteFragment_bottomCard, true));
 
@@ -557,7 +559,6 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
                     if (!note.getNoteText().equals(mNote.getNoteText()))
                         newNoteIsDifferent = true;
                 if (note.getNoteType().equals("checkbox")) {
-                    //TODO implement code lul
                     if (note.getCheckableItemList() != null && mNote.getCheckableItemList() != null) {
                         if (note.getCheckableItemList().size() != mNote.getCheckableItemList().size())
                             newNoteIsDifferent = true;

@@ -61,6 +61,8 @@ import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.WriteBatch;
 import com.rokudoz.cloudnotes.Adapters.HomePageAdapter;
 import com.rokudoz.cloudnotes.LoginActivity;
+import com.rokudoz.cloudnotes.Models.CheckableItem;
+import com.rokudoz.cloudnotes.Models.Collaborator;
 import com.rokudoz.cloudnotes.Models.Note;
 import com.rokudoz.cloudnotes.Models.User;
 import com.rokudoz.cloudnotes.R;
@@ -74,9 +76,11 @@ import java.util.Objects;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
+import static android.content.Context.DISPLAY_SERVICE;
 import static android.content.Context.MODE_PRIVATE;
 import static com.rokudoz.cloudnotes.App.HIDE_BANNER;
 import static com.rokudoz.cloudnotes.App.SETTINGS_PREFS_NAME;
+import static com.rokudoz.cloudnotes.App.TRANSITION_DURATION;
 
 public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClickListener {
     private static final String TAG = "HomeFragment";
@@ -98,7 +102,7 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
     private CollectionReference usersRef = db.collection("Users");
     private FirebaseAuth.AuthStateListener mAuthListener;
-    private ListenerRegistration notesListener, userDetailsListener;
+    private ListenerRegistration notesListener, userDetailsListener, trashNotesListener;
 
     private CircleImageView userPicture;
 
@@ -112,7 +116,17 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
 
     @SuppressLint("CommitPrefEdits")
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+
+        //This fixes crash occurring if you click on some note and then press back fast, before enter animation finishes
+        if (view != null) {
+            ViewGroup parent = (ViewGroup) view.getParent();
+            if (parent != null) {
+                parent.removeView(view);
+                view = null;
+            }
+        }
+
         if (view == null) {
             view = inflater.inflate(R.layout.fragment_home, container, false);
             recyclerView = view.findViewById(R.id.homeFragment_recyclerView);
@@ -151,7 +165,8 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
             buildRecyclerView();
             setupFirebaseAuth();
 
-            setExitTransition(TransitionInflater.from(getActivity()).inflateTransition(R.transition.grid_exit_transition));
+            setExitTransition(TransitionInflater.from(getActivity()).inflateTransition(R.transition.grid_exit_transition)
+                    .setDuration(TRANSITION_DURATION)); // EXIT transition duration must be equal to other fragment Enter transition duration
         }
 
         BannerAdManager bannerAdManager = new BannerAdManager();
@@ -166,7 +181,8 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
             params.setMargins(0, 0, bannerAdManager.convertDpToPixel(getActivity(), 16), bannerAdManager.convertDpToPixel(getActivity(), 16));
 
             //Move recyclerview lower
-            CoordinatorLayout.LayoutParams recyclerviewParams = (CoordinatorLayout.LayoutParams) view.findViewById(R.id.homeFragment_recyclerView_layout).getLayoutParams();
+            CoordinatorLayout.LayoutParams recyclerviewParams = (CoordinatorLayout.LayoutParams) view.findViewById(R.id.homeFragment_recyclerView_layout)
+                    .getLayoutParams();
             recyclerviewParams.setMargins(bannerAdManager.convertDpToPixel(getActivity(), 4),
                     0,
                     bannerAdManager.convertDpToPixel(getActivity(), 4),
@@ -278,12 +294,13 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
         FirebaseAuth.getInstance().addAuthStateListener(mAuthListener);
 
         if (FirebaseAuth.getInstance().getCurrentUser() != null) {
-            getNotes(FirebaseAuth.getInstance().getCurrentUser().getUid());
+            getNotes();
             getUserInfo();
         }
     }
 
-    private void getNotes(String uid) {
+    private void getNotes() {
+
 //        noteList.clear();
 //        staggeredRecyclerViewAdapter.notifyDataSetChanged();
         if (FirebaseAuth.getInstance().getCurrentUser() != null && FirebaseAuth.getInstance().getCurrentUser().getEmail() != null)
@@ -304,9 +321,15 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
                                                 noteList.remove(note);
                                                 staggeredRecyclerViewAdapter.notifyItemRemoved(notePosition);
                                             } else {
-                                                //TODO need to check if note is different
-//                                                noteList.set(noteList.indexOf(note), note);
-//                                                staggeredRecyclerViewAdapter.notifyItemChanged(noteList.indexOf(note));
+                                                if (checkIfNotesAreDifferent(note, noteList.get(noteList.indexOf(note)))) {
+                                                    noteList.set(noteList.indexOf(note), note);
+                                                    staggeredRecyclerViewAdapter.notifyItemChanged(noteList.indexOf(note));
+                                                }
+                                                //If user is no longer collaborator, remove note
+                                                if (!note.getUsers().contains(FirebaseAuth.getInstance().getCurrentUser().getEmail())) {
+                                                    noteList.remove(note);
+                                                    staggeredRecyclerViewAdapter.notifyItemRemoved(noteList.indexOf(note));
+                                                }
                                             }
                                         } else {
                                             if (!note.getDeleted()) {
@@ -319,6 +342,115 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
                             }
                         }
                     });
+
+
+        //Trash notes listener
+        if (FirebaseAuth.getInstance().getCurrentUser() != null && FirebaseAuth.getInstance().getCurrentUser().getEmail() != null)
+            notesListener = db.collection("Notes").whereArrayContains("users", FirebaseAuth.getInstance().getCurrentUser().getEmail())
+                    .whereEqualTo("deleted", true)
+                    .orderBy("position", Query.Direction.ASCENDING)
+                    .addSnapshotListener(new EventListener<QuerySnapshot>() {
+                        @Override
+                        public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) {
+                            if (e == null && queryDocumentSnapshots != null && queryDocumentSnapshots.size() > 0) {
+                                for (DocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
+                                    Note note = documentSnapshot.toObject(Note.class);
+                                    if (note != null) {
+                                        note.setNote_doc_ID(documentSnapshot.getId());
+                                        if (noteList.contains(note)) {
+                                            //If user deleted note, remove it from the list
+                                            int notePosition = noteList.indexOf(note);
+                                            noteList.remove(note);
+                                            staggeredRecyclerViewAdapter.notifyItemRemoved(notePosition);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    });
+    }
+
+    private boolean checkIfNotesAreDifferent(Note newNote, Note oldNote) {
+
+        //if either of the notes is null, return false
+        if (newNote == null || oldNote == null)
+            return false;
+
+        //If notes have different positions, they're changed
+        if (!newNote.getPosition().equals(oldNote.getPosition()))
+            return true;
+
+        //If notes have different background colors, they're changed
+        if (newNote.getBackgroundColor() != null && oldNote.getBackgroundColor() == null) {
+            return true;
+        } else if (newNote.getBackgroundColor() == null && oldNote.getBackgroundColor() != null) {
+            return true;
+        } else if (newNote.getBackgroundColor() != null && oldNote.getBackgroundColor() != null) {
+            if (!newNote.getBackgroundColor().equals(oldNote.getBackgroundColor())) {
+                return true;
+            }
+        }
+
+        //Check if they have different Titles
+        if (!newNote.getNoteTitle().equals(oldNote.getNoteTitle()))
+            return true;
+
+
+        //If notes have different types, they're changed
+        if (!newNote.getNoteType().equals(oldNote.getNoteType())) {
+            return true;
+        } else {
+            //Check if they have different text
+            if (newNote.getNoteType().equals("text")) {
+                if (!newNote.getNoteText().equals(oldNote.getNoteText()))
+                    return true;
+
+            } else if (newNote.getNoteType().equals("checkbox")) {
+                if (newNote.getCheckableItemList() != null && oldNote.getCheckableItemList() == null) {
+                    return true;
+                } else if (newNote.getCheckableItemList() == null && oldNote.getCheckableItemList() != null) {
+                    return true;
+                } else if (newNote.getCheckableItemList() != null && oldNote.getCheckableItemList() != null) {
+                    if (newNote.getCheckableItemList().size() != oldNote.getCheckableItemList().size()) {
+                        return true;
+                    } else {
+                        // Check for checkboxes differences
+                        for (CheckableItem checkableItem : newNote.getCheckableItemList()) {
+                            if (!oldNote.getCheckableItemList().contains(checkableItem)) {
+                                return true;
+                            }
+                        }
+                        for (CheckableItem checkableItem : oldNote.getCheckableItemList()) {
+                            if (!newNote.getCheckableItemList().contains(checkableItem)) {
+                                return true;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        //Check for collaborators differences
+        if (newNote.getCollaboratorList().size() != oldNote.getCollaboratorList().size()) {
+            return true;
+        }
+        if (newNote.getUsers().size() != oldNote.getUsers().size()) {
+            return true;
+        } else {
+            for (String user : newNote.getUsers()) {
+                if (!oldNote.getUsers().contains(user)) {
+                    return true;
+                }
+            }
+            for (String user : oldNote.getUsers()) {
+                if (!newNote.getUsers().contains(user)) {
+                    return true;
+                }
+            }
+        }
+
+
+        return false;
     }
 
     @Override
@@ -337,6 +469,10 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
         if (notesListener != null) {
             notesListener.remove();
             notesListener = null;
+        }
+        if (trashNotesListener != null) {
+            trashNotesListener.remove();
+            trashNotesListener = null;
         }
 
         //If the user has rearranged any notes, update their position
@@ -644,7 +780,7 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
                         notesdeleted[0]++;
                         if (notesdeleted[0] == notesToDelete.size()) {
                             //Clear notes list and get them all again
-                            getNotes(FirebaseAuth.getInstance().getCurrentUser().getUid());
+                            getNotes();
                             dialog.cancel();
                         }
                     }
@@ -672,7 +808,7 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
                         notesdeleted[0]++;
                         if (notesdeleted[0] == notesToDelete.size()) {
                             //Clear notes list and get them all again
-                            getNotes(FirebaseAuth.getInstance().getCurrentUser().getUid());
+                            getNotes();
                             dialog.cancel();
                         }
                     }
@@ -683,7 +819,8 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
 
 
     @Override
-    public void onItemClick(final int position, final TextView title, final TextView text, final RecyclerView checkboxRv, final RecyclerView collaboratorsRv, final RelativeLayout rootLayout) {
+    public void onItemClick(final int position, final TextView title, final TextView text, final RecyclerView checkboxRv,
+                            final RecyclerView collaboratorsRv, final RelativeLayout rootLayout) {
         Log.d(TAG, "onItemClick: " + position);
         int selected = staggeredRecyclerViewAdapter.getSelected().size();
         if (actionMode == null) {

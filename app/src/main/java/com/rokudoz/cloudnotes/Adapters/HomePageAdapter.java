@@ -320,8 +320,6 @@ public class HomePageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         }
 
         //Setup collaborators
-        //TODO DO
-        //Setup collaborators
         if (currentItem.getCollaboratorList() != null && currentItem.getCollaboratorList().size() > 1) {
             List<Collaborator> collaborators = new ArrayList<>();
             if (currentItem.getCollaboratorList().size() < MAX_HOME_COLLABORATORS_PICTURES) {

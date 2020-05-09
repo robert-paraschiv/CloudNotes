@@ -218,7 +218,6 @@ public class NewNoteFragment extends Fragment implements CheckableItemAdapter.On
                 if (Objects.requireNonNull(Navigation.findNavController(view).getCurrentDestination()).getId() == R.id.newNoteFragment)
                     Navigation.findNavController(view).navigate(NewNoteFragmentDirections.actionNewNoteFragmentToHomeFragment());
 
-                //TODO add code
                 discard = true;
             }
         });
@@ -510,7 +509,6 @@ public class NewNoteFragment extends Fragment implements CheckableItemAdapter.On
             @Override
             public void onClick(View v) {
                 bottomSheetDialog.cancel();
-                //TODO FULL SCREEN DIALOG HERE
 
                 showCollaboratorsDialog();
             }
@@ -616,7 +614,6 @@ public class NewNoteFragment extends Fragment implements CheckableItemAdapter.On
 
     @Override
     public void getCollaborators(final List<Collaborator> collaboratorList) {
-        //TODO implement
         final List<Collaborator> collaborators = new ArrayList<>();
         final List<String> userList = new ArrayList<>();
 
