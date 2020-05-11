@@ -12,6 +12,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.firebase.auth.FirebaseAuth;
 import com.rokudoz.cloudnotes.Models.CheckableItem;
 import com.rokudoz.cloudnotes.Models.Collaborator;
 import com.rokudoz.cloudnotes.Models.Note;
@@ -240,6 +241,9 @@ public class HomePageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     private void populateTextViewHolder(ViewHolder holder, int position) {
         Note currentItem = noteList.get(position);
 
+        final Collaborator currentUserCollaborator = new Collaborator();
+        currentUserCollaborator.setUser_email(FirebaseAuth.getInstance().getCurrentUser().getEmail());
+
         holder.relativeLayout.setTransitionName(currentItem.getNote_doc_ID());
 
         if (currentItem.getNoteText() != null)
@@ -249,17 +253,17 @@ public class HomePageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
         //Setup note background
         if (selected.contains(currentItem)) {
-            if (currentItem.getBackgroundColor() == null) {
+            if (currentItem.getCollaboratorList().get(currentItem.getCollaboratorList().indexOf(currentUserCollaborator)).getNote_background_color() == null) {
                 highlightViewHolder(holder, null);
             } else {
-                highlightViewHolder(holder, currentItem.getBackgroundColor());
+                highlightViewHolder(holder, currentItem.getCollaboratorList().get(currentItem.getCollaboratorList().indexOf(currentUserCollaborator)).getNote_background_color());
             }
 
         } else {
-            if (currentItem.getBackgroundColor() == null) {
+            if (currentItem.getCollaboratorList().get(currentItem.getCollaboratorList().indexOf(currentUserCollaborator)).getNote_background_color() == null) {
                 unhighlightViewHolder(holder, null);
             } else {
-                unhighlightViewHolder(holder, currentItem.getBackgroundColor());
+                unhighlightViewHolder(holder, currentItem.getCollaboratorList().get(currentItem.getCollaboratorList().indexOf(currentUserCollaborator)).getNote_background_color());
             }
         }
 
@@ -279,21 +283,24 @@ public class HomePageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     private void populateCheckBoxViewHolder(CheckboxViewHolder holder, int position) {
         Note currentItem = noteList.get(position);
 
+        final Collaborator currentUserCollaborator = new Collaborator();
+        currentUserCollaborator.setUser_email(FirebaseAuth.getInstance().getCurrentUser().getEmail());
+
         holder.relativeLayout.setTransitionName(currentItem.getNote_doc_ID());
 
         //Setup note background
         if (selected.contains(currentItem)) {
-            if (currentItem.getBackgroundColor() == null) {
+            if (currentItem.getCollaboratorList().get(currentItem.getCollaboratorList().indexOf(currentUserCollaborator)).getNote_background_color() == null) {
                 highlightViewHolder(holder, null);
             } else {
-                highlightViewHolder(holder, currentItem.getBackgroundColor());
+                highlightViewHolder(holder, currentItem.getCollaboratorList().get(currentItem.getCollaboratorList().indexOf(currentUserCollaborator)).getNote_background_color());
             }
 
         } else {
-            if (currentItem.getBackgroundColor() == null) {
+            if (currentItem.getCollaboratorList().get(currentItem.getCollaboratorList().indexOf(currentUserCollaborator)).getNote_background_color() == null) {
                 unhighlightViewHolder(holder, null);
             } else {
-                unhighlightViewHolder(holder, currentItem.getBackgroundColor());
+                unhighlightViewHolder(holder, currentItem.getCollaboratorList().get(currentItem.getCollaboratorList().indexOf(currentUserCollaborator)).getNote_background_color());
             }
         }
 
@@ -342,7 +349,7 @@ public class HomePageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         }
     }
 
-    private void highlightViewHolder(RecyclerView.ViewHolder holder, String color) {
+    public void highlightViewHolder(RecyclerView.ViewHolder holder, String color) {
         if (color == null) {
             holder.itemView.setBackgroundResource(R.drawable.home_note_selected_note_background);
         } else
@@ -368,7 +375,7 @@ public class HomePageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             }
     }
 
-    private void unhighlightViewHolder(RecyclerView.ViewHolder holder, String color) {
+    public void unhighlightViewHolder(RecyclerView.ViewHolder holder, String color) {
         if (color == null) {
             holder.itemView.setBackgroundResource(R.drawable.home_note_background);
         } else
@@ -395,7 +402,11 @@ public class HomePageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     }
 
     private void highlightView(View view, int position) {
-        String color = noteList.get(position).getBackgroundColor();
+        Collaborator currentUserCollaborator = new Collaborator();
+        currentUserCollaborator.setUser_email(FirebaseAuth.getInstance().getCurrentUser().getEmail());
+
+        String color = noteList.get(position).getCollaboratorList().get(noteList.get(position).getCollaboratorList().indexOf(currentUserCollaborator))
+                .getNote_background_color();
         if (color == null) {
             view.setBackgroundResource(R.drawable.home_note_selected_note_background);
         } else
@@ -422,7 +433,12 @@ public class HomePageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     }
 
     private void unhighlightView(View view, int position) {
-        String color = noteList.get(position).getBackgroundColor();
+        Collaborator currentUserCollaborator = new Collaborator();
+        currentUserCollaborator.setUser_email(FirebaseAuth.getInstance().getCurrentUser().getEmail());
+
+        String color = noteList.get(position).getCollaboratorList().get(noteList.get(position).getCollaboratorList().indexOf(currentUserCollaborator))
+                .getNote_background_color();
+
         if (color == null) {
             view.setBackgroundResource(R.drawable.home_note_background);
         } else

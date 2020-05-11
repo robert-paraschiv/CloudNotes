@@ -18,7 +18,7 @@
         android:layout_marginStart="4dp"
         android:layout_marginEnd="8dp"
         android:maxLines="1"
-        android:textSize="16sp"
+        android:textSize="17sp"
         tools:text="Note title here" />
 
     <TextView

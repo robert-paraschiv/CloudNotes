@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.Objects;
 
 public class Note {
-    private Integer position;
     private String note_doc_ID;
     private String noteTitle;
     private String noteText;
@@ -20,7 +19,6 @@ public class Note {
     private String edit_type;
     private Integer number_of_edits;
     private Boolean deleted;
-    private String backgroundColor;
     private List<String> users;
     private List<Collaborator> collaboratorList;
     private String last_edited_by_user;
@@ -29,10 +27,9 @@ public class Note {
     @ServerTimestamp
     private Date creation_date;
 
-    public Note(Integer position, String noteTitle, String noteText, String creator_user_email, Date creation_date, Boolean edited, String noteType,
-                List<CheckableItem> checkableItemList, String edit_type, Integer number_of_edits, Boolean deleted, String backgroundColor, List<String> users,
+    public Note(String noteTitle, String noteText, String creator_user_email, Date creation_date, Boolean edited, String noteType,
+                List<CheckableItem> checkableItemList, String edit_type, Integer number_of_edits, Boolean deleted,List<String> users,
                 List<Collaborator> collaboratorList, String last_edited_by_user) {
-        this.position = position;
         this.noteTitle = noteTitle;
         this.noteText = noteText;
         this.creator_user_email = creator_user_email;
@@ -43,7 +40,6 @@ public class Note {
         this.edit_type = edit_type;
         this.number_of_edits = number_of_edits;
         this.deleted = deleted;
-        this.backgroundColor = backgroundColor;
         this.users = users;
         this.collaboratorList = collaboratorList;
         this.last_edited_by_user = last_edited_by_user;
@@ -85,14 +81,6 @@ public class Note {
         this.users = users;
     }
 
-    public String getBackgroundColor() {
-        return backgroundColor;
-    }
-
-    public void setBackgroundColor(String backgroundColor) {
-        this.backgroundColor = backgroundColor;
-    }
-
     public Boolean getDeleted() {
         return deleted;
     }
@@ -115,14 +103,6 @@ public class Note {
 
     public void setNumber_of_edits(Integer number_of_edits) {
         this.number_of_edits = number_of_edits;
-    }
-
-    public Integer getPosition() {
-        return position;
-    }
-
-    public void setPosition(Integer position) {
-        this.position = position;
     }
 
     public Boolean getChangedPos() {
@@ -201,7 +181,6 @@ public class Note {
     @Override
     public String toString() {
         return "Note{" +
-                "position=" + position +
                 ", note_doc_ID='" + note_doc_ID + '\'' +
                 ", noteTitle='" + noteTitle + '\'' +
                 ", noteText='" + noteText + '\'' +
@@ -213,7 +192,6 @@ public class Note {
                 ", edit_type='" + edit_type + '\'' +
                 ", number_of_edits=" + number_of_edits +
                 ", deleted=" + deleted +
-                ", backgroundColor='" + backgroundColor + '\'' +
                 ", creation_date=" + creation_date +
                 '}';
     }

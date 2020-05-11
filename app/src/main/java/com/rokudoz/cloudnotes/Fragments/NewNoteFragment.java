@@ -101,7 +101,7 @@ public class NewNoteFragment extends Fragment implements CheckableItemAdapter.On
             List<Collaborator> collaborators = new ArrayList<>();
             collaborators.add(new Collaborator(FirebaseAuth.getInstance().getCurrentUser().getEmail(),
                     Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getDisplayName(),
-                    Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser().getPhotoUrl()).toString(), true));
+                    Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser().getPhotoUrl()).toString(), true, 0, ""));
             mNote.setCollaboratorList(collaborators);
         }
 
@@ -319,18 +319,18 @@ public class NewNoteFragment extends Fragment implements CheckableItemAdapter.On
             }
 
             if (noteType.equals("text")) {
-                note = new Note(0, title,
+                note = new Note(title,
                         Objects.requireNonNull(textInputEditText.getText()).toString(),
                         Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getEmail(),
                         null, false, noteType, null, "Created", 0,
-                        false, mNote.getBackgroundColor(), mNote.getUsers(), mNote.getCollaboratorList(),
+                        false, mNote.getUsers(), mNote.getCollaboratorList(),
                         Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getEmail());
             } else if (noteType.equals("checkbox")) {
-                note = new Note(0, title,
+                note = new Note(title,
                         "",
                         Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getEmail(),
                         null, false, noteType, checkableItemList, "Created", 0,
-                        false, mNote.getBackgroundColor(), mNote.getUsers(), mNote.getCollaboratorList(),
+                        false, mNote.getUsers(), mNote.getCollaboratorList(),
                         Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getEmail());
             }
 
@@ -416,10 +416,13 @@ public class NewNoteFragment extends Fragment implements CheckableItemAdapter.On
         initial = dialogView.findViewById(R.id.noteSettings_color_initial);
         collaboratorsBtn = dialogView.findViewById(R.id.noteSettings_addCollaboratorBtn);
 
-        if (mNote.getBackgroundColor() == null) {
+        final Collaborator currentUserCollaborator = new Collaborator();
+        currentUserCollaborator.setUser_email(FirebaseAuth.getInstance().getCurrentUser().getEmail());
+
+        if (mNote.getCollaboratorList().get(mNote.getCollaboratorList().indexOf(currentUserCollaborator)).getNote_background_color() == null) {
             initial.setBorderWidth(5);
         } else {
-            switch (mNote.getBackgroundColor()) {
+            switch (mNote.getCollaboratorList().get(mNote.getCollaboratorList().indexOf(currentUserCollaborator)).getNote_background_color()) {
                 case "yellow":
                     yellow.setBorderWidth(5);
                     break;
@@ -445,7 +448,7 @@ public class NewNoteFragment extends Fragment implements CheckableItemAdapter.On
             @Override
             public void onClick(View v) {
                 setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.note_background_color_yellow));
-                mNote.setBackgroundColor("yellow");
+                mNote.getCollaboratorList().get(mNote.getCollaboratorList().indexOf(currentUserCollaborator)).setNote_background_color("yellow");
                 yellow.setBorderWidth(5);
                 bottomSheetDialog.cancel();
             }
@@ -454,7 +457,7 @@ public class NewNoteFragment extends Fragment implements CheckableItemAdapter.On
             @Override
             public void onClick(View v) {
                 setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.note_background_color_red));
-                mNote.setBackgroundColor("red");
+                mNote.getCollaboratorList().get(mNote.getCollaboratorList().indexOf(currentUserCollaborator)).setNote_background_color("red");
                 red.setBorderWidth(5);
                 bottomSheetDialog.cancel();
             }
@@ -463,7 +466,7 @@ public class NewNoteFragment extends Fragment implements CheckableItemAdapter.On
             @Override
             public void onClick(View v) {
                 setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.note_background_color_blue));
-                mNote.setBackgroundColor("blue");
+                mNote.getCollaboratorList().get(mNote.getCollaboratorList().indexOf(currentUserCollaborator)).setNote_background_color("blue");
                 blue.setBorderWidth(5);
                 bottomSheetDialog.cancel();
             }
@@ -472,7 +475,7 @@ public class NewNoteFragment extends Fragment implements CheckableItemAdapter.On
             @Override
             public void onClick(View v) {
                 setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.note_background_color_green));
-                mNote.setBackgroundColor("green");
+                mNote.getCollaboratorList().get(mNote.getCollaboratorList().indexOf(currentUserCollaborator)).setNote_background_color("green");
                 green.setBorderWidth(5);
                 bottomSheetDialog.cancel();
             }
@@ -481,7 +484,7 @@ public class NewNoteFragment extends Fragment implements CheckableItemAdapter.On
             @Override
             public void onClick(View v) {
                 setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.note_background_color_orange));
-                mNote.setBackgroundColor("orange");
+                mNote.getCollaboratorList().get(mNote.getCollaboratorList().indexOf(currentUserCollaborator)).setNote_background_color("orange");
                 orange.setBorderWidth(5);
                 bottomSheetDialog.cancel();
             }
@@ -490,7 +493,7 @@ public class NewNoteFragment extends Fragment implements CheckableItemAdapter.On
             @Override
             public void onClick(View v) {
                 setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.note_background_color_purple));
-                mNote.setBackgroundColor("purple");
+                mNote.getCollaboratorList().get(mNote.getCollaboratorList().indexOf(currentUserCollaborator)).setNote_background_color("purple");
                 purple.setBorderWidth(5);
                 bottomSheetDialog.cancel();
             }
@@ -499,7 +502,7 @@ public class NewNoteFragment extends Fragment implements CheckableItemAdapter.On
             @Override
             public void onClick(View v) {
                 resetBackgroundColors();
-                mNote.setBackgroundColor(null);
+                mNote.getCollaboratorList().get(mNote.getCollaboratorList().indexOf(currentUserCollaborator)).setNote_background_color(null);
                 initial.setBorderWidth(5);
                 bottomSheetDialog.cancel();
             }
@@ -532,12 +535,12 @@ public class NewNoteFragment extends Fragment implements CheckableItemAdapter.On
         if (mNote.getCollaboratorList() == null) {
             collaboratorList.add(new Collaborator(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getEmail(),
                     Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getDisplayName(),
-                    Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser().getPhotoUrl()).toString(), true));
+                    Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser().getPhotoUrl()).toString(), true, 0, ""));
             mNote.setCollaboratorList(collaboratorList);
         } else if (mNote.getCollaboratorList().size() == 0) {
             collaboratorList.add(new Collaborator(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getEmail(),
                     Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getDisplayName(),
-                    Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser().getPhotoUrl()).toString(), true));
+                    Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser().getPhotoUrl()).toString(), true, 0, ""));
             mNote.setCollaboratorList(collaboratorList);
         } else {
             collaboratorList.addAll(mNote.getCollaboratorList());
@@ -629,52 +632,52 @@ public class NewNoteFragment extends Fragment implements CheckableItemAdapter.On
             if (!collaborator.getUser_email().trim().equals("")) {
                 db.collection("Users").whereEqualTo("email", collaborator.getUser_email()).get()
                         .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
-                    @Override
-                    public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
-                        if (queryDocumentSnapshots != null && queryDocumentSnapshots.size() > 0) {
-                            User user = queryDocumentSnapshots.getDocuments().get(0).toObject(User.class);
-                            if (user != null) {
-                                boolean containsAlready = false;
-                                for (int i = 0; i < collaborators.size(); i++) {
-                                    if (user.getEmail().equals(collaborators.get(i).getUser_email())) {
-                                        containsAlready = true;
-                                        break;
-                                    }
-                                }
-                                if (!containsAlready) {
-                                    if (collaborator.getCreator()) {
-                                        collaborators.add(0, new Collaborator(user.getEmail(), user.getUser_name(),
-                                                user.getUser_profile_picture(), collaborator.getCreator()));
-                                    } else {
-                                        collaborators.add(new Collaborator(user.getEmail(), user.getUser_name(),
-                                                user.getUser_profile_picture(), collaborator.getCreator()));
-                                    }
-
-                                    //finished getting user pictures
-                                    if (collaborators.size() == userList.size()) {
-                                        mNote.setUsers(userList);
-                                        mNote.setCollaboratorList(collaborators);
-                                        collaboratorsUpdated = true;
-                                        Log.d(TAG, "getCollaborators: " + collaboratorList.toString());
-
-
-                                        if (mNote.getCollaboratorList() != null) {
-                                            if (mNote.getCollaboratorList().size() > 1) {
-                                                collaboratorsRV.setVisibility(View.VISIBLE);
-                                                mCollaboratorsList.clear();
-                                                mCollaboratorsList.addAll(mNote.getCollaboratorList());
-                                                collaboratorNotesAdapter.notifyDataSetChanged();
+                            @Override
+                            public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                                if (queryDocumentSnapshots != null && queryDocumentSnapshots.size() > 0) {
+                                    User user = queryDocumentSnapshots.getDocuments().get(0).toObject(User.class);
+                                    if (user != null) {
+                                        boolean containsAlready = false;
+                                        for (int i = 0; i < collaborators.size(); i++) {
+                                            if (user.getEmail().equals(collaborators.get(i).getUser_email())) {
+                                                containsAlready = true;
+                                                break;
+                                            }
+                                        }
+                                        if (!containsAlready) {
+                                            if (collaborator.getCreator()) {
+                                                collaborators.add(0, new Collaborator(user.getEmail(), user.getUser_name(),
+                                                        user.getUser_profile_picture(), collaborator.getCreator(), 0, collaborator.getNote_background_color()));
                                             } else {
-                                                collaboratorsRV.setVisibility(View.GONE);
+                                                collaborators.add(new Collaborator(user.getEmail(), user.getUser_name(),
+                                                        user.getUser_profile_picture(), collaborator.getCreator(), 0, collaborator.getNote_background_color()));
                                             }
 
+                                            //finished getting user pictures
+                                            if (collaborators.size() == userList.size()) {
+                                                mNote.setUsers(userList);
+                                                mNote.setCollaboratorList(collaborators);
+                                                collaboratorsUpdated = true;
+                                                Log.d(TAG, "getCollaborators: " + collaboratorList.toString());
+
+
+                                                if (mNote.getCollaboratorList() != null) {
+                                                    if (mNote.getCollaboratorList().size() > 1) {
+                                                        collaboratorsRV.setVisibility(View.VISIBLE);
+                                                        mCollaboratorsList.clear();
+                                                        mCollaboratorsList.addAll(mNote.getCollaboratorList());
+                                                        collaboratorNotesAdapter.notifyDataSetChanged();
+                                                    } else {
+                                                        collaboratorsRV.setVisibility(View.GONE);
+                                                    }
+
+                                                }
+                                            }
                                         }
                                     }
                                 }
                             }
-                        }
-                    }
-                });
+                        });
             }
         }
 

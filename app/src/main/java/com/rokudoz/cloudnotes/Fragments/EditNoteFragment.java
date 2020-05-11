@@ -101,6 +101,7 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
     private ItemTouchHelper helper;
 
     private List<Collaborator> mCollaboratorsList = new ArrayList<>();
+    private Collaborator currentUserCollaborator = new Collaborator();
 
     private Note mNote = new Note();
     TextInputEditText titleInput, textInput;
@@ -122,6 +123,8 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
         view = inflater.inflate(R.layout.fragment_edit_note, container, false);
 
         postponeEnterTransition();
+
+        currentUserCollaborator.setUser_email(FirebaseAuth.getInstance().getCurrentUser().getEmail());
 
         textInput = view.findViewById(R.id.editNoteFragment_textEditText);
         titleInput = view.findViewById(R.id.editNoteFragment_titleEditText);
@@ -251,7 +254,7 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
 
                                     //Current user is not a collaborator anymore, delete it from his home screen
                                     if (Objects.requireNonNull(Navigation.findNavController(view).getCurrentDestination()).getId()
-                                            == R.id.editNoteFragment){
+                                            == R.id.editNoteFragment) {
                                         Navigation.findNavController(view).navigate(EditNoteFragmentDirections.actionEditNoteFragmentToHomeFragment(noteID));
                                     }
                                     dialog.cancel();
@@ -448,8 +451,8 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
                                     if (mNote.getNumber_of_edits() != null)
                                         number_of_edits = mNote.getNumber_of_edits();
 
-                                    if (mNote.getPosition() != null)
-                                        position = mNote.getPosition();
+                                    if (mNote.getCollaboratorList().get(mNote.getCollaboratorList().indexOf(currentUserCollaborator)).getNote_position() != null)
+                                        position = mNote.getCollaboratorList().get(mNote.getCollaboratorList().indexOf(currentUserCollaborator)).getNote_position();
                                     if (mNote.getNoteType() != null) {
                                         noteType = mNote.getNoteType();
                                     } else {
@@ -502,13 +505,15 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
                                                 if (Objects.requireNonNull(Navigation.findNavController(view).getCurrentDestination()).getId()
                                                         == R.id.editNoteFragment)
                                                     Navigation.findNavController(view).navigate(EditNoteFragmentDirections
-                                                            .actionEditNoteFragmentToNoteEditsFragment(noteID, mNote.getBackgroundColor(), hasCollaborators));
+                                                            .actionEditNoteFragmentToNoteEditsFragment(noteID,
+                                                                    mNote.getCollaboratorList().get(mNote.getCollaboratorList().indexOf(currentUserCollaborator)).getNote_background_color(),
+                                                                    hasCollaborators));
                                             }
                                         });
                                     }
 
                                     //Get note color from DB and set it
-                                    String color = mNote.getBackgroundColor();
+                                    String color = mNote.getCollaboratorList().get(mNote.getCollaboratorList().indexOf(currentUserCollaborator)).getNote_background_color();
                                     setupBackgroundColor(color);
 
                                     optionsBtn.setOnClickListener(new View.OnClickListener() {
@@ -641,10 +646,10 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
         initial = dialogView.findViewById(R.id.noteSettings_color_initial);
         collaboratorsBtn = dialogView.findViewById(R.id.noteSettings_addCollaboratorBtn);
 
-        if (mNote.getBackgroundColor() == null) {
+        if (mNote.getCollaboratorList().get(mNote.getCollaboratorList().indexOf(currentUserCollaborator)).getNote_background_color() == null) {
             initial.setBorderWidth(5);
         } else {
-            switch (mNote.getBackgroundColor()) {
+            switch (mNote.getCollaboratorList().get(mNote.getCollaboratorList().indexOf(currentUserCollaborator)).getNote_background_color()) {
                 case "yellow":
                     yellow.setBorderWidth(5);
                     break;
@@ -671,7 +676,7 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
             public void onClick(View v) {
                 updateNoteColor("yellow");
                 setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.note_background_color_yellow));
-                mNote.setBackgroundColor("yellow");
+                mNote.getCollaboratorList().get(mNote.getCollaboratorList().indexOf(currentUserCollaborator)).setNote_background_color("yellow");
                 yellow.setBorderWidth(5);
                 bottomSheetDialog.cancel();
             }
@@ -681,7 +686,7 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
             public void onClick(View v) {
                 updateNoteColor("red");
                 setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.note_background_color_red));
-                mNote.setBackgroundColor("red");
+                mNote.getCollaboratorList().get(mNote.getCollaboratorList().indexOf(currentUserCollaborator)).setNote_background_color("red");
                 red.setBorderWidth(5);
                 bottomSheetDialog.cancel();
             }
@@ -691,7 +696,7 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
             public void onClick(View v) {
                 updateNoteColor("blue");
                 setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.note_background_color_blue));
-                mNote.setBackgroundColor("blue");
+                mNote.getCollaboratorList().get(mNote.getCollaboratorList().indexOf(currentUserCollaborator)).setNote_background_color("blue");
                 blue.setBorderWidth(5);
                 bottomSheetDialog.cancel();
             }
@@ -701,7 +706,7 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
             public void onClick(View v) {
                 updateNoteColor("green");
                 setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.note_background_color_green));
-                mNote.setBackgroundColor("green");
+                mNote.getCollaboratorList().get(mNote.getCollaboratorList().indexOf(currentUserCollaborator)).setNote_background_color("green");
                 green.setBorderWidth(5);
                 bottomSheetDialog.cancel();
             }
@@ -711,7 +716,7 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
             public void onClick(View v) {
                 updateNoteColor("orange");
                 setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.note_background_color_orange));
-                mNote.setBackgroundColor("orange");
+                mNote.getCollaboratorList().get(mNote.getCollaboratorList().indexOf(currentUserCollaborator)).setNote_background_color("orange");
                 orange.setBorderWidth(5);
                 bottomSheetDialog.cancel();
             }
@@ -721,7 +726,7 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
             public void onClick(View v) {
                 updateNoteColor("purple");
                 setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.note_background_color_purple));
-                mNote.setBackgroundColor("purple");
+                mNote.getCollaboratorList().get(mNote.getCollaboratorList().indexOf(currentUserCollaborator)).setNote_background_color("purple");
                 purple.setBorderWidth(5);
                 bottomSheetDialog.cancel();
             }
@@ -731,7 +736,7 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
             public void onClick(View v) {
                 updateNoteColor(null);
                 resetBackgroundColors();
-                mNote.setBackgroundColor(null);
+                mNote.getCollaboratorList().get(mNote.getCollaboratorList().indexOf(currentUserCollaborator)).setNote_background_color(null);
                 initial.setBorderWidth(5);
                 bottomSheetDialog.cancel();
             }
@@ -767,12 +772,14 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
         if (mNote.getCollaboratorList() == null) {
             collaboratorList.add(new Collaborator(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getEmail(),
                     Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getDisplayName(),
-                    Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser().getPhotoUrl()).toString(), true));
+                    Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser().getPhotoUrl()).toString(), true,
+                    0, ""));
             mNote.setCollaboratorList(collaboratorList);
         } else if (mNote.getCollaboratorList().size() == 0) {
             collaboratorList.add(new Collaborator(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getEmail(),
                     Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getDisplayName(),
-                    Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser().getPhotoUrl()).toString(), true));
+                    Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser().getPhotoUrl()).toString(), true,
+                    0, ""));
             mNote.setCollaboratorList(collaboratorList);
         } else {
             collaboratorList.addAll(mNote.getCollaboratorList());
@@ -786,8 +793,9 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
     }
 
     private void updateNoteColor(final String noteColor) {
+        mNote.getCollaboratorList().get(mNote.getCollaboratorList().indexOf(currentUserCollaborator)).setNote_background_color(noteColor);
         db.collection("Notes").document(noteID)
-                .update("backgroundColor", noteColor).addOnSuccessListener(new OnSuccessListener<Void>() {
+                .update("collaboratorList", mNote.getCollaboratorList()).addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override
             public void onSuccess(Void aVoid) {
                 Log.d(TAG, "onSuccess: updated note color + " + noteColor);
@@ -834,20 +842,19 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
                     title = titleInput.getText().toString();
                 }
                 if (noteType.equals("text")) {
-                    note = new Note(position,
-                            title,
+                    note = new Note(title,
                             Objects.requireNonNull(textInput.getText()).toString(),
                             mNote.getCreator_user_email(),
                             null, true, noteType, null, "Edited", number_of_edits + 1,
-                            false, mNote.getBackgroundColor(), mNote.getUsers(), mNote.getCollaboratorList(),
+                            false, mNote.getUsers(), mNote.getCollaboratorList(),
                             Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getEmail());
                 } else if (noteType.equals("checkbox")) {
-                    note = new Note(position,
+                    note = new Note(
                             title,
                             "",
                             mNote.getCreator_user_email(),
                             null, true, noteType, checkableItemList, "Edited", number_of_edits + 1,
-                            false, mNote.getBackgroundColor(), mNote.getUsers(), mNote.getCollaboratorList(),
+                            false, mNote.getUsers(), mNote.getCollaboratorList(),
                             Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getEmail());
                 }
 
@@ -944,10 +951,10 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
                                         if (!containsAlready) {
                                             if (collaborator.getCreator()) {
                                                 collaborators.add(0, new Collaborator(user.getEmail(), user.getUser_name(),
-                                                        user.getUser_profile_picture(), collaborator.getCreator()));
+                                                        user.getUser_profile_picture(), collaborator.getCreator(), 0, collaborator.getNote_background_color()));
                                             } else {
                                                 collaborators.add(new Collaborator(user.getEmail(), user.getUser_name(),
-                                                        user.getUser_profile_picture(), collaborator.getCreator()));
+                                                        user.getUser_profile_picture(), collaborator.getCreator(), 0, collaborator.getNote_background_color()));
                                             }
 
 
@@ -979,7 +986,8 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
                                                 if (!finalStillCollaborator) {
                                                     //Current user is not a collaborator anymore, delete it from his home screen
                                                     if (Navigation.findNavController(view).getCurrentDestination().getId() == R.id.editNoteFragment) {
-                                                        Navigation.findNavController(view).navigate(EditNoteFragmentDirections.actionEditNoteFragmentToHomeFragment(noteID));
+                                                        Navigation.findNavController(view).navigate(EditNoteFragmentDirections
+                                                                .actionEditNoteFragmentToHomeFragment(noteID));
                                                     }
 //                                                    Navigation.findNavController(view).popBackStack();
                                                 }
