@@ -6,10 +6,10 @@ android {
     buildToolsVersion "29.0.3"
 
     defaultConfig {
-        applicationId "com.rokudoz.cloudnotes"
+        applicationId "com.rokudoz.onotes"
         minSdkVersion 27
         targetSdkVersion 29
-        versionCode 27
+        versionCode 1
         versionName "1.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"

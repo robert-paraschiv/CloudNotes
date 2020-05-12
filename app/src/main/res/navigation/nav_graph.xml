@@ -7,7 +7,7 @@
 
     <fragment
         android:id="@+id/homeFragment"
-        android:name="com.rokudoz.cloudnotes.Fragments.HomeFragment"
+        android:name="com.rokudoz.onotes.Fragments.HomeFragment"
         android:label="fragment_home"
         tools:layout="@layout/fragment_home">
         <action
@@ -29,7 +29,7 @@
     </fragment>
     <fragment
         android:id="@+id/newNoteFragment"
-        android:name="com.rokudoz.cloudnotes.Fragments.NewNoteFragment"
+        android:name="com.rokudoz.onotes.Fragments.NewNoteFragment"
         android:label="fragment_new_note"
         tools:layout="@layout/fragment_new_note">
         <action
@@ -40,7 +40,7 @@
     </fragment>
     <fragment
         android:id="@+id/editNoteFragment"
-        android:name="com.rokudoz.cloudnotes.Fragments.EditNoteFragment"
+        android:name="com.rokudoz.onotes.Fragments.EditNoteFragment"
         android:label="fragment_edit_note"
         tools:layout="@layout/fragment_edit_note">
         <argument
@@ -70,7 +70,7 @@
     </fragment>
     <fragment
         android:id="@+id/noteEditsFragment"
-        android:name="com.rokudoz.cloudnotes.Fragments.NoteEditsFragment"
+        android:name="com.rokudoz.onotes.Fragments.NoteEditsFragment"
         android:label="fragment_note_edits"
         tools:layout="@layout/fragment_note_edits">
         <action
@@ -95,7 +95,7 @@
     </fragment>
     <fragment
         android:id="@+id/viewNoteEditFragment"
-        android:name="com.rokudoz.cloudnotes.Fragments.ViewNoteEditFragment"
+        android:name="com.rokudoz.onotes.Fragments.ViewNoteEditFragment"
         android:label="fragment_view_note_edit"
         tools:layout="@layout/fragment_view_note_edit">
         <action
@@ -120,7 +120,7 @@
     </fragment>
     <fragment
         android:id="@+id/trashFragment"
-        android:name="com.rokudoz.cloudnotes.Fragments.Trash.TrashFragment"
+        android:name="com.rokudoz.onotes.Fragments.Trash.TrashFragment"
         android:label="fragment_trash"
         tools:layout="@layout/fragment_trash">
         <action
@@ -134,7 +134,7 @@
     </fragment>
     <fragment
         android:id="@+id/viewTrashNote"
-        android:name="com.rokudoz.cloudnotes.Fragments.Trash.ViewTrashNote"
+        android:name="com.rokudoz.onotes.Fragments.Trash.ViewTrashNote"
         android:label="fragment_view_trash_note"
         tools:layout="@layout/fragment_view_trash_note">
         <action
