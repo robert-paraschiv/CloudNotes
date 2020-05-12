@@ -1,9 +1,11 @@
 package com.rokudoz.cloudnotes.Fragments;
 
+import android.app.Activity;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 
@@ -74,6 +76,7 @@ public class NoteEditsFragment extends Fragment implements NoteEditsAdapter.OnIt
         if (getActivity() != null) {
             ColorFunctions colorFunctions = new ColorFunctions();
             colorFunctions.resetStatus_NavigationBar_Colors(getActivity());
+            hideSoftKeyboard(getActivity());
         }
 
         //Show Banner Ad
@@ -105,6 +108,15 @@ public class NoteEditsFragment extends Fragment implements NoteEditsAdapter.OnIt
         setUpRecyclerView();
 
         return view;
+    }
+
+    public static void hideSoftKeyboard(Activity activity) {
+        InputMethodManager inputMethodManager =
+                (InputMethodManager) activity.getSystemService(
+                        Activity.INPUT_METHOD_SERVICE);
+        if (activity.getCurrentFocus() != null)
+            inputMethodManager.hideSoftInputFromWindow(
+                    activity.getCurrentFocus().getWindowToken(), 0);
     }
 
     private void setUpRecyclerView() {

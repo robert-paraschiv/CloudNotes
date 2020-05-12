@@ -32,6 +32,7 @@ import java.util.List;
 import static com.rokudoz.cloudnotes.App.ASKED_ALREADY;
 import static com.rokudoz.cloudnotes.App.HIDE_BANNER;
 import static com.rokudoz.cloudnotes.App.SETTINGS_PREFS_NAME;
+import static com.rokudoz.cloudnotes.App.TIMES_TO_OPEN_APP_TO_ASK_FOR_SUPPORT_AD;
 
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
@@ -173,7 +174,7 @@ public class MainActivity extends AppCompatActivity {
                 // Ad successfully loaded.
                 Log.d(TAG, "onRewardedAdLoaded: rewarded ad loaded");
 
-                if (sharedPreferences.getInt("TimesStartedCounter", 0) >= 5) {
+                if (sharedPreferences.getInt("TimesStartedCounter", 0) >= TIMES_TO_OPEN_APP_TO_ASK_FOR_SUPPORT_AD) {
 
                     //Dialog for watch ad to support app
                     View dialogView = getLayoutInflater().inflate(R.layout.dialog_show_ad, null);

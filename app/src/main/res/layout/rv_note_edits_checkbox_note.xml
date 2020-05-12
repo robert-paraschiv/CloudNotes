@@ -75,6 +75,15 @@
 
         </LinearLayout>
 
+        <TextView
+            android:id="@+id/rv_note_edits_checkboxNote_noCollaborators_dateTv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:visibility="gone"
+            tools:text="Today at 1030"
+            tools:visibility="visible" />
+
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rv_note_edits_checkboxNote_recyclerView"
             android:layout_width="match_parent"

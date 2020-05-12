@@ -192,7 +192,7 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
                     bannerAdManager.convertDpToPixel(getActivity(), 4),
                     0);
 //            recyclerView.setLayoutParams(recyclerviewParams);
-            Log.d(TAG, "onCreateView: modified recyclerview");
+//            Log.d(TAG, "onCreateView: modified recyclerview");
         }
 
         //Reset status bar color
@@ -206,12 +206,12 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
             if (homeFragmentArgs.getNoteId() != null) {
                 Note note = new Note();
                 note.setNote_doc_ID(homeFragmentArgs.getNoteId());
-                Log.d(TAG, "onCreateView: " + note.getNote_doc_ID());
+//                Log.d(TAG, "onCreateView: " + note.getNote_doc_ID());
                 if (noteList.size() > 0 && noteList.contains(note)) {
                     int position = noteList.indexOf(note);
                     noteList.remove(position);
                     staggeredRecyclerViewAdapter.notifyItemRemoved(position);
-                    Log.d(TAG, "onCreateView: removed note");
+//                    Log.d(TAG, "onCreateView: removed note");
                 }
             }
         }
@@ -346,11 +346,16 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
 
                                                 } else if (checkIfBackgroundIsChanged(note, noteList.get(noteList.indexOf(note)))) {
                                                     //Notes are the same, user just changed color
-                                                    staggeredRecyclerViewAdapter.unhighlightViewHolder(recyclerView.getChildViewHolder
-                                                                    (recyclerView.getChildAt(notePosition)),
+                                                    staggeredRecyclerViewAdapter.unhighlightViewHolder(recyclerView.getChildViewHolder(recyclerView.getChildAt(notePosition)),
                                                             note.getCollaboratorList().get(note.getCollaboratorList().indexOf(currentUserCollaborator)).getNote_background_color());
-                                                    noteList.get(noteList.indexOf(note)).getCollaboratorList().get(noteList.get(noteList.indexOf(note)).getCollaboratorList().indexOf(currentUserCollaborator))
-                                                            .setNote_background_color(note.getCollaboratorList().get(note.getCollaboratorList().indexOf(currentUserCollaborator)).getNote_background_color());
+
+                                                    noteList.get(noteList.indexOf(note)).getCollaboratorList().get(noteList.get(noteList.indexOf(note)).getCollaboratorList()
+                                                            .indexOf(currentUserCollaborator)).setNote_background_color(note.getCollaboratorList().get(note.getCollaboratorList()
+                                                            .indexOf(currentUserCollaborator)).getNote_background_color());
+                                                } else if (checkIfPositionIsChanged(note, noteList.get(noteList.indexOf(note)))) {
+                                                    noteList.get(noteList.indexOf(note)).getCollaboratorList().get(noteList.get(noteList.indexOf(note)).getCollaboratorList()
+                                                            .indexOf(currentUserCollaborator)).setNote_position(note.getCollaboratorList().get(note.getCollaboratorList().
+                                                            indexOf(currentUserCollaborator)).getNote_position());
                                                 }
                                                 //If user is no longer collaborator, remove note
                                                 if (!note.getUsers().contains(FirebaseAuth.getInstance().getCurrentUser().getEmail())) {
@@ -360,18 +365,16 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
 
                                             }
                                         } else {
-                                            if (!note.getDeleted()) {
-                                                if (note.getCollaboratorList().get(note.getCollaboratorList().indexOf(currentUserCollaborator)).getNote_position() != null
-                                                        && noteList.size() >= note.getCollaboratorList().get(note.getCollaboratorList().indexOf(currentUserCollaborator)).getNote_position()) {
-                                                    noteList.add(note.getCollaboratorList().get(note.getCollaboratorList().indexOf(currentUserCollaborator)).getNote_position(), note);
-                                                    staggeredRecyclerViewAdapter.notifyItemInserted(noteList.indexOf(note));
-                                                } else {
-                                                    noteList.add(note);
-                                                    staggeredRecyclerViewAdapter.notifyItemInserted(noteList.size() - 1);
-                                                }
+                                            if (note.getCollaboratorList().get(note.getCollaboratorList().indexOf(currentUserCollaborator)).getNote_position() != null
+                                                    && noteList.size() >= note.getCollaboratorList().get(note.getCollaboratorList().indexOf(currentUserCollaborator)).getNote_position()) {
+                                                noteList.add(note.getCollaboratorList().get(note.getCollaboratorList().indexOf(currentUserCollaborator)).getNote_position(), note);
+                                                staggeredRecyclerViewAdapter.notifyItemInserted(noteList.indexOf(note));
+                                            } else {
+                                                noteList.add(note);
+                                                staggeredRecyclerViewAdapter.notifyItemInserted(noteList.size() - 1);
                                             }
+
                                         }
-                                        Log.d(TAG, "onEvent: note " + note.getNoteTitle());
                                     }
                                 }
                             }
@@ -405,17 +408,28 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
                     });
     }
 
+    private boolean checkIfPositionIsChanged(Note newNote, Note oldNote) {
+        boolean changedPosition = false;
+
+        if (!newNote.getCollaboratorList().get(newNote.getCollaboratorList().indexOf(currentUserCollaborator)).getNote_position()
+                .equals(oldNote.getCollaboratorList().get(oldNote.getCollaboratorList().indexOf(currentUserCollaborator)).getNote_position()))
+            changedPosition = true;
+
+        return changedPosition;
+    }
+
     private boolean checkIfBackgroundIsChanged(Note newNote, Note oldNote) {
         //If notes have different background colors, they're changed
+        boolean changed = false;
         if (newNote.getCollaboratorList().get(newNote.getCollaboratorList().indexOf(currentUserCollaborator)).getNote_background_color() != null
                 && oldNote.getCollaboratorList().get(oldNote.getCollaboratorList().indexOf(currentUserCollaborator)).getNote_background_color() == null) {
-            return true;
+            changed = true;
         } else if (newNote.getCollaboratorList().get(newNote.getCollaboratorList().indexOf(currentUserCollaborator)).getNote_background_color() == null
                 && oldNote.getCollaboratorList().get(oldNote.getCollaboratorList().indexOf(currentUserCollaborator)).getNote_background_color() != null) {
-            return true;
+            changed = true;
         } else if (newNote.getCollaboratorList().get(newNote.getCollaboratorList().indexOf(currentUserCollaborator)).getNote_background_color() != null &&
                 oldNote.getCollaboratorList().get(oldNote.getCollaboratorList().indexOf(currentUserCollaborator)).getNote_background_color() != null) {
-            return !newNote.getCollaboratorList().get(newNote.getCollaboratorList().indexOf(currentUserCollaborator)).getNote_background_color()
+            changed = !newNote.getCollaboratorList().get(newNote.getCollaboratorList().indexOf(currentUserCollaborator)).getNote_background_color()
                     .equals(oldNote.getCollaboratorList().get(oldNote.getCollaboratorList().indexOf(currentUserCollaborator)).getNote_background_color());
         }
 
@@ -425,16 +439,14 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
                 if (!oldNote.getCollaboratorList().get(oldNote.getCollaboratorList().indexOf(collaborator))
                         .getNote_background_color().equals(collaborator.getNote_background_color()))
                     noteList.get(noteList.indexOf(oldNote)).getCollaboratorList()
-                            .get(noteList.get(noteList.indexOf(oldNote)).getCollaboratorList().indexOf(collaborator)).setNote_background_color(collaborator.getNote_background_color());
+                            .get(noteList.get(noteList.indexOf(oldNote)).getCollaboratorList().indexOf(collaborator)).
+                            setNote_background_color(collaborator.getNote_background_color());
+
         }
-        return false;
+        return changed;
     }
 
     private boolean checkIfNotesAreDifferent(Note newNote, Note oldNote) {
-
-        //if either of the notes is null, return false
-        if (newNote == null || oldNote == null)
-            return false;
 
 //        //If notes have different positions, they're changed
 //        if (newNote.getCollaboratorList().get(newNote.getCollaboratorList().indexOf(currentUserCollaborator)).getNote_position() != null &&
@@ -467,17 +479,35 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
                     if (newNote.getCheckableItemList().size() != oldNote.getCheckableItemList().size()) {
                         return true;
                     } else {
-                        // Check for checkboxes differences
-                        for (CheckableItem checkableItem : newNote.getCheckableItemList()) {
-                            if (!oldNote.getCheckableItemList().contains(checkableItem)) {
+                        for (int i = 0; i < newNote.getCheckableItemList().size(); i++) {
+                            if (!newNote.getCheckableItemList().get(i).getText().equals(oldNote.getCheckableItemList().get(i).getText())) {
                                 return true;
+                            } else {
+                                if (newNote.getCheckableItemList().get(i).getChecked() != oldNote.getCheckableItemList().get(i).getChecked())
+                                    return true;
+
                             }
                         }
-                        for (CheckableItem checkableItem : oldNote.getCheckableItemList()) {
-                            if (!newNote.getCheckableItemList().contains(checkableItem)) {
-                                return true;
-                            }
-                        }
+//
+//                        // Check for checkboxes differences
+//                        for (CheckableItem checkableItem : newNote.getCheckableItemList()) {
+//                            if (!oldNote.getCheckableItemList().contains(checkableItem)) {
+//                                return true;
+//                            } else {
+//                                if (oldNote.getCheckableItemList().get(oldNote.getCheckableItemList().
+//                                        indexOf(checkableItem)).getChecked() != checkableItem.getChecked())
+//                                    return true;
+//                            }
+//                        }
+//                        for (CheckableItem checkableItem : oldNote.getCheckableItemList()) {
+//                            if (!newNote.getCheckableItemList().contains(checkableItem)) {
+//                                return true;
+//                            } else {
+//                                if (oldNote.getCheckableItemList().get(oldNote.getCheckableItemList()
+//                                        .indexOf(checkableItem)).getChecked() != checkableItem.getChecked())
+//                                    return true;
+//                            }
+//                        }
                     }
                 }
             }
@@ -502,7 +532,7 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
             }
         }
 
-
+        Log.d(TAG, "checkIfNotesAreDifferent: false note: " + newNote.getNoteTitle());
         return false;
     }
 
@@ -551,9 +581,6 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
                         if (e == null && documentSnapshot != null) {
                             final User user = documentSnapshot.toObject(User.class);
                             if (user != null) {
-                                if (user.getUser_name() != null) {
-                                    Log.d(TAG, "onEvent: " + user.getUser_name());
-                                }
                                 if (user.getUser_profile_picture() != null) {
                                     Glide.with(requireContext()).load(user.getUser_profile_picture()).centerCrop().into(userPicture);
                                     userPicture.setOnClickListener(new View.OnClickListener() {
@@ -719,7 +746,7 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
      ----------------------------- Firebase setup ---------------------------------
     */
     private void setupFirebaseAuth() {
-        Log.d(TAG, "setupFirebaseAuth: started");
+//        Log.d(TAG, "setupFirebaseAuth: started");
 
         mAuthListener = new FirebaseAuth.AuthStateListener() {
             @Override
@@ -730,7 +757,7 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
                     if (user.isEmailVerified()) {
                         // DO STUFF
 
-                        Log.d(TAG, "onAuthStateChanged: MAIL VERIFIED");
+//                        Log.d(TAG, "onAuthStateChanged: MAIL VERIFIED");
                     } else {
                         Toast.makeText(getActivity(), "Email is not Verified\nCheck your Inbox", Toast.LENGTH_SHORT).show();
                         FirebaseAuth.getInstance().signOut();
@@ -876,13 +903,13 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
     @Override
     public void onItemClick(final int position, final TextView title, final TextView text, final RecyclerView checkboxRv,
                             final RecyclerView collaboratorsRv, final RelativeLayout rootLayout) {
-        Log.d(TAG, "onItemClick: " + position);
+//        Log.d(TAG, "onItemClick: " + position);
         int selected = staggeredRecyclerViewAdapter.getSelected().size();
         if (actionMode == null) {
             Note note = noteList.get(position);
             if (Objects.requireNonNull(Navigation.findNavController(view).getCurrentDestination()).getId() == R.id.homeFragment) {
                 FragmentNavigator.Extras extras = null;
-                Log.d(TAG, "onCreateView: note position " + position);
+//                Log.d(TAG, "onCreateView: note position " + position);
 
                 if (checkboxRv == null && text != null) {
                     extras = new FragmentNavigator.Extras.Builder()
@@ -891,7 +918,7 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
 //                            .addSharedElement(collaboratorsRv, collaboratorsRv.getTransitionName())
                             .addSharedElement(rootLayout, rootLayout.getTransitionName())
                             .build();
-                    Log.d(TAG, "onItemClick: CHECKBOX NULL");
+//                    Log.d(TAG, "onItemClick: CHECKBOX NULL");
 
                 } else if (checkboxRv != null && text == null) {
                     extras = new FragmentNavigator.Extras.Builder()
@@ -900,7 +927,7 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
 //                            .addSharedElement(collaboratorsRv, collaboratorsRv.getTransitionName())
                             .addSharedElement(rootLayout, rootLayout.getTransitionName())
                             .build();
-                    Log.d(TAG, "onItemClick: TEXT NULL");
+//                    Log.d(TAG, "onItemClick: TEXT NULL");
 
                 }
 
@@ -910,7 +937,7 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
                                 position,
                                 rootLayout.getTransitionName());
                 if (extras != null) {
-                    Log.d(TAG, "onItemClick: extras not null");
+//                    Log.d(TAG, "onItemClick: extras not null");
                     Navigation.findNavController(view).navigate(navDirections, extras);
                 }
             }

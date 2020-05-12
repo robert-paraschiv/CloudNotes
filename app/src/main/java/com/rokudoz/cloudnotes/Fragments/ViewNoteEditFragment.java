@@ -30,6 +30,7 @@ import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.WriteBatch;
 import com.rokudoz.cloudnotes.Adapters.NonCheckableAdapter;
 import com.rokudoz.cloudnotes.Models.CheckableItem;
+import com.rokudoz.cloudnotes.Models.Collaborator;
 import com.rokudoz.cloudnotes.Models.Note;
 import com.rokudoz.cloudnotes.R;
 import com.rokudoz.cloudnotes.Utils.BannerAdManager;
@@ -237,8 +238,17 @@ public class ViewNoteEditFragment extends Fragment {
                                                         Toast.makeText(getContext(), "Restored note successfully", Toast.LENGTH_SHORT).show();
                                                         dialog.cancel();
                                                         if (Objects.requireNonNull(Navigation.findNavController(view).getCurrentDestination()).getId()
-                                                                == R.id.viewNoteEditFragment)
-                                                            Navigation.findNavController(view).popBackStack();
+                                                                == R.id.viewNoteEditFragment) {
+                                                            Collaborator collaborator = new Collaborator();
+                                                            collaborator.setUser_email(FirebaseAuth.getInstance().getCurrentUser().getEmail());
+                                                            Navigation.findNavController(view).navigate(ViewNoteEditFragmentDirections.
+                                                                    actionViewNoteEditFragmentToEditNoteFragment(noteID,
+                                                                            originalNote.getCollaboratorList().get(originalNote.getCollaboratorList().indexOf(collaborator)).getNote_background_color(),
+                                                                            originalNote.getCollaboratorList().get(originalNote.getCollaboratorList().indexOf(collaborator)).getNote_position(),
+                                                                            null
+                                                                    ));
+                                                        }
+
                                                     }
                                                 });
 

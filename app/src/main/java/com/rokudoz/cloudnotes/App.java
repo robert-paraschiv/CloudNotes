@@ -14,6 +14,7 @@ public class App extends Application {
     public static final String SETTINGS_PREFS_NAME = "SettingsPrefs";
     public static boolean HIDE_BANNER = false;
     public static boolean ASKED_ALREADY = false;
+    public static int TIMES_TO_OPEN_APP_TO_ASK_FOR_SUPPORT_AD = 7;
     public static int MAX_HOME_CHECKBOX_NUMBER = 5;
     public static int MAX_HOME_COLLABORATORS_PICTURES = 5;
     public static int TRANSITION_DURATION = 250;

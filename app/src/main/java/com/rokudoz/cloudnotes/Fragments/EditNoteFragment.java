@@ -50,6 +50,7 @@ import com.google.firebase.firestore.WriteBatch;
 import com.rokudoz.cloudnotes.Adapters.CheckableItemAdapter;
 import com.rokudoz.cloudnotes.Adapters.CollaboratorNotesAdapter;
 import com.rokudoz.cloudnotes.Dialogs.FullBottomSheetDialogFragment;
+import com.rokudoz.cloudnotes.MainActivity;
 import com.rokudoz.cloudnotes.Models.CheckableItem;
 import com.rokudoz.cloudnotes.Models.Collaborator;
 import com.rokudoz.cloudnotes.Models.Note;
@@ -594,10 +595,50 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
                 newNoteIsDifferent = true;
 
 
-            if (newNoteIsDifferent && getActivity() != null)
-                Toast.makeText(getActivity(), "Someone has just edited this note", Toast.LENGTH_SHORT).show();
+            if (newNoteIsDifferent && getActivity() != null) {
+                Log.d(TAG, "checkNoteEvent: Someone has just edited this note");
+                showReloadDataDialog();
+            }
 
         }
+
+
+        //Set collaborators list if someone updates them meanwhile
+        if (mNote != null && note != null) {
+            mNote.setCollaboratorList(note.getCollaboratorList());
+            mCollaboratorsList.clear();
+            mCollaboratorsList.addAll(mNote.getCollaboratorList());
+            collaboratorNotesAdapter.notifyDataSetChanged();
+        }
+    }
+
+    private void showReloadDataDialog() {
+        View dialogView = getLayoutInflater().inflate(R.layout.dialog_show_ad, null);
+        final Dialog dialog = new Dialog(requireContext(), R.style.CustomBottomSheetDialogTheme);
+        MaterialButton confirmBtn = dialogView.findViewById(R.id.dialog_ShowAd_confirmBtn);
+        MaterialButton cancelBtn = dialogView.findViewById(R.id.dialog_ShowAd_cancelBtn);
+        TextView textView = dialogView.findViewById(R.id.dialog_ShowAd_title);
+        textView.setText("Someone else has just edited this note, do you want to refresh the note ?");
+        dialog.setContentView(dialogView);
+        dialog.setCancelable(false);
+        confirmBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                progressBar.setVisibility(View.VISIBLE);
+                retrievedNote = false;
+                oldList.clear();
+                getNote(noteID);
+                dialog.cancel();
+            }
+        });
+        cancelBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dialog.cancel();
+            }
+        });
+        dialog.show();
+
 
     }
 

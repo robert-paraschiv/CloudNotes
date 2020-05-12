@@ -54,7 +54,7 @@ public class NoteEditsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
 
     public class TextNoteViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
-        TextView editDate, noteText, editType, creatorEmail;
+        TextView editDate, noteText, editType, creatorEmail, noCollaboratorsDateTv;
         CircleImageView creatorPicture;
         LinearLayout creatorLayout;
 
@@ -66,6 +66,7 @@ public class NoteEditsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
             this.creatorEmail = itemView.findViewById(R.id.rv_note_edits_creatorEmail);
             this.creatorPicture = itemView.findViewById(R.id.rv_note_edits_creatorPicture);
             this.creatorLayout = itemView.findViewById(R.id.rv_note_edits_creatorLayout);
+            this.noCollaboratorsDateTv = itemView.findViewById(R.id.rv_note_edits_noCollaborators_dateTv);
 
             itemView.setOnClickListener(this);
         }
@@ -83,7 +84,7 @@ public class NoteEditsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
 
     public class CheckboxViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
-        TextView noteDate, editType, creatorEmail;
+        TextView noteDate, editType, creatorEmail, noCollaboratorsDateTv;
         CircleImageView creatorPicture;
         LinearLayout creatorLayout;
         RecyclerView recyclerView;
@@ -96,6 +97,7 @@ public class NoteEditsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
             this.creatorEmail = itemView.findViewById(R.id.rv_note_edits_checkboxNote_creatorEmail);
             this.creatorPicture = itemView.findViewById(R.id.rv_note_edits_checkboxNote_creatorPicture);
             this.creatorLayout = itemView.findViewById(R.id.rv_note_edits_checkboxNote_creatorLayout);
+            this.noCollaboratorsDateTv = itemView.findViewById(R.id.rv_note_edits_checkboxNote_noCollaborators_dateTv);
 
             itemView.setOnClickListener(this);
             recyclerView.setOnClickListener(new View.OnClickListener() {
@@ -167,6 +169,7 @@ public class NoteEditsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
             LastEdit lastEdit = new LastEdit();
             Date date = currentItem.getCreation_date();
             holder.editDate.setText(lastEdit.getLastEdit(date.getTime()));
+            holder.noCollaboratorsDateTv.setText(lastEdit.getLastEdit(date.getTime()));
         }
 
         if (currentItem.getEdit_type() != null) {
@@ -189,6 +192,7 @@ public class NoteEditsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
 
         if (currentItem.getCollaboratorList() != null && currentItem.getLast_edited_by_user() != null && currentItem.getHas_collaborators() != null) {
             if (currentItem.getHas_collaborators()) {
+                holder.noCollaboratorsDateTv.setVisibility(View.GONE);
                 holder.creatorLayout.setVisibility(View.VISIBLE);
                 holder.creatorEmail.setText(currentItem.getLast_edited_by_user());
                 String creator_picture = "";
@@ -206,9 +210,11 @@ public class NoteEditsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                 Glide.with(holder.creatorPicture).load(creator_picture).centerCrop().into(holder.creatorPicture);
                 holder.creatorEmail.setText(creator_name);
             } else {
+                holder.noCollaboratorsDateTv.setVisibility(View.VISIBLE);
                 holder.creatorLayout.setVisibility(View.GONE);
             }
         } else {
+            holder.noCollaboratorsDateTv.setVisibility(View.VISIBLE);
             holder.creatorLayout.setVisibility(View.GONE);
         }
 
@@ -222,6 +228,7 @@ public class NoteEditsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         if (currentItem.getCreation_date() != null) {
             Date date = currentItem.getCreation_date();
             holder.noteDate.setText(lastEdit.getLastEdit(date.getTime()));
+            holder.noCollaboratorsDateTv.setText(lastEdit.getLastEdit(date.getTime()));
         }
 
         if (currentItem.getEdit_type() != null) {
@@ -261,6 +268,7 @@ public class NoteEditsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
 
         if (currentItem.getCollaboratorList() != null && currentItem.getLast_edited_by_user() != null && currentItem.getHas_collaborators() != null) {
             if (currentItem.getHas_collaborators()) {
+                holder.noCollaboratorsDateTv.setVisibility(View.GONE);
                 holder.creatorLayout.setVisibility(View.VISIBLE);
                 String creator_picture = "";
                 String creator_name = "";
@@ -277,10 +285,12 @@ public class NoteEditsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                 Glide.with(holder.creatorPicture).load(creator_picture).centerCrop().into(holder.creatorPicture);
                 holder.creatorEmail.setText(creator_name);
             } else {
+                holder.noCollaboratorsDateTv.setVisibility(View.VISIBLE);
                 holder.creatorLayout.setVisibility(View.GONE);
             }
         } else {
             holder.creatorLayout.setVisibility(View.GONE);
+            holder.noCollaboratorsDateTv.setVisibility(View.VISIBLE);
         }
     }
 
