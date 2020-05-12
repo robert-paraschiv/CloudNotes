@@ -350,7 +350,7 @@ public class HomePageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     }
 
     public void highlightViewHolder(RecyclerView.ViewHolder holder, String color) {
-        if (color == null) {
+        if (color == null || color.equals("")) {
             holder.itemView.setBackgroundResource(R.drawable.home_note_selected_note_background);
         } else
             switch (color) {
@@ -376,7 +376,7 @@ public class HomePageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     }
 
     public void unhighlightViewHolder(RecyclerView.ViewHolder holder, String color) {
-        if (color == null) {
+        if (color == null || color.equals("")) {
             holder.itemView.setBackgroundResource(R.drawable.home_note_background);
         } else
             switch (color) {
@@ -407,7 +407,7 @@ public class HomePageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
         String color = noteList.get(position).getCollaboratorList().get(noteList.get(position).getCollaboratorList().indexOf(currentUserCollaborator))
                 .getNote_background_color();
-        if (color == null) {
+        if (color == null || color.equals("")) {
             view.setBackgroundResource(R.drawable.home_note_selected_note_background);
         } else
             switch (color) {
@@ -439,7 +439,7 @@ public class HomePageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         String color = noteList.get(position).getCollaboratorList().get(noteList.get(position).getCollaboratorList().indexOf(currentUserCollaborator))
                 .getNote_background_color();
 
-        if (color == null) {
+        if (color == null || color.equals("")) {
             view.setBackgroundResource(R.drawable.home_note_background);
         } else
             switch (color) {

@@ -444,6 +444,7 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
 
                                     if (mNote.getCollaboratorList().get(mNote.getCollaboratorList().indexOf(currentUserCollaborator)).getNote_position() != null)
                                         position = mNote.getCollaboratorList().get(mNote.getCollaboratorList().indexOf(currentUserCollaborator)).getNote_position();
+
                                     if (mNote.getNoteType() != null) {
                                         noteType = mNote.getNoteType();
                                     } else {

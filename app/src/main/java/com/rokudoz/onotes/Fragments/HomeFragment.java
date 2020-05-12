@@ -805,31 +805,32 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
             //Deselect selected items when action bar closes
             for (int i = 0; i < noteList.size(); i++) {
                 if (recyclerView.getLayoutManager() != null && recyclerView.getLayoutManager().getChildAt(i) != null) {
-                    if (noteList.get(i).getCollaboratorList().get(noteList.get(i).getCollaboratorList().indexOf(currentUserCollaborator)).getNote_background_color()
-                            == null) {
-                        Objects.requireNonNull(recyclerView.getLayoutManager().getChildAt(i)).setBackgroundResource(R.drawable.home_note_background);
-                    } else {
-                        switch (noteList.get(i).getCollaboratorList().get(noteList.get(i).getCollaboratorList().indexOf(currentUserCollaborator)).getNote_background_color()) {
-                            case "yellow":
-                                Objects.requireNonNull(recyclerView.getLayoutManager().getChildAt(i)).setBackgroundResource(R.drawable.home_note_background_yellow);
-                                break;
-                            case "red":
-                                Objects.requireNonNull(recyclerView.getLayoutManager().getChildAt(i)).setBackgroundResource(R.drawable.home_note_background_red);
-                                break;
-                            case "green":
-                                Objects.requireNonNull(recyclerView.getLayoutManager().getChildAt(i)).setBackgroundResource(R.drawable.home_note_background_green);
-                                break;
-                            case "blue":
-                                Objects.requireNonNull(recyclerView.getLayoutManager().getChildAt(i)).setBackgroundResource(R.drawable.home_note_background_blue);
-                                break;
-                            case "orange":
-                                Objects.requireNonNull(recyclerView.getLayoutManager().getChildAt(i)).setBackgroundResource(R.drawable.home_note_background_orange);
-                                break;
-                            case "purple":
-                                Objects.requireNonNull(recyclerView.getLayoutManager().getChildAt(i)).setBackgroundResource(R.drawable.home_note_background_purple);
-                                break;
+                    if (noteList.get(i).getCollaboratorList() != null && noteList.get(i).getCollaboratorList().contains(currentUserCollaborator))
+                        if (noteList.get(i).getCollaboratorList().get(noteList.get(i).getCollaboratorList().indexOf(currentUserCollaborator)).getNote_background_color()
+                                == null) {
+                            Objects.requireNonNull(recyclerView.getLayoutManager().getChildAt(i)).setBackgroundResource(R.drawable.home_note_background);
+                        } else {
+                            switch (noteList.get(i).getCollaboratorList().get(noteList.get(i).getCollaboratorList().indexOf(currentUserCollaborator)).getNote_background_color()) {
+                                case "yellow":
+                                    Objects.requireNonNull(recyclerView.getLayoutManager().getChildAt(i)).setBackgroundResource(R.drawable.home_note_background_yellow);
+                                    break;
+                                case "red":
+                                    Objects.requireNonNull(recyclerView.getLayoutManager().getChildAt(i)).setBackgroundResource(R.drawable.home_note_background_red);
+                                    break;
+                                case "green":
+                                    Objects.requireNonNull(recyclerView.getLayoutManager().getChildAt(i)).setBackgroundResource(R.drawable.home_note_background_green);
+                                    break;
+                                case "blue":
+                                    Objects.requireNonNull(recyclerView.getLayoutManager().getChildAt(i)).setBackgroundResource(R.drawable.home_note_background_blue);
+                                    break;
+                                case "orange":
+                                    Objects.requireNonNull(recyclerView.getLayoutManager().getChildAt(i)).setBackgroundResource(R.drawable.home_note_background_orange);
+                                    break;
+                                case "purple":
+                                    Objects.requireNonNull(recyclerView.getLayoutManager().getChildAt(i)).setBackgroundResource(R.drawable.home_note_background_purple);
+                                    break;
+                            }
                         }
-                    }
                 }
             }
 
@@ -857,6 +858,8 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
                         notesdeleted[0]++;
                         if (notesdeleted[0] == notesToDelete.size()) {
                             //Clear notes list and get them all again
+                            noteList.clear();
+                            staggeredRecyclerViewAdapter.notifyDataSetChanged();
                             getNotes();
                             dialog.cancel();
                         }
@@ -885,6 +888,8 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
                         notesdeleted[0]++;
                         if (notesdeleted[0] == notesToDelete.size()) {
                             //Clear notes list and get them all again
+                            noteList.clear();
+                            staggeredRecyclerViewAdapter.notifyDataSetChanged();
                             getNotes();
                             dialog.cancel();
                         }
