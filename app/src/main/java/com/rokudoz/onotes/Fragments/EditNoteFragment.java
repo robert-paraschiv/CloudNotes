@@ -847,40 +847,45 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
         Log.d(TAG, "onStop: ");
 
         Log.d(TAG, "onStop: " + checkableItemList.toString());
-        Log.d(TAG, "onStop: " + mNote.getCheckableItemList().toString());
+        if (mNote.getCheckableItemList() != null)
+            Log.d(TAG, "onStop: " + mNote.getCheckableItemList().toString());
 
         if (mNote != null) {
 
-            for (CheckableItem item : checkableItemList) {
-                if (!mNote.getCheckableItemList().contains(item) && !item.getText().equals("")) {
-                    Log.d(TAG, "onStop: mnote doesnt contain " + item.getText());
-                    edit = true;
-                } else if (mNote.getCheckableItemList().contains(item)) {
-                    if (mNote.getCheckableItemList().get(mNote.getCheckableItemList().indexOf(item)).getChecked() != item.getChecked()) {
-                        Log.d(TAG, "onStop: mnote contains but checked different " + item.getText());
+            if (noteType.equals("checkbox") && mNote.getCheckableItemList() != null) {
+                for (CheckableItem item : checkableItemList) {
+                    if (!mNote.getCheckableItemList().contains(item) && !item.getText().equals("")) {
+                        Log.d(TAG, "onStop: mnote doesnt contain " + item.getText());
                         edit = true;
+                    } else if (mNote.getCheckableItemList().contains(item)) {
+                        if (mNote.getCheckableItemList().get(mNote.getCheckableItemList().indexOf(item)).getChecked() != item.getChecked()) {
+                            Log.d(TAG, "onStop: mnote contains but checked different " + item.getText());
+                            edit = true;
+                        }
                     }
                 }
-            }
-            for (CheckableItem item : mNote.getCheckableItemList()) {
-                if (!checkableItemList.contains(item)) {
-                    Log.d(TAG, "onStop: checkableItemList doesnt contain " + item.getText());
-                    edit = true;
-                    break;
-                } else {
-                    if (checkableItemList.get(checkableItemList.indexOf(item)).getChecked() != item.getChecked()) {
+                for (CheckableItem item : mNote.getCheckableItemList()) {
+                    if (!checkableItemList.contains(item)) {
+                        Log.d(TAG, "onStop: checkableItemList doesnt contain " + item.getText());
                         edit = true;
-                        Log.d(TAG, "onStop: checkableItemList contains but checked differently" + item.getText());
                         break;
+                    } else {
+                        if (checkableItemList.get(checkableItemList.indexOf(item)).getChecked() != item.getChecked()) {
+                            edit = true;
+                            Log.d(TAG, "onStop: checkableItemList contains but checked differently" + item.getText());
+                            break;
+                        }
                     }
                 }
-            }
 
+
+            }
             List<CheckableItem> tempCheckableList = new ArrayList<>();
             for (CheckableItem item : checkableItemList) {
                 if (!item.getText().trim().equals(""))
                     tempCheckableList.add(new CheckableItem(item.getText(), item.getChecked()));
             }
+
 
             Log.d(TAG, "onStop: " + edit);
 
