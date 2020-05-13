@@ -172,52 +172,52 @@ public class ViewTrashNote extends Fragment {
 
     private void getNote(final String noteID) {
         db.collection("Notes").document(noteID)
-                .addSnapshotListener(new EventListener<DocumentSnapshot>() {
-                    @Override
-                    public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException e) {
-                        if (documentSnapshot != null && e == null) {
-                            final Note note = documentSnapshot.toObject(Note.class);
-                            if (note != null) {
-                                note.setNote_doc_ID(documentSnapshot.getId());
-                                if (note.getNoteTitle() != null)
-                                    titleTv.setText(note.getNoteTitle());
-                                if (note.getNoteText() != null)
-                                    textTv.setText(note.getNoteText());
+                .get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+            @Override
+            public void onSuccess(DocumentSnapshot documentSnapshot) {
+                if (documentSnapshot != null) {
+                    final Note note = documentSnapshot.toObject(Note.class);
+                    if (note != null) {
+                        note.setNote_doc_ID(documentSnapshot.getId());
+                        if (note.getNoteTitle() != null)
+                            titleTv.setText(note.getNoteTitle());
+                        if (note.getNoteText() != null)
+                            textTv.setText(note.getNoteText());
 
-                                if (note.getNoteType() != null && note.getNoteType().equals("checkbox")) {
-                                    recyclerView.setVisibility(View.VISIBLE);
-                                    textTv.setVisibility(View.INVISIBLE);
-                                    if (note.getCheckableItemList() != null)
-                                        buildRecyclerView(note.getCheckableItemList());
-                                } else {
-                                    recyclerView.setVisibility(View.INVISIBLE);
-                                }
+                        if (note.getNoteType() != null && note.getNoteType().equals("checkbox")) {
+                            recyclerView.setVisibility(View.VISIBLE);
+                            textTv.setVisibility(View.INVISIBLE);
+                            if (note.getCheckableItemList() != null)
+                                buildRecyclerView(note.getCheckableItemList());
+                        } else {
+                            recyclerView.setVisibility(View.INVISIBLE);
+                        }
 
-                                restoreBtn.setOnClickListener(new View.OnClickListener() {
+                        restoreBtn.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(final View v) {
+                                AlertDialog.Builder builder = new AlertDialog.Builder(getContext(), R.style.CustomBottomSheetDialogTheme);
+                                builder.setCancelable(false);
+                                builder.setView(R.layout.dialog_please_wait);
+                                final AlertDialog dialog = builder.create();
+                                dialog.show();
+
+                                db.collection("Notes").document(noteID)
+                                        .update("deleted", false).addOnSuccessListener(new OnSuccessListener<Void>() {
                                     @Override
-                                    public void onClick(final View v) {
-                                        AlertDialog.Builder builder = new AlertDialog.Builder(getContext(), R.style.CustomBottomSheetDialogTheme);
-                                        builder.setCancelable(false);
-                                        builder.setView(R.layout.dialog_please_wait);
-                                        final AlertDialog dialog = builder.create();
-                                        dialog.show();
-
-                                        db.collection("Notes").document(noteID)
-                                                .update("deleted", false).addOnSuccessListener(new OnSuccessListener<Void>() {
-                                            @Override
-                                            public void onSuccess(Void aVoid) {
-                                                dialog.cancel();
-                                                if (Objects.requireNonNull(Navigation.findNavController(view).getCurrentDestination()).getId() == R.id.viewTrashNote)
-                                                    Navigation.findNavController(view).navigate(ViewTrashNoteDirections.actionViewTrashNoteToTrashFragment());
-                                            }
-                                        });
-
+                                    public void onSuccess(Void aVoid) {
+                                        dialog.cancel();
+                                        if (Objects.requireNonNull(Navigation.findNavController(view).getCurrentDestination()).getId() == R.id.viewTrashNote)
+                                            Navigation.findNavController(view).navigate(ViewTrashNoteDirections.actionViewTrashNoteToTrashFragment());
                                     }
                                 });
+
                             }
-                        }
+                        });
                     }
-                });
+                }
+            }
+        });
 
     }
 

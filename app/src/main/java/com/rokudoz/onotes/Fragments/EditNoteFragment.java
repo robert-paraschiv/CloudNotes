@@ -38,6 +38,7 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.WriteBatch;
 import com.rokudoz.onotes.Adapters.CheckableItemAdapter;
@@ -84,7 +85,6 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
     private int position = 0;
     private int number_of_edits = 0;
     private List<CheckableItem> checkableItemList = new ArrayList<>();
-    private List<CheckableItem> oldList = new ArrayList<>();
     private RecyclerView recyclerView, collaboratorsRV;
     private RelativeLayout rv_checkbox_Layout;
     private CheckableItemAdapter mAdapter;
@@ -99,6 +99,8 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
     TextView lastEditTv, numberOfEditsTv;
     MaterialButton backBtn, deleteBtn, checkboxModeBtn, addCheckboxBtn, optionsBtn;
     MaterialCardView bottomCard;
+
+    private ListenerRegistration noteListener;
 
     private RelativeLayout rootLayout;
 
@@ -187,6 +189,7 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
 
         return view;
     }
+
 
     private void setupDeleteNoteBtn() {
         deleteBtn.setOnClickListener(new View.OnClickListener() {
@@ -423,7 +426,7 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
 
     private void getNote(final String noteID) {
         if (FirebaseAuth.getInstance().getCurrentUser() != null)
-            db.collection("Notes").document(noteID)
+            noteListener = db.collection("Notes").document(noteID)
                     .addSnapshotListener(new EventListener<DocumentSnapshot>() {
                         @SuppressLint("SetTextI18n")
                         @Override
@@ -461,14 +464,10 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
                                         textInput.setVisibility(View.GONE);
                                         checkableItemList.clear();
                                         mAdapter.notifyDataSetChanged();
-                                        if (mNote.getCheckableItemList() != null) {
-                                            for (CheckableItem item : mNote.getCheckableItemList()) {
-                                                checkableItemList.add(item);
-                                                oldList.add(new CheckableItem(item.getText(), item.getChecked()));
-                                                mAdapter.notifyItemInserted(checkableItemList.size() - 1);
-                                            }
 
-                                            Log.d(TAG, "onEvent: " + oldList.toString());
+                                        for (CheckableItem item : mNote.getCheckableItemList()) {
+                                            checkableItemList.add(new CheckableItem(item.getText(), item.getChecked()));
+                                            mAdapter.notifyItemInserted(checkableItemList.size() - 1);
                                         }
                                         rv_checkbox_Layout.setVisibility(View.VISIBLE);
                                         checkboxModeBtn.setIconResource(R.drawable.ic_outline_text_fields_24);
@@ -564,15 +563,15 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
                             newNoteIsDifferent = true;
 
                         for (CheckableItem item : note.getCheckableItemList()) {
-                            if (!oldList.contains(item) && !item.getText().equals("")) {
+                            if (!mNote.getCheckableItemList().contains(item) && !item.getText().equals("")) {
                                 newNoteIsDifferent = true;
-                            } else if (oldList.contains(item)) {
-                                if (oldList.get(oldList.indexOf(item)).getChecked() != item.getChecked()) {
+                            } else if (mNote.getCheckableItemList().contains(item)) {
+                                if (mNote.getCheckableItemList().get(mNote.getCheckableItemList().indexOf(item)).getChecked() != item.getChecked()) {
                                     newNoteIsDifferent = true;
                                 }
                             }
                         }
-                        for (CheckableItem item : oldList) {
+                        for (CheckableItem item : mNote.getCheckableItemList()) {
                             if (!note.getCheckableItemList().contains(item)) {
                                 newNoteIsDifferent = true;
                                 break;
@@ -617,7 +616,7 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
             public void onClick(View v) {
                 progressBar.setVisibility(View.VISIBLE);
                 retrievedNote = false;
-                oldList.clear();
+                mNote.getCheckableItemList().clear();
                 getNote(noteID);
                 dialog.cancel();
             }
@@ -838,29 +837,51 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
     @Override
     public void onStop() {
         super.onStop();
+        if (noteListener != null) {
+            noteListener.remove();
+            noteListener = null;
+        }
+
         //reset retrievedNote
         retrievedNote = false;
         Log.d(TAG, "onStop: ");
-        for (CheckableItem checkableItem : checkableItemList) {
-            Log.d(TAG, "onStop: " + checkableItem.toString());
-        }
+
+        Log.d(TAG, "onStop: " + checkableItemList.toString());
+        Log.d(TAG, "onStop: " + mNote.getCheckableItemList().toString());
+
         if (mNote != null) {
 
             for (CheckableItem item : checkableItemList) {
-                if (!oldList.contains(item) && !item.getText().equals("")) {
+                if (!mNote.getCheckableItemList().contains(item) && !item.getText().equals("")) {
+                    Log.d(TAG, "onStop: mnote doesnt contain " + item.getText());
                     edit = true;
-                } else if (oldList.contains(item)) {
-                    if (oldList.get(oldList.indexOf(item)).getChecked() != item.getChecked()) {
+                } else if (mNote.getCheckableItemList().contains(item)) {
+                    if (mNote.getCheckableItemList().get(mNote.getCheckableItemList().indexOf(item)).getChecked() != item.getChecked()) {
+                        Log.d(TAG, "onStop: mnote contains but checked different " + item.getText());
                         edit = true;
                     }
                 }
             }
-            for (CheckableItem item : oldList) {
+            for (CheckableItem item : mNote.getCheckableItemList()) {
                 if (!checkableItemList.contains(item)) {
+                    Log.d(TAG, "onStop: checkableItemList doesnt contain " + item.getText());
                     edit = true;
                     break;
+                } else {
+                    if (checkableItemList.get(checkableItemList.indexOf(item)).getChecked() != item.getChecked()) {
+                        edit = true;
+                        Log.d(TAG, "onStop: checkableItemList contains but checked differently" + item.getText());
+                        break;
+                    }
                 }
             }
+
+            List<CheckableItem> tempCheckableList = new ArrayList<>();
+            for (CheckableItem item : checkableItemList) {
+                if (!item.getText().trim().equals(""))
+                    tempCheckableList.add(new CheckableItem(item.getText(), item.getChecked()));
+            }
+
             Log.d(TAG, "onStop: " + edit);
 
             if (!mNote.getNoteText().equals(Objects.requireNonNull(textInput.getText()).toString())
@@ -885,7 +906,7 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
                             title,
                             "",
                             mNote.getCreator_user_email(),
-                            null, true, noteType, checkableItemList, "Edited", number_of_edits + 1,
+                            null, true, noteType, tempCheckableList, "Edited", number_of_edits + 1,
                             false, mNote.getUsers(), mNote.getCollaboratorList(),
                             Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getEmail());
                 }
@@ -894,10 +915,15 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
                 batch.set(db.collection("Notes").document(noteID), note);
                 batch.set(db.collection("Notes").document(noteID).collection("Edits").document(), note);
 
+                final Note finalNote = note;
                 batch.commit().addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
                         Log.d(TAG, "onSuccess: Updated note successfully");
+                        edit = false;
+                        if (finalNote.getNoteType().equals("checkbox")) {
+                            mNote = finalNote;
+                        }
                         if (getActivity() != null)
                             hideSoftKeyboard(getActivity());
                     }

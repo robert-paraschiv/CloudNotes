@@ -142,7 +142,7 @@ public class TrashFragment extends Fragment implements NoteEditsAdapter.OnItemCl
         final AlertDialog dialog = builder.create();
         dialog.show();
 
-        final WriteBatch batch = db.batch();
+
         db.collection("Notes")
                 .whereEqualTo("creator_user_email", Objects.requireNonNull(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getEmail()))
                 .whereEqualTo("deleted", true)
@@ -151,27 +151,40 @@ public class TrashFragment extends Fragment implements NoteEditsAdapter.OnItemCl
             public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
                 if (queryDocumentSnapshots != null && queryDocumentSnapshots.size() > 0) {
                     for (DocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
+                        final WriteBatch batch = db.batch();
                         batch.delete(documentSnapshot.getReference());
                         documentSnapshot.getReference().collection("Edits").get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
                             @Override
                             public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
-                                if (queryDocumentSnapshots != null && queryDocumentSnapshots.size() > 0)
-                                    for (DocumentSnapshot documentSnapshot : queryDocumentSnapshots)
-                                        batch.delete(documentSnapshot.getReference());
+                                if (queryDocumentSnapshots != null && queryDocumentSnapshots.size() > 0) {
+                                    WriteBatch innerBatch = db.batch();
+                                    for (DocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
+                                        innerBatch.delete(documentSnapshot.getReference());
+                                    }
+                                    innerBatch.commit().addOnSuccessListener(new OnSuccessListener<Void>() {
+                                        @Override
+                                        public void onSuccess(Void aVoid) {
+                                            Log.d(TAG, "onSuccess: deleted inner batch");
+                                        }
+                                    });
+                                }
+                            }
+                        });
+
+                        batch.commit().addOnSuccessListener(new OnSuccessListener<Void>() {
+                            @Override
+                            public void onSuccess(Void aVoid) {
+                                if (getContext() != null)
+                                    Toast.makeText(requireContext(), "Emptied trash", Toast.LENGTH_SHORT).show();
+                                noteList.clear();
+                                noteEditsAdapter.notifyDataSetChanged();
+                                dialog.cancel();
+                                if (Navigation.findNavController(view) != null)
+                                    if (Objects.requireNonNull(Navigation.findNavController(view).getCurrentDestination()).getId() == R.id.trashFragment)
+                                        Navigation.findNavController(view).navigate(TrashFragmentDirections.actionTrashFragmentToHomeFragment());
                             }
                         });
                     }
-                    batch.commit().addOnSuccessListener(new OnSuccessListener<Void>() {
-                        @Override
-                        public void onSuccess(Void aVoid) {
-                            Toast.makeText(requireContext(), "Emptied trash", Toast.LENGTH_SHORT).show();
-                            noteList.clear();
-                            noteEditsAdapter.notifyDataSetChanged();
-                            dialog.cancel();
-                            if (Objects.requireNonNull(Navigation.findNavController(view).getCurrentDestination()).getId() == R.id.trashFragment)
-                                Navigation.findNavController(view).navigate(TrashFragmentDirections.actionTrashFragmentToHomeFragment());
-                        }
-                    });
                 }
             }
         });

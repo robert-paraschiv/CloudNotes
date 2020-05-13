@@ -317,6 +317,11 @@ public class NewNoteFragment extends Fragment implements CheckableItemAdapter.On
                 mNote.setUsers(new ArrayList<String>());
                 mNote.getUsers().add(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getEmail());
             }
+            List<CheckableItem> tempCheckableList = new ArrayList<>();
+            for (CheckableItem item : checkableItemList) {
+                if (!item.getText().trim().equals(""))
+                    tempCheckableList.add(new CheckableItem(item.getText(), item.getChecked()));
+            }
 
             if (noteType.equals("text")) {
                 note = new Note(title,
@@ -329,13 +334,14 @@ public class NewNoteFragment extends Fragment implements CheckableItemAdapter.On
                 note = new Note(title,
                         "",
                         Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getEmail(),
-                        null, false, noteType, checkableItemList, "Created", 0,
+                        null, false, noteType, tempCheckableList, "Created", 0,
                         false, mNote.getUsers(), mNote.getCollaboratorList(),
                         Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getEmail());
             }
 
             Log.d(TAG, "onStop: note ref " + noteRef);
 
+            //If note hasn't been saved before
             if (noteRef == null) {
                 final Note finalNote = note;
                 db.collection("Notes").add(note)
@@ -352,35 +358,112 @@ public class NewNoteFragment extends Fragment implements CheckableItemAdapter.On
                                 });
                             }
                         });
-            } else {
+            } else { //If note has been saved before
                 note.setEdited(true);
-                if (!mNote.getNoteText().equals(textInputEditText.getText().toString()) || !mNote.getNoteTitle().equals(titleInputEditText.getText().toString())) {
-                    note.setEdit_type("Edited");
-                    note.setNumber_of_edits(mNote.getNumber_of_edits() + 1);
+                if (note.getNoteType().equals("text")) {
+                    if (!mNote.getNoteText().equals(textInputEditText.getText().toString()) || !mNote.getNoteTitle().equals(titleInputEditText.getText().toString())) {
+                        note.setEdit_type("Edited");
+                        note.setNumber_of_edits(mNote.getNumber_of_edits() + 1);
 
-                    WriteBatch batch = db.batch();
-                    batch.set(noteRef, note);
-                    batch.set(noteRef.collection("Edits").document(), note);
+                        WriteBatch batch = db.batch();
+                        batch.set(noteRef, note);
+                        batch.set(noteRef.collection("Edits").document(), note);
 
-                    final Note finalNote1 = note;
-                    batch.commit().addOnSuccessListener(new OnSuccessListener<Void>() {
-                        @Override
-                        public void onSuccess(Void aVoid) {
-                            Log.d(TAG, "onSuccess: updated note");
-                            mNote = finalNote1;
+                        final Note finalNote1 = note;
+                        batch.commit().addOnSuccessListener(new OnSuccessListener<Void>() {
+                            @Override
+                            public void onSuccess(Void aVoid) {
+                                Log.d(TAG, "onSuccess: updated note");
+                                mNote = finalNote1;
+                                collaboratorsUpdated = false;
+                            }
+                        });
+                    } else if (collaboratorsUpdated) {
+                        WriteBatch batch = db.batch();
+                        batch.update(noteRef, "users", mNote.getUsers());
+                        batch.update(noteRef, "collaboratorList", mNote.getCollaboratorList());
+                        batch.commit().addOnSuccessListener(new OnSuccessListener<Void>() {
+                            @Override
+                            public void onSuccess(Void aVoid) {
+                                Log.d(TAG, "onSuccess: updated collaborators successfully");
+                                collaboratorsUpdated = false;
+                            }
+                        });
+                    }
+                } else {
+                    Log.d(TAG, "onStop: note is checkbox type, beginning to check for differences");
+                    //Check for checkbox list differences
+
+                    Log.d(TAG, "onStop: mnote " + mNote.getCheckableItemList().toString());
+                    Log.d(TAG, "onStop: checkableList " + checkableItemList.toString());
+                    if (mNote.getCheckableItemList() != null && checkableItemList.size() > 0) {
+                        boolean edited = false;
+                        if (mNote.getCheckableItemList().size() != checkableItemList.size()) {
+                            edited = true;
+                        } else {
+                            for (CheckableItem checkableItem : mNote.getCheckableItemList()) {
+                                if (!checkableItemList.contains(checkableItem)) {
+                                    Log.d(TAG, "onStop: checkablelist doesnt contain: " + checkableItem.getText());
+                                    edited = true;
+                                    break;
+                                } else {
+                                    if (checkableItemList.get(checkableItemList.indexOf(checkableItem)).getChecked() != checkableItem.getChecked()) {
+                                        Log.d(TAG, "onStop: checkable list contains but checks are different: " + checkableItem.getText());
+                                        edited = true;
+                                        break;
+                                    }
+                                }
+                            }
+                            for (CheckableItem checkableItem : checkableItemList) {
+                                if (!mNote.getCheckableItemList().contains(checkableItem)) {
+                                    Log.d(TAG, "onStop: mnote doesnt contain: " + checkableItem.getText());
+                                    edited = true;
+                                    break;
+                                } else {
+                                    if (mNote.getCheckableItemList().get(mNote.getCheckableItemList().indexOf(checkableItem)).getChecked()
+                                            != checkableItem.getChecked()) {
+                                        Log.d(TAG, "onStop: mnote contains but checks are different: " + checkableItem.getText());
+                                        edited = true;
+                                        break;
+                                    }
+                                }
+                            }
                         }
-                    });
-                } else if (collaboratorsUpdated) {
-                    WriteBatch batch = db.batch();
-                    batch.update(noteRef, "users", mNote.getUsers());
-                    batch.update(noteRef, "collaboratorList", mNote.getCollaboratorList());
-                    batch.commit().addOnSuccessListener(new OnSuccessListener<Void>() {
-                        @Override
-                        public void onSuccess(Void aVoid) {
-                            Log.d(TAG, "onSuccess: updated collaborators successfully");
+
+                        Log.d(TAG, "onStop: edited= " + edited);
+
+                        if (edited) {
+                            note.setEdit_type("Edited");
+                            note.setNumber_of_edits(mNote.getNumber_of_edits() + 1);
+
+                            WriteBatch batch = db.batch();
+                            batch.set(noteRef, note);
+                            batch.set(noteRef.collection("Edits").document(), note);
+
+                            final Note finalNote1 = note;
+                            batch.commit().addOnSuccessListener(new OnSuccessListener<Void>() {
+                                @Override
+                                public void onSuccess(Void aVoid) {
+                                    Log.d(TAG, "onSuccess: updated note");
+                                    mNote = finalNote1;
+                                }
+                            });
+                        } else if (collaboratorsUpdated) {
+                            //check if collaborators have changed
+                            WriteBatch batch = db.batch();
+                            batch.update(noteRef, "users", mNote.getUsers());
+                            batch.update(noteRef, "collaboratorList", mNote.getCollaboratorList());
+                            batch.commit().addOnSuccessListener(new OnSuccessListener<Void>() {
+                                @Override
+                                public void onSuccess(Void aVoid) {
+                                    Log.d(TAG, "onSuccess: updated collaborators successfully");
+                                    collaboratorsUpdated = false;
+                                }
+                            });
                         }
-                    });
+                    }
                 }
+
             }
 
         } else {

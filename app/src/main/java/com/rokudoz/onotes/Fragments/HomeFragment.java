@@ -806,8 +806,9 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
             for (int i = 0; i < noteList.size(); i++) {
                 if (recyclerView.getLayoutManager() != null && recyclerView.getLayoutManager().getChildAt(i) != null) {
                     if (noteList.get(i).getCollaboratorList() != null && noteList.get(i).getCollaboratorList().contains(currentUserCollaborator))
-                        if (noteList.get(i).getCollaboratorList().get(noteList.get(i).getCollaboratorList().indexOf(currentUserCollaborator)).getNote_background_color()
-                                == null) {
+                        if (noteList.get(i).getCollaboratorList().get(noteList.get(i).getCollaboratorList().indexOf(currentUserCollaborator)).getNote_background_color() == null
+                                || noteList.get(i).getCollaboratorList().get(noteList.get(i).getCollaboratorList().indexOf(currentUserCollaborator)).getNote_background_color()
+                                .equals("")) {
                             Objects.requireNonNull(recyclerView.getLayoutManager().getChildAt(i)).setBackgroundResource(R.drawable.home_note_background);
                         } else {
                             switch (noteList.get(i).getCollaboratorList().get(noteList.get(i).getCollaboratorList().indexOf(currentUserCollaborator)).getNote_background_color()) {
@@ -855,12 +856,18 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
                     @Override
                     public void onSuccess(Void aVoid) {
                         Log.d(TAG, "onSuccess: Deleted note " + note.getNoteTitle());
+                        if (noteList.contains(note)) {
+                            int position = noteList.indexOf(note);
+                            noteList.remove(position);
+                            staggeredRecyclerViewAdapter.notifyItemRemoved(position);
+                        }
+
                         notesdeleted[0]++;
                         if (notesdeleted[0] == notesToDelete.size()) {
-                            //Clear notes list and get them all again
-                            noteList.clear();
-                            staggeredRecyclerViewAdapter.notifyDataSetChanged();
-                            getNotes();
+//                            //Clear notes list and get them all again
+//                            noteList.clear();
+//                            staggeredRecyclerViewAdapter.notifyDataSetChanged();
+//                            getNotes();
                             dialog.cancel();
                         }
                     }
@@ -885,12 +892,19 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
                     @Override
                     public void onSuccess(Void aVoid) {
                         Log.d(TAG, "onSuccess: updated collaborators successfully");
+
+                        if (noteList.contains(note)) {
+                            int position = noteList.indexOf(note);
+                            noteList.remove(position);
+                            staggeredRecyclerViewAdapter.notifyItemRemoved(position);
+                        }
+
                         notesdeleted[0]++;
                         if (notesdeleted[0] == notesToDelete.size()) {
-                            //Clear notes list and get them all again
-                            noteList.clear();
-                            staggeredRecyclerViewAdapter.notifyDataSetChanged();
-                            getNotes();
+//                            //Clear notes list and get them all again
+//                            noteList.clear();
+//                            staggeredRecyclerViewAdapter.notifyDataSetChanged();
+//                            getNotes();
                             dialog.cancel();
                         }
                     }
