@@ -64,6 +64,7 @@ import com.rokudoz.onotes.Models.User;
 import com.rokudoz.onotes.R;
 import com.rokudoz.onotes.Utils.BannerAdManager;
 import com.rokudoz.onotes.Utils.ColorFunctions;
+import com.rokudoz.onotes.Utils.NotesUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -471,39 +472,10 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
                 } else if (newNote.getCheckableItemList() == null && oldNote.getCheckableItemList() != null) {
                     return true;
                 } else if (newNote.getCheckableItemList() != null && oldNote.getCheckableItemList() != null) {
-                    if (newNote.getCheckableItemList().size() != oldNote.getCheckableItemList().size()) {
+                    NotesUtils notesUtils = new NotesUtils();
+                    boolean different = notesUtils.compareCheckableItemLists(newNote.getCheckableItemList(), oldNote.getCheckableItemList());
+                    if (different)
                         return true;
-                    } else {
-                        for (int i = 0; i < newNote.getCheckableItemList().size(); i++) {
-                            if (!newNote.getCheckableItemList().get(i).getText().equals(oldNote.getCheckableItemList().get(i).getText())) {
-                                return true;
-                            } else {
-                                if (newNote.getCheckableItemList().get(i).getChecked() != oldNote.getCheckableItemList().get(i).getChecked())
-                                    return true;
-
-                            }
-                        }
-//
-//                        // Check for checkboxes differences
-//                        for (CheckableItem checkableItem : newNote.getCheckableItemList()) {
-//                            if (!oldNote.getCheckableItemList().contains(checkableItem)) {
-//                                return true;
-//                            } else {
-//                                if (oldNote.getCheckableItemList().get(oldNote.getCheckableItemList().
-//                                        indexOf(checkableItem)).getChecked() != checkableItem.getChecked())
-//                                    return true;
-//                            }
-//                        }
-//                        for (CheckableItem checkableItem : oldNote.getCheckableItemList()) {
-//                            if (!newNote.getCheckableItemList().contains(checkableItem)) {
-//                                return true;
-//                            } else {
-//                                if (oldNote.getCheckableItemList().get(oldNote.getCheckableItemList()
-//                                        .indexOf(checkableItem)).getChecked() != checkableItem.getChecked())
-//                                    return true;
-//                            }
-//                        }
-                    }
                 }
             }
         }

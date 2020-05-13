@@ -52,6 +52,7 @@ import com.rokudoz.onotes.R;
 import com.rokudoz.onotes.Utils.BannerAdManager;
 import com.rokudoz.onotes.Utils.ColorFunctions;
 import com.rokudoz.onotes.Utils.LastEdit;
+import com.rokudoz.onotes.Utils.NotesUtils;
 
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -853,32 +854,9 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
         if (mNote != null) {
 
             if (noteType.equals("checkbox") && mNote.getCheckableItemList() != null) {
-                for (CheckableItem item : checkableItemList) {
-                    if (!mNote.getCheckableItemList().contains(item) && !item.getText().equals("")) {
-                        Log.d(TAG, "onStop: mnote doesnt contain " + item.getText());
-                        edit = true;
-                    } else if (mNote.getCheckableItemList().contains(item)) {
-                        if (mNote.getCheckableItemList().get(mNote.getCheckableItemList().indexOf(item)).getChecked() != item.getChecked()) {
-                            Log.d(TAG, "onStop: mnote contains but checked different " + item.getText());
-                            edit = true;
-                        }
-                    }
-                }
-                for (CheckableItem item : mNote.getCheckableItemList()) {
-                    if (!checkableItemList.contains(item)) {
-                        Log.d(TAG, "onStop: checkableItemList doesnt contain " + item.getText());
-                        edit = true;
-                        break;
-                    } else {
-                        if (checkableItemList.get(checkableItemList.indexOf(item)).getChecked() != item.getChecked()) {
-                            edit = true;
-                            Log.d(TAG, "onStop: checkableItemList contains but checked differently" + item.getText());
-                            break;
-                        }
-                    }
-                }
-
-
+                //Compare notes checkbox lists
+                NotesUtils notesUtils = new NotesUtils();
+                edit = notesUtils.compareCheckableItemLists(mNote.getCheckableItemList(), checkableItemList);
             }
             List<CheckableItem> tempCheckableList = new ArrayList<>();
             for (CheckableItem item : checkableItemList) {

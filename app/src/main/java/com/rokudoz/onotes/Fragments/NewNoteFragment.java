@@ -41,6 +41,7 @@ import com.rokudoz.onotes.Models.User;
 import com.rokudoz.onotes.R;
 import com.rokudoz.onotes.Utils.BannerAdManager;
 import com.rokudoz.onotes.Utils.ColorFunctions;
+import com.rokudoz.onotes.Utils.NotesUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -394,41 +395,12 @@ public class NewNoteFragment extends Fragment implements CheckableItemAdapter.On
                     Log.d(TAG, "onStop: note is checkbox type, beginning to check for differences");
                     //Check for checkbox list differences
 
-                    Log.d(TAG, "onStop: mnote " + mNote.getCheckableItemList().toString());
-                    Log.d(TAG, "onStop: checkableList " + checkableItemList.toString());
                     if (mNote.getCheckableItemList() != null && checkableItemList.size() > 0) {
-                        boolean edited = false;
-                        if (mNote.getCheckableItemList().size() != checkableItemList.size()) {
-                            edited = true;
-                        } else {
-                            for (CheckableItem checkableItem : mNote.getCheckableItemList()) {
-                                if (!checkableItemList.contains(checkableItem)) {
-                                    Log.d(TAG, "onStop: checkablelist doesnt contain: " + checkableItem.getText());
-                                    edited = true;
-                                    break;
-                                } else {
-                                    if (checkableItemList.get(checkableItemList.indexOf(checkableItem)).getChecked() != checkableItem.getChecked()) {
-                                        Log.d(TAG, "onStop: checkable list contains but checks are different: " + checkableItem.getText());
-                                        edited = true;
-                                        break;
-                                    }
-                                }
-                            }
-                            for (CheckableItem checkableItem : checkableItemList) {
-                                if (!mNote.getCheckableItemList().contains(checkableItem)) {
-                                    Log.d(TAG, "onStop: mnote doesnt contain: " + checkableItem.getText());
-                                    edited = true;
-                                    break;
-                                } else {
-                                    if (mNote.getCheckableItemList().get(mNote.getCheckableItemList().indexOf(checkableItem)).getChecked()
-                                            != checkableItem.getChecked()) {
-                                        Log.d(TAG, "onStop: mnote contains but checks are different: " + checkableItem.getText());
-                                        edited = true;
-                                        break;
-                                    }
-                                }
-                            }
-                        }
+
+                        //Compare notes checkboxes lists
+                        NotesUtils notesUtils = new NotesUtils();
+                        boolean edited = notesUtils.compareCheckableItemLists(mNote.getCheckableItemList(), checkableItemList);
+
 
                         Log.d(TAG, "onStop: edited= " + edited);
 
