@@ -13,6 +13,10 @@
         <action
             android:id="@+id/action_homeFragment_to_newNoteFragment"
             app:destination="@id/newNoteFragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right"
             app:popUpTo="@id/homeFragment" />
         <action
             android:id="@+id/action_homeFragment_to_editNoteFragment"
@@ -20,6 +24,10 @@
         <action
             android:id="@+id/action_homeFragment_to_trashFragment"
             app:destination="@id/trashFragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right"
             app:popUpTo="@id/homeFragment" />
         <argument
             android:name="note_id"
@@ -48,7 +56,11 @@
             app:argType="string" />
         <action
             android:id="@+id/action_editNoteFragment_to_noteEditsFragment"
-            app:destination="@id/noteEditsFragment" />
+            app:destination="@id/noteEditsFragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
         <argument
             android:name="noteColor"
             app:argType="string"
@@ -84,6 +96,10 @@
         <action
             android:id="@+id/action_noteEditsFragment_to_viewNoteEditFragment"
             app:destination="@id/viewNoteEditFragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right"
             app:popUpTo="@id/noteEditsFragment" />
         <argument
             android:name="noteColor"
@@ -125,7 +141,11 @@
         tools:layout="@layout/fragment_trash">
         <action
             android:id="@+id/action_trashFragment_to_viewTrashNote"
-            app:destination="@id/viewTrashNote" />
+            app:destination="@id/viewTrashNote"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
         <action
             android:id="@+id/action_trashFragment_to_homeFragment"
             app:destination="@id/homeFragment"

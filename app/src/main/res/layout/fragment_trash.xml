@@ -53,6 +53,13 @@
         </RelativeLayout>
     </com.google.android.material.appbar.MaterialToolbar>
 
+    <ProgressBar
+        android:id="@+id/trashFragment_progressBar"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:layout_centerInParent="true"
+        android:indeterminateTint="@color/icon_tint_color" />
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/trashFragment_recyclerView"
         android:layout_width="match_parent"

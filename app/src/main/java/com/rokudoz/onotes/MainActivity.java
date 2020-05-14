@@ -234,7 +234,7 @@ public class MainActivity extends AppCompatActivity {
             }
         };
 
-        if (sharedPreferences.getInt("TimesStartedCounter", 0) >= 5 && !ASKED_ALREADY) {
+        if (sharedPreferences.getInt("TimesStartedCounter", 0) >= TIMES_TO_OPEN_APP_TO_ASK_FOR_SUPPORT_AD && !ASKED_ALREADY) {
             supportAppRewardedAd.loadAd(new AdRequest.Builder().build(), adLoadCallback);
             ASKED_ALREADY = true;
         }

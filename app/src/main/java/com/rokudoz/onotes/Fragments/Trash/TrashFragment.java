@@ -7,6 +7,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -50,6 +51,8 @@ public class TrashFragment extends Fragment implements NoteEditsAdapter.OnItemCl
     private TrashNotesAdapter noteEditsAdapter;
     private List<Note> noteList = new ArrayList<>();
 
+    private ProgressBar progressBar;
+
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
     private CollectionReference usersRef = db.collection("Users");
     private ListenerRegistration notesListener;
@@ -67,6 +70,7 @@ public class TrashFragment extends Fragment implements NoteEditsAdapter.OnItemCl
         MaterialButton backBtn = view.findViewById(R.id.trashFragment_backBtn);
         MaterialButton emptyTrashBtn = view.findViewById(R.id.trashFragment_emptyTrashBtn);
         recyclerView = view.findViewById(R.id.trashFragment_recyclerView);
+        progressBar = view.findViewById(R.id.trashFragment_progressBar);
 
         //Reset status bar color
         if (getActivity() != null) {
@@ -220,6 +224,10 @@ public class TrashFragment extends Fragment implements NoteEditsAdapter.OnItemCl
                         @Override
                         public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) {
                             if (queryDocumentSnapshots != null && queryDocumentSnapshots.size() > 0 && e == null) {
+
+                                //hide progress bar
+                                progressBar.setVisibility(View.GONE);
+
                                 for (DocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
                                     Note note = documentSnapshot.toObject(Note.class);
                                     if (note != null) {

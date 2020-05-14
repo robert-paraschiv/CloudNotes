@@ -10,6 +10,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -45,6 +46,8 @@ public class ViewTrashNote extends Fragment {
 
     private View view;
 
+    private ProgressBar progressBar;
+
     private TextView titleTv, textTv;
     private MaterialButton restoreBtn;
     private RecyclerView recyclerView;
@@ -69,6 +72,7 @@ public class ViewTrashNote extends Fragment {
         MaterialButton backBtn = view.findViewById(R.id.viewTrashNoteFragment_backBtn);
         MaterialButton deleteBtn = view.findViewById(R.id.viewTrashNoteFragment_deleteBtn);
         recyclerView = view.findViewById(R.id.viewTrashNoteFragment_recyclerView);
+        progressBar = view.findViewById(R.id.viewTrashNoteFragment_progressBar);
 
         //Reset status bar color
         if (getActivity() != null) {
@@ -176,6 +180,9 @@ public class ViewTrashNote extends Fragment {
             @Override
             public void onSuccess(DocumentSnapshot documentSnapshot) {
                 if (documentSnapshot != null) {
+                    //Hide progress bar
+                    progressBar.setVisibility(View.GONE);
+
                     final Note note = documentSnapshot.toObject(Note.class);
                     if (note != null) {
                         note.setNote_doc_ID(documentSnapshot.getId());

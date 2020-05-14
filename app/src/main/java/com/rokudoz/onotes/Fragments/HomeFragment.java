@@ -175,6 +175,17 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
         //Show Banner Ad
         if (getActivity() != null && !HIDE_BANNER) {
             bannerAdManager.showBannerAd(getActivity());
+            //Move Add note Fab lower
+            CoordinatorLayout.LayoutParams params = (CoordinatorLayout.LayoutParams) addNewNoteBtn.getLayoutParams();
+            params.setMargins(0, 0, bannerAdManager.convertDpToPixel(getActivity(), 16), bannerAdManager.convertDpToPixel(getActivity(), 66));
+
+            //Move recyclerview lower
+            CoordinatorLayout.LayoutParams recyclerviewParams = (CoordinatorLayout.LayoutParams) view.findViewById(R.id.homeFragment_recyclerView_layout)
+                    .getLayoutParams();
+            recyclerviewParams.setMargins(bannerAdManager.convertDpToPixel(getActivity(), 4),
+                    0,
+                    bannerAdManager.convertDpToPixel(getActivity(), 4),
+                    bannerAdManager.convertDpToPixel(getActivity(), 50));
         } else if (getActivity() != null && HIDE_BANNER) {
             //Move Add note Fab lower
             CoordinatorLayout.LayoutParams params = (CoordinatorLayout.LayoutParams) addNewNoteBtn.getLayoutParams();
