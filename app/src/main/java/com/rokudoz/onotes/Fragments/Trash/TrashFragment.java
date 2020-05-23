@@ -30,6 +30,7 @@ import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.WriteBatch;
+import com.rokudoz.onotes.Adapters.HomePageAdapter;
 import com.rokudoz.onotes.Adapters.NoteEditsAdapter;
 import com.rokudoz.onotes.Adapters.TrashNotesAdapter;
 import com.rokudoz.onotes.Models.Note;
@@ -43,12 +44,12 @@ import java.util.Objects;
 
 import static com.rokudoz.onotes.App.HIDE_BANNER;
 
-public class TrashFragment extends Fragment implements NoteEditsAdapter.OnItemClickListener, TrashNotesAdapter.OnItemClickListener {
+public class TrashFragment extends Fragment implements HomePageAdapter.OnItemClickListener {
     private static final String TAG = "TrashFragment";
 
     private RecyclerView recyclerView;
 
-    private TrashNotesAdapter noteEditsAdapter;
+    private HomePageAdapter noteEditsAdapter;
     private List<Note> noteList = new ArrayList<>();
 
     private ProgressBar progressBar;
@@ -225,7 +226,7 @@ public class TrashFragment extends Fragment implements NoteEditsAdapter.OnItemCl
                         public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) {
                             if (queryDocumentSnapshots != null && queryDocumentSnapshots.size() > 0 && e == null) {
 
-                                //hide progress bar
+                                //Hide progress bar
                                 progressBar.setVisibility(View.GONE);
 
                                 for (DocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
@@ -249,23 +250,34 @@ public class TrashFragment extends Fragment implements NoteEditsAdapter.OnItemCl
                                         }
                                     }
                                 }
+                            } else {
+                                //Hide progress bar
+                                progressBar.setVisibility(View.GONE);
+
+                                Toast.makeText(requireContext(), "Empty trash bin", Toast.LENGTH_SHORT).show();
                             }
                         }
                     });
     }
 
     private void setUpRecyclerView() {
-        noteEditsAdapter = new TrashNotesAdapter(getActivity(), noteList);
+        noteEditsAdapter = new HomePageAdapter(getActivity(), noteList);
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext());
         recyclerView.setLayoutManager(linearLayoutManager);
         recyclerView.setAdapter(noteEditsAdapter);
         noteEditsAdapter.setOnItemClickListener(TrashFragment.this);
     }
 
+
     @Override
-    public void onItemClick(int position) {
+    public void onItemClick(int position, TextView title, TextView text, RecyclerView checkboxRv, RecyclerView collaboratorsRv, RelativeLayout rootLayout) {
         Note note = noteList.get(position);
         if (Objects.requireNonNull(Navigation.findNavController(view).getCurrentDestination()).getId() == R.id.trashFragment && note.getNote_doc_ID() != null)
             Navigation.findNavController(view).navigate(TrashFragmentDirections.actionTrashFragmentToViewTrashNote(note.getNote_doc_ID()));
+    }
+
+    @Override
+    public void onLongItemClick(int position) {
+
     }
 }

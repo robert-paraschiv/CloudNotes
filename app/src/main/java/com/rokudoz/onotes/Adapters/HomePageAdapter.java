@@ -402,11 +402,13 @@ public class HomePageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     }
 
     private void highlightView(View view, int position) {
+
+        //Get current user collaborator background color details for current note
         Collaborator currentUserCollaborator = new Collaborator();
         currentUserCollaborator.setUser_email(FirebaseAuth.getInstance().getCurrentUser().getEmail());
-
         String color = noteList.get(position).getCollaboratorList().get(noteList.get(position).getCollaboratorList().indexOf(currentUserCollaborator))
                 .getNote_background_color();
+
         if (color == null || color.equals("")) {
             view.setBackgroundResource(R.drawable.home_note_selected_note_background);
         } else
@@ -433,9 +435,10 @@ public class HomePageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     }
 
     private void unhighlightView(View view, int position) {
+
+        //Get current user collaborator background color details for current note
         Collaborator currentUserCollaborator = new Collaborator();
         currentUserCollaborator.setUser_email(FirebaseAuth.getInstance().getCurrentUser().getEmail());
-
         String color = noteList.get(position).getCollaboratorList().get(noteList.get(position).getCollaboratorList().indexOf(currentUserCollaborator))
                 .getNote_background_color();
 

@@ -31,6 +31,7 @@
                 android:textColor="@color/dialog_please_wait_text_color" />
 
             <TextView
+                android:textColor="@color/dialog_please_wait_text_color"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_centerVertical="true"
@@ -58,9 +59,9 @@
     </com.google.android.material.appbar.MaterialToolbar>
 
     <androidx.recyclerview.widget.RecyclerView
-        android:layout_marginTop="12dp"
         android:id="@+id/dialog_collaborators_rv"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp" />
 
 </LinearLayout>
