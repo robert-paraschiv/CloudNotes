@@ -156,6 +156,7 @@ public class MainActivity extends AppCompatActivity {
             public void onRewardedAdFailedToLoad(int errorCode) {
                 // Ad failed to load.
                 Log.d(TAG, "onRewardedAdFailedToLoad: Ad failed to load");
+                showCloseBannerRewardedAd();
             }
         };
 
@@ -231,6 +232,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onRewardedAdFailedToLoad(int errorCode) {
                 // Ad failed to load.
+                showSupportAppRewardedAd();
             }
         };
 

@@ -4,7 +4,11 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.ActionMode;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
@@ -14,11 +18,14 @@ import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.navigation.NavDirections;
 import androidx.navigation.Navigation;
+import androidx.navigation.fragment.FragmentNavigator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.button.MaterialButton;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.CollectionReference;
@@ -33,6 +40,8 @@ import com.google.firebase.firestore.WriteBatch;
 import com.rokudoz.onotes.Adapters.HomePageAdapter;
 import com.rokudoz.onotes.Adapters.NoteEditsAdapter;
 import com.rokudoz.onotes.Adapters.TrashNotesAdapter;
+import com.rokudoz.onotes.Fragments.HomeFragmentDirections;
+import com.rokudoz.onotes.Models.Collaborator;
 import com.rokudoz.onotes.Models.Note;
 import com.rokudoz.onotes.R;
 import com.rokudoz.onotes.Utils.BannerAdManager;
@@ -51,14 +60,14 @@ public class TrashFragment extends Fragment implements HomePageAdapter.OnItemCli
 
     private HomePageAdapter noteEditsAdapter;
     private List<Note> noteList = new ArrayList<>();
-
+    private ActionMode actionMode;
     private ProgressBar progressBar;
-
+    private Collaborator currentUserCollaborator = new Collaborator();
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
     private CollectionReference usersRef = db.collection("Users");
     private ListenerRegistration notesListener;
     private View view;
-
+    private MaterialToolbar materialToolbar;
 
     public TrashFragment() {
         // Required empty public constructor
@@ -72,12 +81,15 @@ public class TrashFragment extends Fragment implements HomePageAdapter.OnItemCli
         MaterialButton emptyTrashBtn = view.findViewById(R.id.trashFragment_emptyTrashBtn);
         recyclerView = view.findViewById(R.id.trashFragment_recyclerView);
         progressBar = view.findViewById(R.id.trashFragment_progressBar);
-
+        materialToolbar = view.findViewById(R.id.trashFragment_toolbar);
         //Reset status bar color
         if (getActivity() != null) {
             ColorFunctions colorFunctions = new ColorFunctions();
             colorFunctions.resetStatus_NavigationBar_Colors(getActivity());
         }
+
+        if (FirebaseAuth.getInstance().getCurrentUser() != null)
+            currentUserCollaborator.setUser_email(FirebaseAuth.getInstance().getCurrentUser().getEmail());
 
         backBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -269,15 +281,185 @@ public class TrashFragment extends Fragment implements HomePageAdapter.OnItemCli
     }
 
 
+    private void deleteSelectedNotes(final List<Note> notesToDelete) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(getContext(), R.style.CustomBottomSheetDialogTheme);
+        builder.setCancelable(false);
+        builder.setView(R.layout.dialog_please_wait);
+        final AlertDialog dialog = builder.create();
+        dialog.show();
+
+        final int[] counter = {0};
+        for (final Note note : notesToDelete) {
+            db.collection("Notes").document(note.getNote_doc_ID()).collection("Edits").get()
+                    .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+                        @Override
+                        public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                            if (queryDocumentSnapshots != null && queryDocumentSnapshots.size() > 0) {
+                                WriteBatch batch = db.batch();
+                                for (DocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
+                                    batch.delete(documentSnapshot.getReference());
+                                }
+                                batch.delete(db.collection("Notes").document(note.getNote_doc_ID()));
+                                batch.commit().addOnSuccessListener(new OnSuccessListener<Void>() {
+                                    @Override
+                                    public void onSuccess(Void aVoid) {
+                                        //Remove note from list
+                                        int position = noteList.indexOf(note);
+                                        noteList.remove(note);
+                                        noteEditsAdapter.notifyItemRemoved(position);
+
+                                        counter[0]++;
+                                        //If all selected notes have been deleted
+                                        if (counter[0] == notesToDelete.size()) {
+                                            Toast.makeText(requireContext(), "Deleted all notes", Toast.LENGTH_SHORT).show();
+                                            dialog.cancel();
+                                        }
+                                    }
+                                });
+                            }
+                        }
+                    });
+        }
+    }
+
+    private void restoreSelectedNotes(final List<Note> notesToRestore) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(getContext(), R.style.CustomBottomSheetDialogTheme);
+        builder.setCancelable(false);
+        builder.setView(R.layout.dialog_please_wait);
+        final AlertDialog dialog = builder.create();
+        dialog.show();
+
+        final int[] counter = {0};
+        for (final Note note : notesToRestore) {
+            db.collection("Notes").document(note.getNote_doc_ID()).update("deleted", false).addOnSuccessListener(new OnSuccessListener<Void>() {
+                @Override
+                public void onSuccess(Void aVoid) {
+                    //Remove note from list
+                    int position = noteList.indexOf(note);
+                    noteList.remove(note);
+                    noteEditsAdapter.notifyItemRemoved(position);
+
+                    counter[0]++;
+                    //If all selected notes have been restored
+                    if (counter[0] == notesToRestore.size()) {
+                        Toast.makeText(requireContext(), "Selected notes have been restored", Toast.LENGTH_SHORT).show();
+                        dialog.cancel();
+                    }
+                }
+            });
+        }
+    }
+
+
     @Override
-    public void onItemClick(int position, TextView title, TextView text, RecyclerView checkboxRv, RecyclerView collaboratorsRv, RelativeLayout rootLayout) {
-        Note note = noteList.get(position);
-        if (Objects.requireNonNull(Navigation.findNavController(view).getCurrentDestination()).getId() == R.id.trashFragment && note.getNote_doc_ID() != null)
-            Navigation.findNavController(view).navigate(TrashFragmentDirections.actionTrashFragmentToViewTrashNote(note.getNote_doc_ID()));
+    public void onItemClick(final int position, final TextView title, final TextView text, final RecyclerView checkboxRv,
+                            final RecyclerView collaboratorsRv, final RelativeLayout rootLayout) {
+//        Log.d(TAG, "onItemClick: " + position);
+        int selected = noteEditsAdapter.getSelected().size();
+        if (actionMode == null) {
+            Note note = noteList.get(position);
+            if (Objects.requireNonNull(Navigation.findNavController(view).getCurrentDestination()).getId() == R.id.trashFragment && note.getNote_doc_ID() != null)
+                Navigation.findNavController(view).navigate(TrashFragmentDirections.actionTrashFragmentToViewTrashNote(note.getNote_doc_ID()));
+
+        } else {
+            if (selected == 0) {
+                actionMode.finish();
+            } else {
+                actionMode.setTitle("" + selected);
+            }
+        }
     }
 
     @Override
     public void onLongItemClick(int position) {
-
+        int selected = noteEditsAdapter.getSelected().size();
+        if (actionMode == null) {
+            actionMode = materialToolbar.startActionMode(actionModeCallback);
+            if (actionMode != null) {
+                actionMode.setTitle("" + selected);
+            }
+        } else {
+            if (selected == 0) {
+                actionMode.finish();
+            } else {
+                actionMode.setTitle("" + selected);
+            }
+        }
     }
+
+
+    private ActionMode.Callback actionModeCallback = new ActionMode.Callback() {
+        @Override
+        public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+            MenuInflater inflater = mode.getMenuInflater();
+            inflater.inflate(R.menu.trash_action_menu, menu);
+            return true;
+        }
+
+        @Override
+        public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+            return false;
+        }
+
+        @Override
+        public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+            if (item.getItemId() == R.id.delete_notes) {
+                // Delete btn is clicked, proceed to delete notes
+                List<Note> notesToDelete = new ArrayList<>(noteEditsAdapter.getSelected());
+                deleteSelectedNotes(notesToDelete);
+
+                mode.finish();
+                return true;
+            } else if (item.getItemId() == R.id.restore_notes) {
+                // Delete btn is clicked, proceed to delete notes
+                List<Note> notesToRestore = new ArrayList<>(noteEditsAdapter.getSelected());
+                restoreSelectedNotes(notesToRestore);
+
+                mode.finish();
+                return true;
+            }
+            return false;
+        }
+
+        @Override
+        public void onDestroyActionMode(ActionMode mode) {
+            noteEditsAdapter.clearSelected();
+            //Deselect selected items when action bar closes
+            for (int i = 0; i < noteList.size(); i++) {
+                if (recyclerView.getLayoutManager() != null && recyclerView.getLayoutManager().getChildAt(i) != null) {
+                    if (noteList.get(i).getCollaboratorList() != null && noteList.get(i).getCollaboratorList().contains(currentUserCollaborator))
+                        if (noteList.get(i).getCollaboratorList().get(noteList.get(i).getCollaboratorList().indexOf(currentUserCollaborator)).getNote_background_color() == null
+                                || noteList.get(i).getCollaboratorList().get(noteList.get(i).getCollaboratorList().indexOf(currentUserCollaborator)).getNote_background_color()
+                                .equals("")) {
+                            Objects.requireNonNull(recyclerView.getLayoutManager().getChildAt(i)).setBackgroundResource(R.drawable.home_note_background);
+                        } else {
+                            switch (noteList.get(i).getCollaboratorList().get(noteList.get(i).getCollaboratorList().indexOf(currentUserCollaborator)).getNote_background_color()) {
+                                case "yellow":
+                                    Objects.requireNonNull(recyclerView.getLayoutManager().getChildAt(i)).setBackgroundResource(R.drawable.home_note_background_yellow);
+                                    break;
+                                case "red":
+                                    Objects.requireNonNull(recyclerView.getLayoutManager().getChildAt(i)).setBackgroundResource(R.drawable.home_note_background_red);
+                                    break;
+                                case "green":
+                                    Objects.requireNonNull(recyclerView.getLayoutManager().getChildAt(i)).setBackgroundResource(R.drawable.home_note_background_green);
+                                    break;
+                                case "blue":
+                                    Objects.requireNonNull(recyclerView.getLayoutManager().getChildAt(i)).setBackgroundResource(R.drawable.home_note_background_blue);
+                                    break;
+                                case "orange":
+                                    Objects.requireNonNull(recyclerView.getLayoutManager().getChildAt(i)).setBackgroundResource(R.drawable.home_note_background_orange);
+                                    break;
+                                case "purple":
+                                    Objects.requireNonNull(recyclerView.getLayoutManager().getChildAt(i)).setBackgroundResource(R.drawable.home_note_background_purple);
+                                    break;
+                            }
+                        }
+                }
+            }
+
+            actionMode = null;
+        }
+    };
+
+
 }

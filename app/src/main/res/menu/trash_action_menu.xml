@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:id="@+id/restore_notes"
+        android:icon="@drawable/ic_outline_restore_24"
+        android:title="Restore"/>
+    <item android:id="@+id/delete_notes"
+        android:icon="@drawable/ic_baseline_delete_outline_24"
+        android:title="Delete"/>
+</menu>
