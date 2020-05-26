@@ -92,6 +92,8 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
     ItemTouchHelper helper;
     private ImageView layoutManagerIcon;
 
+    private TextView noNotesTv;
+
     private Collaborator currentUserCollaborator = new Collaborator();
 
     private HomePageAdapter staggeredRecyclerViewAdapter;
@@ -131,6 +133,7 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
             view = inflater.inflate(R.layout.fragment_home, container, false);
             recyclerView = view.findViewById(R.id.homeFragment_recyclerView);
             addNewNoteBtn = view.findViewById(R.id.homeFragment_addNoteFab);
+            noNotesTv = view.findViewById(R.id.homeFragment_empty);
 
             sharedPreferences = requireActivity().getSharedPreferences(SETTINGS_PREFS_NAME, MODE_PRIVATE);
             sharedPrefsEditor = requireActivity().getSharedPreferences(SETTINGS_PREFS_NAME, MODE_PRIVATE).edit();
@@ -336,54 +339,63 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
                         @Override
                         public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) {
                             if (queryDocumentSnapshots != null && e == null) {
-                                for (DocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
-                                    Note note = documentSnapshot.toObject(Note.class);
-                                    if (note != null) {
-                                        note.setNote_doc_ID(documentSnapshot.getId());
-                                        if (noteList.contains(note)) {
-                                            int notePosition = noteList.indexOf(note);
-                                            if (note.getDeleted()) {
-                                                noteList.remove(note);
-                                                staggeredRecyclerViewAdapter.notifyItemRemoved(notePosition);
-                                            } else {
-                                                //Check if note are different
-                                                if (checkIfNotesAreDifferent(note, noteList.get(noteList.indexOf(note)))) {
-                                                    noteList.set(notePosition, note);
-                                                    staggeredRecyclerViewAdapter.notifyItemChanged(notePosition);
+                                if (queryDocumentSnapshots.size() > 0) {
+                                    //Notes are available, hide no notes tv
+                                    noNotesTv.setVisibility(View.GONE);
 
-                                                } else if (checkIfBackgroundIsChanged(note, noteList.get(noteList.indexOf(note)))) {
-                                                    //Notes are the same, user just changed color
-                                                    staggeredRecyclerViewAdapter.unhighlightViewHolder(recyclerView.getChildViewHolder(recyclerView.getChildAt(notePosition)),
-                                                            note.getCollaboratorList().get(note.getCollaboratorList().indexOf(currentUserCollaborator)).getNote_background_color());
-
-                                                    noteList.get(noteList.indexOf(note)).getCollaboratorList().get(noteList.get(noteList.indexOf(note)).getCollaboratorList()
-                                                            .indexOf(currentUserCollaborator)).setNote_background_color(note.getCollaboratorList().get(note.getCollaboratorList()
-                                                            .indexOf(currentUserCollaborator)).getNote_background_color());
-                                                } else if (checkIfPositionIsChanged(note, noteList.get(noteList.indexOf(note)))) {
-                                                    noteList.get(noteList.indexOf(note)).getCollaboratorList().get(noteList.get(noteList.indexOf(note)).getCollaboratorList()
-                                                            .indexOf(currentUserCollaborator)).setNote_position(note.getCollaboratorList().get(note.getCollaboratorList().
-                                                            indexOf(currentUserCollaborator)).getNote_position());
-                                                }
-                                                //If user is no longer collaborator, remove note
-                                                if (!note.getUsers().contains(FirebaseAuth.getInstance().getCurrentUser().getEmail())) {
+                                    for (DocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
+                                        Note note = documentSnapshot.toObject(Note.class);
+                                        if (note != null) {
+                                            note.setNote_doc_ID(documentSnapshot.getId());
+                                            if (noteList.contains(note)) {
+                                                int notePosition = noteList.indexOf(note);
+                                                if (note.getDeleted()) {
                                                     noteList.remove(note);
-                                                    staggeredRecyclerViewAdapter.notifyItemRemoved(noteList.indexOf(note));
+                                                    staggeredRecyclerViewAdapter.notifyItemRemoved(notePosition);
+                                                } else {
+                                                    //Check if note are different
+                                                    if (checkIfNotesAreDifferent(note, noteList.get(noteList.indexOf(note)))) {
+                                                        noteList.set(notePosition, note);
+                                                        staggeredRecyclerViewAdapter.notifyItemChanged(notePosition);
+
+                                                    } else if (checkIfBackgroundIsChanged(note, noteList.get(noteList.indexOf(note)))) {
+                                                        //Notes are the same, user just changed color
+                                                        staggeredRecyclerViewAdapter.unhighlightViewHolder(recyclerView.getChildViewHolder(recyclerView.getChildAt(notePosition)),
+                                                                note.getCollaboratorList().get(note.getCollaboratorList().indexOf(currentUserCollaborator)).getNote_background_color());
+
+                                                        noteList.get(noteList.indexOf(note)).getCollaboratorList().get(noteList.get(noteList.indexOf(note)).getCollaboratorList()
+                                                                .indexOf(currentUserCollaborator)).setNote_background_color(note.getCollaboratorList().get(note.getCollaboratorList()
+                                                                .indexOf(currentUserCollaborator)).getNote_background_color());
+                                                    } else if (checkIfPositionIsChanged(note, noteList.get(noteList.indexOf(note)))) {
+                                                        noteList.get(noteList.indexOf(note)).getCollaboratorList().get(noteList.get(noteList.indexOf(note)).getCollaboratorList()
+                                                                .indexOf(currentUserCollaborator)).setNote_position(note.getCollaboratorList().get(note.getCollaboratorList().
+                                                                indexOf(currentUserCollaborator)).getNote_position());
+                                                    }
+                                                    //If user is no longer collaborator, remove note
+                                                    if (!note.getUsers().contains(FirebaseAuth.getInstance().getCurrentUser().getEmail())) {
+                                                        noteList.remove(note);
+                                                        staggeredRecyclerViewAdapter.notifyItemRemoved(noteList.indexOf(note));
+                                                    }
+
+                                                }
+                                            } else {
+                                                if (note.getCollaboratorList().get(note.getCollaboratorList().indexOf(currentUserCollaborator)).getNote_position() != null
+                                                        && noteList.size() >= note.getCollaboratorList().get(note.getCollaboratorList().indexOf(currentUserCollaborator)).getNote_position()) {
+                                                    noteList.add(note.getCollaboratorList().get(note.getCollaboratorList().indexOf(currentUserCollaborator)).getNote_position(), note);
+                                                    staggeredRecyclerViewAdapter.notifyItemInserted(noteList.indexOf(note));
+                                                } else {
+                                                    noteList.add(note);
+                                                    staggeredRecyclerViewAdapter.notifyItemInserted(noteList.size() - 1);
                                                 }
 
                                             }
-                                        } else {
-                                            if (note.getCollaboratorList().get(note.getCollaboratorList().indexOf(currentUserCollaborator)).getNote_position() != null
-                                                    && noteList.size() >= note.getCollaboratorList().get(note.getCollaboratorList().indexOf(currentUserCollaborator)).getNote_position()) {
-                                                noteList.add(note.getCollaboratorList().get(note.getCollaboratorList().indexOf(currentUserCollaborator)).getNote_position(), note);
-                                                staggeredRecyclerViewAdapter.notifyItemInserted(noteList.indexOf(note));
-                                            } else {
-                                                noteList.add(note);
-                                                staggeredRecyclerViewAdapter.notifyItemInserted(noteList.size() - 1);
-                                            }
-
                                         }
                                     }
+                                } else {
+                                    //No notes available, show no notes tv
+                                    noNotesTv.setVisibility(View.VISIBLE);
                                 }
+
                             }
                         }
                     });

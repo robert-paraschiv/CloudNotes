@@ -58,6 +58,7 @@ public class TrashFragment extends Fragment implements HomePageAdapter.OnItemCli
 
     private RecyclerView recyclerView;
 
+    private TextView noNotesTv;
     private HomePageAdapter noteEditsAdapter;
     private List<Note> noteList = new ArrayList<>();
     private ActionMode actionMode;
@@ -80,6 +81,7 @@ public class TrashFragment extends Fragment implements HomePageAdapter.OnItemCli
         MaterialButton backBtn = view.findViewById(R.id.trashFragment_backBtn);
         MaterialButton emptyTrashBtn = view.findViewById(R.id.trashFragment_emptyTrashBtn);
         recyclerView = view.findViewById(R.id.trashFragment_recyclerView);
+        noNotesTv = view.findViewById(R.id.trashFragment_empty);
         progressBar = view.findViewById(R.id.trashFragment_progressBar);
         materialToolbar = view.findViewById(R.id.trashFragment_toolbar);
         //Reset status bar color
@@ -130,7 +132,7 @@ public class TrashFragment extends Fragment implements HomePageAdapter.OnItemCli
                     dialog.show();
                 } else {
                     Log.d(TAG, "onClick: trash is empty");
-                    Toast.makeText(requireContext(), "Already empty", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(requireContext(), "Your bin is already empty", Toast.LENGTH_SHORT).show();
                 }
 
             }
@@ -159,6 +161,7 @@ public class TrashFragment extends Fragment implements HomePageAdapter.OnItemCli
         final AlertDialog dialog = builder.create();
         dialog.show();
 
+        final WriteBatch batch = db.batch();
 
         db.collection("Notes")
                 .whereEqualTo("creator_user_email", Objects.requireNonNull(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getEmail()))
@@ -167,38 +170,40 @@ public class TrashFragment extends Fragment implements HomePageAdapter.OnItemCli
             @Override
             public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
                 if (queryDocumentSnapshots != null && queryDocumentSnapshots.size() > 0) {
+                    final int notesToDelete = queryDocumentSnapshots.size();
+                    final int[] notesDeleted = {0};
                     for (DocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
-                        final WriteBatch batch = db.batch();
+                        //Add note to the delete batch
                         batch.delete(documentSnapshot.getReference());
                         documentSnapshot.getReference().collection("Edits").get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
                             @Override
                             public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
                                 if (queryDocumentSnapshots != null && queryDocumentSnapshots.size() > 0) {
-                                    WriteBatch innerBatch = db.batch();
-                                    for (DocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
-                                        innerBatch.delete(documentSnapshot.getReference());
-                                    }
-                                    innerBatch.commit().addOnSuccessListener(new OnSuccessListener<Void>() {
-                                        @Override
-                                        public void onSuccess(Void aVoid) {
-                                            Log.d(TAG, "onSuccess: deleted inner batch");
-                                        }
-                                    });
-                                }
-                            }
-                        });
 
-                        batch.commit().addOnSuccessListener(new OnSuccessListener<Void>() {
-                            @Override
-                            public void onSuccess(Void aVoid) {
-                                if (getContext() != null)
-                                    Toast.makeText(requireContext(), "Emptied trash", Toast.LENGTH_SHORT).show();
-                                noteList.clear();
-                                noteEditsAdapter.notifyDataSetChanged();
-                                dialog.cancel();
-                                if (Navigation.findNavController(view) != null)
-                                    if (Objects.requireNonNull(Navigation.findNavController(view).getCurrentDestination()).getId() == R.id.trashFragment)
-                                        Navigation.findNavController(view).navigate(TrashFragmentDirections.actionTrashFragmentToHomeFragment());
+                                    //Add inner note edits to the delete batch
+                                    for (DocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
+                                        batch.delete(documentSnapshot.getReference());
+                                    }
+                                    notesDeleted[0]++;
+                                    if (notesDeleted[0] == notesToDelete) { //finished adding notes to the batch, go commit
+
+                                        batch.commit().addOnSuccessListener(new OnSuccessListener<Void>() {
+                                            @Override
+                                            public void onSuccess(Void aVoid) {
+                                                if (getContext() != null)
+                                                    Toast.makeText(requireContext(), "Emptied trash", Toast.LENGTH_SHORT).show();
+                                                //Show No notes Text View
+                                                noNotesTv.setVisibility(View.VISIBLE);
+                                                noteList.clear();
+                                                noteEditsAdapter.notifyDataSetChanged();
+                                                dialog.cancel();
+                                                if (Navigation.findNavController(view) != null)
+                                                    if (Objects.requireNonNull(Navigation.findNavController(view).getCurrentDestination()).getId() == R.id.trashFragment)
+                                                        Navigation.findNavController(view).navigate(TrashFragmentDirections.actionTrashFragmentToHomeFragment());
+                                            }
+                                        });
+                                    }
+                                }
                             }
                         });
                     }
@@ -237,9 +242,10 @@ public class TrashFragment extends Fragment implements HomePageAdapter.OnItemCli
                         @Override
                         public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) {
                             if (queryDocumentSnapshots != null && queryDocumentSnapshots.size() > 0 && e == null) {
-
                                 //Hide progress bar
                                 progressBar.setVisibility(View.GONE);
+                                //Hide No notes Text View
+                                noNotesTv.setVisibility(View.GONE);
 
                                 for (DocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
                                     Note note = documentSnapshot.toObject(Note.class);
@@ -265,8 +271,9 @@ public class TrashFragment extends Fragment implements HomePageAdapter.OnItemCli
                             } else {
                                 //Hide progress bar
                                 progressBar.setVisibility(View.GONE);
-
-                                Toast.makeText(requireContext(), "Empty trash bin", Toast.LENGTH_SHORT).show();
+                                //Show No notes Text View
+                                noNotesTv.setVisibility(View.VISIBLE);
+                                Log.d(TAG, "onEvent: empty trash bin");
                             }
                         }
                     });

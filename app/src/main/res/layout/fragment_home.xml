@@ -62,6 +62,16 @@
         </com.google.android.material.appbar.MaterialToolbar>
     </com.google.android.material.appbar.AppBarLayout>
 
+    <TextView
+        android:visibility="gone"
+        tools:visibility="visible"
+        android:id="@+id/homeFragment_empty"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:gravity="center"
+        android:text="You have no notes to show currently\nAdd one by tapping the + button" />
+
 
     <androidx.core.widget.NestedScrollView
         android:id="@+id/homeFragment_recyclerView_layout"
