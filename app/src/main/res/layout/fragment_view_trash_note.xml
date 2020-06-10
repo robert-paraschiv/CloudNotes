@@ -29,13 +29,15 @@
 
             <TextView
                 style="@style/TextAppearance.MaterialComponents.Headline6"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_centerVertical="true"
+                android:layout_toStartOf="@+id/viewTrashNoteFragment_BtnLayout"
                 android:layout_toEndOf="@id/viewTrashNoteFragment_backBtn"
                 android:text="View note to restore" />
 
             <LinearLayout
+                android:id="@+id/viewTrashNoteFragment_BtnLayout"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentEnd="true"

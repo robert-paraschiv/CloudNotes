@@ -9,7 +9,7 @@
     <color name="navigationColor">#0f0f0f</color>
     <color name="dialog_settings_background_color">#1f1f1f</color>
 
-    <color name="home_note_background_color">#1f1f1f</color>
+    <color name="home_note_background_color">#2a2a2a</color>
     <color name="home_note_selected_background_color">#3a3a3a</color>
     <color name="home_note_selected_stroke_color">#eaeaea</color>
 
