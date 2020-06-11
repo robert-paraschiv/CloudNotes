@@ -30,9 +30,12 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Welcome, please sign in to continue"
+        android:gravity="center_horizontal"
+        android:layout_marginStart="14dp"
+        android:layout_marginEnd="14dp"
+        android:text="Welcome your personal mistake-friendly note taking app \n\n Please sign in to continue"
         app:layout_constraintBottom_toTopOf="@+id/progressBar"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
