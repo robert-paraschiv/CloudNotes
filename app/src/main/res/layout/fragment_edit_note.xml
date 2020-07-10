@@ -2,10 +2,10 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/rv_home_note_rootLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/fragments_background"
-    android:id="@+id/rv_home_note_rootLayout"
     tools:context=".Fragments.EditNoteFragment">
 
     <com.google.android.material.appbar.MaterialToolbar
@@ -28,14 +28,6 @@
                 app:icon="@drawable/ic_baseline_arrow_back_24"
                 app:iconGravity="start"
                 app:iconTint="@color/icon_tint_color" />
-
-            <TextView
-                style="@style/TextAppearance.MaterialComponents.Headline6"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerVertical="true"
-                android:layout_toEndOf="@id/editNoteFragment_backBtn"
-                android:text="Edit Note" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/editNoteFragment_deleteBtn"
@@ -64,10 +56,10 @@
         android:layout_below="@id/editNoteFragment_toolbar">
 
         <LinearLayout
-            android:orientation="vertical"
             android:id="@+id/contentLayout"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/editNoteFragment_titleEditText"
@@ -90,6 +82,7 @@
                 android:layout_marginStart="16dp"
                 android:layout_marginTop="8dp"
                 android:layout_marginEnd="16dp"
+                android:layout_marginBottom="16dp"
                 android:background="@null"
                 android:gravity="top"
                 android:hint="Text"
@@ -148,7 +141,8 @@
 
         <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="match_parent"
+            android:gravity="bottom">
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/editNoteFragment_CheckBoxModeBtn"
@@ -204,5 +198,4 @@
         </RelativeLayout>
 
     </com.google.android.material.card.MaterialCardView>
-
 </RelativeLayout>

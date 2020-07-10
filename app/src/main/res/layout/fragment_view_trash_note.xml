@@ -27,14 +27,6 @@
                 app:iconGravity="start"
                 app:iconTint="@color/icon_tint_color" />
 
-            <TextView
-                style="@style/TextAppearance.MaterialComponents.Headline6"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_centerVertical="true"
-                android:layout_toStartOf="@+id/viewTrashNoteFragment_BtnLayout"
-                android:layout_toEndOf="@id/viewTrashNoteFragment_backBtn"
-                android:text="View note to restore" />
 
             <LinearLayout
                 android:id="@+id/viewTrashNoteFragment_BtnLayout"
@@ -108,6 +100,7 @@
             android:id="@+id/viewTrashNoteFragment_text"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:layout_marginBottom="16dp"
             android:gravity="top"
             tools:text="LOREM ipsum\nnonon\ntete\naaaaaaaaaaaaaaaa" />
     </ScrollView>

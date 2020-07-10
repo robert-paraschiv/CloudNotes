@@ -54,15 +54,15 @@
     </com.google.android.material.appbar.MaterialToolbar>
 
     <TextView
-        android:visibility="gone"
-        tools:visibility="visible"
         android:id="@+id/trashFragment_empty"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
         android:gravity="center"
         android:text="Your trash bin is currently empty\n
-         Notes will show here after you delete them" />
+         Notes will show here after you delete them"
+        android:visibility="gone"
+        tools:visibility="visible" />
 
     <ProgressBar
         android:id="@+id/trashFragment_progressBar"
