@@ -366,15 +366,13 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
                                                     } else if (checkIfBackgroundIsChanged(note, noteList.get(noteList.indexOf(note)))) {
                                                         //Notes are the same, user just changed color
                                                         staggeredRecyclerViewAdapter.unhighlightViewHolder(recyclerView.getChildViewHolder(recyclerView.getChildAt(notePosition)),
-                                                                note.getCollaboratorList().get(note.getCollaboratorList().indexOf(currentUserCollaborator)).getNote_background_color());
+                                                                getNoteBackgroundColor(note));
 
                                                         noteList.get(noteList.indexOf(note)).getCollaboratorList().get(noteList.get(noteList.indexOf(note)).getCollaboratorList()
-                                                                .indexOf(currentUserCollaborator)).setNote_background_color(note.getCollaboratorList().get(note.getCollaboratorList()
-                                                                .indexOf(currentUserCollaborator)).getNote_background_color());
+                                                                .indexOf(currentUserCollaborator)).setNote_background_color(getNoteBackgroundColor(note));
                                                     } else if (checkIfPositionIsChanged(note, noteList.get(noteList.indexOf(note)))) {
                                                         noteList.get(noteList.indexOf(note)).getCollaboratorList().get(noteList.get(noteList.indexOf(note)).getCollaboratorList()
-                                                                .indexOf(currentUserCollaborator)).setNote_position(note.getCollaboratorList().get(note.getCollaboratorList().
-                                                                indexOf(currentUserCollaborator)).getNote_position());
+                                                                .indexOf(currentUserCollaborator)).setNote_position(getNotePosition(note));
                                                     }
                                                     //If user is no longer collaborator, remove note
                                                     if (!note.getUsers().contains(FirebaseAuth.getInstance().getCurrentUser().getEmail())) {
@@ -384,17 +382,17 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
 
                                                 }
                                             } else {
-                                                if (note.getCollaboratorList().get(note.getCollaboratorList().indexOf(currentUserCollaborator)).getNote_position() != null
-                                                        && noteList.size() >= note.getCollaboratorList().get(note.getCollaboratorList().indexOf(currentUserCollaborator)).getNote_position()) {
-                                                    noteList.add(note.getCollaboratorList().get(note.getCollaboratorList().indexOf(currentUserCollaborator)).getNote_position(), note);
+                                                if (getNotePosition(note) != null
+                                                        && noteList.size() >= getNotePosition(note)) {
+                                                    noteList.add(getNotePosition(note), note);
                                                     staggeredRecyclerViewAdapter.notifyItemInserted(noteList.indexOf(note));
                                                     Log.d(TAG, "onEvent: added note " + note.getNoteTitle() + " at position "
-                                                            + note.getCollaboratorList().get(note.getCollaboratorList().indexOf(currentUserCollaborator)).getNote_position());
+                                                            + getNotePosition(note));
                                                 } else {
                                                     noteList.add(note);
                                                     staggeredRecyclerViewAdapter.notifyItemInserted(noteList.size() - 1);
-                                                    Log.d(TAG, "onEvent: added note default " + note.getNoteTitle() + " at position " + (noteList.size() - 1) + " actual note position " +
-                                                            note.getCollaboratorList().get(note.getCollaboratorList().indexOf(currentUserCollaborator)).getNote_position());
+                                                    Log.d(TAG, "onEvent: added note default " + note.getNoteTitle() + " at position " + (noteList.size() - 1) +
+                                                            " actual note position " + getNotePosition(note));
                                                 }
 
                                             }
@@ -436,11 +434,19 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
                     });
     }
 
+    private Integer getNotePosition(Note note) {
+        return note.getCollaboratorList().get(note.getCollaboratorList().indexOf(currentUserCollaborator)).getNote_position();
+    }
+
+    private String getNoteBackgroundColor(Note note) {
+        return note.getCollaboratorList().get(note.getCollaboratorList().indexOf(currentUserCollaborator)).getNote_background_color();
+    }
+
+
     private boolean checkIfPositionIsChanged(Note newNote, Note oldNote) {
         boolean changedPosition = false;
 
-        if (!newNote.getCollaboratorList().get(newNote.getCollaboratorList().indexOf(currentUserCollaborator)).getNote_position()
-                .equals(oldNote.getCollaboratorList().get(oldNote.getCollaboratorList().indexOf(currentUserCollaborator)).getNote_position()))
+        if (!getNotePosition(newNote).equals(getNotePosition(oldNote)))
             changedPosition = true;
 
         return changedPosition;
@@ -449,16 +455,12 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
     private boolean checkIfBackgroundIsChanged(Note newNote, Note oldNote) {
         //If notes have different background colors, they're changed
         boolean changed = false;
-        if (newNote.getCollaboratorList().get(newNote.getCollaboratorList().indexOf(currentUserCollaborator)).getNote_background_color() != null
-                && oldNote.getCollaboratorList().get(oldNote.getCollaboratorList().indexOf(currentUserCollaborator)).getNote_background_color() == null) {
+        if (getNoteBackgroundColor(newNote) != null && getNoteBackgroundColor(oldNote) == null) {
             changed = true;
-        } else if (newNote.getCollaboratorList().get(newNote.getCollaboratorList().indexOf(currentUserCollaborator)).getNote_background_color() == null
-                && oldNote.getCollaboratorList().get(oldNote.getCollaboratorList().indexOf(currentUserCollaborator)).getNote_background_color() != null) {
+        } else if (getNoteBackgroundColor(newNote) == null && getNoteBackgroundColor(oldNote) != null) {
             changed = true;
-        } else if (newNote.getCollaboratorList().get(newNote.getCollaboratorList().indexOf(currentUserCollaborator)).getNote_background_color() != null &&
-                oldNote.getCollaboratorList().get(oldNote.getCollaboratorList().indexOf(currentUserCollaborator)).getNote_background_color() != null) {
-            changed = !newNote.getCollaboratorList().get(newNote.getCollaboratorList().indexOf(currentUserCollaborator)).getNote_background_color()
-                    .equals(oldNote.getCollaboratorList().get(oldNote.getCollaboratorList().indexOf(currentUserCollaborator)).getNote_background_color());
+        } else if (getNoteBackgroundColor(newNote) != null && getNoteBackgroundColor(oldNote) != null) {
+            changed = !getNoteBackgroundColor(newNote).equals(getNoteBackgroundColor(oldNote));
         }
 
         for (Collaborator collaborator : newNote.getCollaboratorList()) {
@@ -566,7 +568,7 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
                             @Override
                             public void onSuccess(Void aVoid) {
                                 Log.d(TAG, "onSuccess: updated position " + note.getNoteTitle() + " - "
-                                        + note.getCollaboratorList().get(note.getCollaboratorList().indexOf(currentUserCollaborator)).getNote_position());
+                                        + getNotePosition(note));
                             }
                         });
             }
