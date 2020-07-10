@@ -276,24 +276,29 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
                 if (fromPosition < toPosition) {
                     for (int i = fromPosition; i < toPosition; i++) {
                         Collections.swap(noteList, i, i + 1);
-                        noteList.get(i + 1).getCollaboratorList().get(noteList.get(i + 1).getCollaboratorList().indexOf(currentUserCollaborator)).setNote_position(i + 1);
                         noteList.get(i).getCollaboratorList().get(noteList.get(i).getCollaboratorList().indexOf(currentUserCollaborator)).setNote_position(i);
+                        noteList.get(i + 1).getCollaboratorList().get(noteList.get(i + 1).getCollaboratorList().indexOf(currentUserCollaborator)).setNote_position(i + 1);
                         staggeredRecyclerViewAdapter.notifyItemMoved(i, i + 1);
+
+                        //Update notes individual position in the list
+                        noteList.get(i).setChangedPos(true);
+                        noteList.get(i + 1).setChangedPos(true);
                     }
                 } else {
                     for (int i = fromPosition; i > toPosition; i--) {
                         Collections.swap(noteList, i, i - 1);
-                        noteList.get(i - 1).getCollaboratorList().get(noteList.get(i - 1).getCollaboratorList().indexOf(currentUserCollaborator)).setNote_position(i - 1);
                         noteList.get(i).getCollaboratorList().get(noteList.get(i).getCollaboratorList().indexOf(currentUserCollaborator)).setNote_position(i);
+                        noteList.get(i - 1).getCollaboratorList().get(noteList.get(i - 1).getCollaboratorList().indexOf(currentUserCollaborator)).setNote_position(i - 1);
                         staggeredRecyclerViewAdapter.notifyItemMoved(i, i - 1);
+
+                        //Update notes individual position in the list
+                        noteList.get(i).setChangedPos(true);
+                        noteList.get(i - 1).setChangedPos(true);
                     }
                 }
 
                 recyclerView.scrollToPosition(toPosition);
 
-                //Update notes individual position in the list
-                noteList.get(fromPosition).setChangedPos(true);
-                noteList.get(toPosition).setChangedPos(true);
 
                 if (actionMode != null) {
                     final Handler handler = new Handler();
@@ -383,9 +388,13 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
                                                         && noteList.size() >= note.getCollaboratorList().get(note.getCollaboratorList().indexOf(currentUserCollaborator)).getNote_position()) {
                                                     noteList.add(note.getCollaboratorList().get(note.getCollaboratorList().indexOf(currentUserCollaborator)).getNote_position(), note);
                                                     staggeredRecyclerViewAdapter.notifyItemInserted(noteList.indexOf(note));
+                                                    Log.d(TAG, "onEvent: added note " + note.getNoteTitle() + " at position "
+                                                            + note.getCollaboratorList().get(note.getCollaboratorList().indexOf(currentUserCollaborator)).getNote_position());
                                                 } else {
                                                     noteList.add(note);
                                                     staggeredRecyclerViewAdapter.notifyItemInserted(noteList.size() - 1);
+                                                    Log.d(TAG, "onEvent: added note default " + note.getNoteTitle() + " at position " + (noteList.size() - 1) + " actual note position " +
+                                                            note.getCollaboratorList().get(note.getCollaboratorList().indexOf(currentUserCollaborator)).getNote_position());
                                                 }
 
                                             }
@@ -549,14 +558,15 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
         }
 
         //If the user has rearranged any notes, update their position
-        for (Note note : noteList) {
+        for (final Note note : noteList) {
             if (note.getChangedPos() != null && note.getChangedPos()) {
                 db.collection("Notes").document(note.getNote_doc_ID())
                         .update("collaboratorList", note.getCollaboratorList())
                         .addOnSuccessListener(new OnSuccessListener<Void>() {
                             @Override
                             public void onSuccess(Void aVoid) {
-                                Log.d(TAG, "onSuccess: updated position");
+                                Log.d(TAG, "onSuccess: updated position " + note.getNoteTitle() + " - "
+                                        + note.getCollaboratorList().get(note.getCollaboratorList().indexOf(currentUserCollaborator)).getNote_position());
                             }
                         });
             }
@@ -747,6 +757,8 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
                     if (user.isEmailVerified()) {
                         // DO STUFF
 
+                        if (FirebaseAuth.getInstance().getCurrentUser() != null)
+                            currentUserCollaborator.setUser_email(FirebaseAuth.getInstance().getCurrentUser().getEmail());
 //                        Log.d(TAG, "onAuthStateChanged: MAIL VERIFIED");
                     } else {
                         Toast.makeText(getActivity(), "Email is not Verified\nCheck your Inbox", Toast.LENGTH_SHORT).show();
