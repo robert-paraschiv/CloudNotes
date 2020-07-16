@@ -116,7 +116,7 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.fragment_edit_note, container, false);
 
-        postponeEnterTransition();
+//        postponeEnterTransition();
 
         currentUserCollaborator.setUser_email(FirebaseAuth.getInstance().getCurrentUser().getEmail());
 
