@@ -7,6 +7,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
+import javax.annotation.Nullable;
+
 public class Note {
     private String note_doc_ID;
     private String noteTitle;
@@ -23,13 +25,14 @@ public class Note {
     private List<Collaborator> collaboratorList;
     private String last_edited_by_user;
     private Boolean has_collaborators;
+    private List<NoteChange> noteChangeList;
 
     @ServerTimestamp
     private Date creation_date;
 
     public Note(String noteTitle, String noteText, String creator_user_email, Date creation_date, Boolean edited, String noteType,
-                List<CheckableItem> checkableItemList, String edit_type, Integer number_of_edits, Boolean deleted,List<String> users,
-                List<Collaborator> collaboratorList, String last_edited_by_user) {
+                List<CheckableItem> checkableItemList, String edit_type, Integer number_of_edits, Boolean deleted, List<String> users,
+                List<Collaborator> collaboratorList, String last_edited_by_user, List<NoteChange> noteChangeList) {
         this.noteTitle = noteTitle;
         this.noteText = noteText;
         this.creator_user_email = creator_user_email;
@@ -43,6 +46,7 @@ public class Note {
         this.users = users;
         this.collaboratorList = collaboratorList;
         this.last_edited_by_user = last_edited_by_user;
+        this.noteChangeList = noteChangeList;
     }
 
     public Note() {
@@ -178,13 +182,21 @@ public class Note {
         this.edited = edited;
     }
 
+    public List<NoteChange> getNoteChangeList() {
+        return noteChangeList;
+    }
+
+    public void setNoteChangeList(List<NoteChange> noteChangeList) {
+        this.noteChangeList = noteChangeList;
+    }
+
     @Override
     public String toString() {
         return "Note{" +
-                ", note_doc_ID='" + note_doc_ID + '\'' +
+                "note_doc_ID='" + note_doc_ID + '\'' +
                 ", noteTitle='" + noteTitle + '\'' +
                 ", noteText='" + noteText + '\'' +
-                ", user_ID='" + creator_user_email + '\'' +
+                ", creator_user_email='" + creator_user_email + '\'' +
                 ", edited=" + edited +
                 ", noteType='" + noteType + '\'' +
                 ", checkableItemList=" + checkableItemList +
@@ -192,6 +204,11 @@ public class Note {
                 ", edit_type='" + edit_type + '\'' +
                 ", number_of_edits=" + number_of_edits +
                 ", deleted=" + deleted +
+                ", users=" + users +
+                ", collaboratorList=" + collaboratorList +
+                ", last_edited_by_user='" + last_edited_by_user + '\'' +
+                ", has_collaborators=" + has_collaborators +
+                ", noteChangeList=" + noteChangeList +
                 ", creation_date=" + creation_date +
                 '}';
     }

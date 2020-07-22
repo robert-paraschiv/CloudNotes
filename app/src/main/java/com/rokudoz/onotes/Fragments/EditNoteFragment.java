@@ -47,6 +47,7 @@ import com.rokudoz.onotes.Dialogs.FullBottomSheetDialogFragment;
 import com.rokudoz.onotes.Models.CheckableItem;
 import com.rokudoz.onotes.Models.Collaborator;
 import com.rokudoz.onotes.Models.Note;
+import com.rokudoz.onotes.Models.NoteChange;
 import com.rokudoz.onotes.Models.User;
 import com.rokudoz.onotes.R;
 import com.rokudoz.onotes.Utils.BannerAdManager;
@@ -71,7 +72,7 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
 
     private static final String TAG = "EditNoteFragment";
 
-    int _note_background_color;
+    int note_background_color;
 
     private boolean retrievedNote = false;
 
@@ -137,7 +138,7 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
         progressBar = view.findViewById(R.id.editNoteFragment_progressBar);
         rootLayout = view.findViewById(R.id.rv_home_note_rootLayout);
 
-        _note_background_color = ContextCompat.getColor(requireContext(), R.color.fragments_background);
+        note_background_color = ContextCompat.getColor(requireContext(), R.color.fragments_background);
 
         if (getArguments() != null) {
             EditNoteFragmentArgs editNoteFragmentArgs = EditNoteFragmentArgs.fromBundle(getArguments());
@@ -339,7 +340,7 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
         window.setStatusBarColor(color);
         window.setNavigationBarColor(color);
 
-        _note_background_color = color;
+        note_background_color = color;
         bottomCard.setBackgroundColor(color);
         view.setBackgroundColor(color);
     }
@@ -352,7 +353,7 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
             MaterialCardView cardView = new MaterialCardView(requireContext());
             bottomCard.setBackgroundColor(cardView.getCardBackgroundColor().getDefaultColor());
             view.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.fragments_background));
-            _note_background_color = ContextCompat.getColor(requireContext(), R.color.fragments_background);
+            note_background_color = ContextCompat.getColor(requireContext(), R.color.fragments_background);
         }
     }
 
@@ -498,7 +499,8 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
                                                         == R.id.editNoteFragment)
                                                     Navigation.findNavController(view).navigate(EditNoteFragmentDirections
                                                             .actionEditNoteFragmentToNoteEditsFragment(noteID,
-                                                                    mNote.getCollaboratorList().get(mNote.getCollaboratorList().indexOf(currentUserCollaborator)).getNote_background_color(),
+                                                                    mNote.getCollaboratorList().get(mNote.getCollaboratorList().indexOf(currentUserCollaborator))
+                                                                            .getNote_background_color(),
                                                                     hasCollaborators));
                                             }
                                         });
@@ -818,7 +820,7 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
         }
 
         FullBottomSheetDialogFragment fullBottomSheetDialogFragment =
-                new FullBottomSheetDialogFragment(_note_background_color, collaboratorList, isOwner);
+                new FullBottomSheetDialogFragment(note_background_color, collaboratorList, isOwner);
 //        fullBottomSheetDialogFragment.setCancelable(false);
         fullBottomSheetDialogFragment.setTargetFragment(EditNoteFragment.this, 2);
         fullBottomSheetDialogFragment.show(getParentFragmentManager(), "");
@@ -878,20 +880,69 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
                     title = titleInput.getText().toString();
                 }
                 if (noteType.equals("text")) {
+
+                    //Compare current note text to old text and get changes
+                    List<NoteChange> noteChangeList = new ArrayList<>();
+
+                    List<String> currentNoteTextList = Arrays.asList(textInput.getText().toString().split("\\r?\\n"));
+                    List<String> oldNoteTextList = Arrays.asList(mNote.getNoteText().split("\\r?\\n"));
+
+
+                    for (int i = 0; i < currentNoteTextList.size(); i++) {
+                        if (oldNoteTextList.size() > i) {
+                            if (!currentNoteTextList.get(i).equals(oldNoteTextList.get(i))) {
+                                noteChangeList.add(new NoteChange("change", currentNoteTextList.get(i), oldNoteTextList.get(i), null, null));
+                            }
+                        } else {
+                            noteChangeList.add(new NoteChange("add", currentNoteTextList.get(i), "", null, null));
+                        }
+                    }
+
+
+                    //Get note ready for updating db
                     note = new Note(title,
                             Objects.requireNonNull(textInput.getText()).toString(),
                             mNote.getCreator_user_email(),
                             null, true, noteType, null, "Edited", number_of_edits + 1,
                             false, mNote.getUsers(), mNote.getCollaboratorList(),
-                            Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getEmail());
+                            Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getEmail(),
+                            noteChangeList);
+
                 } else if (noteType.equals("checkbox")) {
+
+                    //Compare new checkbox values to old ones and get changes
+                    List<NoteChange> noteChangeList = new ArrayList<>();
+
+                    List<CheckableItem> oldCheckboxList = mNote.getCheckableItemList();
+                    List<CheckableItem> currentCheckboxList = tempCheckableList;
+
+
+                    if (oldCheckboxList == null)
+                        oldCheckboxList = new ArrayList<>();
+
+                    for (int i = 0; i < currentCheckboxList.size(); i++) {
+                        if (oldCheckboxList.size() > i) {
+                            if (!currentCheckboxList.get(i).getChecked().equals(oldCheckboxList.get(i).getChecked() ||
+                                    !currentCheckboxList.get(i).getText().equals(oldCheckboxList.get(i).getText()))) {
+                                noteChangeList.add(new NoteChange("change", currentCheckboxList.get(i).getText(), oldCheckboxList.get(i).getText()
+                                        , currentCheckboxList.get(i).getChecked(), oldCheckboxList.get(i).getChecked()));
+                            }
+                        } else {
+                            noteChangeList.add(new NoteChange("add", currentCheckboxList.get(i).getText(), ""
+                                    , currentCheckboxList.get(i).getChecked(), null));
+                        }
+                    }
+
+
+                    //Get note ready for updating db
                     note = new Note(
                             title,
                             "",
                             mNote.getCreator_user_email(),
                             null, true, noteType, tempCheckableList, "Edited", number_of_edits + 1,
                             false, mNote.getUsers(), mNote.getCollaboratorList(),
-                            Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getEmail());
+                            Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getEmail(),
+                            noteChangeList);
                 }
 
                 WriteBatch batch = db.batch();

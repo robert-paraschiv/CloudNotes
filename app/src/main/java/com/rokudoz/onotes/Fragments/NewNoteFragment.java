@@ -37,6 +37,7 @@ import com.rokudoz.onotes.Dialogs.FullBottomSheetDialogFragment;
 import com.rokudoz.onotes.Models.CheckableItem;
 import com.rokudoz.onotes.Models.Collaborator;
 import com.rokudoz.onotes.Models.Note;
+import com.rokudoz.onotes.Models.NoteChange;
 import com.rokudoz.onotes.Models.User;
 import com.rokudoz.onotes.R;
 import com.rokudoz.onotes.Utils.BannerAdManager;
@@ -330,14 +331,16 @@ public class NewNoteFragment extends Fragment implements CheckableItemAdapter.On
                         Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getEmail(),
                         null, false, noteType, null, "Created", 0,
                         false, mNote.getUsers(), mNote.getCollaboratorList(),
-                        Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getEmail());
+                        Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getEmail(),
+                        null);
             } else if (noteType.equals("checkbox")) {
                 note = new Note(title,
                         "",
                         Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getEmail(),
                         null, false, noteType, tempCheckableList, "Created", 0,
                         false, mNote.getUsers(), mNote.getCollaboratorList(),
-                        Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getEmail());
+                        Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getEmail(),
+                        null);
             }
 
             Log.d(TAG, "onStop: note ref " + noteRef);
@@ -365,6 +368,26 @@ public class NewNoteFragment extends Fragment implements CheckableItemAdapter.On
                     if (!mNote.getNoteText().equals(textInputEditText.getText().toString()) || !mNote.getNoteTitle().equals(titleInputEditText.getText().toString())) {
                         note.setEdit_type("Edited");
                         note.setNumber_of_edits(mNote.getNumber_of_edits() + 1);
+
+
+                        //Compare current note text to old text and get changes
+                        List<NoteChange> noteChangeList = new ArrayList<>();
+
+                        List<String> currentNoteTextList = Arrays.asList(textInputEditText.getText().toString().split("\\r?\\n"));
+                        List<String> oldNoteTextList = Arrays.asList(mNote.getNoteText().split("\\r?\\n"));
+
+
+                        for (int i = 0; i < currentNoteTextList.size(); i++) {
+                            if (oldNoteTextList.size() > i) {
+                                if (!currentNoteTextList.get(i).equals(oldNoteTextList.get(i))) {
+                                    noteChangeList.add(new NoteChange("change", currentNoteTextList.get(i), oldNoteTextList.get(i), null, null));
+                                }
+                            } else {
+                                noteChangeList.add(new NoteChange("add", currentNoteTextList.get(i), "", null, null));
+                            }
+                        }
+
+                        note.setNoteChangeList(noteChangeList);
 
                         WriteBatch batch = db.batch();
                         batch.set(noteRef, note);
@@ -407,6 +430,32 @@ public class NewNoteFragment extends Fragment implements CheckableItemAdapter.On
                         if (edited) {
                             note.setEdit_type("Edited");
                             note.setNumber_of_edits(mNote.getNumber_of_edits() + 1);
+
+
+                            //Compare new checkbox values to old ones and get changes
+                            List<NoteChange> noteChangeList = new ArrayList<>();
+
+                            List<CheckableItem> oldCheckboxList = mNote.getCheckableItemList();
+                            List<CheckableItem> currentCheckboxList = tempCheckableList;
+
+
+                            if (oldCheckboxList == null)
+                                oldCheckboxList = new ArrayList<>();
+
+                            for (int i = 0; i < currentCheckboxList.size(); i++) {
+                                if (oldCheckboxList.size() > i) {
+                                    if (!currentCheckboxList.get(i).getChecked().equals(oldCheckboxList.get(i).getChecked() ||
+                                            !currentCheckboxList.get(i).getText().equals(oldCheckboxList.get(i).getText()))) {
+                                        noteChangeList.add(new NoteChange("change", currentCheckboxList.get(i).getText(), oldCheckboxList.get(i).getText()
+                                                , currentCheckboxList.get(i).getChecked(), oldCheckboxList.get(i).getChecked()));
+                                    }
+                                } else {
+                                    noteChangeList.add(new NoteChange("add", currentCheckboxList.get(i).getText(), ""
+                                            , currentCheckboxList.get(i).getChecked(), null));
+                                }
+                            }
+
+                            note.setNoteChangeList(noteChangeList);
 
                             WriteBatch batch = db.batch();
                             batch.set(noteRef, note);
