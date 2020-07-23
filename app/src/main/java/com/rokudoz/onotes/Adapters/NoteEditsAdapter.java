@@ -2,6 +2,12 @@ package com.rokudoz.onotes.Adapters;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.graphics.Color;
+import android.text.SpannableString;
+import android.text.SpannableStringBuilder;
+import android.text.Spanned;
+import android.text.style.BackgroundColorSpan;
+import android.text.style.ForegroundColorSpan;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -10,12 +16,14 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.rokudoz.onotes.Models.CheckableItem;
 import com.rokudoz.onotes.Models.Note;
+import com.rokudoz.onotes.Models.NoteChange;
 import com.rokudoz.onotes.R;
 import com.rokudoz.onotes.Utils.LastEdit;
 
@@ -161,8 +169,67 @@ public class NoteEditsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     private void populateTextViewHolder(TextNoteViewHolder holder, int position) {
         Note currentItem = noteList.get(position);
 
-        if (currentItem.getNoteText() != null)
-            holder.noteText.setText(currentItem.getNoteText());
+
+        //Get note changes and assign colors accordingly
+        if (currentItem.getNoteChangeList() != null) {
+
+            SpannableStringBuilder builder = new SpannableStringBuilder();
+
+            for (int i = 0; i < currentItem.getNoteChangeList().size(); i++) {
+
+                String newText = currentItem.getNoteChangeList().get(i).getNewText();
+                String oldText = currentItem.getNoteChangeList().get(i).getOldText();
+
+                if (i < currentItem.getNoteChangeList().size() - 1) {
+
+                    if (currentItem.getNoteChangeList().get(i).getType().equals("change")) {
+
+                        SpannableString redSpannable = new SpannableString(oldText);
+                        redSpannable.setSpan(new BackgroundColorSpan(ContextCompat.getColor(mContext,R.color.note_background_color_red))
+                                ,0,oldText.length(),0);
+                        builder.append(redSpannable).append("\n");
+
+                        SpannableString blueSpannable = new SpannableString(newText);
+                        blueSpannable.setSpan(new BackgroundColorSpan(ContextCompat.getColor(mContext,R.color.note_background_color_blue))
+                                ,0,newText.length(),0);
+                        builder.append(blueSpannable).append("\n");
+
+                    } else {
+                        SpannableString greenSpannable = new SpannableString(newText);
+                        greenSpannable.setSpan(new BackgroundColorSpan(ContextCompat.getColor(mContext,R.color.note_background_color_green))
+                                ,0,newText.length(),0);
+                        builder.append(greenSpannable).append("\n");
+
+                    }
+
+                    builder.append("\n");
+
+                } else { //If this is the last item in the list
+
+                    if (currentItem.getNoteChangeList().get(i).getType().equals("change")) {
+
+                        SpannableString redSpannable = new SpannableString(oldText);
+                        redSpannable.setSpan(new BackgroundColorSpan(ContextCompat.getColor(mContext,R.color.note_background_color_red))
+                                ,0,oldText.length(),0);
+                        builder.append(redSpannable).append("\n");
+
+                        SpannableString blueSpannable = new SpannableString(newText);
+                        blueSpannable.setSpan(new BackgroundColorSpan(ContextCompat.getColor(mContext,R.color.note_background_color_blue))
+                                ,0,newText.length(),0);
+                        builder.append(blueSpannable);
+                    } else {
+                        SpannableString greenSpannable = new SpannableString(newText);
+                        greenSpannable.setSpan(new BackgroundColorSpan(ContextCompat.getColor(mContext,R.color.note_background_color_green))
+                                ,0,newText.length(),0);
+                        builder.append(greenSpannable);
+                    }
+                }
+            }
+            holder.noteText.setText(builder, TextView.BufferType.SPANNABLE);
+        } else {
+            if (currentItem.getNoteText() != null)
+                holder.noteText.setText(currentItem.getNoteText());
+        }
 
 
         if (currentItem.getCreation_date() != null) {

@@ -92,7 +92,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="8dp"
-            android:maxLines="5"
             tools:text="Lorem ipsum \n dada d \n da da dd\n da da dad\ndaaaaa dadd\nda daa daa dad" />
 
     </LinearLayout>
