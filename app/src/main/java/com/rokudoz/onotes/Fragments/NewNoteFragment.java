@@ -158,13 +158,15 @@ public class NewNoteFragment extends Fragment implements CheckableItemAdapter.On
                     textInputEditText.setVisibility(View.GONE);
 
                     for (int i = 0; i < textList.size(); i++) {
-                        CheckableItem checkableItem = new CheckableItem(textList.get(i), false);
+                        String uid = "" + System.currentTimeMillis() + checkableItemList.size();
+                        CheckableItem checkableItem = new CheckableItem(textList.get(i), false, uid);
                         checkableItem.setShouldBeFocused(true);
                         checkableItemList.add(checkableItem);
                         mAdapter.notifyItemInserted(checkableItemList.size() - 1);
                     }
                     if (checkableItemList.size() == 0) {
-                        CheckableItem checkableItem = new CheckableItem("", false);
+                        String uid = "" + System.currentTimeMillis() + checkableItemList.size();
+                        CheckableItem checkableItem = new CheckableItem("", false, uid);
                         checkableItem.setShouldBeFocused(true);
                         checkableItemList.add(checkableItem);
                         mAdapter.notifyItemInserted(checkableItemList.size() - 1);
@@ -241,13 +243,15 @@ public class NewNoteFragment extends Fragment implements CheckableItemAdapter.On
         mAdapter.setOnStartDragListener(this);
         mAdapter.setOnItemClickListener(this);
 
-        checkableItemList.add(new CheckableItem("", false));
+        String uid = "" + System.currentTimeMillis() + checkableItemList.size();
+        checkableItemList.add(new CheckableItem("", false, uid));
         mAdapter.notifyDataSetChanged();
 
         addCheckboxBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                CheckableItem checkableItem = new CheckableItem("", false);
+                String uid = "" + System.currentTimeMillis() + checkableItemList.size();
+                CheckableItem checkableItem = new CheckableItem("", false, uid);
                 checkableItem.setShouldBeFocused(true);
                 checkableItemList.add(checkableItemList.size(), checkableItem);
                 mAdapter.notifyItemInserted(checkableItemList.size() - 1);
@@ -322,7 +326,7 @@ public class NewNoteFragment extends Fragment implements CheckableItemAdapter.On
             List<CheckableItem> tempCheckableList = new ArrayList<>();
             for (CheckableItem item : checkableItemList) {
                 if (!item.getText().trim().equals(""))
-                    tempCheckableList.add(new CheckableItem(item.getText(), item.getChecked()));
+                    tempCheckableList.add(new CheckableItem(item.getText(), item.getChecked(), item.getUid()));
             }
 
             if (noteType.equals("text")) {
@@ -713,7 +717,8 @@ public class NewNoteFragment extends Fragment implements CheckableItemAdapter.On
 
     @Override
     public void onEnterPressed(int position) {
-        CheckableItem checkableItem = new CheckableItem("", false);
+        String uid = "" + System.currentTimeMillis() + checkableItemList.size();
+        CheckableItem checkableItem = new CheckableItem("", false, uid);
         checkableItem.setShouldBeFocused(true);
         checkableItemList.add(position + 1, checkableItem);
         mAdapter.notifyItemInserted(position + 1);

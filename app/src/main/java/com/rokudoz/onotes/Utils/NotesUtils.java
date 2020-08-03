@@ -24,9 +24,12 @@ public class NotesUtils {
                     if (list2.contains(item)) {
                         if (list2.get(list2.indexOf(item)).getChecked() != item.getChecked()) {
                             //list contains the checkbox, but its checked differently
+                            Log.d(TAG, "compareCheckableItemLists: item1 "+item.getUid() +" " + item.getText() + " " + item.getChecked() + " item2 "+list2.get(list2.indexOf(item)).getUid() +" " + list2.get(list2.indexOf(item)).getText() +
+                                    " " + list2.get(list2.indexOf(item)).getChecked() + "");
                             return true;
                         }
                     } else {
+                        Log.d(TAG, "compareCheckableItemLists: list2 doesnt contain " + item.getText() + " " + item.getChecked());
                         //list doesn't contain this checkbox
                         return true;
                     }
@@ -36,6 +39,8 @@ public class NotesUtils {
                     if (list1.contains(item)) {
                         if (list1.get(list1.indexOf(item)).getChecked() != item.getChecked()) {
                             //list contains the checkbox, but its checked differently
+                            Log.d(TAG, "compareCheckableItemLists: item1 " + item.getText() + " " + item.getChecked() + " item2 " + list1.get(list1.indexOf(item)).getText() +
+                                    " " + list1.get(list1.indexOf(item)).getChecked() + "");
                             return true;
                         }
                     } else {
@@ -46,6 +51,7 @@ public class NotesUtils {
 
             } else {
                 //list have different checkbox list sizes, clearly they're different
+                Log.d(TAG, "compareCheckableItemLists: list have different checkbox list sizes, clearly they're different");
                 return true;
             }
         }

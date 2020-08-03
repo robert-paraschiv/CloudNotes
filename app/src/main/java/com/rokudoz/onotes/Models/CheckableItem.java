@@ -2,17 +2,21 @@ package com.rokudoz.onotes.Models;
 
 import com.google.firebase.firestore.Exclude;
 
+import java.util.Objects;
+
 public class CheckableItem {
     private String text;
     private Boolean isChecked;
     private Boolean shouldBeFocused;
+    private String uid;
 
     public CheckableItem() {
     }
 
-    public CheckableItem(String text, Boolean isChecked) {
+    public CheckableItem(String text, Boolean isChecked, String uid) {
         this.text = text;
         this.isChecked = isChecked;
+        this.uid = uid;
     }
 
     public String getText() {
@@ -40,21 +44,34 @@ public class CheckableItem {
         this.shouldBeFocused = shouldBeFocused;
     }
 
+    public String getUid() {
+        return uid;
+    }
+
+    public void setUid(String uid) {
+        this.uid = uid;
+    }
+
     @Override
     public String toString() {
         return "CheckableItem{" +
                 "text='" + text + '\'' +
                 ", isChecked=" + isChecked +
+                ", shouldBeFocused=" + shouldBeFocused +
+                ", uid='" + uid + '\'' +
                 '}';
     }
 
     @Override
-    public boolean equals(Object obj) {
-        if (!(obj instanceof CheckableItem))
-            return false;
-        if (obj == this)
-            return true;
-        return this.text.equals(((CheckableItem) obj).text);
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        CheckableItem item = (CheckableItem) o;
+        return Objects.equals(uid, item.uid);
     }
 
+    @Override
+    public int hashCode() {
+        return Objects.hash(uid);
+    }
 }

@@ -172,6 +172,8 @@ public class NoteEditsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
 
         //Get note changes and assign colors accordingly
         if (currentItem.getNoteChangeList() != null) {
+            holder.noteText.setMaxLines(Integer.MAX_VALUE);
+            //TODO change the colors to make them more pleasing to the eye
 
             SpannableStringBuilder builder = new SpannableStringBuilder();
 
@@ -185,19 +187,19 @@ public class NoteEditsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                     if (currentItem.getNoteChangeList().get(i).getType().equals("change")) {
 
                         SpannableString redSpannable = new SpannableString(oldText);
-                        redSpannable.setSpan(new BackgroundColorSpan(ContextCompat.getColor(mContext,R.color.note_background_color_red))
-                                ,0,oldText.length(),0);
+                        redSpannable.setSpan(new BackgroundColorSpan(ContextCompat.getColor(mContext, R.color.note_background_color_red))
+                                , 0, oldText.length(), 0);
                         builder.append(redSpannable).append("\n");
 
                         SpannableString blueSpannable = new SpannableString(newText);
-                        blueSpannable.setSpan(new BackgroundColorSpan(ContextCompat.getColor(mContext,R.color.note_background_color_blue))
-                                ,0,newText.length(),0);
+                        blueSpannable.setSpan(new BackgroundColorSpan(ContextCompat.getColor(mContext, R.color.note_background_color_blue))
+                                , 0, newText.length(), 0);
                         builder.append(blueSpannable).append("\n");
 
                     } else {
                         SpannableString greenSpannable = new SpannableString(newText);
-                        greenSpannable.setSpan(new BackgroundColorSpan(ContextCompat.getColor(mContext,R.color.note_background_color_green))
-                                ,0,newText.length(),0);
+                        greenSpannable.setSpan(new BackgroundColorSpan(ContextCompat.getColor(mContext, R.color.note_background_color_green))
+                                , 0, newText.length(), 0);
                         builder.append(greenSpannable).append("\n");
 
                     }
@@ -209,26 +211,28 @@ public class NoteEditsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                     if (currentItem.getNoteChangeList().get(i).getType().equals("change")) {
 
                         SpannableString redSpannable = new SpannableString(oldText);
-                        redSpannable.setSpan(new BackgroundColorSpan(ContextCompat.getColor(mContext,R.color.note_background_color_red))
-                                ,0,oldText.length(),0);
+                        redSpannable.setSpan(new BackgroundColorSpan(ContextCompat.getColor(mContext, R.color.note_background_color_red))
+                                , 0, oldText.length(), 0);
                         builder.append(redSpannable).append("\n");
 
                         SpannableString blueSpannable = new SpannableString(newText);
-                        blueSpannable.setSpan(new BackgroundColorSpan(ContextCompat.getColor(mContext,R.color.note_background_color_blue))
-                                ,0,newText.length(),0);
+                        blueSpannable.setSpan(new BackgroundColorSpan(ContextCompat.getColor(mContext, R.color.note_background_color_blue))
+                                , 0, newText.length(), 0);
                         builder.append(blueSpannable);
                     } else {
                         SpannableString greenSpannable = new SpannableString(newText);
-                        greenSpannable.setSpan(new BackgroundColorSpan(ContextCompat.getColor(mContext,R.color.note_background_color_green))
-                                ,0,newText.length(),0);
+                        greenSpannable.setSpan(new BackgroundColorSpan(ContextCompat.getColor(mContext, R.color.note_background_color_green))
+                                , 0, newText.length(), 0);
                         builder.append(greenSpannable);
                     }
                 }
             }
             holder.noteText.setText(builder, TextView.BufferType.SPANNABLE);
         } else {
-            if (currentItem.getNoteText() != null)
+            if (currentItem.getNoteText() != null) {
+                holder.noteText.setMaxLines(6);
                 holder.noteText.setText(currentItem.getNoteText());
+            }
         }
 
 
@@ -319,14 +323,23 @@ public class NoteEditsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
             holder.recyclerView.setLayoutManager(new LinearLayoutManager(mContext));
             List<CheckableItem> checkableItemList = new ArrayList<>();
 
-            //Only show 4 checkboxes Maximum
-            if (currentItem.getCheckableItemList().size() <= MAX_HOME_CHECKBOX_NUMBER) {
-                checkableItemList.addAll(currentItem.getCheckableItemList());
+            if (currentItem.getNoteChangeList() != null) {
+                for (NoteChange noteChange : currentItem.getNoteChangeList()) {
+                    String uid = "" + System.currentTimeMillis();
+                    checkableItemList.add(new CheckableItem(noteChange.getNewText(), noteChange.getNewCheck(), uid));
+                }
+
             } else {
-                for (int i = 0; i <= MAX_HOME_CHECKBOX_NUMBER; i++) {
-                    checkableItemList.add(currentItem.getCheckableItemList().get(i));
+                //Only show 4 checkboxes Maximum
+                if (currentItem.getCheckableItemList().size() <= MAX_HOME_CHECKBOX_NUMBER) {
+                    checkableItemList.addAll(currentItem.getCheckableItemList());
+                } else {
+                    for (int i = 0; i <= MAX_HOME_CHECKBOX_NUMBER; i++) {
+                        checkableItemList.add(currentItem.getCheckableItemList().get(i));
+                    }
                 }
             }
+
             NonCheckableAdapter nonCheckableAdapter = new NonCheckableAdapter(checkableItemList, position);
             holder.recyclerView.setAdapter(nonCheckableAdapter);
             holder.recyclerView.setHasFixedSize(true);

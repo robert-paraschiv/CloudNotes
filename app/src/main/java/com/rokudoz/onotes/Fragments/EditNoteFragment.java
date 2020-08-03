@@ -293,7 +293,8 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
                     textInput.setVisibility(View.GONE);
 
                     for (int i = 0; i < textList.size(); i++) {
-                        checkableItemList.add(new CheckableItem(textList.get(i), false));
+                        String uid = "" + System.currentTimeMillis() + checkableItemList.size();
+                        checkableItemList.add(new CheckableItem(textList.get(i), false, uid));
                         mAdapter.notifyItemInserted(checkableItemList.size() - 1);
                     }
 
@@ -370,14 +371,15 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
 
         mAdapter.setOnStartDragListener(this);
         mAdapter.setOnItemClickListener(this);
-
-        checkableItemList.add(new CheckableItem("", false));
+        String uid = "" + System.currentTimeMillis() + checkableItemList.size();
+        checkableItemList.add(new CheckableItem("", false, uid));
         mAdapter.notifyDataSetChanged();
 
         addCheckboxBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                CheckableItem checkableItem = new CheckableItem("", false);
+                String uid = "" + System.currentTimeMillis() + checkableItemList.size();
+                CheckableItem checkableItem = new CheckableItem("", false, uid);
                 checkableItem.setShouldBeFocused(true);
                 checkableItemList.add(checkableItemList.size(), checkableItem);
                 mAdapter.notifyItemInserted(checkableItemList.size() - 1);
@@ -468,7 +470,9 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
                                         mAdapter.notifyDataSetChanged();
 
                                         for (CheckableItem item : mNote.getCheckableItemList()) {
-                                            checkableItemList.add(new CheckableItem(item.getText(), item.getChecked()));
+                                            if (item.getUid() == null)
+                                                item.setUid(System.currentTimeMillis() + "" + checkableItemList.size());
+                                            checkableItemList.add(new CheckableItem(item.getText(), item.getChecked(), item.getUid()));
                                             mAdapter.notifyItemInserted(checkableItemList.size() - 1);
                                         }
                                         rv_checkbox_Layout.setVisibility(View.VISIBLE);
@@ -863,11 +867,11 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
             List<CheckableItem> tempCheckableList = new ArrayList<>();
             for (CheckableItem item : checkableItemList) {
                 if (!item.getText().trim().equals(""))
-                    tempCheckableList.add(new CheckableItem(item.getText(), item.getChecked()));
+                    tempCheckableList.add(new CheckableItem(item.getText(), item.getChecked(), item.getUid()));
             }
 
 
-            Log.d(TAG, "onStop: " + edit);
+            Log.d(TAG, "onStop: EDIT " + edit);
 
             if (!mNote.getNoteText().equals(Objects.requireNonNull(textInput.getText()).toString())
                     || !mNote.getNoteTitle().equals(Objects.requireNonNull(titleInput.getText()).toString())
@@ -915,24 +919,42 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
 
                     List<CheckableItem> oldCheckboxList = mNote.getCheckableItemList();
                     List<CheckableItem> currentCheckboxList = tempCheckableList;
+                    List<CheckableItem> comparedItemsList = new ArrayList<>();
 
 
                     if (oldCheckboxList == null)
                         oldCheckboxList = new ArrayList<>();
 
-                    for (int i = 0; i < currentCheckboxList.size(); i++) {
-                        if (oldCheckboxList.size() > i) {
-                            if (!currentCheckboxList.get(i).getChecked().equals(oldCheckboxList.get(i).getChecked() ||
-                                    !currentCheckboxList.get(i).getText().equals(oldCheckboxList.get(i).getText()))) {
-                                noteChangeList.add(new NoteChange("change", currentCheckboxList.get(i).getText(), oldCheckboxList.get(i).getText()
-                                        , currentCheckboxList.get(i).getChecked(), oldCheckboxList.get(i).getChecked()));
+                    for (CheckableItem oldItem : oldCheckboxList) {
+                        if (currentCheckboxList.contains(oldItem)) {
+
+                            CheckableItem newItem = currentCheckboxList.get(currentCheckboxList.indexOf(oldItem));
+                            comparedItemsList.add(newItem);
+
+                            if (!oldItem.getText().equals(newItem.getText()) || !oldItem.getChecked().equals(newItem.getChecked())) {
+                                noteChangeList.add(new NoteChange("change", newItem.getText(), oldItem.getText(), newItem.getChecked(), oldItem.getChecked()));
                             }
+
                         } else {
-                            noteChangeList.add(new NoteChange("add", currentCheckboxList.get(i).getText(), ""
-                                    , currentCheckboxList.get(i).getChecked(), null));
+                            noteChangeList.add(new NoteChange("removed", "", oldItem.getText(), null, oldItem.getChecked()));
                         }
                     }
 
+                    for (CheckableItem newItem : currentCheckboxList) {
+                        if (oldCheckboxList.contains(newItem)) {
+
+                            CheckableItem oldItem = oldCheckboxList.get(oldCheckboxList.indexOf(newItem));
+                            if (!comparedItemsList.contains(oldItem)) {
+                                if (!oldItem.getText().equals(newItem.getText()) || !oldItem.getChecked().equals(newItem.getChecked())) {
+                                    comparedItemsList.add(oldItem);
+                                    noteChangeList.add(new NoteChange("change", newItem.getText(), oldItem.getText(), newItem.getChecked(), oldItem.getChecked()));
+                                }
+                            }
+
+                        } else {
+                            noteChangeList.add(new NoteChange("added", newItem.getText(), "", newItem.getChecked(), null));
+                        }
+                    }
 
                     //Get note ready for updating db
                     note = new Note(
@@ -1001,7 +1023,8 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
 
     @Override
     public void onEnterPressed(int position) {
-        CheckableItem checkableItem = new CheckableItem("", false);
+        String uid = "" + System.currentTimeMillis() + checkableItemList.size();
+        CheckableItem checkableItem = new CheckableItem("", false, uid);
         checkableItem.setShouldBeFocused(true);
         checkableItemList.add(position + 1, checkableItem);
         mAdapter.notifyItemInserted(position + 1);
