@@ -33,7 +33,7 @@ import com.rokudoz.onotes.Models.Collaborator;
 import com.rokudoz.onotes.Models.Note;
 import com.rokudoz.onotes.R;
 import com.rokudoz.onotes.Utils.BannerAdManager;
-import com.rokudoz.onotes.Utils.ColorFunctions;
+import com.rokudoz.onotes.Utils.ColorUtils;
 import com.rokudoz.onotes.Utils.LastEdit;
 
 import java.util.Date;
@@ -94,8 +94,7 @@ public class ViewNoteEditFragment extends Fragment {
 
         //Reset status bar color
         if (getActivity() != null) {
-            ColorFunctions colorFunctions = new ColorFunctions();
-            colorFunctions.resetStatus_NavigationBar_Colors(getActivity());
+            ColorUtils.resetStatus_NavigationBar_Colors(getActivity());
         }
 
         //Show Banner Ad

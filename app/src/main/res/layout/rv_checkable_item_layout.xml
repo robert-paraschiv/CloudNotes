@@ -13,13 +13,14 @@
         android:orientation="horizontal">
 
         <ImageView
-            android:tint="@color/icon_tint_color"
+            app:tint="@color/icon_tint_color"
             android:id="@+id/checkableItem_drag_handle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
             android:layout_marginStart="8dp"
-            android:src="@drawable/ic_outline_drag_indicator_24" />
+            android:src="@drawable/ic_outline_drag_indicator_24"
+            android:contentDescription="Drag handle" />
 
         <com.google.android.material.checkbox.MaterialCheckBox
             android:buttonTint="@color/icon_tint_color"
@@ -32,7 +33,7 @@
 
     <com.google.android.material.textfield.TextInputEditText
         android:id="@+id/checkableItem_textInput"
-        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"

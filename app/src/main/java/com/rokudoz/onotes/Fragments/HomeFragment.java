@@ -63,7 +63,7 @@ import com.rokudoz.onotes.Models.Note;
 import com.rokudoz.onotes.Models.User;
 import com.rokudoz.onotes.R;
 import com.rokudoz.onotes.Utils.BannerAdManager;
-import com.rokudoz.onotes.Utils.ColorFunctions;
+import com.rokudoz.onotes.Utils.ColorUtils;
 import com.rokudoz.onotes.Utils.NotesUtils;
 
 import java.util.ArrayList;
@@ -207,8 +207,7 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
 
         //Reset status bar color
         if (getActivity() != null) {
-            ColorFunctions colorFunctions = new ColorFunctions();
-            colorFunctions.resetStatus_NavigationBar_Colors(getActivity());
+            ColorUtils.resetStatus_NavigationBar_Colors(getActivity());
         }
 
         if (getArguments() != null) {
@@ -353,35 +352,42 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
                                         if (note != null) {
                                             note.setNote_doc_ID(documentSnapshot.getId());
                                             if (noteList.contains(note)) {
-                                                int notePosition = noteList.indexOf(note);
+
+                                                int indexOfCurrentNote = noteList.indexOf(note);
+                                                int indexOfCurrentCollaborator = noteList.get(indexOfCurrentNote).getCollaboratorList()
+                                                        .indexOf(currentUserCollaborator);
+
                                                 if (note.getDeleted()) {
                                                     noteList.remove(note);
-                                                    staggeredRecyclerViewAdapter.notifyItemRemoved(notePosition);
+                                                    staggeredRecyclerViewAdapter.notifyItemRemoved(indexOfCurrentNote);
                                                 } else {
                                                     //Check if note are different
-                                                    if (checkIfNotesAreDifferent(note, noteList.get(noteList.indexOf(note)))) {
-                                                        noteList.set(notePosition, note);
-                                                        staggeredRecyclerViewAdapter.notifyItemChanged(notePosition);
+                                                    if (NotesUtils.checkIfNotesAreDifferent(note, noteList.get(indexOfCurrentNote))) {
+                                                        noteList.set(indexOfCurrentNote, note);
+                                                        staggeredRecyclerViewAdapter.notifyItemChanged(indexOfCurrentNote);
 
-                                                    } else if (checkIfBackgroundIsChanged(note, noteList.get(noteList.indexOf(note)))) {
+                                                    } else if (checkIfBackgroundIsChanged(note, noteList.get(indexOfCurrentNote))) {
                                                         //Notes are the same, user just changed color
-                                                        staggeredRecyclerViewAdapter.unhighlightViewHolder(recyclerView.getChildViewHolder(recyclerView.getChildAt(notePosition)),
-                                                                getNoteBackgroundColor(note));
+                                                        staggeredRecyclerViewAdapter.unhighlightViewHolder(recyclerView.getChildViewHolder(recyclerView
+                                                                .getChildAt(indexOfCurrentNote)), getNoteBackgroundColor(note));
 
-                                                        noteList.get(noteList.indexOf(note)).getCollaboratorList().get(noteList.get(noteList.indexOf(note)).getCollaboratorList()
-                                                                .indexOf(currentUserCollaborator)).setNote_background_color(getNoteBackgroundColor(note));
-                                                    } else if (checkIfPositionIsChanged(note, noteList.get(noteList.indexOf(note)))) {
-                                                        noteList.get(noteList.indexOf(note)).getCollaboratorList().get(noteList.get(noteList.indexOf(note)).getCollaboratorList()
-                                                                .indexOf(currentUserCollaborator)).setNote_position(getNotePosition(note));
+                                                        //Change the note background color for the current user in the notes list
+                                                        noteList.get(indexOfCurrentNote).getCollaboratorList().get(indexOfCurrentCollaborator)
+                                                                .setNote_background_color(getNoteBackgroundColor(note));
+
+                                                    } else if (checkIfPositionIsChanged(note, noteList.get(indexOfCurrentNote))) {
+                                                        //Change the note position for the current user in the notes list
+                                                        noteList.get(indexOfCurrentNote).getCollaboratorList().get(indexOfCurrentCollaborator)
+                                                                .setNote_position(getNotePosition(note));
                                                     }
                                                     //If user is no longer collaborator, remove note
                                                     if (!note.getUsers().contains(FirebaseAuth.getInstance().getCurrentUser().getEmail())) {
                                                         noteList.remove(note);
-                                                        staggeredRecyclerViewAdapter.notifyItemRemoved(noteList.indexOf(note));
+                                                        staggeredRecyclerViewAdapter.notifyItemRemoved(indexOfCurrentNote);
                                                     }
 
                                                 }
-                                            } else {
+                                            } else { //Notes list does not contain this note
                                                 if (getNotePosition(note) != null
                                                         && noteList.size() >= getNotePosition(note)) {
                                                     noteList.add(getNotePosition(note), note);
@@ -476,66 +482,7 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
         return changed;
     }
 
-    private boolean checkIfNotesAreDifferent(Note newNote, Note oldNote) {
 
-//        //If notes have different positions, they're changed
-//        if (newNote.getCollaboratorList().get(newNote.getCollaboratorList().indexOf(currentUserCollaborator)).getNote_position() != null &&
-//                oldNote.getCollaboratorList().get(oldNote.getCollaboratorList().indexOf(currentUserCollaborator)).getNote_position() != null)
-//            if (!newNote.getCollaboratorList().get(newNote.getCollaboratorList().indexOf(currentUserCollaborator)).getNote_position()
-//                    .equals(oldNote.getCollaboratorList().get(oldNote.getCollaboratorList().indexOf(currentUserCollaborator)).getNote_position()))
-//                return true;
-
-
-        //Check if they have different Titles
-        if (!newNote.getNoteTitle().equals(oldNote.getNoteTitle()))
-            return true;
-
-
-        //If notes have different types, they're changed
-        if (!newNote.getNoteType().equals(oldNote.getNoteType())) {
-            return true;
-        } else {
-            //Check if they have different text
-            if (newNote.getNoteType().equals("text")) {
-                if (!newNote.getNoteText().equals(oldNote.getNoteText()))
-                    return true;
-
-            } else if (newNote.getNoteType().equals("checkbox")) {
-                if (newNote.getCheckableItemList() != null && oldNote.getCheckableItemList() == null) {
-                    return true;
-                } else if (newNote.getCheckableItemList() == null && oldNote.getCheckableItemList() != null) {
-                    return true;
-                } else if (newNote.getCheckableItemList() != null && oldNote.getCheckableItemList() != null) {
-                    NotesUtils notesUtils = new NotesUtils();
-                    boolean different = notesUtils.compareCheckableItemLists(newNote.getCheckableItemList(), oldNote.getCheckableItemList());
-                    if (different)
-                        return true;
-                }
-            }
-        }
-
-        //Check for collaborators differences
-        if (newNote.getCollaboratorList().size() != oldNote.getCollaboratorList().size()) {
-            return true;
-        }
-        if (newNote.getUsers().size() != oldNote.getUsers().size()) {
-            return true;
-        } else {
-            for (String user : newNote.getUsers()) {
-                if (!oldNote.getUsers().contains(user)) {
-                    return true;
-                }
-            }
-            for (String user : oldNote.getUsers()) {
-                if (!newNote.getUsers().contains(user)) {
-                    return true;
-                }
-            }
-        }
-
-        Log.d(TAG, "checkIfNotesAreDifferent: false note: " + newNote.getNoteTitle());
-        return false;
-    }
 
     @Override
     public void onStop() {

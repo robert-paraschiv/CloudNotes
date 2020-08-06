@@ -41,7 +41,7 @@ import com.rokudoz.onotes.Models.NoteChange;
 import com.rokudoz.onotes.Models.User;
 import com.rokudoz.onotes.R;
 import com.rokudoz.onotes.Utils.BannerAdManager;
-import com.rokudoz.onotes.Utils.ColorFunctions;
+import com.rokudoz.onotes.Utils.ColorUtils;
 import com.rokudoz.onotes.Utils.NotesUtils;
 
 import java.util.ArrayList;
@@ -51,6 +51,10 @@ import java.util.List;
 import java.util.Objects;
 
 import de.hdodenhof.circleimageview.CircleImageView;
+
+import static com.rokudoz.onotes.Utils.NotesUtils.NOTE_CHANGE_TYPE_ADDED;
+import static com.rokudoz.onotes.Utils.NotesUtils.NOTE_CHANGE_TYPE_CHANGE;
+import static com.rokudoz.onotes.Utils.NotesUtils.NOTE_CHANGE_TYPE_REMOVED;
 
 public class NewNoteFragment extends Fragment implements CheckableItemAdapter.OnStartDragListener,
         CheckableItemAdapter.OnItemClickListener, FullBottomSheetDialogFragment.ExampleDialogListener, CollaboratorNotesAdapter.OnItemClickListener {
@@ -111,8 +115,7 @@ public class NewNoteFragment extends Fragment implements CheckableItemAdapter.On
         _note_background_color = ContextCompat.getColor(requireContext(), R.color.fragments_background);
         //Reset status bar color
 //        if (getActivity() != null) {
-//            ColorFunctions colorFunctions = new ColorFunctions();
-//            colorFunctions.resetStatus_NavigationBar_Colors(getActivity());
+//            ColorFunctions.resetStatus_NavigationBar_Colors(getActivity());
 //        }
 
         //Hide Banner Ad
@@ -323,10 +326,10 @@ public class NewNoteFragment extends Fragment implements CheckableItemAdapter.On
                 mNote.setUsers(new ArrayList<String>());
                 mNote.getUsers().add(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getEmail());
             }
-            List<CheckableItem> tempCheckableList = new ArrayList<>();
+            List<CheckableItem> currentCheckboxList = new ArrayList<>();
             for (CheckableItem item : checkableItemList) {
                 if (!item.getText().trim().equals(""))
-                    tempCheckableList.add(new CheckableItem(item.getText(), item.getChecked(), item.getUid()));
+                    currentCheckboxList.add(new CheckableItem(item.getText(), item.getChecked(), item.getUid()));
             }
 
             if (noteType.equals("text")) {
@@ -341,7 +344,7 @@ public class NewNoteFragment extends Fragment implements CheckableItemAdapter.On
                 note = new Note(title,
                         "",
                         Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getEmail(),
-                        null, false, noteType, tempCheckableList, "Created", 0,
+                        null, false, noteType, currentCheckboxList, "Created", 0,
                         false, mNote.getUsers(), mNote.getCollaboratorList(),
                         Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getEmail(),
                         null);
@@ -380,14 +383,16 @@ public class NewNoteFragment extends Fragment implements CheckableItemAdapter.On
                         List<String> currentNoteTextList = Arrays.asList(textInputEditText.getText().toString().split("\\r?\\n"));
                         List<String> oldNoteTextList = Arrays.asList(mNote.getNoteText().split("\\r?\\n"));
 
+                        if (!mNote.getNoteType().equals(noteType))
+                            oldNoteTextList = new ArrayList<>();
 
                         for (int i = 0; i < currentNoteTextList.size(); i++) {
                             if (oldNoteTextList.size() > i) {
                                 if (!currentNoteTextList.get(i).equals(oldNoteTextList.get(i))) {
-                                    noteChangeList.add(new NoteChange("change", currentNoteTextList.get(i), oldNoteTextList.get(i), null, null));
+                                    noteChangeList.add(new NoteChange(NOTE_CHANGE_TYPE_CHANGE, currentNoteTextList.get(i), oldNoteTextList.get(i), null, null));
                                 }
                             } else {
-                                noteChangeList.add(new NoteChange("add", currentNoteTextList.get(i), "", null, null));
+                                noteChangeList.add(new NoteChange(NOTE_CHANGE_TYPE_ADDED, currentNoteTextList.get(i), null, null, null));
                             }
                         }
 
@@ -422,71 +427,83 @@ public class NewNoteFragment extends Fragment implements CheckableItemAdapter.On
                     Log.d(TAG, "onStop: note is checkbox type, beginning to check for differences");
                     //Check for checkbox list differences
 
-                    if (mNote.getCheckableItemList() != null && checkableItemList.size() > 0) {
+                    //Compare notes checkboxes lists
+                    boolean edited = NotesUtils.compareCheckableItemLists(mNote.getCheckableItemList(), checkableItemList);
 
-                        //Compare notes checkboxes lists
-                        NotesUtils notesUtils = new NotesUtils();
-                        boolean edited = notesUtils.compareCheckableItemLists(mNote.getCheckableItemList(), checkableItemList);
+                    Log.d(TAG, "onStop: edited= " + edited);
 
+                    if (edited) {
+                        note.setEdit_type("Edited");
+                        note.setNumber_of_edits(mNote.getNumber_of_edits() + 1);
 
-                        Log.d(TAG, "onStop: edited= " + edited);
+                        //Compare new checkbox values to old ones and get changes
+                        List<NoteChange> noteChangeList = new ArrayList<>();
 
-                        if (edited) {
-                            note.setEdit_type("Edited");
-                            note.setNumber_of_edits(mNote.getNumber_of_edits() + 1);
+                        List<CheckableItem> oldCheckboxList = mNote.getCheckableItemList();
+                        List<CheckableItem> comparedItemsList = new ArrayList<>();
 
+                        if (oldCheckboxList == null)
+                            oldCheckboxList = new ArrayList<>();
 
-                            //Compare new checkbox values to old ones and get changes
-                            List<NoteChange> noteChangeList = new ArrayList<>();
+                        for (CheckableItem oldItem : oldCheckboxList) {
+                            if (currentCheckboxList.contains(oldItem)) {
 
-                            List<CheckableItem> oldCheckboxList = mNote.getCheckableItemList();
-                            List<CheckableItem> currentCheckboxList = tempCheckableList;
+                                CheckableItem newItem = currentCheckboxList.get(currentCheckboxList.indexOf(oldItem));
+                                comparedItemsList.add(newItem);
 
-
-                            if (oldCheckboxList == null)
-                                oldCheckboxList = new ArrayList<>();
-
-                            for (int i = 0; i < currentCheckboxList.size(); i++) {
-                                if (oldCheckboxList.size() > i) {
-                                    if (!currentCheckboxList.get(i).getChecked().equals(oldCheckboxList.get(i).getChecked() ||
-                                            !currentCheckboxList.get(i).getText().equals(oldCheckboxList.get(i).getText()))) {
-                                        noteChangeList.add(new NoteChange("change", currentCheckboxList.get(i).getText(), oldCheckboxList.get(i).getText()
-                                                , currentCheckboxList.get(i).getChecked(), oldCheckboxList.get(i).getChecked()));
-                                    }
-                                } else {
-                                    noteChangeList.add(new NoteChange("add", currentCheckboxList.get(i).getText(), ""
-                                            , currentCheckboxList.get(i).getChecked(), null));
+                                if (!oldItem.getText().equals(newItem.getText()) || !oldItem.getChecked().equals(newItem.getChecked())) {
+                                    noteChangeList.add(new NoteChange(NOTE_CHANGE_TYPE_CHANGE, newItem.getText(), oldItem.getText(), newItem.getChecked(), oldItem.getChecked()));
                                 }
+
+                            } else {
+                                noteChangeList.add(new NoteChange(NOTE_CHANGE_TYPE_REMOVED, null, oldItem.getText(), null, oldItem.getChecked()));
                             }
-
-                            note.setNoteChangeList(noteChangeList);
-
-                            WriteBatch batch = db.batch();
-                            batch.set(noteRef, note);
-                            batch.set(noteRef.collection("Edits").document(), note);
-
-                            final Note finalNote1 = note;
-                            batch.commit().addOnSuccessListener(new OnSuccessListener<Void>() {
-                                @Override
-                                public void onSuccess(Void aVoid) {
-                                    Log.d(TAG, "onSuccess: updated note");
-                                    mNote = finalNote1;
-                                }
-                            });
-                        } else if (collaboratorsUpdated) {
-                            //check if collaborators have changed
-                            WriteBatch batch = db.batch();
-                            batch.update(noteRef, "users", mNote.getUsers());
-                            batch.update(noteRef, "collaboratorList", mNote.getCollaboratorList());
-                            batch.commit().addOnSuccessListener(new OnSuccessListener<Void>() {
-                                @Override
-                                public void onSuccess(Void aVoid) {
-                                    Log.d(TAG, "onSuccess: updated collaborators successfully");
-                                    collaboratorsUpdated = false;
-                                }
-                            });
                         }
+
+                        for (CheckableItem newItem : currentCheckboxList) {
+                            if (oldCheckboxList.contains(newItem)) {
+
+                                CheckableItem oldItem = oldCheckboxList.get(oldCheckboxList.indexOf(newItem));
+                                if (!comparedItemsList.contains(oldItem)) {
+                                    if (!oldItem.getText().equals(newItem.getText()) || !oldItem.getChecked().equals(newItem.getChecked())) {
+                                        comparedItemsList.add(oldItem);
+                                        noteChangeList.add(new NoteChange(NOTE_CHANGE_TYPE_CHANGE, newItem.getText(), oldItem.getText(), newItem.getChecked(), oldItem.getChecked()));
+                                    }
+                                }
+
+                            } else {
+                                noteChangeList.add(new NoteChange(NOTE_CHANGE_TYPE_ADDED, newItem.getText(), null, newItem.getChecked(), null));
+                            }
+                        }
+
+                        note.setNoteChangeList(noteChangeList);
+
+                        WriteBatch batch = db.batch();
+                        batch.set(noteRef, note);
+                        batch.set(noteRef.collection("Edits").document(), note);
+
+                        final Note finalNote1 = note;
+                        batch.commit().addOnSuccessListener(new OnSuccessListener<Void>() {
+                            @Override
+                            public void onSuccess(Void aVoid) {
+                                Log.d(TAG, "onSuccess: updated note");
+                                mNote = finalNote1;
+                            }
+                        });
+                    } else if (collaboratorsUpdated) {
+                        //check if collaborators have changed
+                        WriteBatch batch = db.batch();
+                        batch.update(noteRef, "users", mNote.getUsers());
+                        batch.update(noteRef, "collaboratorList", mNote.getCollaboratorList());
+                        batch.commit().addOnSuccessListener(new OnSuccessListener<Void>() {
+                            @Override
+                            public void onSuccess(Void aVoid) {
+                                Log.d(TAG, "onSuccess: updated collaborators successfully");
+                                collaboratorsUpdated = false;
+                            }
+                        });
                     }
+
                 }
 
             }
@@ -673,8 +690,7 @@ public class NewNoteFragment extends Fragment implements CheckableItemAdapter.On
 
     private void resetBackgroundColors() {
         if (getActivity() != null) {
-            ColorFunctions colorFunctions = new ColorFunctions();
-            colorFunctions.resetStatus_NavigationBar_Colors(getActivity());
+            ColorUtils.resetStatus_NavigationBar_Colors(getActivity());
 
             MaterialCardView cardView = new MaterialCardView(requireContext());
             bottomCard.setBackgroundColor(cardView.getCardBackgroundColor().getDefaultColor());

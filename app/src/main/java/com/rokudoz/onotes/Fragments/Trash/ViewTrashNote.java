@@ -14,7 +14,6 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -24,9 +23,7 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.button.MaterialButton;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.WriteBatch;
 import com.rokudoz.onotes.Adapters.NonCheckableAdapter;
@@ -34,7 +31,7 @@ import com.rokudoz.onotes.Models.CheckableItem;
 import com.rokudoz.onotes.Models.Note;
 import com.rokudoz.onotes.R;
 import com.rokudoz.onotes.Utils.BannerAdManager;
-import com.rokudoz.onotes.Utils.ColorFunctions;
+import com.rokudoz.onotes.Utils.ColorUtils;
 
 import java.util.List;
 import java.util.Objects;
@@ -76,7 +73,7 @@ public class ViewTrashNote extends Fragment {
 
         //Reset status bar color
         if (getActivity() != null) {
-            ColorFunctions colorFunctions = new ColorFunctions();
+            ColorUtils colorFunctions = new ColorUtils();
             colorFunctions.resetStatus_NavigationBar_Colors(getActivity());
         }
 

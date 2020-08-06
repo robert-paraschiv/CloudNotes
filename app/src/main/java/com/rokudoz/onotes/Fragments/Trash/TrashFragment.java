@@ -18,9 +18,7 @@ import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.navigation.NavDirections;
 import androidx.navigation.Navigation;
-import androidx.navigation.fragment.FragmentNavigator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -38,14 +36,11 @@ import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.WriteBatch;
 import com.rokudoz.onotes.Adapters.HomePageAdapter;
-import com.rokudoz.onotes.Adapters.NoteEditsAdapter;
-import com.rokudoz.onotes.Adapters.TrashNotesAdapter;
-import com.rokudoz.onotes.Fragments.HomeFragmentDirections;
 import com.rokudoz.onotes.Models.Collaborator;
 import com.rokudoz.onotes.Models.Note;
 import com.rokudoz.onotes.R;
 import com.rokudoz.onotes.Utils.BannerAdManager;
-import com.rokudoz.onotes.Utils.ColorFunctions;
+import com.rokudoz.onotes.Utils.ColorUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -86,7 +81,7 @@ public class TrashFragment extends Fragment implements HomePageAdapter.OnItemCli
         materialToolbar = view.findViewById(R.id.trashFragment_toolbar);
         //Reset status bar color
         if (getActivity() != null) {
-            ColorFunctions colorFunctions = new ColorFunctions();
+            ColorUtils colorFunctions = new ColorUtils();
             colorFunctions.resetStatus_NavigationBar_Colors(getActivity());
         }
 

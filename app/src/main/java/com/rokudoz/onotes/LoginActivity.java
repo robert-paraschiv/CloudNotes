@@ -29,7 +29,7 @@ import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.WriteBatch;
 import com.rokudoz.onotes.Models.User;
-import com.rokudoz.onotes.Utils.ColorFunctions;
+import com.rokudoz.onotes.Utils.ColorUtils;
 
 import java.util.Objects;
 
@@ -55,8 +55,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         setContentView(R.layout.activity_login);
 
         //Reset status bar color
-        ColorFunctions colorFunctions = new ColorFunctions();
-        colorFunctions.resetStatus_NavigationBar_Colors(LoginActivity.this);
+        ColorUtils.resetStatus_NavigationBar_Colors(LoginActivity.this);
 
 
         findViewById(R.id.signInButton).setOnClickListener(this);

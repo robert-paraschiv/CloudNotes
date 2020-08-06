@@ -26,7 +26,7 @@ import com.rokudoz.onotes.Adapters.NoteEditsAdapter;
 import com.rokudoz.onotes.Models.Note;
 import com.rokudoz.onotes.R;
 import com.rokudoz.onotes.Utils.BannerAdManager;
-import com.rokudoz.onotes.Utils.ColorFunctions;
+import com.rokudoz.onotes.Utils.ColorUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -73,8 +73,7 @@ public class NoteEditsFragment extends Fragment implements NoteEditsAdapter.OnIt
 
         //Reset status bar color
         if (getActivity() != null) {
-            ColorFunctions colorFunctions = new ColorFunctions();
-            colorFunctions.resetStatus_NavigationBar_Colors(getActivity());
+            ColorUtils.resetStatus_NavigationBar_Colors(getActivity());
             hideSoftKeyboard(getActivity());
         }
 

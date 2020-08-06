@@ -3,6 +3,7 @@ package com.rokudoz.onotes.Utils;
 import android.util.Log;
 
 import com.rokudoz.onotes.Models.CheckableItem;
+import com.rokudoz.onotes.Models.Note;
 
 import java.util.List;
 
@@ -10,16 +11,22 @@ public class NotesUtils {
     private static final String TAG = "NotesUtils";
 
     public static final String NOTE_CHANGE_TYPE_CHANGE = "change";
-    public static final String NOTE_CHANGE_TYPE_ADDED = "removed";
-    public static final String NOTE_CHANGE_TYPE_REMOVED = "added";
+    public static final String NOTE_CHANGE_TYPE_ADDED = "added";
+    public static final String NOTE_CHANGE_TYPE_REMOVED = "removed";
 
     public NotesUtils() {
     }
 
-    public boolean compareCheckableItemLists(List<CheckableItem> list1, List<CheckableItem> list2) {
+    public static boolean compareCheckableItemLists(List<CheckableItem> list1, List<CheckableItem> list2) {
 
-        if (list1 == null || list2 == null) {
+        if (list1 == null && list2 == null) {
             Log.d(TAG, "compareCheckableItemLists: lists are both null");
+        } else if (list1 != null && list2 == null) {
+            Log.d(TAG, "compareCheckableItemLists: first list not null, second list null");
+            return true;
+        } else if (list1 == null && list2 != null) {
+            Log.d(TAG, "compareCheckableItemLists: first list null, second list not null");
+            return true;
         } else {
             if (list1.size() == list2.size()) {
 
@@ -62,4 +69,57 @@ public class NotesUtils {
 
         return false;
     }
+
+    public static boolean checkIfNotesAreDifferent(Note newNote, Note oldNote) {
+
+        //Check if they have different Titles
+        if (!newNote.getNoteTitle().equals(oldNote.getNoteTitle()))
+            return true;
+
+
+        //If notes have different types, they're changed
+        if (!newNote.getNoteType().equals(oldNote.getNoteType())) {
+            return true;
+        } else {
+            //Check if they have different text
+            if (newNote.getNoteType().equals("text")) {
+                if (!newNote.getNoteText().equals(oldNote.getNoteText()))
+                    return true;
+
+            } else if (newNote.getNoteType().equals("checkbox")) {
+                if (newNote.getCheckableItemList() != null && oldNote.getCheckableItemList() == null) {
+                    return true;
+                } else if (newNote.getCheckableItemList() == null && oldNote.getCheckableItemList() != null) {
+                    return true;
+                } else if (newNote.getCheckableItemList() != null && oldNote.getCheckableItemList() != null) {
+                    boolean different = compareCheckableItemLists(newNote.getCheckableItemList(), oldNote.getCheckableItemList());
+                    if (different)
+                        return true;
+                }
+            }
+        }
+
+        //Check for collaborators differences
+        if (newNote.getCollaboratorList().size() != oldNote.getCollaboratorList().size()) {
+            return true;
+        }
+        if (newNote.getUsers().size() != oldNote.getUsers().size()) {
+            return true;
+        } else {
+            for (String user : newNote.getUsers()) {
+                if (!oldNote.getUsers().contains(user)) {
+                    return true;
+                }
+            }
+            for (String user : oldNote.getUsers()) {
+                if (!newNote.getUsers().contains(user)) {
+                    return true;
+                }
+            }
+        }
+
+        Log.d(TAG, "checkIfNotesAreDifferent: false note: " + newNote.getNoteTitle());
+        return false;
+    }
+
 }

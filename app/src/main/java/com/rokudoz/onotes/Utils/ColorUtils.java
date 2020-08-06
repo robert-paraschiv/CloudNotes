@@ -8,11 +8,11 @@ import androidx.core.content.ContextCompat;
 
 import com.rokudoz.onotes.R;
 
-public class ColorFunctions {
-    public ColorFunctions() {
+public class ColorUtils {
+    public ColorUtils() {
     }
 
-    public void resetStatus_NavigationBar_Colors(Activity activity) {
+    public static void resetStatus_NavigationBar_Colors(Activity activity) {
         Window window = activity.getWindow();
         window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
 
