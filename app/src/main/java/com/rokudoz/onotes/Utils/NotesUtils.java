@@ -9,6 +9,10 @@ import java.util.List;
 public class NotesUtils {
     private static final String TAG = "NotesUtils";
 
+    public static final String NOTE_CHANGE_TYPE_CHANGE = "change";
+    public static final String NOTE_CHANGE_TYPE_ADDED = "removed";
+    public static final String NOTE_CHANGE_TYPE_REMOVED = "added";
+
     public NotesUtils() {
     }
 
@@ -24,7 +28,7 @@ public class NotesUtils {
                     if (list2.contains(item)) {
                         if (list2.get(list2.indexOf(item)).getChecked() != item.getChecked()) {
                             //list contains the checkbox, but its checked differently
-                            Log.d(TAG, "compareCheckableItemLists: item1 "+item.getUid() +" " + item.getText() + " " + item.getChecked() + " item2 "+list2.get(list2.indexOf(item)).getUid() +" " + list2.get(list2.indexOf(item)).getText() +
+                            Log.d(TAG, "compareCheckableItemLists: item1 " + item.getUid() + " " + item.getText() + " " + item.getChecked() + " item2 " + list2.get(list2.indexOf(item)).getUid() + " " + list2.get(list2.indexOf(item)).getText() +
                                     " " + list2.get(list2.indexOf(item)).getChecked() + "");
                             return true;
                         }

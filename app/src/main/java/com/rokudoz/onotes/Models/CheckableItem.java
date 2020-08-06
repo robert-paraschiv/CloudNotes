@@ -9,6 +9,7 @@ public class CheckableItem {
     private Boolean isChecked;
     private Boolean shouldBeFocused;
     private String uid;
+    private String changeType;
 
     public CheckableItem() {
     }
@@ -42,6 +43,15 @@ public class CheckableItem {
 
     public void setShouldBeFocused(Boolean shouldBeFocused) {
         this.shouldBeFocused = shouldBeFocused;
+    }
+
+    @Exclude
+    public String getChangeType() {
+        return changeType;
+    }
+
+    public void setChangeType(String changeType) {
+        this.changeType = changeType;
     }
 
     public String getUid() {

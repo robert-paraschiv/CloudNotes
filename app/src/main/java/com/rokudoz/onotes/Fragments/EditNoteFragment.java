@@ -66,6 +66,9 @@ import java.util.Objects;
 import de.hdodenhof.circleimageview.CircleImageView;
 
 import static com.rokudoz.onotes.App.TRANSITION_DURATION;
+import static com.rokudoz.onotes.Utils.NotesUtils.NOTE_CHANGE_TYPE_ADDED;
+import static com.rokudoz.onotes.Utils.NotesUtils.NOTE_CHANGE_TYPE_CHANGE;
+import static com.rokudoz.onotes.Utils.NotesUtils.NOTE_CHANGE_TYPE_REMOVED;
 
 public class EditNoteFragment extends Fragment implements CheckableItemAdapter.OnStartDragListener,
         CheckableItemAdapter.OnItemClickListener, FullBottomSheetDialogFragment.ExampleDialogListener, CollaboratorNotesAdapter.OnItemClickListener {
@@ -932,11 +935,11 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
                             comparedItemsList.add(newItem);
 
                             if (!oldItem.getText().equals(newItem.getText()) || !oldItem.getChecked().equals(newItem.getChecked())) {
-                                noteChangeList.add(new NoteChange("change", newItem.getText(), oldItem.getText(), newItem.getChecked(), oldItem.getChecked()));
+                                noteChangeList.add(new NoteChange(NOTE_CHANGE_TYPE_CHANGE, newItem.getText(), oldItem.getText(), newItem.getChecked(), oldItem.getChecked()));
                             }
 
                         } else {
-                            noteChangeList.add(new NoteChange("removed", "", oldItem.getText(), null, oldItem.getChecked()));
+                            noteChangeList.add(new NoteChange(NOTE_CHANGE_TYPE_REMOVED, null, oldItem.getText(), null, oldItem.getChecked()));
                         }
                     }
 
@@ -947,12 +950,12 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
                             if (!comparedItemsList.contains(oldItem)) {
                                 if (!oldItem.getText().equals(newItem.getText()) || !oldItem.getChecked().equals(newItem.getChecked())) {
                                     comparedItemsList.add(oldItem);
-                                    noteChangeList.add(new NoteChange("change", newItem.getText(), oldItem.getText(), newItem.getChecked(), oldItem.getChecked()));
+                                    noteChangeList.add(new NoteChange(NOTE_CHANGE_TYPE_CHANGE, newItem.getText(), oldItem.getText(), newItem.getChecked(), oldItem.getChecked()));
                                 }
                             }
 
                         } else {
-                            noteChangeList.add(new NoteChange("added", newItem.getText(), "", newItem.getChecked(), null));
+                            noteChangeList.add(new NoteChange(NOTE_CHANGE_TYPE_ADDED, newItem.getText(), null, newItem.getChecked(), null));
                         }
                     }
 

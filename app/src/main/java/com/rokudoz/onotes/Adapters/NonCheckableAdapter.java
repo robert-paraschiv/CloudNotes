@@ -6,6 +6,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.checkbox.MaterialCheckBox;
@@ -13,6 +14,10 @@ import com.rokudoz.onotes.Models.CheckableItem;
 import com.rokudoz.onotes.R;
 
 import java.util.List;
+
+import static com.rokudoz.onotes.Utils.NotesUtils.NOTE_CHANGE_TYPE_ADDED;
+import static com.rokudoz.onotes.Utils.NotesUtils.NOTE_CHANGE_TYPE_CHANGE;
+import static com.rokudoz.onotes.Utils.NotesUtils.NOTE_CHANGE_TYPE_REMOVED;
 
 public class NonCheckableAdapter extends RecyclerView.Adapter<NonCheckableAdapter.ViewHolder> {
     int position;
@@ -23,7 +28,7 @@ public class NonCheckableAdapter extends RecyclerView.Adapter<NonCheckableAdapte
         this.position = position;
     }
 
-    public static class ViewHolder extends RecyclerView.ViewHolder{
+    public static class ViewHolder extends RecyclerView.ViewHolder {
 
         TextView text;
         MaterialCheckBox checkBox;
@@ -55,6 +60,20 @@ public class NonCheckableAdapter extends RecyclerView.Adapter<NonCheckableAdapte
         if (currentItem != null && currentItem.getChecked() != null && currentItem.getText() != null) {
             holder.text.setText(currentItem.getText());
             holder.checkBox.setChecked(currentItem.getChecked());
+
+            if (currentItem.getChangeType() != null) {
+                switch (currentItem.getChangeType()){
+                    case NOTE_CHANGE_TYPE_ADDED:
+                        holder.itemView.setBackgroundResource(R.color.note_background_color_green);
+                        break;
+                    case NOTE_CHANGE_TYPE_CHANGE:
+                        holder.itemView.setBackgroundResource(R.color.note_background_color_blue);
+                        break;
+                    case NOTE_CHANGE_TYPE_REMOVED:
+                        holder.itemView.setBackgroundResource(R.color.note_background_color_red);
+                        break;
+                }
+            }
         }
     }
 

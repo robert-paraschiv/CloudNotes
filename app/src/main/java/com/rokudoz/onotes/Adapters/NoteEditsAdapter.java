@@ -34,6 +34,9 @@ import java.util.List;
 import de.hdodenhof.circleimageview.CircleImageView;
 
 import static com.rokudoz.onotes.App.MAX_HOME_CHECKBOX_NUMBER;
+import static com.rokudoz.onotes.Utils.NotesUtils.NOTE_CHANGE_TYPE_ADDED;
+import static com.rokudoz.onotes.Utils.NotesUtils.NOTE_CHANGE_TYPE_CHANGE;
+import static com.rokudoz.onotes.Utils.NotesUtils.NOTE_CHANGE_TYPE_REMOVED;
 
 public class NoteEditsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
@@ -323,10 +326,35 @@ public class NoteEditsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
             holder.recyclerView.setLayoutManager(new LinearLayoutManager(mContext));
             List<CheckableItem> checkableItemList = new ArrayList<>();
 
+            //Get changes into checkbox list
             if (currentItem.getNoteChangeList() != null) {
                 for (NoteChange noteChange : currentItem.getNoteChangeList()) {
-                    String uid = "" + System.currentTimeMillis();
-                    checkableItemList.add(new CheckableItem(noteChange.getNewText(), noteChange.getNewCheck(), uid));
+                    String uid = "" + System.currentTimeMillis() + checkableItemList.size();
+
+                    CheckableItem checkableItem = new CheckableItem();
+                    checkableItem.setUid(uid);
+
+                    switch (noteChange.getType()) {
+                        case NOTE_CHANGE_TYPE_ADDED:
+                            checkableItem.setChangeType(NOTE_CHANGE_TYPE_ADDED);
+                            checkableItem.setText(noteChange.getNewText());
+                            checkableItem.setChecked(noteChange.getNewCheck());
+
+                            break;
+                        case NOTE_CHANGE_TYPE_CHANGE:
+                            checkableItem.setChangeType(NOTE_CHANGE_TYPE_CHANGE);
+                            checkableItem.setText(noteChange.getNewText());
+                            checkableItem.setChecked(noteChange.getNewCheck());
+
+                            break;
+                        case NOTE_CHANGE_TYPE_REMOVED:
+                            checkableItem.setChangeType(NOTE_CHANGE_TYPE_REMOVED);
+                            checkableItem.setText(noteChange.getOldText());
+                            checkableItem.setChecked(noteChange.getOldCheck());
+
+                            break;
+                    }
+                    checkableItemList.add(checkableItem);
                 }
 
             } else {
