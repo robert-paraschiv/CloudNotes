@@ -3,6 +3,7 @@ package com.rokudoz.onotes.Fragments;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Dialog;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -113,8 +114,6 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
 
     private ListenerRegistration noteListener;
 
-    private RelativeLayout rootLayout;
-
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
     private CollectionReference usersRef = db.collection("Users");
 
@@ -144,7 +143,7 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
         bottomCard = view.findViewById(R.id.editNoteFragment_bottomCard);
         collaboratorsRV = view.findViewById(R.id.editNoteFragment_collaboratorsRV);
         progressBar = view.findViewById(R.id.editNoteFragment_progressBar);
-        rootLayout = view.findViewById(R.id.rv_home_note_rootLayout);
+        RelativeLayout rootLayout = view.findViewById(R.id.rv_home_note_rootLayout);
         scrollFab = view.findViewById(R.id.editNoteFragment_scroll_fab);
         nestedScrollView = view.findViewById(R.id.editNoteFragment_nestedScrollView);
         note_background_color = ContextCompat.getColor(requireContext(), R.color.fragments_background);
@@ -443,6 +442,7 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
 
                                     //Scroll edit text to bottom
                                     if (textInput.canScrollVertically(1) && mNote.getNoteType().equals(NOTE_TYPE_TEXT)) {
+                                        Log.d(TAG, "onEvent: VISIBLE FAB");
                                         scrollFab.setVisibility(View.VISIBLE);
                                         scrollFab.setOnClickListener(new View.OnClickListener() {
                                             @Override
@@ -454,8 +454,9 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
                                                 }
                                             }
                                         });
+                                    } else if (!textInput.canScrollVertically(1)) { //TODO Find why this happens upon back from edits fragment
+                                        Log.d(TAG, "onEvent: FAB NOT VISIBLE");
                                     }
-
 
                                     if (mNote.getNumber_of_edits() != null)
                                         number_of_edits = mNote.getNumber_of_edits();
@@ -490,19 +491,24 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
                                         checkboxModeBtn.setIconResource(R.drawable.ic_outline_text_fields_24);
                                     }
                                     checkboxModeBtn.setVisibility(View.VISIBLE);
-                                    if (mNote.getCreation_date() != null && mNote.getEdited() != null && mNote.getEdited()) {
+
+                                    //Setup last edit text
+                                    if (mNote.getCreation_date() != null && mNote.getEdited() != null) {
                                         Date date = mNote.getCreation_date();
-                                        LastEdit lastEdit = new LastEdit();
-                                        lastEditTv.setText(MessageFormat.format("Last edit {0}", lastEdit.getLastEdit(date.getTime())));
-                                        if (mNote.getNumber_of_edits() != null) {
-                                            if (mNote.getNumber_of_edits() == 1) {
-                                                numberOfEditsTv.setText(MessageFormat.format("{0} Edit", mNote.getNumber_of_edits()));
-                                            } else if (mNote.getNumber_of_edits() > 1) {
-                                                numberOfEditsTv.setText(MessageFormat.format("{0} Edits", mNote.getNumber_of_edits()));
+
+                                        if (mNote.getEdited()) {
+                                            lastEditTv.setText(MessageFormat.format("Last edit {0}", LastEdit.getLastEdit(date.getTime())));
+                                            if (mNote.getNumber_of_edits() != null) {
+                                                if (mNote.getNumber_of_edits() == 1) {
+                                                    numberOfEditsTv.setText(MessageFormat.format("{0} Edit", mNote.getNumber_of_edits()));
+                                                } else if (mNote.getNumber_of_edits() > 1) {
+                                                    numberOfEditsTv.setText(MessageFormat.format("{0} Edits", mNote.getNumber_of_edits()));
+                                                }
                                             }
                                         } else {
-                                            numberOfEditsTv.setText("No edits so far");
+                                            lastEditTv.setText(MessageFormat.format("Created {0}", LastEdit.getLastEdit(date.getTime())));
                                         }
+
                                         editLinearLayout.setOnClickListener(new View.OnClickListener() {
                                             @Override
                                             public void onClick(View v) {
@@ -761,7 +767,9 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
         if (window != null) {
             window.findViewById(com.google.android.material.R.id.container).setFitsSystemWindows(false);
             View decorView = window.getDecorView();
-            decorView.setSystemUiVisibility(decorView.getSystemUiVisibility() | View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                decorView.setSystemUiVisibility(decorView.getSystemUiVisibility() | View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR);
+            }
         }
     }
 

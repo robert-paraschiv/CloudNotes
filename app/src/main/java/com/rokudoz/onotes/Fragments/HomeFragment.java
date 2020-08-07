@@ -5,6 +5,7 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
@@ -39,7 +40,6 @@ import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 import androidx.transition.TransitionInflater;
 
 import com.bumptech.glide.Glide;
-import com.google.android.gms.ads.rewarded.RewardedAd;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
@@ -81,8 +81,8 @@ import static com.rokudoz.onotes.App.TRANSITION_DURATION;
 public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClickListener {
     private static final String TAG = "HomeFragment";
 
-    public static int LAYOUT_STAGGERED_TYPE = 0;
-    public static int LAYOUT_LINEAR_TYPE = 1;
+    public static final int LAYOUT_STAGGERED_TYPE = 0;
+    public static final int LAYOUT_LINEAR_TYPE = 1;
 
     private ActionMode actionMode;
     private MaterialToolbar materialToolbar;
@@ -94,19 +94,18 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
 
     private TextView noNotesTv;
 
-    private Collaborator currentUserCollaborator = new Collaborator();
+    private final Collaborator currentUserCollaborator = new Collaborator();
 
     private HomePageAdapter staggeredRecyclerViewAdapter;
-    private List<Note> noteList = new ArrayList<>();
+    private final List<Note> noteList = new ArrayList<>();
 
-    private FirebaseFirestore db = FirebaseFirestore.getInstance();
-    private CollectionReference usersRef = db.collection("Users");
+    private final FirebaseFirestore db = FirebaseFirestore.getInstance();
+    private final CollectionReference usersRef = db.collection("Users");
     private FirebaseAuth.AuthStateListener mAuthListener;
     private ListenerRegistration notesListener, userDetailsListener, trashNotesListener;
 
     private CircleImageView userPicture;
 
-    private RewardedAd supportAppRewardedAd;
     SharedPreferences sharedPreferences;
     SharedPreferences.Editor sharedPrefsEditor;
 
@@ -332,9 +331,6 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
     }
 
     private void getNotes() {
-
-//        noteList.clear();
-//        staggeredRecyclerViewAdapter.notifyDataSetChanged();
         if (FirebaseAuth.getInstance().getCurrentUser() != null && FirebaseAuth.getInstance().getCurrentUser().getEmail() != null)
             notesListener = db.collection("Notes").whereArrayContains("users", FirebaseAuth.getInstance().getCurrentUser().getEmail())
                     .whereEqualTo("deleted", false)
@@ -400,7 +396,6 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
                                                     Log.d(TAG, "onEvent: added note default " + note.getNoteTitle() + " at position " + (noteList.size() - 1) +
                                                             " actual note position " + getNotePosition(note));
                                                 }
-
                                             }
                                         }
                                     }
@@ -408,7 +403,6 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
                                     //No notes available, show no notes tv
                                     noNotesTv.setVisibility(View.VISIBLE);
                                 }
-
                             }
                         }
                     });
@@ -481,7 +475,6 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
         }
         return changed;
     }
-
 
 
     @Override
@@ -623,7 +616,9 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
         if (window != null) {
             window.findViewById(com.google.android.material.R.id.container).setFitsSystemWindows(false);
             View decorView = window.getDecorView();
-            decorView.setSystemUiVisibility(decorView.getSystemUiVisibility() | View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                decorView.setSystemUiVisibility(decorView.getSystemUiVisibility() | View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR);
+            }
         }
 
 
@@ -733,7 +728,7 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
     }
 
 
-    private ActionMode.Callback actionModeCallback = new ActionMode.Callback() {
+    private final ActionMode.Callback actionModeCallback = new ActionMode.Callback() {
         @Override
         public boolean onCreateActionMode(ActionMode mode, Menu menu) {
             MenuInflater inflater = mode.getMenuInflater();

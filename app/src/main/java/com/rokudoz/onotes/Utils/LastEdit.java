@@ -14,7 +14,7 @@ public class LastEdit {
     public LastEdit() {
     }
 
-    public String getLastEdit(long time) {
+    public static String getLastEdit(long time) {
         if (time < 1000000000000L) {
             // if timestamp given in seconds, convert to millis
             time *= 1000;
