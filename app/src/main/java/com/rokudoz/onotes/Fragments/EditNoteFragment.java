@@ -20,6 +20,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
+import androidx.core.widget.NestedScrollView;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.ItemTouchHelper;
@@ -31,6 +32,7 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.card.MaterialCardView;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.CollectionReference;
@@ -69,6 +71,7 @@ import static com.rokudoz.onotes.App.TRANSITION_DURATION;
 import static com.rokudoz.onotes.Utils.NotesUtils.NOTE_CHANGE_TYPE_ADDED;
 import static com.rokudoz.onotes.Utils.NotesUtils.NOTE_CHANGE_TYPE_CHANGE;
 import static com.rokudoz.onotes.Utils.NotesUtils.NOTE_CHANGE_TYPE_REMOVED;
+import static com.rokudoz.onotes.Utils.NotesUtils.NOTE_TYPE_TEXT;
 
 public class EditNoteFragment extends Fragment implements CheckableItemAdapter.OnStartDragListener,
         CheckableItemAdapter.OnItemClickListener, FullBottomSheetDialogFragment.ExampleDialogListener, CollaboratorNotesAdapter.OnItemClickListener {
@@ -105,6 +108,9 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
     MaterialButton backBtn, deleteBtn, checkboxModeBtn, addCheckboxBtn, optionsBtn;
     MaterialCardView bottomCard;
 
+    FloatingActionButton scrollFab;
+    NestedScrollView nestedScrollView;
+
     private ListenerRegistration noteListener;
 
     private RelativeLayout rootLayout;
@@ -139,7 +145,8 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
         collaboratorsRV = view.findViewById(R.id.editNoteFragment_collaboratorsRV);
         progressBar = view.findViewById(R.id.editNoteFragment_progressBar);
         rootLayout = view.findViewById(R.id.rv_home_note_rootLayout);
-
+        scrollFab = view.findViewById(R.id.editNoteFragment_scroll_fab);
+        nestedScrollView = view.findViewById(R.id.editNoteFragment_nestedScrollView);
         note_background_color = ContextCompat.getColor(requireContext(), R.color.fragments_background);
 
         if (getArguments() != null) {
@@ -434,6 +441,22 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
                                     titleInput.setText(mNote.getNoteTitle());
                                     textInput.setText(mNote.getNoteText());
 
+                                    //Scroll edit text to bottom
+                                    if (textInput.canScrollVertically(1) && mNote.getNoteType().equals(NOTE_TYPE_TEXT)) {
+                                        scrollFab.setVisibility(View.VISIBLE);
+                                        scrollFab.setOnClickListener(new View.OnClickListener() {
+                                            @Override
+                                            public void onClick(View v) {
+                                                if (textInput.getText() != null) {
+                                                    textInput.requestFocus();
+                                                    textInput.setSelection(textInput.getText().length());
+                                                    scrollFab.setVisibility(View.GONE);
+                                                }
+                                            }
+                                        });
+                                    }
+
+
                                     if (mNote.getNumber_of_edits() != null)
                                         number_of_edits = mNote.getNumber_of_edits();
 
@@ -443,7 +466,7 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
                                     if (mNote.getNoteType() != null) {
                                         noteType = mNote.getNoteType();
                                     } else {
-                                        noteType = "text";
+                                        noteType = NOTE_TYPE_TEXT;
                                     }
                                     if (noteType.equals("text")) {
                                         textInput.setVisibility(View.VISIBLE);

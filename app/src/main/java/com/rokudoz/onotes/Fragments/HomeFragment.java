@@ -507,6 +507,10 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
         }
 
         //If the user has rearranged any notes, update their position
+        updateNotesPositions();
+    }
+
+    private void updateNotesPositions() {
         for (final Note note : noteList) {
             if (note.getChangedPos() != null && note.getChangedPos()) {
                 db.collection("Notes").document(note.getNote_doc_ID())
@@ -801,7 +805,7 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
         builder.setView(R.layout.dialog_please_wait);
         final AlertDialog dialog = builder.create();
         dialog.show();
-        final int[] notesdeleted = {0};
+        final int[] notesDeleted = {0};
         for (final Note note : notesToDelete) {
 
             //If current user is the creator of the note, delete it
@@ -818,12 +822,8 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
                             staggeredRecyclerViewAdapter.notifyItemRemoved(position);
                         }
 
-                        notesdeleted[0]++;
-                        if (notesdeleted[0] == notesToDelete.size()) {
-//                            //Clear notes list and get them all again
-//                            noteList.clear();
-//                            staggeredRecyclerViewAdapter.notifyDataSetChanged();
-//                            getNotes();
+                        notesDeleted[0]++;
+                        if (notesDeleted[0] == notesToDelete.size()) {
                             dialog.cancel();
                         }
                     }
@@ -855,12 +855,8 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
                             staggeredRecyclerViewAdapter.notifyItemRemoved(position);
                         }
 
-                        notesdeleted[0]++;
-                        if (notesdeleted[0] == notesToDelete.size()) {
-//                            //Clear notes list and get them all again
-//                            noteList.clear();
-//                            staggeredRecyclerViewAdapter.notifyDataSetChanged();
-//                            getNotes();
+                        notesDeleted[0]++;
+                        if (notesDeleted[0] == notesToDelete.size()) {
                             dialog.cancel();
                         }
                     }

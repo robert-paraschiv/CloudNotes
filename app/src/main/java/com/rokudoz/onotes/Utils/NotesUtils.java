@@ -13,6 +13,8 @@ public class NotesUtils {
     public static final String NOTE_CHANGE_TYPE_CHANGE = "change";
     public static final String NOTE_CHANGE_TYPE_ADDED = "added";
     public static final String NOTE_CHANGE_TYPE_REMOVED = "removed";
+    public static final String NOTE_TYPE_TEXT = "text";
+    public static final String NOTE_TYPE_CHECKBOX = "checkbox";
 
     public NotesUtils() {
     }
