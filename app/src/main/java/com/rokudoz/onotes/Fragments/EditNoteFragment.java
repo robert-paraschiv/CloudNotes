@@ -81,6 +81,8 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
 
     int note_background_color;
 
+    boolean showScrollFab = false;
+
     private boolean retrievedNote = false;
 
     private ProgressBar progressBar;
@@ -441,9 +443,10 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
                                     textInput.setText(mNote.getNoteText());
 
                                     //Scroll edit text to bottom
-                                    if (textInput.canScrollVertically(1) && mNote.getNoteType().equals(NOTE_TYPE_TEXT)) {
+                                    if (textInput.canScrollVertically(1) && mNote.getNoteType().equals(NOTE_TYPE_TEXT) || showScrollFab) {
                                         Log.d(TAG, "onEvent: VISIBLE FAB");
                                         scrollFab.setVisibility(View.VISIBLE);
+                                        showScrollFab = true;
                                         scrollFab.setOnClickListener(new View.OnClickListener() {
                                             @Override
                                             public void onClick(View v) {
