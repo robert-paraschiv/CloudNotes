@@ -457,7 +457,7 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
                                                 }
                                             }
                                         });
-                                    } else if (!textInput.canScrollVertically(1)) { //TODO Find why this happens upon back from edits fragment
+                                    } else if (!textInput.canScrollVertically(1)) {
                                         Log.d(TAG, "onEvent: FAB NOT VISIBLE");
                                     }
 
@@ -575,6 +575,8 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
             if (newNoteIsDifferent && getActivity() != null) {
                 Log.d(TAG, "checkNoteEvent: Someone has just edited this note");
                 showReloadDataDialog();
+            }else if (!newNoteIsDifferent){
+                Log.d(TAG, "checkNoteEvent: note not different");
             }
         }
 

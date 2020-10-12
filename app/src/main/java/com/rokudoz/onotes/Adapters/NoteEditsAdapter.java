@@ -264,8 +264,8 @@ public class NoteEditsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
             holder.editType.setTextColor(mContext.getColor(R.color.edit_type_created));
         }
 
-        if (currentItem.getCollaboratorList() != null && currentItem.getLast_edited_by_user() != null && currentItem.getHas_collaborators() != null) {
-            if (currentItem.getHas_collaborators()) {
+        if (currentItem.getCollaboratorList() != null && currentItem.getLast_edited_by_user() != null ) {
+
                 holder.noCollaboratorsDateTv.setVisibility(View.GONE);
                 holder.creatorLayout.setVisibility(View.VISIBLE);
                 holder.creatorEmail.setText(currentItem.getLast_edited_by_user());
@@ -283,10 +283,7 @@ public class NoteEditsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                 }
                 Glide.with(holder.creatorPicture).load(creator_picture).centerCrop().into(holder.creatorPicture);
                 holder.creatorEmail.setText(creator_name);
-            } else {
-                holder.noCollaboratorsDateTv.setVisibility(View.VISIBLE);
-                holder.creatorLayout.setVisibility(View.GONE);
-            }
+
         } else {
             holder.noCollaboratorsDateTv.setVisibility(View.VISIBLE);
             holder.creatorLayout.setVisibility(View.GONE);
@@ -374,8 +371,7 @@ public class NoteEditsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
             holder.recyclerView.suppressLayout(true);
         }
 
-        if (currentItem.getCollaboratorList() != null && currentItem.getLast_edited_by_user() != null && currentItem.getHas_collaborators() != null) {
-            if (currentItem.getHas_collaborators()) {
+        if (currentItem.getCollaboratorList() != null && currentItem.getLast_edited_by_user() != null ) {
                 holder.noCollaboratorsDateTv.setVisibility(View.GONE);
                 holder.creatorLayout.setVisibility(View.VISIBLE);
                 String creator_picture = "";
@@ -392,10 +388,7 @@ public class NoteEditsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                 }
                 Glide.with(holder.creatorPicture).load(creator_picture).centerCrop().into(holder.creatorPicture);
                 holder.creatorEmail.setText(creator_name);
-            } else {
-                holder.noCollaboratorsDateTv.setVisibility(View.VISIBLE);
-                holder.creatorLayout.setVisibility(View.GONE);
-            }
+
         } else {
             holder.creatorLayout.setVisibility(View.GONE);
             holder.noCollaboratorsDateTv.setVisibility(View.VISIBLE);
