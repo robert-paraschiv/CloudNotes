@@ -10,6 +10,9 @@ import java.util.List;
 public class NotesUtils {
     private static final String TAG = "NotesUtils";
 
+    public static final String NOTES_DETAILS = "NotesDetails";
+
+
     public static final String NOTE_CHANGE_TYPE_CHANGE = "change";
     public static final String NOTE_CHANGE_TYPE_ADDED = "added";
     public static final String NOTE_CHANGE_TYPE_REMOVED = "removed";

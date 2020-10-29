@@ -134,7 +134,7 @@ public class FullBottomSheetDialogFragment extends BottomSheetDialogFragment imp
 
         Log.d(TAG, "buildRecyclerView: " + collaboratorList.toString());
 
-        collaboratorList.add(new Collaborator("", "", "add", false, 0, ""));
+        collaboratorList.add(new Collaborator("","", "", "add", false));
         mAdapter.notifyItemInserted(collaboratorList.size() - 1);
     }
 
@@ -205,7 +205,7 @@ public class FullBottomSheetDialogFragment extends BottomSheetDialogFragment imp
 
     @Override
     public void onEnterPressed(int position) {
-        Collaborator collaborator = new Collaborator("", "", "add", false, 0, "");
+        Collaborator collaborator = new Collaborator("","", "", "add", false);
         collaborator.setShouldBeFocused(true);
         collaboratorList.add(position + 1, collaborator);
         mAdapter.notifyItemInserted(position + 1);

@@ -5,40 +5,30 @@ import com.google.firebase.firestore.Exclude;
 import java.util.Objects;
 
 public class Collaborator {
+    private String user_id;
     private String user_email;
     private String user_name;
     private String user_picture;
     private Boolean shouldBeFocused;
     private Boolean isCreator;
-    private Integer note_position;
-    private String note_background_color;
 
     public Collaborator() {
     }
 
-    public Collaborator(String user_email, String user_name, String user_picture, Boolean isCreator, Integer note_position, String note_background_color) {
+    public Collaborator(String user_id,String user_email, String user_name, String user_picture, Boolean isCreator) {
+        this.user_id=user_id;
         this.user_email = user_email;
         this.user_name = user_name;
         this.user_picture = user_picture;
         this.isCreator = isCreator;
-        this.note_position = note_position;
-        this.note_background_color = note_background_color;
     }
 
-    public Integer getNote_position() {
-        return note_position;
+    public String getUser_id() {
+        return user_id;
     }
 
-    public void setNote_position(Integer note_position) {
-        this.note_position = note_position;
-    }
-
-    public String getNote_background_color() {
-        return note_background_color;
-    }
-
-    public void setNote_background_color(String note_background_color) {
-        this.note_background_color = note_background_color;
+    public void setUser_id(String user_id) {
+        this.user_id = user_id;
     }
 
     public Boolean getCreator() {
@@ -91,8 +81,6 @@ public class Collaborator {
                 ", user_picture='" + user_picture + '\'' +
                 ", shouldBeFocused=" + shouldBeFocused +
                 ", isCreator=" + isCreator +
-                ", note_position=" + note_position +
-                ", note_background_color='" + note_background_color + '\'' +
                 '}';
     }
 

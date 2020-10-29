@@ -430,12 +430,12 @@ public class TrashFragment extends Fragment implements HomePageAdapter.OnItemCli
             for (int i = 0; i < noteList.size(); i++) {
                 if (recyclerView.getLayoutManager() != null && recyclerView.getLayoutManager().getChildAt(i) != null) {
                     if (noteList.get(i).getCollaboratorList() != null && noteList.get(i).getCollaboratorList().contains(currentUserCollaborator))
-                        if (noteList.get(i).getCollaboratorList().get(noteList.get(i).getCollaboratorList().indexOf(currentUserCollaborator)).getNote_background_color() == null
-                                || noteList.get(i).getCollaboratorList().get(noteList.get(i).getCollaboratorList().indexOf(currentUserCollaborator)).getNote_background_color()
+                        if (noteList.get(i).getNote_background_color() == null
+                                || noteList.get(i).getNote_background_color()
                                 .equals("")) {
                             Objects.requireNonNull(recyclerView.getLayoutManager().getChildAt(i)).setBackgroundResource(R.drawable.home_note_background);
                         } else {
-                            switch (noteList.get(i).getCollaboratorList().get(noteList.get(i).getCollaboratorList().indexOf(currentUserCollaborator)).getNote_background_color()) {
+                            switch (noteList.get(i).getNote_background_color()) {
                                 case "yellow":
                                     Objects.requireNonNull(recyclerView.getLayoutManager().getChildAt(i)).setBackgroundResource(R.drawable.home_note_background_yellow);
                                     break;

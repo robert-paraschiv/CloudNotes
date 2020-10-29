@@ -241,8 +241,8 @@ public class ViewNoteEditFragment extends Fragment {
                                                             collaborator.setUser_email(FirebaseAuth.getInstance().getCurrentUser().getEmail());
                                                             Navigation.findNavController(view).navigate(ViewNoteEditFragmentDirections.
                                                                     actionViewNoteEditFragmentToEditNoteFragment(noteID,
-                                                                            originalNote.getCollaboratorList().get(originalNote.getCollaboratorList().indexOf(collaborator)).getNote_background_color(),
-                                                                            originalNote.getCollaboratorList().get(originalNote.getCollaboratorList().indexOf(collaborator)).getNote_position(),
+                                                                            originalNote.getNote_background_color(),
+                                                                            originalNote.getNote_position(),
                                                                             null
                                                                     ));
                                                         }

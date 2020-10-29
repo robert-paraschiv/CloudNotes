@@ -26,6 +26,8 @@ public class Note {
     private String last_edited_by_user;
     private Boolean has_collaborators;
     private List<NoteChange> noteChangeList;
+    private String note_background_color;
+    private Integer note_position;
 
     @ServerTimestamp
     private Date creation_date;
@@ -59,6 +61,22 @@ public class Note {
 
     public void setHas_collaborators(Boolean has_collaborators) {
         this.has_collaborators = has_collaborators;
+    }
+
+    public String getNote_background_color() {
+        return note_background_color;
+    }
+
+    public void setNote_background_color(String note_background_color) {
+        this.note_background_color = note_background_color;
+    }
+
+    public Integer getNote_position() {
+        return note_position;
+    }
+
+    public void setNote_position(Integer note_position) {
+        this.note_position = note_position;
     }
 
     public String getLast_edited_by_user() {

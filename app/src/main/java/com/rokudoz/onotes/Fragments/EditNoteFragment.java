@@ -18,6 +18,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.ColorRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
@@ -51,6 +52,7 @@ import com.rokudoz.onotes.Models.CheckableItem;
 import com.rokudoz.onotes.Models.Collaborator;
 import com.rokudoz.onotes.Models.Note;
 import com.rokudoz.onotes.Models.NoteChange;
+import com.rokudoz.onotes.Models.NoteDetails;
 import com.rokudoz.onotes.Models.User;
 import com.rokudoz.onotes.R;
 import com.rokudoz.onotes.Utils.BannerAdManager;
@@ -69,6 +71,7 @@ import java.util.Objects;
 import de.hdodenhof.circleimageview.CircleImageView;
 
 import static com.rokudoz.onotes.App.TRANSITION_DURATION;
+import static com.rokudoz.onotes.Utils.NotesUtils.NOTES_DETAILS;
 import static com.rokudoz.onotes.Utils.NotesUtils.NOTE_CHANGE_TYPE_ADDED;
 import static com.rokudoz.onotes.Utils.NotesUtils.NOTE_CHANGE_TYPE_CHANGE;
 import static com.rokudoz.onotes.Utils.NotesUtils.NOTE_CHANGE_TYPE_REMOVED;
@@ -93,7 +96,6 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
 
     private String noteType = "text";
     private String noteID = "";
-    private int position = 0;
     private int number_of_edits = 0;
     private List<CheckableItem> checkableItemList = new ArrayList<>();
     private RecyclerView recyclerView, collaboratorsRV;
@@ -464,9 +466,6 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
                                     if (mNote.getNumber_of_edits() != null)
                                         number_of_edits = mNote.getNumber_of_edits();
 
-                                    if (mNote.getCollaboratorList().get(mNote.getCollaboratorList().indexOf(currentUserCollaborator)).getNote_position() != null)
-                                        position = mNote.getCollaboratorList().get(mNote.getCollaboratorList().indexOf(currentUserCollaborator)).getNote_position();
-
                                     if (mNote.getNoteType() != null) {
                                         noteType = mNote.getNoteType();
                                     } else {
@@ -523,15 +522,14 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
                                                         == R.id.editNoteFragment)
                                                     Navigation.findNavController(view).navigate(EditNoteFragmentDirections
                                                             .actionEditNoteFragmentToNoteEditsFragment(noteID,
-                                                                    mNote.getCollaboratorList().get(mNote.getCollaboratorList().indexOf(currentUserCollaborator))
-                                                                            .getNote_background_color(),
+                                                                    mNote.getNote_background_color(),
                                                                     hasCollaborators));
                                             }
                                         });
                                     }
                                     //Get note color from DB and set it
-                                    String color = mNote.getCollaboratorList().get(mNote.getCollaboratorList().indexOf(currentUserCollaborator)).getNote_background_color();
-                                    setupBackgroundColor(color);
+//                                    String color = mNote.getNote_background_color();
+//                                    setupBackgroundColor(color);
 
                                     optionsBtn.setOnClickListener(new View.OnClickListener() {
                                         @Override
@@ -575,7 +573,7 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
             if (newNoteIsDifferent && getActivity() != null) {
                 Log.d(TAG, "checkNoteEvent: Someone has just edited this note");
                 showReloadDataDialog();
-            }else if (!newNoteIsDifferent){
+            } else if (!newNoteIsDifferent) {
                 Log.d(TAG, "checkNoteEvent: note not different");
             }
         }
@@ -662,10 +660,10 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
         initial = dialogView.findViewById(R.id.noteSettings_color_initial);
         collaboratorsBtn = dialogView.findViewById(R.id.noteSettings_addCollaboratorBtn);
 
-        if (mNote.getCollaboratorList().get(mNote.getCollaboratorList().indexOf(currentUserCollaborator)).getNote_background_color() == null) {
+        if (mNote.getNote_background_color() == null) {
             initial.setBorderWidth(5);
         } else {
-            switch (mNote.getCollaboratorList().get(mNote.getCollaboratorList().indexOf(currentUserCollaborator)).getNote_background_color()) {
+            switch (mNote.getNote_background_color()) {
                 case "yellow":
                     yellow.setBorderWidth(5);
                     break;
@@ -690,61 +688,43 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
         yellow.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                updateNoteColor("yellow");
-                setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.note_background_color_yellow));
-                mNote.getCollaboratorList().get(mNote.getCollaboratorList().indexOf(currentUserCollaborator)).setNote_background_color("yellow");
+                Color_on_click("yellow", R.color.note_background_color_yellow, bottomSheetDialog);
                 yellow.setBorderWidth(5);
-                bottomSheetDialog.cancel();
             }
         });
         red.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                updateNoteColor("red");
-                setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.note_background_color_red));
-                mNote.getCollaboratorList().get(mNote.getCollaboratorList().indexOf(currentUserCollaborator)).setNote_background_color("red");
+                Color_on_click("red", R.color.note_background_color_red, bottomSheetDialog);
                 red.setBorderWidth(5);
-                bottomSheetDialog.cancel();
             }
         });
         blue.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                updateNoteColor("blue");
-                setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.note_background_color_blue));
-                mNote.getCollaboratorList().get(mNote.getCollaboratorList().indexOf(currentUserCollaborator)).setNote_background_color("blue");
+                Color_on_click("blue", R.color.note_background_color_blue, bottomSheetDialog);
                 blue.setBorderWidth(5);
-                bottomSheetDialog.cancel();
             }
         });
         green.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                updateNoteColor("green");
-                setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.note_background_color_green));
-                mNote.getCollaboratorList().get(mNote.getCollaboratorList().indexOf(currentUserCollaborator)).setNote_background_color("green");
+                Color_on_click("green", R.color.note_background_color_green, bottomSheetDialog);
                 green.setBorderWidth(5);
-                bottomSheetDialog.cancel();
             }
         });
         orange.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                updateNoteColor("orange");
-                setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.note_background_color_orange));
-                mNote.getCollaboratorList().get(mNote.getCollaboratorList().indexOf(currentUserCollaborator)).setNote_background_color("orange");
+                Color_on_click("orange", R.color.note_background_color_orange, bottomSheetDialog);
                 orange.setBorderWidth(5);
-                bottomSheetDialog.cancel();
             }
         });
         purple.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                updateNoteColor("purple");
-                setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.note_background_color_purple));
-                mNote.getCollaboratorList().get(mNote.getCollaboratorList().indexOf(currentUserCollaborator)).setNote_background_color("purple");
+                Color_on_click("purple", R.color.note_background_color_purple, bottomSheetDialog);
                 purple.setBorderWidth(5);
-                bottomSheetDialog.cancel();
             }
         });
         initial.setOnClickListener(new View.OnClickListener() {
@@ -752,9 +732,9 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
             public void onClick(View v) {
                 updateNoteColor(null);
                 resetBackgroundColors();
-                mNote.getCollaboratorList().get(mNote.getCollaboratorList().indexOf(currentUserCollaborator)).setNote_background_color(null);
-                initial.setBorderWidth(5);
                 bottomSheetDialog.cancel();
+                mNote.setNote_background_color(null);
+                initial.setBorderWidth(5);
             }
         });
         collaboratorsBtn.setOnClickListener(new View.OnClickListener() {
@@ -778,6 +758,13 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
         }
     }
 
+    private void Color_on_click(String color, int colorRes, BottomSheetDialog bottomSheetDialog) {
+        updateNoteColor(color);
+        setBackgroundColor(ContextCompat.getColor(requireContext(), colorRes));
+        mNote.setNote_background_color(color);
+        bottomSheetDialog.cancel();
+    }
+
     private void showCollaboratorsDialog() {
         boolean isOwner = Objects.equals(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getEmail(), mNote.getCreator_user_email());
 
@@ -785,16 +772,18 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
 
         //if note has no collaborators yet, add the current user
         if (mNote.getCollaboratorList() == null) {
-            collaboratorList.add(new Collaborator(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getEmail(),
+            collaboratorList.add(new Collaborator(
+                    Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid(),
+                    Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getEmail(),
                     Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getDisplayName(),
-                    Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser().getPhotoUrl()).toString(), true,
-                    0, ""));
+                    Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser().getPhotoUrl()).toString(), true));
             mNote.setCollaboratorList(collaboratorList);
         } else if (mNote.getCollaboratorList().size() == 0) {
-            collaboratorList.add(new Collaborator(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getEmail(),
+            collaboratorList.add(new Collaborator(
+                    Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid(),
+                    Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getEmail(),
                     Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getDisplayName(),
-                    Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser().getPhotoUrl()).toString(), true,
-                    0, ""));
+                    Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser().getPhotoUrl()).toString(), true));
             mNote.setCollaboratorList(collaboratorList);
         } else {
             collaboratorList.addAll(mNote.getCollaboratorList());
@@ -808,12 +797,12 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
     }
 
     private void updateNoteColor(final String noteColor) {
-        mNote.getCollaboratorList().get(mNote.getCollaboratorList().indexOf(currentUserCollaborator)).setNote_background_color(noteColor);
-        db.collection("Notes").document(noteID)
-                .update("collaboratorList", mNote.getCollaboratorList()).addOnSuccessListener(new OnSuccessListener<Void>() {
+        mNote.setNote_background_color(noteColor);
+        db.collection("Users").document(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid()).collection(NotesUtils.NOTES_DETAILS)
+                .document(mNote.getNote_doc_ID()).update("note_background_color", noteColor).addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override
             public void onSuccess(Void aVoid) {
-                Log.d(TAG, "onSuccess: updated note color + " + noteColor);
+                Log.d(TAG, "onSuccess: Updated note color " + noteColor);
             }
         });
     }
@@ -857,26 +846,11 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
                 } else {
                     title = titleInput.getText().toString();
                 }
+
+
                 if (noteType.equals("text")) {
                     //Compare current note text to old text and get changes
-                    List<NoteChange> noteChangeList = new ArrayList<>();
-
-                    List<String> currentNoteTextList = Arrays.asList(textInput.getText().toString().split("\\r?\\n"));
-                    List<String> oldNoteTextList = Arrays.asList(mNote.getNoteText().split("\\r?\\n"));
-
-                    if (!mNote.getNoteType().equals(noteType))
-                        oldNoteTextList = new ArrayList<>();
-
-                    for (int i = 0; i < currentNoteTextList.size(); i++) {
-                        if (oldNoteTextList.size() > i) {
-                            if (!currentNoteTextList.get(i).equals(oldNoteTextList.get(i))) {
-                                noteChangeList.add(new NoteChange(NOTE_CHANGE_TYPE_CHANGE, currentNoteTextList.get(i), oldNoteTextList.get(i), null, null));
-                            }
-                        } else {
-                            noteChangeList.add(new NoteChange(NOTE_CHANGE_TYPE_ADDED, currentNoteTextList.get(i), null, null, null));
-                        }
-                    }
-
+                    List<NoteChange> noteChangeList = getTextNoteChanges();
 
                     //Get note ready for updating db
                     note = new Note(title,
@@ -890,44 +864,7 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
                 } else if (noteType.equals("checkbox")) {
 
                     //Compare new checkbox values to old ones and get changes
-                    List<NoteChange> noteChangeList = new ArrayList<>();
-
-                    List<CheckableItem> oldCheckboxList = mNote.getCheckableItemList();
-                    List<CheckableItem> comparedItemsList = new ArrayList<>();
-
-                    if (oldCheckboxList == null)
-                        oldCheckboxList = new ArrayList<>();
-
-                    for (CheckableItem oldItem : oldCheckboxList) {
-                        if (currentCheckboxList.contains(oldItem)) {
-
-                            CheckableItem newItem = currentCheckboxList.get(currentCheckboxList.indexOf(oldItem));
-                            comparedItemsList.add(newItem);
-
-                            if (!oldItem.getText().equals(newItem.getText()) || !oldItem.getChecked().equals(newItem.getChecked())) {
-                                noteChangeList.add(new NoteChange(NOTE_CHANGE_TYPE_CHANGE, newItem.getText(), oldItem.getText(), newItem.getChecked(), oldItem.getChecked()));
-                            }
-
-                        } else {
-                            noteChangeList.add(new NoteChange(NOTE_CHANGE_TYPE_REMOVED, null, oldItem.getText(), null, oldItem.getChecked()));
-                        }
-                    }
-
-                    for (CheckableItem newItem : currentCheckboxList) {
-                        if (oldCheckboxList.contains(newItem)) {
-
-                            CheckableItem oldItem = oldCheckboxList.get(oldCheckboxList.indexOf(newItem));
-                            if (!comparedItemsList.contains(oldItem)) {
-                                if (!oldItem.getText().equals(newItem.getText()) || !oldItem.getChecked().equals(newItem.getChecked())) {
-                                    comparedItemsList.add(oldItem);
-                                    noteChangeList.add(new NoteChange(NOTE_CHANGE_TYPE_CHANGE, newItem.getText(), oldItem.getText(), newItem.getChecked(), oldItem.getChecked()));
-                                }
-                            }
-
-                        } else {
-                            noteChangeList.add(new NoteChange(NOTE_CHANGE_TYPE_ADDED, newItem.getText(), null, newItem.getChecked(), null));
-                        }
-                    }
+                    List<NoteChange> noteChangeList = getCheckboxNoteChanges(currentCheckboxList);
 
                     //Get note ready for updating db
                     note = new Note(
@@ -961,6 +898,69 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
                 Log.d(TAG, "Note was the same, going back");
             }
         }
+    }
+
+    private List<NoteChange> getCheckboxNoteChanges(List<CheckableItem> currentCheckboxList) {
+        List<NoteChange> noteChangeList = new ArrayList<>();
+
+        List<CheckableItem> oldCheckboxList = mNote.getCheckableItemList();
+        List<CheckableItem> comparedItemsList = new ArrayList<>();
+
+        if (oldCheckboxList == null)
+            oldCheckboxList = new ArrayList<>();
+
+        for (CheckableItem oldItem : oldCheckboxList) {
+            if (currentCheckboxList.contains(oldItem)) {
+
+                CheckableItem newItem = currentCheckboxList.get(currentCheckboxList.indexOf(oldItem));
+                comparedItemsList.add(newItem);
+
+                if (!oldItem.getText().equals(newItem.getText()) || !oldItem.getChecked().equals(newItem.getChecked())) {
+                    noteChangeList.add(new NoteChange(NOTE_CHANGE_TYPE_CHANGE, newItem.getText(), oldItem.getText(), newItem.getChecked(), oldItem.getChecked()));
+                }
+
+            } else {
+                noteChangeList.add(new NoteChange(NOTE_CHANGE_TYPE_REMOVED, null, oldItem.getText(), null, oldItem.getChecked()));
+            }
+        }
+
+        for (CheckableItem newItem : currentCheckboxList) {
+            if (oldCheckboxList.contains(newItem)) {
+
+                CheckableItem oldItem = oldCheckboxList.get(oldCheckboxList.indexOf(newItem));
+                if (!comparedItemsList.contains(oldItem)) {
+                    if (!oldItem.getText().equals(newItem.getText()) || !oldItem.getChecked().equals(newItem.getChecked())) {
+                        comparedItemsList.add(oldItem);
+                        noteChangeList.add(new NoteChange(NOTE_CHANGE_TYPE_CHANGE, newItem.getText(), oldItem.getText(), newItem.getChecked(), oldItem.getChecked()));
+                    }
+                }
+
+            } else {
+                noteChangeList.add(new NoteChange(NOTE_CHANGE_TYPE_ADDED, newItem.getText(), null, newItem.getChecked(), null));
+            }
+        }
+        return noteChangeList;
+    }
+
+    private List<NoteChange> getTextNoteChanges() {
+        List<NoteChange> noteChangeList = new ArrayList<>();
+
+        List<String> currentNoteTextList = Arrays.asList(textInput.getText().toString().split("\\r?\\n"));
+        List<String> oldNoteTextList = Arrays.asList(mNote.getNoteText().split("\\r?\\n"));
+
+        if (!mNote.getNoteType().equals(noteType))
+            oldNoteTextList = new ArrayList<>();
+
+        for (int i = 0; i < currentNoteTextList.size(); i++) {
+            if (oldNoteTextList.size() > i) {
+                if (!currentNoteTextList.get(i).equals(oldNoteTextList.get(i))) {
+                    noteChangeList.add(new NoteChange(NOTE_CHANGE_TYPE_CHANGE, currentNoteTextList.get(i), oldNoteTextList.get(i), null, null));
+                }
+            } else {
+                noteChangeList.add(new NoteChange(NOTE_CHANGE_TYPE_ADDED, currentNoteTextList.get(i), null, null, null));
+            }
+        }
+        return noteChangeList;
     }
 
     @Override
@@ -1038,16 +1038,22 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
                                         }
                                         if (!containsAlready) {
                                             if (collaborator.getCreator()) {
-                                                collaborators.add(0, new Collaborator(user.getEmail(), user.getUser_name(),
-                                                        user.getUser_profile_picture(), collaborator.getCreator(), 0, collaborator.getNote_background_color()));
+                                                collaborators.add(0, new Collaborator(user.getUser_id(), user.getEmail(), user.getUser_name(),
+                                                        user.getUser_profile_picture(), collaborator.getCreator()));
                                             } else {
-                                                collaborators.add(new Collaborator(user.getEmail(), user.getUser_name(),
-                                                        user.getUser_profile_picture(), collaborator.getCreator(), 0, collaborator.getNote_background_color()));
+                                                collaborators.add(new Collaborator(user.getUser_id(), user.getEmail(), user.getUser_name(),
+                                                        user.getUser_profile_picture(), collaborator.getCreator()));
                                             }
 
+                                            WriteBatch batch = db.batch();
+
+                                            //TODO need to implement this server side
+                                            NoteDetails noteDetails = new NoteDetails(mNote.getNote_doc_ID(), user.getUser_id(), 0, "");
+                                            batch.set(db.collection("Users").document(user.getUser_id()).collection(NOTES_DETAILS).document(mNote.getNote_doc_ID()), noteDetails);
 
                                             if (collaborators.size() == userList.size()) {
-                                                WriteBatch batch = db.batch();
+
+
                                                 batch.update(db.collection("Notes").document(noteID), "users", userList);
                                                 batch.update(db.collection("Notes").document(noteID), "collaboratorList", collaborators);
                                                 batch.commit().addOnSuccessListener(new OnSuccessListener<Void>() {
