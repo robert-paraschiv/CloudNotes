@@ -654,7 +654,7 @@ public class NewNoteFragment extends Fragment implements CheckableItemAdapter.On
             @Override
             public void onClick(View v) {
                 resetBackgroundColors();
-                mNote.setNote_background_color(null);
+                mNote.setNote_background_color("");
                 initial.setBorderWidth(5);
                 bottomSheetDialog.cancel();
             }

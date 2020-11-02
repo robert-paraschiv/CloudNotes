@@ -18,7 +18,6 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.ColorRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
@@ -30,7 +29,10 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.transition.TransitionInflater;
 
+import com.google.android.gms.tasks.Continuation;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.card.MaterialCardView;
@@ -83,6 +85,7 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
     private static final String TAG = "EditNoteFragment";
 
     int note_background_color;
+    String note_background_colorName = "";
 
     boolean showScrollFab = false;
 
@@ -165,6 +168,8 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
             rootLayout.setTransitionName(editNoteFragmentArgs.getTransitionName());
 
             Log.d(TAG, "onCreateView: note position " + notePosition);
+            mNote.setNote_background_color(editNoteFragmentArgs.getNoteColor());
+            note_background_colorName = editNoteFragmentArgs.getNoteColor();
             setupBackgroundColor(editNoteFragmentArgs.getNoteColor());
             getNote(noteID);
         }
@@ -443,7 +448,7 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
                                     mNote.setNote_doc_ID(documentSnapshot.getId());
                                     titleInput.setText(mNote.getNoteTitle());
                                     textInput.setText(mNote.getNoteText());
-
+                                    mNote.setNote_background_color(note_background_colorName);
                                     //Scroll edit text to bottom
                                     if (textInput.canScrollVertically(1) && mNote.getNoteType().equals(NOTE_TYPE_TEXT) || showScrollFab) {
                                         Log.d(TAG, "onEvent: VISIBLE FAB");
@@ -730,10 +735,10 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
         initial.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                updateNoteColor(null);
+                updateNoteColor("");
                 resetBackgroundColors();
                 bottomSheetDialog.cancel();
-                mNote.setNote_background_color(null);
+                mNote.setNote_background_color("");
                 initial.setBorderWidth(5);
             }
         });
@@ -798,6 +803,7 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
 
     private void updateNoteColor(final String noteColor) {
         mNote.setNote_background_color(noteColor);
+        note_background_colorName = noteColor;
         db.collection("Users").document(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid()).collection(NotesUtils.NOTES_DETAILS)
                 .document(mNote.getNote_doc_ID()).update("note_background_color", noteColor).addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override
@@ -1017,6 +1023,9 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
                     stillCollaborator = true;
             }
         }
+
+        final WriteBatch batch = db.batch();
+
         //Get collaborators pictures
         for (final Collaborator collaborator : collaboratorList) {
             if (!collaborator.getUser_email().trim().equals("")) {
@@ -1045,45 +1054,79 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
                                                         user.getUser_profile_picture(), collaborator.getCreator()));
                                             }
 
-                                            WriteBatch batch = db.batch();
-
-                                            //TODO need to implement this server side
-                                            NoteDetails noteDetails = new NoteDetails(mNote.getNote_doc_ID(), user.getUser_id(), 0, "");
-                                            batch.set(db.collection("Users").document(user.getUser_id()).collection(NOTES_DETAILS).document(mNote.getNote_doc_ID()), noteDetails);
-
                                             if (collaborators.size() == userList.size()) {
-
-
-                                                batch.update(db.collection("Notes").document(noteID), "users", userList);
-                                                batch.update(db.collection("Notes").document(noteID), "collaboratorList", collaborators);
-                                                batch.commit().addOnSuccessListener(new OnSuccessListener<Void>() {
-                                                    @Override
-                                                    public void onSuccess(Void aVoid) {
-                                                        Log.d(TAG, "onSuccess: updated collaborators successfully");
-                                                    }
-                                                });
-                                                mNote.setUsers(userList);
-                                                mNote.setCollaboratorList(collaborators);
-
-                                                if (mNote.getCollaboratorList() != null) {
-                                                    if (mNote.getCollaboratorList().size() > 1) {
-                                                        collaboratorsRV.setVisibility(View.VISIBLE);
-                                                        mCollaboratorsList.clear();
-                                                        mCollaboratorsList.addAll(mNote.getCollaboratorList());
-                                                        collaboratorNotesAdapter.notifyDataSetChanged();
-                                                    } else {
-                                                        collaboratorsRV.setVisibility(View.GONE);
+                                                final List<Collaborator> collaboratorsToDelete = new ArrayList<>();
+                                                for (Collaborator collaboratorToDelete : mCollaboratorsList) {
+                                                    if (!collaborators.contains(collaboratorToDelete)) {
+                                                        collaboratorsToDelete.add(collaboratorToDelete);
                                                     }
                                                 }
+                                                final List<Collaborator> collaboratorsToUpdate = new ArrayList<>();
+                                                collaboratorsToUpdate.addAll(collaborators);
+                                                collaboratorsToUpdate.addAll(collaboratorsToDelete);
 
-                                                if (!finalStillCollaborator) {
-                                                    //Current user is not a collaborator anymore, delete it from his home screen
-                                                    if (Navigation.findNavController(view).getCurrentDestination().getId() == R.id.editNoteFragment) {
-                                                        Navigation.findNavController(view).navigate(EditNoteFragmentDirections
-                                                                .actionEditNoteFragmentToHomeFragment(noteID));
-                                                    }
-//                                                    Navigation.findNavController(view).popBackStack();
+
+                                                for (final Collaborator collaboratorToUpdate : collaboratorsToUpdate) {
+                                                    usersRef.whereEqualTo("email", collaboratorToUpdate.getUser_email()).get()
+                                                            .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+                                                                @Override
+                                                                public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                                                                    if (queryDocumentSnapshots.size() > 0) {
+                                                                        final User userToUpdate = queryDocumentSnapshots.getDocuments().get(0).toObject(User.class);
+                                                                        if (userToUpdate != null) {
+                                                                            usersRef.document(userToUpdate.getUser_id()).collection(NOTES_DETAILS)
+                                                                                    .document(mNote.getNote_doc_ID()).get()
+                                                                                    .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                                                                                        @Override
+                                                                                        public void onSuccess(DocumentSnapshot documentSnapshot) {
+                                                                                            if (documentSnapshot != null) {
+                                                                                                NoteDetails notedetailslocal = documentSnapshot.toObject(NoteDetails.class);
+
+                                                                                                if (notedetailslocal == null) {
+                                                                                                    Log.d(TAG, "onFailure: NOTE DETAILS got but null " + userToUpdate.getEmail());
+
+                                                                                                    if (!collaboratorsToDelete.contains(collaboratorToUpdate)) {
+                                                                                                        NoteDetails noteDetails = new NoteDetails(mNote.getNote_doc_ID(), userToUpdate.getUser_id(), 0, "");
+                                                                                                        batch.set(db.collection("Users").document(userToUpdate.getUser_id()).collection(NOTES_DETAILS).document(mNote.getNote_doc_ID()), noteDetails);
+
+                                                                                                    }
+                                                                                                } else {
+                                                                                                    Log.d(TAG, "onSuccess: NOT NULL " + notedetailslocal.toString());
+
+                                                                                                    if (collaboratorsToDelete.contains(collaboratorToUpdate)) {
+                                                                                                        batch.delete(usersRef.document(userToUpdate.getUser_id()).collection(NOTES_DETAILS)
+                                                                                                                .document(mNote.getNote_doc_ID()));
+                                                                                                    }
+                                                                                                }
+                                                                                                collaboratorsToUpdate.remove(collaboratorToUpdate);
+                                                                                                if (collaboratorsToUpdate.size() < 1)
+                                                                                                    UpdateCollaboratorsOfNote(batch, userList, collaborators, finalStillCollaborator);
+                                                                                            } else {
+                                                                                                Log.d(TAG, "onFailure: Note details doc snapshot was NULL " + userToUpdate.getEmail());
+
+                                                                                                if (!collaboratorsToDelete.contains(collaboratorToUpdate)) {
+                                                                                                    NoteDetails noteDetails = new NoteDetails(mNote.getNote_doc_ID(), userToUpdate.getUser_id(), 0, "");
+                                                                                                    batch.set(db.collection("Users").document(userToUpdate.getUser_id()).collection(NOTES_DETAILS).document(mNote.getNote_doc_ID()), noteDetails);
+                                                                                                }
+                                                                                                collaboratorsToUpdate.remove(collaboratorToUpdate);
+                                                                                                if (collaboratorsToUpdate.size() < 1) {
+                                                                                                    UpdateCollaboratorsOfNote(batch, userList, collaborators, finalStillCollaborator);
+                                                                                                }
+                                                                                            }
+                                                                                        }
+                                                                                    }).addOnFailureListener(new OnFailureListener() {
+                                                                                @Override
+                                                                                public void onFailure(@NonNull Exception e) {
+                                                                                    Log.d(TAG, "onFailure: " + e);
+                                                                                }
+                                                                            });
+                                                                        }
+                                                                    }
+
+                                                                }
+                                                            });
                                                 }
+
                                             }
                                         }
                                     }
@@ -1094,6 +1137,39 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
         }
 
         Log.d(TAG, "getCollaborators: " + collaboratorList.toString());
+    }
+
+    private void UpdateCollaboratorsOfNote(WriteBatch batch, List<String> userList, List<Collaborator> collaborators, boolean finalStillCollaborator) {
+        batch.update(db.collection("Notes").document(noteID), "users", userList);
+        batch.update(db.collection("Notes").document(noteID), "collaboratorList", collaborators);
+        batch.commit().addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+                Log.d(TAG, "onSuccess: updated collaborators successfully");
+            }
+        });
+        mNote.setUsers(userList);
+        mNote.setCollaboratorList(collaborators);
+
+        if (mNote.getCollaboratorList() != null) {
+            if (mNote.getCollaboratorList().size() > 1) {
+                collaboratorsRV.setVisibility(View.VISIBLE);
+                mCollaboratorsList.clear();
+                mCollaboratorsList.addAll(mNote.getCollaboratorList());
+                collaboratorNotesAdapter.notifyDataSetChanged();
+            } else {
+                collaboratorsRV.setVisibility(View.GONE);
+            }
+        }
+
+        if (!finalStillCollaborator) {
+            //Current user is not a collaborator anymore, delete it from his home screen
+            if (Navigation.findNavController(view).getCurrentDestination().getId() == R.id.editNoteFragment) {
+                Navigation.findNavController(view).navigate(EditNoteFragmentDirections
+                        .actionEditNoteFragmentToHomeFragment(noteID));
+            }
+//                                                    Navigation.findNavController(view).popBackStack();
+        }
     }
 
     @Override

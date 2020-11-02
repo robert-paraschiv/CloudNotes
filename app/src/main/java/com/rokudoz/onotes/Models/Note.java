@@ -227,6 +227,8 @@ public class Note {
                 ", last_edited_by_user='" + last_edited_by_user + '\'' +
                 ", has_collaborators=" + has_collaborators +
                 ", noteChangeList=" + noteChangeList +
+                ", note_background_color='" + note_background_color + '\'' +
+                ", note_position=" + note_position +
                 ", creation_date=" + creation_date +
                 '}';
     }
@@ -236,7 +238,7 @@ public class Note {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Note note = (Note) o;
-        return Objects.equals(note_doc_ID, note.note_doc_ID);
+        return note_doc_ID.equals(note.note_doc_ID);
     }
 
     @Override
