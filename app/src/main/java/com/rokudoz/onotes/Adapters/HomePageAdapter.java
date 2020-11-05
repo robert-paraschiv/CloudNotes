@@ -5,6 +5,8 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Filter;
+import android.widget.Filterable;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -19,17 +21,19 @@ import com.rokudoz.onotes.Models.Note;
 import com.rokudoz.onotes.R;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import static com.rokudoz.onotes.App.MAX_HOME_CHECKBOX_NUMBER;
 import static com.rokudoz.onotes.App.MAX_HOME_COLLABORATORS_PICTURES;
 
-public class HomePageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+public class HomePageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> implements Filterable {
 
     private static final String TAG = "StaggeredRecyclerViewAd";
     private OnItemClickListener mListener;
     private List<Note> noteList;
     private List<Note> selected = new ArrayList<>();
+    private List<Note> noteListFull = new ArrayList<>();
     private Context mContext;
 
     private static final int TEXT_TYPE = 0;
@@ -47,7 +51,11 @@ public class HomePageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     }
 
     public HomePageAdapter(Context context, List<Note> notesList) {
-        noteList = notesList;
+        this.noteList = notesList;
+//        this.noteListFull = notesList;
+
+        noteListFull = notesList;
+
         mContext = context;
     }
 
@@ -488,6 +496,37 @@ public class HomePageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     @Override
     public int getItemCount() {
         return noteList.size();
+    }
+
+    @Override
+    public Filter getFilter() {
+        return new Filter() {
+            @Override
+            protected FilterResults performFiltering(CharSequence constraint) {
+                String charSequenceString = constraint.toString();
+                if (charSequenceString.isEmpty()) {
+                    noteList = noteListFull;
+                } else {
+                    List<Note> filteredList = new ArrayList<>();
+                    for (Note name : noteListFull) {
+                        if (name.getNoteTitle().toLowerCase().contains(charSequenceString.toLowerCase())) {
+                            filteredList.add(name);
+                        }
+                        noteList = filteredList;
+                    }
+
+                }
+                FilterResults results = new FilterResults();
+                results.values = noteList;
+                return results;
+            }
+
+            @Override
+            protected void publishResults(CharSequence constraint, FilterResults results) {
+                noteList = (List<Note>) results.values;
+                notifyDataSetChanged();
+            }
+        };
     }
 
 

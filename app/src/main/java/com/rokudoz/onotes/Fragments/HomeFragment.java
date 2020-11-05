@@ -22,6 +22,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RadioGroup;
 import android.widget.RelativeLayout;
+import android.widget.SearchView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -95,6 +96,8 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
 
     private TextView noNotesTv;
 
+    SearchView searchView;
+
     private final Collaborator currentUserCollaborator = new Collaborator();
 
     private HomePageAdapter staggeredRecyclerViewAdapter;
@@ -136,6 +139,7 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
             recyclerView = view.findViewById(R.id.homeFragment_recyclerView);
             addNewNoteBtn = view.findViewById(R.id.homeFragment_addNoteFab);
             noNotesTv = view.findViewById(R.id.homeFragment_empty);
+            searchView = view.findViewById(R.id.homeFragment_searchView);
 
             sharedPreferences = requireActivity().getSharedPreferences(SETTINGS_PREFS_NAME, MODE_PRIVATE);
             sharedPrefsEditor = requireActivity().getSharedPreferences(SETTINGS_PREFS_NAME, MODE_PRIVATE).edit();
@@ -148,6 +152,21 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
                     recyclerView.getViewTreeObserver().removeOnPreDrawListener(this);
                     startPostponedEnterTransition();
                     return true;
+                }
+            });
+
+            searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+                @Override
+                public boolean onQueryTextSubmit(String query) {
+                    staggeredRecyclerViewAdapter.getFilter().filter(query);
+                    searchView.clearFocus();
+                    return false;
+                }
+
+                @Override
+                public boolean onQueryTextChange(String newText) {
+                    staggeredRecyclerViewAdapter.getFilter().filter(newText);
+                    return false;
                 }
             });
 

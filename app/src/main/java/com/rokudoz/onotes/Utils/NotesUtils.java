@@ -1,10 +1,13 @@
 package com.rokudoz.onotes.Utils;
 
+import android.content.Context;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.rokudoz.onotes.Models.CheckableItem;
 import com.rokudoz.onotes.Models.Note;
 
+import java.util.Arrays;
 import java.util.List;
 
 public class NotesUtils {
@@ -127,4 +130,32 @@ public class NotesUtils {
         return false;
     }
 
+
+    public static Integer CalculateLeiPrice(String text, Context context) {
+        String[] noteTextList = text.split("\\r?\\n");
+        int price = 0;
+        for (String line : noteTextList) {
+            StringBuilder temp_price = new StringBuilder();
+            if (line.contains("lei")) {
+                if (Character.isDigit(line.charAt(0))) {
+                    for (int i = 0; i < line.length(); i++) {
+                        char c = line.charAt(i);
+                        if (Character.isDigit(line.charAt(i))) {
+                            temp_price.append(line.charAt(i));
+                        } else if (line.charAt(i) == 'l') {
+                            break;
+                        }
+                    }
+                }
+                if (!temp_price.toString().trim().equals(""))
+                    price += Integer.parseInt(temp_price.toString());
+            }
+
+        }
+        Toast.makeText(context, "" + price, Toast.LENGTH_SHORT).show();
+        if (price != 0)
+            return price;
+        else
+            return null;
+    }
 }

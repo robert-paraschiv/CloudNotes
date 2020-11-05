@@ -24,19 +24,32 @@
 
             <RelativeLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                android:layout_marginStart="18dp"
+                android:layout_marginTop="4dp"
+                android:layout_marginEnd="18dp"
+                android:layout_marginBottom="4dp"
+                android:background="@drawable/home_note_background">
 
-                <TextView
-                    android:textSize="24sp"
-                    style="@style/TextAppearance.MaterialComponents.Headline6"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                <SearchView
+                    android:id="@+id/homeFragment_searchView"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
                     android:layout_alignParentStart="true"
                     android:layout_centerVertical="true"
-                    android:layout_marginStart="18dp"
+                    android:layout_marginStart="8dp"
                     android:layout_marginEnd="8dp"
                     android:layout_toStartOf="@id/homeFragment_layoutManagerIcon"
-                    android:text="Home" />
+                    android:closeIcon="@drawable/ic_outline_close_24"
+                    android:iconifiedByDefault="false"
+                    android:imeOptions="actionDone"
+                    android:inputType="textCapWords"
+                    android:queryBackground="@android:color/transparent"
+                    android:queryHint="Search your notes"
+                    android:searchHintIcon="@drawable/ic_outline_search_24"
+                    android:searchIcon="@drawable/ic_outline_search_24">
+
+                </SearchView>
 
                 <ImageView
                     android:id="@+id/homeFragment_layoutManagerIcon"
@@ -45,6 +58,7 @@
                     android:layout_centerVertical="true"
                     android:layout_marginEnd="18dp"
                     android:layout_toStartOf="@id/homeFragment_userImage"
+                    android:contentDescription="@string/switch_notes_orientation"
                     android:scaleType="centerCrop"
                     android:src="@drawable/ic_outline_dashboard_24" />
 
@@ -54,7 +68,7 @@
                     android:layout_height="35dp"
                     android:layout_alignParentEnd="true"
                     android:layout_centerVertical="true"
-                    android:layout_marginEnd="18dp"
+                    android:layout_marginEnd="8dp"
                     tools:src="@color/colorPrimary" />
 
             </RelativeLayout>
@@ -64,14 +78,14 @@
     </com.google.android.material.appbar.AppBarLayout>
 
     <TextView
-        android:visibility="gone"
-        tools:visibility="visible"
         android:id="@+id/homeFragment_empty"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:gravity="center"
-        android:text="You have no notes to show currently\nAdd one by tapping the + button" />
+        android:text="You have no notes to show currently\nAdd one by tapping the + button"
+        android:visibility="gone"
+        tools:visibility="visible" />
 
 
     <androidx.core.widget.NestedScrollView
