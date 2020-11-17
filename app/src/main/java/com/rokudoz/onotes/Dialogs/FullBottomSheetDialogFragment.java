@@ -35,7 +35,7 @@ public class FullBottomSheetDialogFragment extends BottomSheetDialogFragment imp
     private static final String TAG = "FullBottomSheetDialogFr";
 
     private ExampleDialogListener listener;
-    private int backgroundColor;
+    private final int backgroundColor;
     private List<Collaborator> collaboratorList = new ArrayList<>();
     private RecyclerView recyclerView;
     private CollaboratorsAdapter mAdapter;
@@ -156,9 +156,9 @@ public class FullBottomSheetDialogFragment extends BottomSheetDialogFragment imp
     }
 
     private void setupFullHeight(BottomSheetDialog bottomSheetDialog) {
-        FrameLayout bottomSheet = (FrameLayout) bottomSheetDialog.findViewById(R.id.design_bottom_sheet);
+        FrameLayout bottomSheet = bottomSheetDialog.findViewById(R.id.design_bottom_sheet);
         if (bottomSheet != null) {
-            final BottomSheetBehavior behavior = BottomSheetBehavior.from(bottomSheet);
+            @SuppressWarnings("rawtypes") final BottomSheetBehavior behavior = BottomSheetBehavior.from(bottomSheet);
             ViewGroup.LayoutParams layoutParams = bottomSheet.getLayoutParams();
 
             int windowHeight = getWindowHeight();

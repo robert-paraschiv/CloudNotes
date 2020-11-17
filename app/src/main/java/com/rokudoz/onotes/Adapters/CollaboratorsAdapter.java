@@ -35,7 +35,7 @@ public class CollaboratorsAdapter extends RecyclerView.Adapter<CollaboratorsAdap
     private boolean onBind;
 
     private OnItemClickListener onItemClickListener;
-    private List<Collaborator> collaboratorList;
+    private final List<Collaborator> collaboratorList;
     private boolean isOwner = false;
 
 
@@ -59,10 +59,10 @@ public class CollaboratorsAdapter extends RecyclerView.Adapter<CollaboratorsAdap
 
     public class ViewHolder extends RecyclerView.ViewHolder {
 
-        TextInputEditText email;
-        TextView emailTEXTVIEW;
-        MaterialButton deleteBtn;
-        CircleImageView picture;
+        final TextInputEditText email;
+        final TextView emailTEXTVIEW;
+        final MaterialButton deleteBtn;
+        final CircleImageView picture;
 
         @SuppressLint("ClickableViewAccessibility")
         public ViewHolder(final View itemView) {

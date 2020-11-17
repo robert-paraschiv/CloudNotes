@@ -22,8 +22,8 @@ public class TrashNotesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
 
     private static final String TAG = "StaggeredRecyclerViewAd";
     private OnItemClickListener mListener;
-    private List<Note> noteList;
-    private Context mContext;
+    private final List<Note> noteList;
+    private final Context mContext;
 
     private static final int TEXT_TYPE = 0;
     private static final int CHECKBOX_TYPE = 1;
@@ -44,7 +44,8 @@ public class TrashNotesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
 
     public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
 
-        TextView noteTitle, noteText;
+        final TextView noteTitle;
+        final TextView noteText;
 
         public ViewHolder(View itemView) {
             super(itemView);
@@ -67,8 +68,8 @@ public class TrashNotesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
 
     public class CheckboxViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
 
-        TextView noteTitle;
-        RecyclerView recyclerView;
+        final TextView noteTitle;
+        final RecyclerView recyclerView;
 
         public CheckboxViewHolder(final View itemView) {
             super(itemView);

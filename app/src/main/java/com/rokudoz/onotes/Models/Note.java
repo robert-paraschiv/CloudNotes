@@ -7,8 +7,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
-import javax.annotation.Nullable;
-
 public class Note {
     private String note_doc_ID;
     private String noteTitle;

@@ -66,8 +66,8 @@ public class ViewNoteEditFragment extends Fragment {
     String noteColor = "";
     String note_edit_ID = "";
 
-    private FirebaseFirestore db = FirebaseFirestore.getInstance();
-    private CollectionReference usersRef = db.collection("Users");
+    private final FirebaseFirestore db = FirebaseFirestore.getInstance();
+    private final CollectionReference usersRef = db.collection("Users");
 
 
     public ViewNoteEditFragment() {
@@ -199,9 +199,8 @@ public class ViewNoteEditFragment extends Fragment {
                                             }
 
                                             if (note.getCreation_date() != null) {
-                                                LastEdit lastEdit = new LastEdit();
                                                 Date date = note.getCreation_date();
-                                                createdTimestamp.setText(lastEdit.getLastEdit(date.getTime()));
+                                                createdTimestamp.setText(LastEdit.getLastEdit(date.getTime()));
                                             }
 
                                         } else {

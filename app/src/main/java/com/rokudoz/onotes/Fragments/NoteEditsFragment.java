@@ -45,10 +45,10 @@ public class NoteEditsFragment extends Fragment implements NoteEditsAdapter.OnIt
 
     private NoteEditsAdapter noteEditsAdapter;
     private RecyclerView recyclerView;
-    private List<Note> noteList = new ArrayList<>();
+    private final List<Note> noteList = new ArrayList<>();
 
-    private FirebaseFirestore db = FirebaseFirestore.getInstance();
-    private CollectionReference usersRef = db.collection("Users");
+    private final FirebaseFirestore db = FirebaseFirestore.getInstance();
+    private final CollectionReference usersRef = db.collection("Users");
 
     private DocumentSnapshot mLastQueriedDocument;
 

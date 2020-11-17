@@ -43,8 +43,8 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
     //Firebase
     private GoogleSignInClient mGoogleSignInClient;
-    private FirebaseFirestore db = FirebaseFirestore.getInstance();
-    private CollectionReference userRef = db.collection("Users");
+    private final FirebaseFirestore db = FirebaseFirestore.getInstance();
+    private final CollectionReference userRef = db.collection("Users");
     private String userPicture = "";
     private String name = "";
     private ProgressBar progressBar;

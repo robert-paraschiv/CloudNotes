@@ -16,7 +16,7 @@ import java.util.List;
 import de.hdodenhof.circleimageview.CircleImageView;
 
 public class CollaboratorNotesAdapter extends RecyclerView.Adapter<CollaboratorNotesAdapter.ViewHolder> {
-    private List<Collaborator> collaboratorList;
+    private final List<Collaborator> collaboratorList;
     private OnItemClickListener mListener;
 
     public interface OnItemClickListener {
@@ -33,7 +33,7 @@ public class CollaboratorNotesAdapter extends RecyclerView.Adapter<CollaboratorN
 
     public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
-        CircleImageView picture;
+        final CircleImageView picture;
 
         public ViewHolder(final View itemView) {
             super(itemView);

@@ -21,8 +21,8 @@ import com.rokudoz.onotes.Models.Note;
 import com.rokudoz.onotes.R;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 
 import static com.rokudoz.onotes.App.MAX_HOME_CHECKBOX_NUMBER;
 import static com.rokudoz.onotes.App.MAX_HOME_COLLABORATORS_PICTURES;
@@ -32,9 +32,9 @@ public class HomePageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     private static final String TAG = "StaggeredRecyclerViewAd";
     private OnItemClickListener mListener;
     private List<Note> noteList;
-    private List<Note> selected = new ArrayList<>();
+    private final List<Note> selected = new ArrayList<>();
     private List<Note> noteListFull = new ArrayList<>();
-    private Context mContext;
+    private final Context mContext;
 
     private static final int TEXT_TYPE = 0;
     private static final int CHECKBOX_TYPE = 1;
@@ -61,9 +61,10 @@ public class HomePageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
     public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener, View.OnLongClickListener {
 
-        TextView noteTitle, noteText;
-        RecyclerView collaboratorsRv;
-        RelativeLayout relativeLayout;
+        final TextView noteTitle;
+        final TextView noteText;
+        final RecyclerView collaboratorsRv;
+        final RelativeLayout relativeLayout;
 
         public ViewHolder(View itemView) {
             super(itemView);
@@ -119,9 +120,10 @@ public class HomePageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
     public class CheckboxViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener, View.OnLongClickListener {
 
-        TextView noteTitle;
-        RecyclerView recyclerView, collaboratorsRv;
-        RelativeLayout relativeLayout;
+        final TextView noteTitle;
+        final RecyclerView recyclerView;
+        final RecyclerView collaboratorsRv;
+        final RelativeLayout relativeLayout;
 
         public CheckboxViewHolder(final View itemView) {
             super(itemView);
@@ -250,7 +252,7 @@ public class HomePageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         Note currentItem = noteList.get(position);
 
         final Collaborator currentUserCollaborator = new Collaborator();
-        currentUserCollaborator.setUser_email(FirebaseAuth.getInstance().getCurrentUser().getEmail());
+        currentUserCollaborator.setUser_email(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getEmail());
 
         holder.relativeLayout.setTransitionName(currentItem.getNote_doc_ID());
 
@@ -292,7 +294,7 @@ public class HomePageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         Note currentItem = noteList.get(position);
 
         final Collaborator currentUserCollaborator = new Collaborator();
-        currentUserCollaborator.setUser_email(FirebaseAuth.getInstance().getCurrentUser().getEmail());
+        currentUserCollaborator.setUser_email(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getEmail());
 
         holder.relativeLayout.setTransitionName(currentItem.getNote_doc_ID());
 
@@ -413,7 +415,7 @@ public class HomePageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
         //Get current user collaborator background color details for current note
         Collaborator currentUserCollaborator = new Collaborator();
-        currentUserCollaborator.setUser_email(FirebaseAuth.getInstance().getCurrentUser().getEmail());
+        currentUserCollaborator.setUser_email(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getEmail());
         String color = noteList.get(position).getNote_background_color();
 
         if (color == null || color.equals("")) {
@@ -445,7 +447,7 @@ public class HomePageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
         //Get current user collaborator background color details for current note
         Collaborator currentUserCollaborator = new Collaborator();
-        currentUserCollaborator.setUser_email(FirebaseAuth.getInstance().getCurrentUser().getEmail());
+        currentUserCollaborator.setUser_email(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getEmail());
         String color = noteList.get(position).getNote_background_color();
 
         if (color == null || color.equals("")) {

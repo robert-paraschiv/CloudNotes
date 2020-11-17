@@ -54,7 +54,6 @@ import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.ListenerRegistration;
-import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.WriteBatch;
 import com.rokudoz.onotes.Adapters.HomePageAdapter;
@@ -529,7 +528,7 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
                                         + note.getNote_position());
                             }
                         });
-                usersRef.document(FirebaseAuth.getInstance().getCurrentUser().getUid()).collection(NotesUtils.NOTES_DETAILS).document(note.getNote_doc_ID())
+                usersRef.document(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid()).collection(NotesUtils.NOTES_DETAILS).document(note.getNote_doc_ID())
                         .update("note_position", note.getNote_position()).addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {

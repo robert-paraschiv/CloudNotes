@@ -23,18 +23,15 @@ import com.rokudoz.onotes.Utils.NotesUtils;
 public class TestFragment extends Fragment {
     private static final String TAG = "TestFragment";
 
-    private FirebaseFirestore db = FirebaseFirestore.getInstance();
-    private CollectionReference usersRef = db.collection("Users");
-
-    private View view;
+    private final FirebaseFirestore db = FirebaseFirestore.getInstance();
+    private final CollectionReference usersRef = db.collection("Users");
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        view = inflater.inflate(R.layout.fragment_test, container, false);
 
 
-        return view;
+        return inflater.inflate(R.layout.fragment_test, container, false);
 
     }
 

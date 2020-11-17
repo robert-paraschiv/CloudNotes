@@ -36,7 +36,7 @@ public class CheckableItemAdapter extends RecyclerView.Adapter<CheckableItemAdap
 
     private OnStartDragListener onStartDragListener;
     private OnItemClickListener onItemClickListener;
-    private List<CheckableItem> checkableItemList;
+    private final List<CheckableItem> checkableItemList;
 
 
     public interface OnStartDragListener {
@@ -67,10 +67,10 @@ public class CheckableItemAdapter extends RecyclerView.Adapter<CheckableItemAdap
 
     public class ViewHolder extends RecyclerView.ViewHolder {
 
-        TextInputEditText text;
-        MaterialCheckBox checkBox;
-        MaterialButton deleteBtn;
-        ImageView dragHandle;
+        final TextInputEditText text;
+        final MaterialCheckBox checkBox;
+        final MaterialButton deleteBtn;
+        final ImageView dragHandle;
 
         @SuppressLint("ClickableViewAccessibility")
         public ViewHolder(final View itemView) {
@@ -152,7 +152,7 @@ public class CheckableItemAdapter extends RecyclerView.Adapter<CheckableItemAdap
                 @Override
                 public boolean onTouch(View v, MotionEvent event) {
                     int position = getAdapterPosition();
-                    if (position != RecyclerView.NO_POSITION & MotionEventCompat.getActionMasked(event) == MotionEvent.ACTION_DOWN) {
+                    if (position != RecyclerView.NO_POSITION & event.getActionMasked() == MotionEvent.ACTION_DOWN) {
                         onStartDragListener.onStartDrag(position);
                     }
                     return false;

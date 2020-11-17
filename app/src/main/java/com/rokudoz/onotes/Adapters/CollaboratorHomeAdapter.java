@@ -16,7 +16,7 @@ import java.util.List;
 import de.hdodenhof.circleimageview.CircleImageView;
 
 public class CollaboratorHomeAdapter extends RecyclerView.Adapter<CollaboratorHomeAdapter.ViewHolder> {
-    private List<Collaborator> collaboratorList;
+    private final List<Collaborator> collaboratorList;
 
     public CollaboratorHomeAdapter(List<Collaborator> collaboratorList) {
         this.collaboratorList = collaboratorList;
@@ -24,7 +24,7 @@ public class CollaboratorHomeAdapter extends RecyclerView.Adapter<CollaboratorHo
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
 
-        CircleImageView picture;
+        final CircleImageView picture;
 
         public ViewHolder(final View itemView) {
             super(itemView);

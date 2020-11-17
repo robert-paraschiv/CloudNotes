@@ -10,6 +10,7 @@ public class LastEdit {
     private static final int MINUTE_MILLIS = 60 * SECOND_MILLIS;
     private static final int HOUR_MILLIS = 60 * MINUTE_MILLIS;
     private static final int DAY_MILLIS = 24 * HOUR_MILLIS;
+    private static final int WEEK_MILLIS = 7 * DAY_MILLIS;
 
     public LastEdit() {
     }
@@ -22,6 +23,7 @@ public class LastEdit {
         Date timeStampDate = new Date(time);
         DateFormat hourFormat = new SimpleDateFormat("HH:mm", Locale.getDefault());
         DateFormat dayFormat = new SimpleDateFormat("E", Locale.getDefault());
+        DateFormat dateFormat = new SimpleDateFormat("HH:mm, dd-MMM-yyyy", Locale.getDefault());
 
         long now = System.currentTimeMillis() + 30000;
         if (time > now || time <= 0) {
@@ -37,7 +39,10 @@ public class LastEdit {
             return "Yesterday at " + hourFormat.format(timeStampDate);
         } else if (diff < 7 * DAY_MILLIS) {
             return "" + dayFormat.format(timeStampDate) + " at " + hourFormat.format(timeStampDate);
-        } else
+        } else if (diff < 3 * WEEK_MILLIS) {
             return "" + diff / DAY_MILLIS + " days ago";
+        } else {
+            return "" + dateFormat.format(timeStampDate);
+        }
     }
 }

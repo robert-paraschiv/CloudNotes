@@ -55,12 +55,12 @@ public class TrashFragment extends Fragment implements HomePageAdapter.OnItemCli
 
     private TextView noNotesTv;
     private HomePageAdapter noteEditsAdapter;
-    private List<Note> noteList = new ArrayList<>();
+    private final List<Note> noteList = new ArrayList<>();
     private ActionMode actionMode;
     private ProgressBar progressBar;
-    private Collaborator currentUserCollaborator = new Collaborator();
-    private FirebaseFirestore db = FirebaseFirestore.getInstance();
-    private CollectionReference usersRef = db.collection("Users");
+    private final Collaborator currentUserCollaborator = new Collaborator();
+    private final FirebaseFirestore db = FirebaseFirestore.getInstance();
+    private final CollectionReference usersRef = db.collection("Users");
     private ListenerRegistration notesListener;
     private View view;
     private MaterialToolbar materialToolbar;
@@ -81,8 +81,7 @@ public class TrashFragment extends Fragment implements HomePageAdapter.OnItemCli
         materialToolbar = view.findViewById(R.id.trashFragment_toolbar);
         //Reset status bar color
         if (getActivity() != null) {
-            ColorUtils colorFunctions = new ColorUtils();
-            colorFunctions.resetStatus_NavigationBar_Colors(getActivity());
+            ColorUtils.resetStatus_NavigationBar_Colors(getActivity());
         }
 
         if (FirebaseAuth.getInstance().getCurrentUser() != null)
@@ -390,7 +389,7 @@ public class TrashFragment extends Fragment implements HomePageAdapter.OnItemCli
     }
 
 
-    private ActionMode.Callback actionModeCallback = new ActionMode.Callback() {
+    private final ActionMode.Callback actionModeCallback = new ActionMode.Callback() {
         @Override
         public boolean onCreateActionMode(ActionMode mode, Menu menu) {
             MenuInflater inflater = mode.getMenuInflater();

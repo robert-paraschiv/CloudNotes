@@ -19,7 +19,6 @@ import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
 import com.google.android.gms.ads.LoadAdError;
 import com.google.android.gms.ads.MobileAds;
-import com.google.android.gms.ads.OnUserEarnedRewardListener;
 import com.google.android.gms.ads.RequestConfiguration;
 import com.google.android.gms.ads.rewarded.RewardItem;
 import com.google.android.gms.ads.rewarded.RewardedAd;
@@ -80,12 +79,12 @@ public class MainActivity extends AppCompatActivity {
         mBannerAd.loadAd(new AdRequest.Builder().build());
 
         //Show ads
-        showSupportAppRewardedAd();
-        showCloseBannerRewardedAd();
+        loadSupportAppRewardedAd();
+        loadCloseBannerRewardedAd();
 
     }
 
-    private void showCloseBannerRewardedAd() {
+    private void loadCloseBannerRewardedAd() {
         //Rewarded ad section
         closeBannerRewardedAd = new RewardedAd(this, getResources().getString(R.string.rewarded_ad_unit_id));
 
@@ -95,6 +94,7 @@ public class MainActivity extends AppCompatActivity {
                 // Ad successfully loaded.
                 super.onRewardedAdLoaded();
                 closeAd.setVisibility(View.VISIBLE);
+                showCloseBannerRewardedAd();
                 Log.d(TAG, "onRewardedAdLoaded: Close banner ad loaded");
             }
 
@@ -106,13 +106,16 @@ public class MainActivity extends AppCompatActivity {
                 Log.d(TAG, "onRewardedAdFailedToLoad: Ad failed to load: " + loadAdError.toString());
                 failedToLoadAdCounter++;
                 if (failedToLoadAdCounter < 10)
-                    showCloseBannerRewardedAd();
+                    loadCloseBannerRewardedAd();
             }
         };
 
         if (!HIDE_BANNER)
             closeBannerRewardedAd.loadAd(new AdRequest.Builder().build(), adLoadCallback);
 
+    }
+
+    private void showCloseBannerRewardedAd() {
         closeAd.setOnClickListener(new View.OnClickListener() {
             @SuppressLint("SetTextI18n")
             @Override
@@ -153,7 +156,6 @@ public class MainActivity extends AppCompatActivity {
                                     BannerAdManager bannerAdManager = new BannerAdManager();
                                     bannerAdManager.hideBanner_modify_layouts(MainActivity.this);
 
-
                                     dialog.cancel();
                                 }
 
@@ -163,7 +165,6 @@ public class MainActivity extends AppCompatActivity {
                                     Toast.makeText(MainActivity.this, "FailedToShow", Toast.LENGTH_SHORT).show();
                                     Log.d(TAG, "onRewardedAdFailedToShow: " + adError.getMessage());
                                     dialog.cancel();
-                                    showCloseBannerRewardedAd();
                                 }
                             };
 
@@ -173,7 +174,6 @@ public class MainActivity extends AppCompatActivity {
                             Toast.makeText(MainActivity.this, "The Ad couldn't be shown", Toast.LENGTH_SHORT).show();
                             closeAd.setVisibility(View.GONE);
                             dialog.cancel();
-                            closeBannerRewardedAd.loadAd(new AdRequest.Builder().build(), adLoadCallback);
                         }
                     }
                 });
@@ -188,13 +188,14 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    private void showSupportAppRewardedAd() {
-        supportAppRewardedAd = new RewardedAd(MainActivity.this, getResources().getString(R.string.rewarded_ad_unit_id));
+    private void loadSupportAppRewardedAd() {
+        supportAppRewardedAd = new RewardedAd(this, getResources().getString(R.string.rewarded_ad_unit_id));
 
         RewardedAdLoadCallback adLoadCallback = new RewardedAdLoadCallback() {
             @Override
             public void onRewardedAdLoaded() {
                 // Ad successfully loaded.
+                showSupportRewardedAd();
                 Log.d(TAG, "onRewardedAdLoaded: rewarded ad loaded");
             }
 
@@ -202,15 +203,24 @@ public class MainActivity extends AppCompatActivity {
             public void onRewardedAdFailedToLoad(LoadAdError loadAdError) {
                 // Ad failed to load.
                 Log.d(TAG, "onRewardedAdFailedToLoad: " + loadAdError.toString());
-                showSupportAppRewardedAd();
+                loadSupportAppRewardedAd();
             }
         };
 
+
+
+        if (sharedPreferences.getInt("TimesStartedCounter", 0) >= TIMES_TO_OPEN_APP_TO_ASK_FOR_SUPPORT_AD && !ASKED_ALREADY) {
+            supportAppRewardedAd.loadAd(new AdRequest.Builder().build(), adLoadCallback);
+            ASKED_ALREADY = true;
+        }
+    }
+
+    private void showSupportRewardedAd() {
         if (sharedPreferences.getInt("TimesStartedCounter", 0) >= TIMES_TO_OPEN_APP_TO_ASK_FOR_SUPPORT_AD) {
 
             //Dialog for watch ad to support app
             View dialogView = getLayoutInflater().inflate(R.layout.dialog_show_ad, null);
-            final Dialog dialog = new Dialog(MainActivity.this, R.style.CustomBottomSheetDialogTheme);
+            final Dialog dialog = new Dialog(this, R.style.CustomBottomSheetDialogTheme);
             MaterialButton confirmBtn = dialogView.findViewById(R.id.dialog_ShowAd_confirmBtn);
             MaterialButton cancelBtn = dialogView.findViewById(R.id.dialog_ShowAd_cancelBtn);
             dialog.setContentView(dialogView);
@@ -261,11 +271,6 @@ public class MainActivity extends AppCompatActivity {
             });
 
             dialog.show();
-        }
-
-        if (sharedPreferences.getInt("TimesStartedCounter", 0) >= TIMES_TO_OPEN_APP_TO_ASK_FOR_SUPPORT_AD && !ASKED_ALREADY) {
-            supportAppRewardedAd.loadAd(new AdRequest.Builder().build(), adLoadCallback);
-            ASKED_ALREADY = true;
         }
     }
 

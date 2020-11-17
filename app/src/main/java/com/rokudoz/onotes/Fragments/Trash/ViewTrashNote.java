@@ -51,8 +51,8 @@ public class ViewTrashNote extends Fragment {
 
     String noteID = "";
 
-    private FirebaseFirestore db = FirebaseFirestore.getInstance();
-    private CollectionReference usersRef = db.collection("Users");
+    private final FirebaseFirestore db = FirebaseFirestore.getInstance();
+    private final CollectionReference usersRef = db.collection("Users");
 
 
     public ViewTrashNote() {
@@ -73,8 +73,7 @@ public class ViewTrashNote extends Fragment {
 
         //Reset status bar color
         if (getActivity() != null) {
-            ColorUtils colorFunctions = new ColorUtils();
-            colorFunctions.resetStatus_NavigationBar_Colors(getActivity());
+            ColorUtils.resetStatus_NavigationBar_Colors(getActivity());
         }
 
         //Show Banner Ad

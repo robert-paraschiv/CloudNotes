@@ -7,7 +7,6 @@ import android.widget.Toast;
 import com.rokudoz.onotes.Models.CheckableItem;
 import com.rokudoz.onotes.Models.Note;
 
-import java.util.Arrays;
 import java.util.List;
 
 public class NotesUtils {

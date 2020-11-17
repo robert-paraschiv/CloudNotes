@@ -29,10 +29,8 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.transition.TransitionInflater;
 
-import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.card.MaterialCardView;
@@ -100,15 +98,15 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
     private String noteType = "text";
     private String noteID = "";
     private int number_of_edits = 0;
-    private List<CheckableItem> checkableItemList = new ArrayList<>();
+    private final List<CheckableItem> checkableItemList = new ArrayList<>();
     private RecyclerView recyclerView, collaboratorsRV;
     private RelativeLayout rv_checkbox_Layout;
     private CheckableItemAdapter mAdapter;
     private CollaboratorNotesAdapter collaboratorNotesAdapter;
     private ItemTouchHelper helper;
 
-    private List<Collaborator> mCollaboratorsList = new ArrayList<>();
-    private Collaborator currentUserCollaborator = new Collaborator();
+    private final List<Collaborator> mCollaboratorsList = new ArrayList<>();
+    private final Collaborator currentUserCollaborator = new Collaborator();
 
     private Note mNote = new Note();
     TextInputEditText titleInput, textInput;
@@ -121,8 +119,8 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
 
     private ListenerRegistration noteListener;
 
-    private FirebaseFirestore db = FirebaseFirestore.getInstance();
-    private CollectionReference usersRef = db.collection("Users");
+    private final FirebaseFirestore db = FirebaseFirestore.getInstance();
+    private final CollectionReference usersRef = db.collection("Users");
 
     public EditNoteFragment() {
         // Required empty public constructor
@@ -133,7 +131,7 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
         view = inflater.inflate(R.layout.fragment_edit_note, container, false);
 
 //        postponeEnterTransition();
-        currentUserCollaborator.setUser_email(FirebaseAuth.getInstance().getCurrentUser().getEmail());
+        currentUserCollaborator.setUser_email(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getEmail());
 
         textInput = view.findViewById(R.id.editNoteFragment_textEditText);
         titleInput = view.findViewById(R.id.editNoteFragment_titleEditText);
@@ -953,7 +951,7 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
     private List<NoteChange> getTextNoteChanges() {
         List<NoteChange> noteChangeList = new ArrayList<>();
 
-        List<String> currentNoteTextList = Arrays.asList(textInput.getText().toString().split("\\r?\\n"));
+        List<String> currentNoteTextList = Arrays.asList(Objects.requireNonNull(textInput.getText()).toString().split("\\r?\\n"));
         List<String> oldNoteTextList = Arrays.asList(mNote.getNoteText().split("\\r?\\n"));
 
         if (!mNote.getNoteType().equals(noteType))
@@ -1115,9 +1113,6 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
                                                                         .document(mNote.getNote_doc_ID()));
                                                             }
                                                         }
-                                                        collaboratorsToUpdate.remove(collaboratorToUpdate);
-                                                        if (collaboratorsToUpdate.size() < 1)
-                                                            UpdateCollaboratorsOfNote(batch, userList, collaborators, finalStillCollaborator);
                                                     } else {
                                                         Log.d(TAG, "onFailure: Note details doc snapshot was NULL " + userToUpdate.getEmail());
 
@@ -1125,11 +1120,10 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
                                                             NoteDetails noteDetails = new NoteDetails(mNote.getNote_doc_ID(), userToUpdate.getUser_id(), 0, "");
                                                             batch.set(db.collection("Users").document(userToUpdate.getUser_id()).collection(NOTES_DETAILS).document(mNote.getNote_doc_ID()), noteDetails);
                                                         }
-                                                        collaboratorsToUpdate.remove(collaboratorToUpdate);
-                                                        if (collaboratorsToUpdate.size() < 1) {
-                                                            UpdateCollaboratorsOfNote(batch, userList, collaborators, finalStillCollaborator);
-                                                        }
                                                     }
+                                                    collaboratorsToUpdate.remove(collaboratorToUpdate);
+                                                    if (collaboratorsToUpdate.size() < 1)
+                                                        UpdateCollaboratorsOfNote(batch, userList, collaborators, finalStillCollaborator);
                                                 }
                                             }).addOnFailureListener(new OnFailureListener() {
                                         @Override
@@ -1170,7 +1164,7 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
 
         if (!finalStillCollaborator) {
             //Current user is not a collaborator anymore, delete it from his home screen
-            if (Navigation.findNavController(view).getCurrentDestination().getId() == R.id.editNoteFragment) {
+            if (Objects.requireNonNull(Navigation.findNavController(view).getCurrentDestination()).getId() == R.id.editNoteFragment) {
                 Navigation.findNavController(view).navigate(EditNoteFragmentDirections
                         .actionEditNoteFragmentToHomeFragment(noteID));
             }

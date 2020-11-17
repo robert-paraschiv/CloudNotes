@@ -72,17 +72,17 @@ public class NewNoteFragment extends Fragment implements CheckableItemAdapter.On
     private String noteType = "text";
     private View view;
     private TextInputEditText textInputEditText, titleInputEditText;
-    private FirebaseFirestore db = FirebaseFirestore.getInstance();
-    private CollectionReference usersRef = db.collection("Users");
+    private final FirebaseFirestore db = FirebaseFirestore.getInstance();
+    private final CollectionReference usersRef = db.collection("Users");
     private DocumentReference noteRef;
     private Note mNote = new Note();
 
-    private List<CheckableItem> checkableItemList = new ArrayList<>();
+    private final List<CheckableItem> checkableItemList = new ArrayList<>();
     private RecyclerView recyclerView, collaboratorsRV;
     private RelativeLayout rv_checkableList_layout;
     private CheckableItemAdapter mAdapter;
     private CollaboratorNotesAdapter collaboratorNotesAdapter;
-    private List<Collaborator> mCollaboratorsList = new ArrayList<>();
+    private final List<Collaborator> mCollaboratorsList = new ArrayList<>();
     private MaterialButton checkboxModeBtn;
     private MaterialButton addCheckboxBtn;
     MaterialCardView bottomCard;
@@ -534,7 +534,7 @@ public class NewNoteFragment extends Fragment implements CheckableItemAdapter.On
     private List<NoteChange> getNoteTextChanges() {
         List<NoteChange> noteChangeList = new ArrayList<>();
 
-        List<String> currentNoteTextList = Arrays.asList(textInputEditText.getText().toString().split("\\r?\\n"));
+        List<String> currentNoteTextList = Arrays.asList(Objects.requireNonNull(textInputEditText.getText()).toString().split("\\r?\\n"));
         List<String> oldNoteTextList = Arrays.asList(mNote.getNoteText().split("\\r?\\n"));
 
         if (!mNote.getNoteType().equals(noteType))
@@ -581,7 +581,7 @@ public class NewNoteFragment extends Fragment implements CheckableItemAdapter.On
         collaboratorsBtn = dialogView.findViewById(R.id.noteSettings_addCollaboratorBtn);
 
         final Collaborator currentUserCollaborator = new Collaborator();
-        currentUserCollaborator.setUser_email(FirebaseAuth.getInstance().getCurrentUser().getEmail());
+        currentUserCollaborator.setUser_email(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getEmail());
 
         if (mNote.getNote_background_color() == null) {
             initial.setBorderWidth(5);

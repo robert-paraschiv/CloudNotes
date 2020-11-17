@@ -6,7 +6,6 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.checkbox.MaterialCheckBox;
@@ -20,8 +19,8 @@ import static com.rokudoz.onotes.Utils.NotesUtils.NOTE_CHANGE_TYPE_CHANGE;
 import static com.rokudoz.onotes.Utils.NotesUtils.NOTE_CHANGE_TYPE_REMOVED;
 
 public class NonCheckableAdapter extends RecyclerView.Adapter<NonCheckableAdapter.ViewHolder> {
-    int position;
-    private List<CheckableItem> checkableItemList;
+    final int position;
+    private final List<CheckableItem> checkableItemList;
 
     public NonCheckableAdapter(List<CheckableItem> checkableItemList, int position) {
         this.checkableItemList = checkableItemList;
@@ -30,8 +29,8 @@ public class NonCheckableAdapter extends RecyclerView.Adapter<NonCheckableAdapte
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
 
-        TextView text;
-        MaterialCheckBox checkBox;
+        final TextView text;
+        final MaterialCheckBox checkBox;
 
         public ViewHolder(final View itemView) {
             super(itemView);

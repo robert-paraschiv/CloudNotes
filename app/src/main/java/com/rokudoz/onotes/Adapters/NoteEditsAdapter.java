@@ -2,12 +2,9 @@ package com.rokudoz.onotes.Adapters;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.graphics.Color;
 import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
-import android.text.Spanned;
 import android.text.style.BackgroundColorSpan;
-import android.text.style.ForegroundColorSpan;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -46,8 +43,8 @@ public class NoteEditsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     private static final int CHECKBOX_TYPE = 1;
 
     private OnItemClickListener mListener;
-    private List<Note> noteList;
-    private Context mContext;
+    private final List<Note> noteList;
+    private final Context mContext;
 
 
     public interface OnItemClickListener {
@@ -65,9 +62,13 @@ public class NoteEditsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
 
     public class TextNoteViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
-        TextView editDate, noteText, editType, creatorEmail, noCollaboratorsDateTv;
-        CircleImageView creatorPicture;
-        LinearLayout creatorLayout;
+        final TextView editDate;
+        final TextView noteText;
+        final TextView editType;
+        final TextView creatorEmail;
+        final TextView noCollaboratorsDateTv;
+        final CircleImageView creatorPicture;
+        final LinearLayout creatorLayout;
 
         public TextNoteViewHolder(View itemView) {
             super(itemView);
@@ -95,10 +96,13 @@ public class NoteEditsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
 
     public class CheckboxViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
-        TextView noteDate, editType, creatorEmail, noCollaboratorsDateTv;
-        CircleImageView creatorPicture;
-        LinearLayout creatorLayout;
-        RecyclerView recyclerView;
+        final TextView noteDate;
+        final TextView editType;
+        final TextView creatorEmail;
+        final TextView noCollaboratorsDateTv;
+        final CircleImageView creatorPicture;
+        final LinearLayout creatorLayout;
+        final RecyclerView recyclerView;
 
         public CheckboxViewHolder(View itemView) {
             super(itemView);
@@ -240,10 +244,9 @@ public class NoteEditsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
 
 
         if (currentItem.getCreation_date() != null) {
-            LastEdit lastEdit = new LastEdit();
             Date date = currentItem.getCreation_date();
-            holder.editDate.setText(lastEdit.getLastEdit(date.getTime()));
-            holder.noCollaboratorsDateTv.setText(lastEdit.getLastEdit(date.getTime()));
+            holder.editDate.setText(LastEdit.getLastEdit(date.getTime()));
+            holder.noCollaboratorsDateTv.setText(LastEdit.getLastEdit(date.getTime()));
         }
 
         if (currentItem.getEdit_type() != null) {
@@ -295,11 +298,10 @@ public class NoteEditsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     private void populateCheckBoxViewHolder(CheckboxViewHolder holder, int position) {
         Note currentItem = noteList.get(position);
 
-        LastEdit lastEdit = new LastEdit();
         if (currentItem.getCreation_date() != null) {
             Date date = currentItem.getCreation_date();
-            holder.noteDate.setText(lastEdit.getLastEdit(date.getTime()));
-            holder.noCollaboratorsDateTv.setText(lastEdit.getLastEdit(date.getTime()));
+            holder.noteDate.setText(LastEdit.getLastEdit(date.getTime()));
+            holder.noCollaboratorsDateTv.setText(LastEdit.getLastEdit(date.getTime()));
         }
 
         if (currentItem.getEdit_type() != null) {
