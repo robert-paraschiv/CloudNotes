@@ -12,7 +12,7 @@ import com.rokudoz.onotes.Models.User;
 
 public class DbUtils {
 
-    public static void updateUserTokenInDB(String user_id, String token, final String TAG) {
+    private static void updateUserTokenInDB(String user_id, String token, final String TAG) {
         FirebaseFirestore.getInstance().collection("Users").document(user_id).update("user_device_token", token)
                 .addOnCompleteListener(new OnCompleteListener<Void>() {
                     @Override

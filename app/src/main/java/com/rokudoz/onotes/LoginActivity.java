@@ -5,6 +5,7 @@ import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.room.util.DBUtil;
 
 import android.util.Log;
 import android.view.View;
@@ -26,10 +27,12 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
 import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.WriteBatch;
 import com.rokudoz.onotes.Models.User;
 import com.rokudoz.onotes.Utils.ColorUtils;
+import com.rokudoz.onotes.Utils.DbUtils;
 
 import java.util.Objects;
 
@@ -157,7 +160,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     }
 
     private void updateUser() {
-        String userId = Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid();
+        final String userId = Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid();
         String userEmail = FirebaseAuth.getInstance().getCurrentUser().getEmail();
         WriteBatch batch = db.batch();
         batch.update(userRef.document(userId), "user_name", name);
@@ -166,6 +169,15 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
             @Override
             public void onSuccess(Void aVoid) {
                 Log.d(TAG, "onSuccess: Updated user info");
+                userRef.document(userId).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                    @Override
+                    public void onSuccess(DocumentSnapshot documentSnapshot) {
+                        if (documentSnapshot != null) {
+                            User user = documentSnapshot.toObject(User.class);
+                            DbUtils.getCurrentRegistrationToken(user, TAG);
+                        }
+                    }
+                });
             }
         });
     }
@@ -187,16 +199,18 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         Log.d(TAG, "addNewUser: Adding new User: \n user_id:" + userId);
 
 
-        User mUser = new User();
+        final User mUser = new User();
         mUser.setUser_name(name);
         mUser.setUser_id(userId);
         mUser.setEmail(userEmail);
         mUser.setUser_profile_picture(userProfilePic);
 
-        //User user = new User(name, userId);
         userRef.document(mUser.getUser_id()).set(mUser).addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override
             public void onSuccess(Void aVoid) {
+                //Update current user token
+                DbUtils.getCurrentRegistrationToken(mUser, TAG);
+
                 Intent intent = new Intent(LoginActivity.this, MainActivity.class);
                 intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                 startActivity(intent);

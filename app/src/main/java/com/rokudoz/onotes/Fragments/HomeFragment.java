@@ -82,8 +82,6 @@ import static android.content.Context.MODE_PRIVATE;
 import static com.rokudoz.onotes.App.HIDE_BANNER;
 import static com.rokudoz.onotes.App.SETTINGS_PREFS_NAME;
 import static com.rokudoz.onotes.App.TRANSITION_DURATION;
-import static com.rokudoz.onotes.Utils.DbUtils.getCurrentRegistrationToken;
-import static com.rokudoz.onotes.Utils.DbUtils.updateUserTokenInDB;
 
 public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClickListener {
     private static final String TAG = "HomeFragment";
@@ -563,7 +561,6 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
                                         }
                                     });
                                 }
-                                getCurrentRegistrationToken(mUser,TAG);
                             }
                         }
                     }
