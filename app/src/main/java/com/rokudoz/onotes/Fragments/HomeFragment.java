@@ -41,7 +41,9 @@ import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 import androidx.transition.TransitionInflater;
 
 import com.bumptech.glide.Glide;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.button.MaterialButton;
@@ -56,8 +58,10 @@ import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.WriteBatch;
+import com.google.firebase.messaging.FirebaseMessaging;
 import com.rokudoz.onotes.Adapters.HomePageAdapter;
 import com.rokudoz.onotes.LoginActivity;
+import com.rokudoz.onotes.MainActivity;
 import com.rokudoz.onotes.Models.Collaborator;
 import com.rokudoz.onotes.Models.Note;
 import com.rokudoz.onotes.Models.NoteDetails;
@@ -78,6 +82,8 @@ import static android.content.Context.MODE_PRIVATE;
 import static com.rokudoz.onotes.App.HIDE_BANNER;
 import static com.rokudoz.onotes.App.SETTINGS_PREFS_NAME;
 import static com.rokudoz.onotes.App.TRANSITION_DURATION;
+import static com.rokudoz.onotes.Utils.DbUtils.getCurrentRegistrationToken;
+import static com.rokudoz.onotes.Utils.DbUtils.updateUserTokenInDB;
 
 public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClickListener {
     private static final String TAG = "HomeFragment";
@@ -101,6 +107,7 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
 
     private HomePageAdapter staggeredRecyclerViewAdapter;
     private final List<Note> noteList = new ArrayList<>();
+    private User mUser;
 
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
     private final CollectionReference usersRef = db.collection("Users");
@@ -195,7 +202,6 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
         }
 
         BannerAdManager bannerAdManager = new BannerAdManager();
-
 
         //Show Banner Ad
         if (getActivity() != null && !HIDE_BANNER) {
@@ -545,23 +551,25 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
                     @Override
                     public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException e) {
                         if (e == null && documentSnapshot != null) {
-                            final User user = documentSnapshot.toObject(User.class);
-                            if (user != null) {
-                                if (user.getUser_profile_picture() != null) {
-                                    Glide.with(requireContext()).load(user.getUser_profile_picture()).centerCrop().into(userPicture);
+                            mUser = documentSnapshot.toObject(User.class);
+                            if (mUser != null) {
+                                if (mUser.getUser_profile_picture() != null) {
+                                    Glide.with(requireContext()).load(mUser.getUser_profile_picture()).centerCrop().into(userPicture);
                                     userPicture.setOnClickListener(new View.OnClickListener() {
                                         @Override
                                         public void onClick(View v) {
                                             //Settings dialog
-                                            showSettingsBottomSheet(user);
+                                            showSettingsBottomSheet(mUser);
                                         }
                                     });
                                 }
+                                getCurrentRegistrationToken(mUser,TAG);
                             }
                         }
                     }
                 });
     }
+
 
     @SuppressLint("SetTextI18n")
     private void showSettingsBottomSheet(User user) {

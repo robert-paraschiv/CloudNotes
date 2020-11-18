@@ -24,7 +24,11 @@ import com.google.android.gms.ads.rewarded.RewardItem;
 import com.google.android.gms.ads.rewarded.RewardedAd;
 import com.google.android.gms.ads.rewarded.RewardedAdCallback;
 import com.google.android.gms.ads.rewarded.RewardedAdLoadCallback;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.button.MaterialButton;
+import com.google.firebase.messaging.FirebaseMessaging;
 import com.rokudoz.onotes.Utils.BannerAdManager;
 
 import java.util.ArrayList;
@@ -81,8 +85,8 @@ public class MainActivity extends AppCompatActivity {
         //Show ads
         loadSupportAppRewardedAd();
         loadCloseBannerRewardedAd();
-
     }
+
 
     private void loadCloseBannerRewardedAd() {
         //Rewarded ad section
@@ -206,7 +210,6 @@ public class MainActivity extends AppCompatActivity {
                 loadSupportAppRewardedAd();
             }
         };
-
 
 
         if (sharedPreferences.getInt("TimesStartedCounter", 0) >= TIMES_TO_OPEN_APP_TO_ASK_FOR_SUPPORT_AD && !ASKED_ALREADY) {

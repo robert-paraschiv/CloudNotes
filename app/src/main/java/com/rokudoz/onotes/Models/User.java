@@ -10,22 +10,25 @@ public class User {
     private String user_userName;
     private String email;
     private String user_profile_picture;
+    private String user_device_token;
 
     @ServerTimestamp
     private
     Date user_join_date;
 
-    public User(String user_id, String user_name, String user_userName, String email, String user_profile_picture, Date user_join_date) {
+    public User(String user_id, String user_name, String user_userName, String email, String user_profile_picture, Date user_join_date,String user_device_token) {
         this.user_id = user_id;
         this.user_name = user_name;
         this.user_userName = user_userName;
         this.email = email;
         this.user_profile_picture = user_profile_picture;
         this.user_join_date = user_join_date;
+        this.user_device_token=user_device_token;
     }
 
     public User() {
     }
+
 
     public String getUser_id() {
         return user_id;
@@ -75,6 +78,14 @@ public class User {
         this.user_join_date = user_join_date;
     }
 
+    public String getUser_device_token() {
+        return user_device_token;
+    }
+
+    public void setUser_device_token(String user_device_token) {
+        this.user_device_token = user_device_token;
+    }
+
     @Override
     public String toString() {
         return "User{" +
@@ -83,6 +94,7 @@ public class User {
                 ", user_userName='" + user_userName + '\'' +
                 ", email='" + email + '\'' +
                 ", user_profile_picture='" + user_profile_picture + '\'' +
+                ", user_device_token='" + user_device_token + '\'' +
                 ", user_join_date=" + user_join_date +
                 '}';
     }

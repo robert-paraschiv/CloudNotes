@@ -6,4 +6,5 @@
     <string name="rewarded_ad_unit_id">ca-app-pub-3327926907082370/3784291322</string>
     <string name="adMob_app_id">ca-app-pub-3327926907082370~7650248679</string>
     <string name="switch_notes_orientation">Switch notes orientation</string>
+    <string name="default_notification_channel_id">Onotes_message_channel</string>
 </resources>
