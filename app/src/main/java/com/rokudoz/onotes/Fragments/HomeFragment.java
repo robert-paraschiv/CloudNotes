@@ -445,32 +445,6 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
                     });
 
         }
-
-
-//        //Trash notes listener
-//        if (FirebaseAuth.getInstance().getCurrentUser() != null && FirebaseAuth.getInstance().getCurrentUser().getEmail() != null)
-//            notesListener = db.collection("Notes").whereArrayContains("users", FirebaseAuth.getInstance().getCurrentUser().getEmail())
-//                    .whereEqualTo("deleted", true)
-//                    .orderBy("creation_date", Query.Direction.DESCENDING)
-//                    .addSnapshotListener(new EventListener<QuerySnapshot>() {
-//                        @Override
-//                        public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) {
-//                            if (e == null && queryDocumentSnapshots != null && queryDocumentSnapshots.size() > 0) {
-//                                for (DocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
-//                                    Note note = documentSnapshot.toObject(Note.class);
-//                                    if (note != null) {
-//                                        note.setNote_doc_ID(documentSnapshot.getId());
-//                                        if (noteList.contains(note)) {
-//                                            //If user deleted note, remove it from the list
-//                                            int notePosition = noteList.indexOf(note);
-//                                            noteList.remove(note);
-//                                            staggeredRecyclerViewAdapter.notifyItemRemoved(notePosition);
-//                                        }
-//                                    }
-//                                }
-//                            }
-//                        }
-//                    });
     }
 
     private boolean checkIfBackgroundIsChanged(Note newNote, Note oldNote) {
@@ -561,6 +535,10 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
                                         }
                                     });
                                 }
+                                if (mUser.getUser_device_token() == null) {
+                                    Toast.makeText(requireContext(), "You will need to log in again", Toast.LENGTH_SHORT).show();
+                                    LogOut();
+                                }
                             }
                         }
                     }
@@ -621,10 +599,7 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
                     @Override
                     public void onClick(View v) {
                         //Log out
-                        FirebaseAuth.getInstance().signOut();
-                        Intent intent = new Intent(getActivity(), LoginActivity.class);
-                        startActivity(intent);
-                        requireActivity().finish();
+                        LogOut();
                     }
                 });
                 cancelBtn.setOnClickListener(new View.OnClickListener() {
@@ -713,6 +688,13 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
 
             }
         });
+    }
+
+    private void LogOut() {
+        FirebaseAuth.getInstance().signOut();
+        Intent intent = new Intent(getActivity(), LoginActivity.class);
+        startActivity(intent);
+        requireActivity().finish();
     }
 
     /*

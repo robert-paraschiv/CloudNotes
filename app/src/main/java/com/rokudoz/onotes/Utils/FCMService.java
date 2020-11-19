@@ -37,15 +37,17 @@ public class FCMService extends FirebaseMessagingService implements LifecycleObs
             Log.d(TAG, "Message data payload: " + remoteMessage.getData());
 
             if (isAppInForeground) {
+                sendNotification(remoteMessage.getData().get("body"), remoteMessage.getData().get("title"));
                 Log.d(TAG, "onMessageReceived: notification received while in foreground");
             } else {
-                sendNotification(remoteMessage.getNotification());
+                sendNotification(remoteMessage.getData().get("body"), remoteMessage.getData().get("title"));
                 Log.d(TAG, "onMessageReceived: notification received while in background");
             }
 
         } else {
             Log.d(TAG, "onMessageReceived: NO payload");
-            sendNotification(remoteMessage.getNotification());
+            Log.d(TAG, "onMessageReceived: app foreground " + isAppInForeground);
+            sendNotification(remoteMessage.getNotification().getBody(), remoteMessage.getNotification().getTitle());
         }
 
         // Check if message contains a notification payload.
@@ -74,7 +76,7 @@ public class FCMService extends FirebaseMessagingService implements LifecycleObs
         // TODO: Implement this method to send token to your app server.
     }
 
-    private void sendNotification(RemoteMessage.Notification notification) {
+    private void sendNotification(String body, String title) {
         Intent intent = new Intent(this, MainActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0 /* Request code */, intent,
@@ -84,10 +86,8 @@ public class FCMService extends FirebaseMessagingService implements LifecycleObs
         NotificationCompat.Builder notificationBuilder =
                 new NotificationCompat.Builder(this, channelId)
                         .setSmallIcon(R.mipmap.ic_launcher_foreground)
-                        .setLargeIcon(BitmapFactory.decodeResource(getApplicationContext().getResources(),
-                                R.mipmap.ic_launcher_foreground))
-                        .setContentTitle(notification.getTitle())
-                        .setContentText(notification.getBody())
+                        .setContentTitle(title)
+                        .setContentText(body)
                         .setPriority(NotificationCompat.PRIORITY_DEFAULT)
                         .setAutoCancel(true)
                         .setContentIntent(pendingIntent);
