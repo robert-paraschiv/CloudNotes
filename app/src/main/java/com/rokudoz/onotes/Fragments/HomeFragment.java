@@ -69,6 +69,7 @@ import com.rokudoz.onotes.Models.User;
 import com.rokudoz.onotes.R;
 import com.rokudoz.onotes.Utils.BannerAdManager;
 import com.rokudoz.onotes.Utils.ColorUtils;
+import com.rokudoz.onotes.Utils.DbUtils;
 import com.rokudoz.onotes.Utils.NotesUtils;
 
 import java.util.ArrayList;
@@ -535,9 +536,9 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
                                         }
                                     });
                                 }
+                                //User device token is null, update the db with new token
                                 if (mUser.getUser_device_token() == null) {
-                                    Toast.makeText(requireContext(), "You will need to log in again", Toast.LENGTH_SHORT).show();
-                                    LogOut();
+                                    DbUtils.getCurrentRegistrationToken(mUser, TAG);
                                 }
                             }
                         }

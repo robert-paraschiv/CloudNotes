@@ -61,6 +61,15 @@ public class MainActivity extends AppCompatActivity {
         NavHostFragment navHostFragment = (NavHostFragment) getSupportFragmentManager().findFragmentById(R.id.nav_host_fragment);
         if (navHostFragment != null) {
             navController = navHostFragment.getNavController();
+            if (getIntent() != null && getIntent().getStringExtra("note_doc_id") != null) {
+                String note_doc_id = getIntent().getStringExtra("note_doc_id");
+                Bundle args = new Bundle();
+                args.putString("note_doc_ID", note_doc_id);
+                args.putString("noteColor", null);
+                args.putInt("position", 0);
+                args.putString("transition_name", null);
+                navController.navigate(R.id.editNoteFragment, args);
+            }
         }
 
         sharedPreferences = getSharedPreferences(SETTINGS_PREFS_NAME, MODE_PRIVATE);

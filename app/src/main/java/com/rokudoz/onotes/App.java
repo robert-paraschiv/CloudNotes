@@ -1,14 +1,21 @@
 package com.rokudoz.onotes;
 
 import android.app.Application;
+import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.content.SharedPreferences;
+import android.os.Build;
 import android.util.Log;
 
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatDelegate;
 
 public class App extends Application {
     private static final String TAG = "App";
     SharedPreferences sharedPreferences;
+
+    public static final String CHANNEL_COLLABORATOR_NOTIFICATION = "Channel_Collaborator_Notification";
     public static final String SETTINGS_PREFS_NAME = "SettingsPrefs";
     public static boolean HIDE_BANNER = false;
     public static boolean ASKED_ALREADY = false;
@@ -31,6 +38,24 @@ public class App extends Application {
         sharedPrefsEditor.apply();
 
         applyNightModeFromPrefs();
+
+        createNotificationChannel();
+    }
+
+    private void createNotificationChannel() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            //Messages Channel
+            NotificationChannel channel_collaborator_notification = new NotificationChannel(
+                    CHANNEL_COLLABORATOR_NOTIFICATION,
+                    "Collaborator notifications channel",
+                    NotificationManager.IMPORTANCE_HIGH
+            );
+            channel_collaborator_notification.setDescription("This is the channel used for collaborator notifications");
+            channel_collaborator_notification.setLockscreenVisibility(Notification.VISIBILITY_PUBLIC);
+            channel_collaborator_notification.setShowBadge(true);
+            NotificationManager notificationManager = getSystemService(NotificationManager.class);
+            notificationManager.createNotificationChannel(channel_collaborator_notification);
+        }
     }
 
     private void applyNightModeFromPrefs() {
