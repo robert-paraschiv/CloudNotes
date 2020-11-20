@@ -155,6 +155,7 @@ public class TrashFragment extends Fragment implements HomePageAdapter.OnItemCli
         final AlertDialog dialog = builder.create();
         dialog.show();
 
+        //TODO delete collaborators note details as well
         final WriteBatch batch = db.batch();
 
         db.collection("Notes")
@@ -288,6 +289,8 @@ public class TrashFragment extends Fragment implements HomePageAdapter.OnItemCli
         builder.setView(R.layout.dialog_please_wait);
         final AlertDialog dialog = builder.create();
         dialog.show();
+
+        //TODO delete collaborators note details as well
 
         final int[] counter = {0};
         for (final Note note : notesToDelete) {

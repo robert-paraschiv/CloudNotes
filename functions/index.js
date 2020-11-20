@@ -1,7 +1,3 @@
-
-/* eslint-disable promise/no-nesting */
-'use-strict'
-
 const functions = require('firebase-functions');
 const admin = require('firebase-admin');
 admin.initializeApp(functions.config().firebase)
@@ -46,4 +42,23 @@ exports.notesCollaboratorsListener = functions.firestore.document("Users/{userID
         }
     });
 
+});
+
+exports.noteDeleteListener = functions.firestore.document("Notes/{note_id}").onDelete((snap, context) => {
+    const note_docID = context.params.note_id;
+    const deletedNote = snap.data();
+    let collaboratorList = snap.data().collaboratorList;
+
+    var userIDs = [];
+    const batch = admin.firestore().batch();
+
+    collaboratorList.forEach(element => {
+        userIDs.push(element.user_id);
+        batch.delete(admin.firestore().collection('Users').doc(element.user_id).collection('NotesDetails').doc(note_docID));
+    });
+
+    batch.commit();
+
+
+    return console.log("note doc id " + note_docID + " user id " + userIDs);
 });

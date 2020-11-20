@@ -497,23 +497,17 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
 
     private void updateNotesPositions() {
         for (final Note note : noteList) {
-            if (note.getChangedPos() != null && note.getChangedPos()) {
-                db.collection("Notes").document(note.getNote_doc_ID())
-                        .update("collaboratorList", note.getCollaboratorList())
-                        .addOnSuccessListener(new OnSuccessListener<Void>() {
-                            @Override
-                            public void onSuccess(Void aVoid) {
-                                Log.d(TAG, "onSuccess: updated position " + note.getNoteTitle() + " - "
-                                        + note.getNote_position());
-                            }
-                        });
-                usersRef.document(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid()).collection(NotesUtils.NOTES_DETAILS).document(note.getNote_doc_ID())
-                        .update("note_position", note.getNote_position()).addOnSuccessListener(new OnSuccessListener<Void>() {
+            if ((note.getChangedPos() != null && note.getChangedPos()) || note.getNote_position() != noteList.indexOf(note)) {
+                usersRef.document(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid()).collection(NotesUtils.NOTES_DETAILS)
+                        .document(note.getNote_doc_ID())
+                        .update("note_position", noteList.indexOf(note)).addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
-                        Log.d(TAG, "onSuccess: updated user note position " + note.getNoteTitle() + " " + note.getNote_position());
+                        Log.d(TAG, "updateNotesPositions: updated user note position " + note.getNoteTitle() + " " + note.getNote_position());
                     }
                 });
+            } else {
+                Log.d(TAG, "updateNotesPositions: note position: " + note.getNote_position() + " note list pos: " + noteList.indexOf(note));
             }
         }
     }
