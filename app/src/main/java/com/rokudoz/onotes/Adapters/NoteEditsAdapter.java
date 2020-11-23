@@ -191,7 +191,7 @@ public class NoteEditsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
 
                 if (i < currentItem.getNoteChangeList().size() - 1) {
 
-                    if (currentItem.getNoteChangeList().get(i).getType().equals("change")) {
+                    if (currentItem.getNoteChangeList().get(i).getType().equals(NOTE_CHANGE_TYPE_CHANGE)) {
 
                         SpannableString redSpannable = new SpannableString(oldText);
                         redSpannable.setSpan(new BackgroundColorSpan(ContextCompat.getColor(mContext, R.color.note_background_color_red))
@@ -203,19 +203,23 @@ public class NoteEditsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                                 , 0, newText.length(), 0);
                         builder.append(blueSpannable).append("\n");
 
+                    } else if (currentItem.getNoteChangeList().get(i).getType().equals(NOTE_CHANGE_TYPE_REMOVED)) {
+                        SpannableString redSpannable = new SpannableString(oldText);
+                        redSpannable.setSpan(new BackgroundColorSpan(ContextCompat.getColor(mContext, R.color.note_background_color_red))
+                                , 0, oldText.length(), 0);
+                        builder.append(redSpannable).append("\n");
                     } else {
                         SpannableString greenSpannable = new SpannableString(newText);
                         greenSpannable.setSpan(new BackgroundColorSpan(ContextCompat.getColor(mContext, R.color.note_background_color_green))
                                 , 0, newText.length(), 0);
                         builder.append(greenSpannable).append("\n");
-
                     }
 
                     builder.append("\n");
 
                 } else { //If this is the last item in the list
 
-                    if (currentItem.getNoteChangeList().get(i).getType().equals("change")) {
+                    if (currentItem.getNoteChangeList().get(i).getType().equals(NOTE_CHANGE_TYPE_CHANGE)) {
 
                         SpannableString redSpannable = new SpannableString(oldText);
                         redSpannable.setSpan(new BackgroundColorSpan(ContextCompat.getColor(mContext, R.color.note_background_color_red))
@@ -226,6 +230,11 @@ public class NoteEditsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                         blueSpannable.setSpan(new BackgroundColorSpan(ContextCompat.getColor(mContext, R.color.note_background_color_blue))
                                 , 0, newText.length(), 0);
                         builder.append(blueSpannable);
+                    } else if (currentItem.getNoteChangeList().get(i).getType().equals(NOTE_CHANGE_TYPE_REMOVED)) {
+                        SpannableString redSpannable = new SpannableString(oldText);
+                        redSpannable.setSpan(new BackgroundColorSpan(ContextCompat.getColor(mContext, R.color.note_background_color_red))
+                                , 0, oldText.length(), 0);
+                        builder.append(redSpannable);
                     } else {
                         SpannableString greenSpannable = new SpannableString(newText);
                         greenSpannable.setSpan(new BackgroundColorSpan(ContextCompat.getColor(mContext, R.color.note_background_color_green))
@@ -267,25 +276,25 @@ public class NoteEditsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
             holder.editType.setTextColor(mContext.getColor(R.color.edit_type_created));
         }
 
-        if (currentItem.getCollaboratorList() != null && currentItem.getLast_edited_by_user() != null ) {
+        if (currentItem.getCollaboratorList() != null && currentItem.getLast_edited_by_user() != null) {
 
-                holder.noCollaboratorsDateTv.setVisibility(View.GONE);
-                holder.creatorLayout.setVisibility(View.VISIBLE);
-                holder.creatorEmail.setText(currentItem.getLast_edited_by_user());
-                String creator_picture = "";
-                String creator_name = "";
-                for (int i = 0; i < currentItem.getCollaboratorList().size(); i++) {
-                    if (currentItem.getLast_edited_by_user().equals(currentItem.getCollaboratorList().get(i).getUser_email())) {
-                        creator_picture = currentItem.getCollaboratorList().get(i).getUser_picture();
-                        if (currentItem.getCollaboratorList().get(i).getUser_name() == null) {
-                            creator_name = currentItem.getLast_edited_by_user();
-                        } else
-                            creator_name = currentItem.getCollaboratorList().get(i).getUser_name();
-                        break;
-                    }
+            holder.noCollaboratorsDateTv.setVisibility(View.GONE);
+            holder.creatorLayout.setVisibility(View.VISIBLE);
+            holder.creatorEmail.setText(currentItem.getLast_edited_by_user());
+            String creator_picture = "";
+            String creator_name = "";
+            for (int i = 0; i < currentItem.getCollaboratorList().size(); i++) {
+                if (currentItem.getLast_edited_by_user().equals(currentItem.getCollaboratorList().get(i).getUser_email())) {
+                    creator_picture = currentItem.getCollaboratorList().get(i).getUser_picture();
+                    if (currentItem.getCollaboratorList().get(i).getUser_name() == null) {
+                        creator_name = currentItem.getLast_edited_by_user();
+                    } else
+                        creator_name = currentItem.getCollaboratorList().get(i).getUser_name();
+                    break;
                 }
-                Glide.with(holder.creatorPicture).load(creator_picture).centerCrop().into(holder.creatorPicture);
-                holder.creatorEmail.setText(creator_name);
+            }
+            Glide.with(holder.creatorPicture).load(creator_picture).centerCrop().into(holder.creatorPicture);
+            holder.creatorEmail.setText(creator_name);
 
         } else {
             holder.noCollaboratorsDateTv.setVisibility(View.VISIBLE);
@@ -373,23 +382,23 @@ public class NoteEditsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
             holder.recyclerView.suppressLayout(true);
         }
 
-        if (currentItem.getCollaboratorList() != null && currentItem.getLast_edited_by_user() != null ) {
-                holder.noCollaboratorsDateTv.setVisibility(View.GONE);
-                holder.creatorLayout.setVisibility(View.VISIBLE);
-                String creator_picture = "";
-                String creator_name = "";
-                for (int i = 0; i < currentItem.getCollaboratorList().size(); i++) {
-                    if (currentItem.getLast_edited_by_user().equals(currentItem.getCollaboratorList().get(i).getUser_email())) {
-                        creator_picture = currentItem.getCollaboratorList().get(i).getUser_picture();
-                        if (currentItem.getCollaboratorList().get(i).getUser_name() == null) {
-                            creator_name = currentItem.getLast_edited_by_user();
-                        } else
-                            creator_name = currentItem.getCollaboratorList().get(i).getUser_name();
-                        break;
-                    }
+        if (currentItem.getCollaboratorList() != null && currentItem.getLast_edited_by_user() != null) {
+            holder.noCollaboratorsDateTv.setVisibility(View.GONE);
+            holder.creatorLayout.setVisibility(View.VISIBLE);
+            String creator_picture = "";
+            String creator_name = "";
+            for (int i = 0; i < currentItem.getCollaboratorList().size(); i++) {
+                if (currentItem.getLast_edited_by_user().equals(currentItem.getCollaboratorList().get(i).getUser_email())) {
+                    creator_picture = currentItem.getCollaboratorList().get(i).getUser_picture();
+                    if (currentItem.getCollaboratorList().get(i).getUser_name() == null) {
+                        creator_name = currentItem.getLast_edited_by_user();
+                    } else
+                        creator_name = currentItem.getCollaboratorList().get(i).getUser_name();
+                    break;
                 }
-                Glide.with(holder.creatorPicture).load(creator_picture).centerCrop().into(holder.creatorPicture);
-                holder.creatorEmail.setText(creator_name);
+            }
+            Glide.with(holder.creatorPicture).load(creator_picture).centerCrop().into(holder.creatorPicture);
+            holder.creatorEmail.setText(creator_name);
 
         } else {
             holder.creatorLayout.setVisibility(View.GONE);

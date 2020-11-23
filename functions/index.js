@@ -46,7 +46,6 @@ exports.notesCollaboratorsListener = functions.firestore.document("Users/{userID
 
 exports.noteDeleteListener = functions.firestore.document("Notes/{note_id}").onDelete((snap, context) => {
     const note_docID = context.params.note_id;
-    const deletedNote = snap.data();
     let collaboratorList = snap.data().collaboratorList;
 
     var userIDs = [];
@@ -57,8 +56,8 @@ exports.noteDeleteListener = functions.firestore.document("Notes/{note_id}").onD
         batch.delete(admin.firestore().collection('Users').doc(element.user_id).collection('NotesDetails').doc(note_docID));
     });
 
-    batch.commit();
+    return batch.commit().then(() => {
+        return console.log("Deleted note: " + note_docID + ", succesfully deleted user note details from: " + userIDs);
+    });
 
-
-    return console.log("note doc id " + note_docID + " user id " + userIDs);
 });

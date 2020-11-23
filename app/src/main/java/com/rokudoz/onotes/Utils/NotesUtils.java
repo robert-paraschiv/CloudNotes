@@ -6,7 +6,10 @@ import android.widget.Toast;
 
 import com.rokudoz.onotes.Models.CheckableItem;
 import com.rokudoz.onotes.Models.Note;
+import com.rokudoz.onotes.Models.NoteChange;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class NotesUtils {
@@ -127,6 +130,77 @@ public class NotesUtils {
 
         Log.d(TAG, "checkIfNotesAreDifferent: false note: " + newNote.getNoteTitle());
         return false;
+    }
+
+
+    public static List<NoteChange> getTextNoteChanges(String currentNoteText, String oldNoteText, String oldNoteType) {
+        List<NoteChange> noteChangeList = new ArrayList<>();
+
+        List<String> currentNoteTextList = Arrays.asList(currentNoteText.split("\\r?\\n"));
+        List<String> oldNoteTextList = Arrays.asList(oldNoteText.split("\\r?\\n"));
+
+        if (!oldNoteType.equals("text"))
+            oldNoteTextList = new ArrayList<>();
+
+        for (int i = 0; i < currentNoteTextList.size(); i++) {
+            if (oldNoteTextList.size() > i) {
+                if (!currentNoteTextList.get(i).equals(oldNoteTextList.get(i))) {
+                    noteChangeList.add(new NoteChange(NOTE_CHANGE_TYPE_CHANGE, currentNoteTextList.get(i), oldNoteTextList.get(i), null, null));
+                }
+            } else {
+                noteChangeList.add(new NoteChange(NOTE_CHANGE_TYPE_ADDED, currentNoteTextList.get(i), null, null, null));
+            }
+        }
+        if (oldNoteTextList.size() > currentNoteTextList.size()) {
+            for (int i = currentNoteTextList.size() ; i < oldNoteTextList.size(); i++) {
+                noteChangeList.add(new NoteChange(NOTE_CHANGE_TYPE_REMOVED, null, oldNoteTextList.get(i), null, null));
+            }
+        }
+
+        return noteChangeList;
+    }
+
+
+    public static List<NoteChange> getCheckboxNoteChanges(List<CheckableItem> currentCheckboxList, List<CheckableItem> oldCbList) {
+        List<NoteChange> noteChangeList = new ArrayList<>();
+
+        List<CheckableItem> oldCheckboxList = oldCbList;
+        List<CheckableItem> comparedItemsList = new ArrayList<>();
+
+        if (oldCheckboxList == null)
+            oldCheckboxList = new ArrayList<>();
+
+        for (CheckableItem oldItem : oldCheckboxList) {
+            if (currentCheckboxList.contains(oldItem)) {
+
+                CheckableItem newItem = currentCheckboxList.get(currentCheckboxList.indexOf(oldItem));
+                comparedItemsList.add(newItem);
+
+                if (!oldItem.getText().equals(newItem.getText()) || !oldItem.getChecked().equals(newItem.getChecked())) {
+                    noteChangeList.add(new NoteChange(NOTE_CHANGE_TYPE_CHANGE, newItem.getText(), oldItem.getText(), newItem.getChecked(), oldItem.getChecked()));
+                }
+
+            } else {
+                noteChangeList.add(new NoteChange(NOTE_CHANGE_TYPE_REMOVED, null, oldItem.getText(), null, oldItem.getChecked()));
+            }
+        }
+
+        for (CheckableItem newItem : currentCheckboxList) {
+            if (oldCheckboxList.contains(newItem)) {
+
+                CheckableItem oldItem = oldCheckboxList.get(oldCheckboxList.indexOf(newItem));
+                if (!comparedItemsList.contains(oldItem)) {
+                    if (!oldItem.getText().equals(newItem.getText()) || !oldItem.getChecked().equals(newItem.getChecked())) {
+                        comparedItemsList.add(oldItem);
+                        noteChangeList.add(new NoteChange(NOTE_CHANGE_TYPE_CHANGE, newItem.getText(), oldItem.getText(), newItem.getChecked(), oldItem.getChecked()));
+                    }
+                }
+
+            } else {
+                noteChangeList.add(new NoteChange(NOTE_CHANGE_TYPE_ADDED, newItem.getText(), null, newItem.getChecked(), null));
+            }
+        }
+        return noteChangeList;
     }
 
 

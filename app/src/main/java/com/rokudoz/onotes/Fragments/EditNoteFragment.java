@@ -76,6 +76,8 @@ import static com.rokudoz.onotes.Utils.NotesUtils.NOTE_CHANGE_TYPE_ADDED;
 import static com.rokudoz.onotes.Utils.NotesUtils.NOTE_CHANGE_TYPE_CHANGE;
 import static com.rokudoz.onotes.Utils.NotesUtils.NOTE_CHANGE_TYPE_REMOVED;
 import static com.rokudoz.onotes.Utils.NotesUtils.NOTE_TYPE_TEXT;
+import static com.rokudoz.onotes.Utils.NotesUtils.getCheckboxNoteChanges;
+import static com.rokudoz.onotes.Utils.NotesUtils.getTextNoteChanges;
 
 public class EditNoteFragment extends Fragment implements CheckableItemAdapter.OnStartDragListener,
         CheckableItemAdapter.OnItemClickListener, FullBottomSheetDialogFragment.ExampleDialogListener, CollaboratorNotesAdapter.OnItemClickListener {
@@ -856,7 +858,7 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
 
                 if (noteType.equals("text")) {
                     //Compare current note text to old text and get changes
-                    List<NoteChange> noteChangeList = getTextNoteChanges();
+                    List<NoteChange> noteChangeList = getTextNoteChanges(textInput.getText().toString(), mNote.getNoteText(), mNote.getNoteType());
 
                     //Get note ready for updating db
                     note = new Note(title,
@@ -870,7 +872,7 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
                 } else if (noteType.equals("checkbox")) {
 
                     //Compare new checkbox values to old ones and get changes
-                    List<NoteChange> noteChangeList = getCheckboxNoteChanges(currentCheckboxList);
+                    List<NoteChange> noteChangeList = getCheckboxNoteChanges(currentCheckboxList, mNote.getCheckableItemList());
 
                     //Get note ready for updating db
                     note = new Note(
@@ -906,68 +908,6 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
         }
     }
 
-    private List<NoteChange> getCheckboxNoteChanges(List<CheckableItem> currentCheckboxList) {
-        List<NoteChange> noteChangeList = new ArrayList<>();
-
-        List<CheckableItem> oldCheckboxList = mNote.getCheckableItemList();
-        List<CheckableItem> comparedItemsList = new ArrayList<>();
-
-        if (oldCheckboxList == null)
-            oldCheckboxList = new ArrayList<>();
-
-        for (CheckableItem oldItem : oldCheckboxList) {
-            if (currentCheckboxList.contains(oldItem)) {
-
-                CheckableItem newItem = currentCheckboxList.get(currentCheckboxList.indexOf(oldItem));
-                comparedItemsList.add(newItem);
-
-                if (!oldItem.getText().equals(newItem.getText()) || !oldItem.getChecked().equals(newItem.getChecked())) {
-                    noteChangeList.add(new NoteChange(NOTE_CHANGE_TYPE_CHANGE, newItem.getText(), oldItem.getText(), newItem.getChecked(), oldItem.getChecked()));
-                }
-
-            } else {
-                noteChangeList.add(new NoteChange(NOTE_CHANGE_TYPE_REMOVED, null, oldItem.getText(), null, oldItem.getChecked()));
-            }
-        }
-
-        for (CheckableItem newItem : currentCheckboxList) {
-            if (oldCheckboxList.contains(newItem)) {
-
-                CheckableItem oldItem = oldCheckboxList.get(oldCheckboxList.indexOf(newItem));
-                if (!comparedItemsList.contains(oldItem)) {
-                    if (!oldItem.getText().equals(newItem.getText()) || !oldItem.getChecked().equals(newItem.getChecked())) {
-                        comparedItemsList.add(oldItem);
-                        noteChangeList.add(new NoteChange(NOTE_CHANGE_TYPE_CHANGE, newItem.getText(), oldItem.getText(), newItem.getChecked(), oldItem.getChecked()));
-                    }
-                }
-
-            } else {
-                noteChangeList.add(new NoteChange(NOTE_CHANGE_TYPE_ADDED, newItem.getText(), null, newItem.getChecked(), null));
-            }
-        }
-        return noteChangeList;
-    }
-
-    private List<NoteChange> getTextNoteChanges() {
-        List<NoteChange> noteChangeList = new ArrayList<>();
-
-        List<String> currentNoteTextList = Arrays.asList(Objects.requireNonNull(textInput.getText()).toString().split("\\r?\\n"));
-        List<String> oldNoteTextList = Arrays.asList(mNote.getNoteText().split("\\r?\\n"));
-
-        if (!mNote.getNoteType().equals(noteType))
-            oldNoteTextList = new ArrayList<>();
-
-        for (int i = 0; i < currentNoteTextList.size(); i++) {
-            if (oldNoteTextList.size() > i) {
-                if (!currentNoteTextList.get(i).equals(oldNoteTextList.get(i))) {
-                    noteChangeList.add(new NoteChange(NOTE_CHANGE_TYPE_CHANGE, currentNoteTextList.get(i), oldNoteTextList.get(i), null, null));
-                }
-            } else {
-                noteChangeList.add(new NoteChange(NOTE_CHANGE_TYPE_ADDED, currentNoteTextList.get(i), null, null, null));
-            }
-        }
-        return noteChangeList;
-    }
 
     @Override
     public void onStartDrag(int position) {
@@ -1069,7 +1009,9 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
         Log.d(TAG, "getCollaborators: " + collaboratorList.toString());
     }
 
-    private void GetCollaboratorsToUpdate(final List<Collaborator> collaborators, final WriteBatch batch, final List<String> userList, final boolean finalStillCollaborator) {
+    private void GetCollaboratorsToUpdate(final List<Collaborator> collaborators, final WriteBatch batch, final List<String> userList,
+                                          final boolean finalStillCollaborator) {
+
         final List<Collaborator> collaboratorsToDelete = new ArrayList<>();
         for (Collaborator collaboratorToDelete : mCollaboratorsList) {
             if (!collaborators.contains(collaboratorToDelete)) {
