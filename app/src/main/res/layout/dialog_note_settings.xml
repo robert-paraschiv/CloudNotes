@@ -5,8 +5,17 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="@drawable/dialog_settings_background"
-    android:fitsSystemWindows="true"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:paddingBottom="@dimen/bottom_sheet_dialog_bottom_padding">
+
+    <ImageView
+        android:layout_width="36dp"
+        android:layout_height="5dp"
+        android:layout_gravity="center_horizontal|top"
+        android:layout_marginTop="16dp"
+        android:layout_marginBottom="28dp"
+        android:contentDescription="@string/drag_handle"
+        android:src="@drawable/dialog_handle" />
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/noteSettings_addCollaboratorBtn"
@@ -21,6 +30,7 @@
         android:textAlignment="viewStart"
         android:textAllCaps="false"
         android:textColor="@color/dialog_please_wait_text_color"
+        android:textSize="@dimen/bottomsheet_mainText_size"
         app:icon="@drawable/ic_outline_person_add_24"
         app:iconTint="@color/icon_tint_color" />
 
@@ -30,7 +40,9 @@
         android:layout_marginStart="18dp"
         android:layout_marginTop="8dp"
         android:layout_marginEnd="18dp"
-        android:src="@color/spacer_color" />
+        android:layout_marginBottom="8dp"
+        android:src="@color/spacer_color"
+        android:visibility="invisible" />
 
     <TextView
         android:layout_width="match_parent"
@@ -39,7 +51,8 @@
         android:layout_marginTop="8dp"
         android:layout_marginEnd="18dp"
         android:gravity="start"
-        android:text="Choose a color for your note" />
+        android:text="Choose a color for your note"
+        android:textSize="@dimen/bottomsheet_mainText_size" />
 
     <LinearLayout
         android:layout_width="match_parent"

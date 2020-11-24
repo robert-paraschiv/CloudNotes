@@ -727,7 +727,7 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
             public void onClick(View v) {
                 updateNoteColor("");
                 resetBackgroundColors();
-                bottomSheetDialog.cancel();
+                bottomSheetDialog.hide();
                 mNote.setNote_background_color("");
                 initial.setBorderWidth(5);
             }
@@ -735,7 +735,7 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
         collaboratorsBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                bottomSheetDialog.cancel();
+                bottomSheetDialog.hide();
                 showCollaboratorsDialog();
             }
         });
@@ -743,6 +743,7 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
         bottomSheetDialog.setContentView(dialogView);
         bottomSheetDialog.show();
 
+        //Allows bottom sheet dialog to be displayed on top of nav bar and color it accordingly
         Window window = bottomSheetDialog.getWindow();
         if (window != null) {
             window.findViewById(com.google.android.material.R.id.container).setFitsSystemWindows(false);
@@ -757,7 +758,7 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
         updateNoteColor(color);
         setBackgroundColor(ContextCompat.getColor(requireContext(), colorRes));
         mNote.setNote_background_color(color);
-        bottomSheetDialog.cancel();
+        bottomSheetDialog.hide();
     }
 
     private void showCollaboratorsDialog() {
