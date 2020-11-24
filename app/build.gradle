@@ -9,8 +9,8 @@ android {
         applicationId "com.rokudoz.onotes"
         minSdkVersion 25
         targetSdkVersion 30
-        versionCode 25
-        versionName "1.25"
+        versionCode 28
+        versionName "1.28"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }

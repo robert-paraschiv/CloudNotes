@@ -7,7 +7,9 @@
     <color name="fragments_background">#eaeaea</color>
     <color name="status_bar_color">#f6f6f6</color>
     <color name="navigationColor">#eeeeee</color>
-    <color name="dialog_settings_background_color">#f6f6f6</color>
+    <color name="dialog_settings_background_color">#fafafa</color>
+
+    <color name="settings_dialog_handle_color">#e1e1e1</color>
 
     <color name="home_note_background_color">#f6f6f6</color>
     <color name="home_note_selected_background_color">#efefef</color>

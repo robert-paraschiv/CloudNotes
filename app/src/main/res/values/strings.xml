@@ -7,4 +7,14 @@
     <string name="adMob_app_id">ca-app-pub-3327926907082370~7650248679</string>
     <string name="switch_notes_orientation">Switch notes orientation</string>
     <string name="default_notification_channel_id">Channel_Collaborator_Notification</string>
+    <string name="someone_edited_the_note_meanwhile">Someone else has just edited this note, do you want to reload this note?</string>
+    <string name="drag_handle">Drag Handle</string>
+    <string name="tap_to_see">Tap to see</string>
+    <string name="deleted_notes">Deleted notes</string>
+    <string name="log_out">Log out</string>
+    <string name="current_account">Current Account</string>
+    <string name="theme">Theme</string>
+    <string name="theme_system_default">System default</string>
+    <string name="theme_light">Light</string>
+    <string name="theme_dark">Dark</string>
 </resources>

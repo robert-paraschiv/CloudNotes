@@ -4,31 +4,49 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginStart="12dp"
-    android:layout_marginEnd="12dp"
-    android:layout_marginBottom="8dp"
     android:background="@drawable/dialog_settings_background"
-    android:fitsSystemWindows="true">
+    app:layout_behavior="@string/bottom_sheet_behavior">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="12dp"
         android:orientation="vertical"
-        android:padding="14dp">
+        android:paddingStart="14dp"
+        android:paddingEnd="14dp"
+        android:paddingBottom="64dp">
 
+        <ImageView
+            android:layout_width="36dp"
+            android:layout_height="5dp"
+            android:layout_gravity="center_horizontal|top"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="28dp"
+            android:contentDescription="@string/drag_handle"
+            android:src="@drawable/dialog_handle" />
+
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="4dp"
+            android:layout_marginBottom="16dp"
+            android:text="@string/current_account"
+            android:textColor="@color/dialog_please_wait_text_color"
+            android:textSize="16sp" />
 
         <RelativeLayout
+            android:id="@+id/dialog_settings_account_RL"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:padding="4dp">
 
             <de.hdodenhof.circleimageview.CircleImageView
                 android:id="@+id/dialog_settings_profilePic"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
                 android:layout_alignParentStart="true"
-                android:layout_marginEnd="8dp"
+                android:layout_centerVertical="true"
+                android:layout_marginEnd="12dp"
                 tools:src="@color/colorPrimary" />
 
             <LinearLayout
@@ -44,28 +62,18 @@
                     android:id="@+id/dialog_settings_name"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textSize="16sp"
+                    android:textColor="@color/dialog_please_wait_text_color"
+                    android:textSize="18sp"
                     tools:text="Robert Paraschiv" />
 
                 <TextView
                     android:id="@+id/dialog_settings_email"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textSize="12sp"
+                    android:textSize="14sp"
                     tools:text="paraschivlongin@gmail.com" />
             </LinearLayout>
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/dialog_settings_signOut"
-                style="@style/Widget.MaterialComponents.Button.TextButton"
-                android:layout_width="75dp"
-                android:layout_height="45dp"
-                android:layout_alignParentEnd="true"
-                android:layout_marginStart="8dp"
-                android:text="Log out"
-                android:textAllCaps="false"
-                android:textSize="12sp"
-                app:cornerRadius="8dp" />
         </RelativeLayout>
 
         <LinearLayout
@@ -78,21 +86,24 @@
             <ImageView
                 android:layout_width="match_parent"
                 android:layout_height="1px"
-                android:src="@color/spacer_color" />
+                android:src="@color/spacer_color"
+                android:visibility="invisible" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
+                android:layout_marginStart="4dp"
                 android:layout_marginTop="12dp"
-                android:text="Trash" />
+                android:text="@string/deleted_notes"
+                android:textColor="@color/dialog_please_wait_text_color"
+                android:textSize="16sp" />
 
             <TextView
                 android:id="@+id/dialog_settings_trash_textView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:text="Tap to see"
+                android:layout_marginStart="4dp"
+                android:text="@string/tap_to_see"
                 android:textSize="12sp" />
         </LinearLayout>
 
@@ -106,20 +117,23 @@
             <ImageView
                 android:layout_width="match_parent"
                 android:layout_height="1px"
-                android:src="@color/spacer_color" />
+                android:src="@color/spacer_color"
+                android:visibility="invisible" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
+                android:layout_marginStart="4dp"
                 android:layout_marginTop="12dp"
-                android:text="Theme" />
+                android:text="@string/theme"
+                android:textColor="@color/dialog_please_wait_text_color"
+                android:textSize="16sp" />
 
             <TextView
                 android:id="@+id/dialog_settings_theme_textView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
+                android:layout_marginStart="4dp"
                 android:textSize="12sp"
                 tools:text="System default" />
         </LinearLayout>

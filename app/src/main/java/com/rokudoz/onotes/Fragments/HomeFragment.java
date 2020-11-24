@@ -149,7 +149,6 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
             sharedPreferences = requireActivity().getSharedPreferences(SETTINGS_PREFS_NAME, MODE_PRIVATE);
             sharedPrefsEditor = requireActivity().getSharedPreferences(SETTINGS_PREFS_NAME, MODE_PRIVATE).edit();
 
-
             postponeEnterTransition();
             recyclerView.getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
                 @Override
@@ -175,12 +174,10 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
                 }
             });
 
-
             materialToolbar = view.findViewById(R.id.homeFragment_toolbar);
 
             userPicture = view.findViewById(R.id.homeFragment_userImage);
             layoutManagerIcon = view.findViewById(R.id.homeFragment_layoutManagerIcon);
-
 
             addNewNoteBtn.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -325,7 +322,6 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
 
                 recyclerView.scrollToPosition(toPosition);
 
-
                 if (actionMode != null) {
                     final Handler handler = new Handler();
                     handler.postDelayed(new Runnable() {
@@ -351,7 +347,6 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
     public void onStart() {
         super.onStart();
         FirebaseAuth.getInstance().addAuthStateListener(mAuthListener);
-
 
         if (FirebaseAuth.getInstance().getCurrentUser() != null) {
             getNotes();
@@ -436,7 +431,6 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
                                                     }
                                                 });
                                     }
-
                                 }
                             } else {
                                 //No notes available, show no notes tv
@@ -444,7 +438,6 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
                             }
                         }
                     });
-
         }
     }
 
@@ -456,10 +449,8 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
         } else if (newNote.getNote_background_color() == null && oldNote.getNote_background_color() == null) {
             return false;
         }
-
         return !newNote.getNote_background_color().equals(oldNote.getNote_background_color());
     }
-
 
     private boolean checkIfPositionIsChanged(Note newNote, Note oldNote) {
         if (newNote.getNote_position() == null || oldNote.getNote_position() == null)
@@ -467,7 +458,6 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
 
         return !newNote.getNote_position().equals(oldNote.getNote_position());
     }
-
 
     @Override
     public void onStop() {
@@ -490,7 +480,6 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
             trashNotesListener.remove();
             trashNotesListener = null;
         }
-
         //If the user has rearranged any notes, update their position
         updateNotesPositions();
     }
@@ -540,8 +529,6 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
                 });
     }
 
-
-    @SuppressLint("SetTextI18n")
     private void showSettingsBottomSheet(User user) {
         final SharedPreferences.Editor sharedPrefsEditor = requireActivity()
                 .getSharedPreferences(SETTINGS_PREFS_NAME, MODE_PRIVATE).edit();
@@ -558,7 +545,7 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
         TextView emailTv = dialogView.findViewById(R.id.dialog_settings_email);
         TextView name = dialogView.findViewById(R.id.dialog_settings_name);
         LinearLayout trashLL = dialogView.findViewById(R.id.dialog_settings_trash_LL);
-        MaterialButton signOutBtn = dialogView.findViewById(R.id.dialog_settings_signOut);
+        RelativeLayout accountRL = dialogView.findViewById(R.id.dialog_settings_account_RL);
         Glide.with(profilePic).load(user.getUser_profile_picture()).centerCrop().into(profilePic);
         emailTv.setText(user.getEmail());
         name.setText(user.getUser_name());
@@ -575,11 +562,14 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
             }
         });
 
-        signOutBtn.setOnClickListener(new View.OnClickListener() {
+        accountRL.setOnClickListener(new View.OnClickListener() {
             @SuppressLint("SetTextI18n")
             @Override
             public void onClick(View v) {
-                //Dialog for close ad
+                //Hide bottom sheet to avoid screen flickering
+                bottomSheetDialog.hide();
+
+                //Dialog log out
                 View dialogView = getLayoutInflater().inflate(R.layout.dialog_show_ad, (ViewGroup) view, false);
                 final Dialog dialog = new Dialog(requireContext(), R.style.CustomBottomSheetDialogTheme);
                 MaterialButton confirmBtn = dialogView.findViewById(R.id.dialog_ShowAd_confirmBtn);
@@ -607,6 +597,8 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
             }
         });
         bottomSheetDialog.show();
+
+        //This allows the bottom sheet dialog to display over the nav bar and color it accordingly
         Window window = bottomSheetDialog.getWindow();
         if (window != null) {
             window.findViewById(com.google.android.material.R.id.container).setFitsSystemWindows(false);
@@ -616,17 +608,16 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
             }
         }
 
-
         //Set theme text view from prefs
         switch (sharedPreferences.getInt("NightMode", AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)) {
             case AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM:
-                themeTextView.setText("System default");
+                themeTextView.setText(R.string.theme_system_default);
                 break;
             case AppCompatDelegate.MODE_NIGHT_NO:
-                themeTextView.setText("Light");
+                themeTextView.setText(R.string.theme_light);
                 break;
             case AppCompatDelegate.MODE_NIGHT_YES:
-                themeTextView.setText("Dark");
+                themeTextView.setText(R.string.theme_dark);
                 break;
         }
 
@@ -654,33 +645,27 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
                 appThemeRadioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
                     @Override
                     public void onCheckedChanged(RadioGroup group, int checkedId) {
-                        switch (checkedId) {
-                            case R.id.dark_mode_follow_system:
-                                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM);
-                                sharedPrefsEditor.putInt("NightMode", AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM);
-                                sharedPrefsEditor.apply();
-                                bottomSheetDialog.cancel();
-                                dialog.cancel();
-                                break;
-                            case R.id.dark_mode_light:
-                                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
-                                sharedPrefsEditor.putInt("NightMode", AppCompatDelegate.MODE_NIGHT_NO);
-                                sharedPrefsEditor.apply();
-                                bottomSheetDialog.cancel();
-                                dialog.cancel();
-                                break;
-                            case R.id.dark_mode_dark:
-                                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
-                                sharedPrefsEditor.putInt("NightMode", AppCompatDelegate.MODE_NIGHT_YES);
-                                sharedPrefsEditor.apply();
-                                bottomSheetDialog.cancel();
-                                dialog.cancel();
-                                break;
-
+                        if (checkedId == R.id.dark_mode_follow_system) {
+                            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM);
+                            sharedPrefsEditor.putInt("NightMode", AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM);
+                            sharedPrefsEditor.apply();
+                            bottomSheetDialog.cancel();
+                            dialog.cancel();
+                        } else if (checkedId == R.id.dark_mode_light) {
+                            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+                            sharedPrefsEditor.putInt("NightMode", AppCompatDelegate.MODE_NIGHT_NO);
+                            sharedPrefsEditor.apply();
+                            bottomSheetDialog.cancel();
+                            dialog.cancel();
+                        } else if (checkedId == R.id.dark_mode_dark) {
+                            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+                            sharedPrefsEditor.putInt("NightMode", AppCompatDelegate.MODE_NIGHT_YES);
+                            sharedPrefsEditor.apply();
+                            bottomSheetDialog.cancel();
+                            dialog.cancel();
                         }
                     }
                 });
-
             }
         });
     }

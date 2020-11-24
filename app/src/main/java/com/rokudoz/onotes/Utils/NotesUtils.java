@@ -16,8 +16,6 @@ public class NotesUtils {
     private static final String TAG = "NotesUtils";
 
     public static final String NOTES_DETAILS = "NotesDetails";
-
-
     public static final String NOTE_CHANGE_TYPE_CHANGE = "change";
     public static final String NOTE_CHANGE_TYPE_ADDED = "added";
     public static final String NOTE_CHANGE_TYPE_REMOVED = "removed";
@@ -69,14 +67,12 @@ public class NotesUtils {
                         return true;
                     }
                 }
-
             } else {
                 //list have different checkbox list sizes, clearly they're different
                 Log.d(TAG, "compareCheckableItemLists: list have different checkbox list sizes, clearly they're different");
                 return true;
             }
         }
-
         return false;
     }
 
@@ -85,7 +81,6 @@ public class NotesUtils {
         //Check if they have different Titles
         if (!newNote.getNoteTitle().equals(oldNote.getNoteTitle()))
             return true;
-
 
         //If notes have different types, they're changed
         if (!newNote.getNoteType().equals(oldNote.getNoteType())) {
@@ -132,7 +127,7 @@ public class NotesUtils {
         return false;
     }
 
-
+    // Checks for differences between old note's text and new one's
     public static List<NoteChange> getTextNoteChanges(String currentNoteText, String oldNoteText, String oldNoteType) {
         List<NoteChange> noteChangeList = new ArrayList<>();
 
@@ -160,7 +155,7 @@ public class NotesUtils {
         return noteChangeList;
     }
 
-
+    // Checks for differences between checkbox items
     public static List<NoteChange> getCheckboxNoteChanges(List<CheckableItem> currentCheckboxList, List<CheckableItem> oldCbList) {
         List<NoteChange> noteChangeList = new ArrayList<>();
 
@@ -204,7 +199,10 @@ public class NotesUtils {
     }
 
 
-    public static Integer CalculateLeiPrice(String text, Context context) {
+    /* Splits a string's lines into a list to calculate a RON sum
+    *  If the line contains the word "lei" it tries to get the amount and add it to the sum
+    * */
+    public static Integer CalculateRONPrice(String text, Context context) {
         String[] noteTextList = text.split("\\r?\\n");
         int price = 0;
         for (String line : noteTextList) {
@@ -212,7 +210,6 @@ public class NotesUtils {
             if (line.contains("lei")) {
                 if (Character.isDigit(line.charAt(0))) {
                     for (int i = 0; i < line.length(); i++) {
-                        char c = line.charAt(i);
                         if (Character.isDigit(line.charAt(i))) {
                             temp_price.append(line.charAt(i));
                         } else if (line.charAt(i) == 'l') {
@@ -223,7 +220,6 @@ public class NotesUtils {
                 if (!temp_price.toString().trim().equals(""))
                     price += Integer.parseInt(temp_price.toString());
             }
-
         }
         Toast.makeText(context, "" + price, Toast.LENGTH_SHORT).show();
         if (price != 0)

@@ -3,6 +3,7 @@
     android:shape="rectangle">
     <solid android:color="@color/dialog_settings_background_color" />
     <corners
-        android:radius="@dimen/notes_card_radius" />
+        android:topRightRadius="@dimen/settings_dialog_corner_radius"
+        android:topLeftRadius="@dimen/settings_dialog_corner_radius"/>
 
 </shape>
