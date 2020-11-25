@@ -83,7 +83,7 @@ public class FullBottomSheetDialogFragment extends BottomSheetDialogFragment imp
             @Override
             public void onClick(View v) {
                 listener.getCollaborators(collaboratorList);
-                dialog.dismiss();
+                dialog.hide();
             }
         });
         discardBtn.setOnClickListener(new View.OnClickListener() {
@@ -105,15 +105,15 @@ public class FullBottomSheetDialogFragment extends BottomSheetDialogFragment imp
                     public void onClick(View v) {
                         //Delete note
                         collaboratorList.clear();
-                        dialogConfirm.cancel();
-                        dialog.dismiss();
+                        dialogConfirm.hide();
+                        dialog.hide();
 
                     }
                 });
                 cancelBtn.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        dialogConfirm.cancel();
+                        dialogConfirm.hide();
                     }
                 });
 
