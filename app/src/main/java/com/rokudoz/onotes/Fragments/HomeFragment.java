@@ -2,10 +2,8 @@ package com.rokudoz.onotes.Fragments;
 
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
-import android.app.Dialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
@@ -17,10 +15,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
-import android.view.Window;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.RadioGroup;
 import android.widget.RelativeLayout;
 import android.widget.SearchView;
 import android.widget.TextView;
@@ -28,7 +23,6 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatDelegate;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavDirections;
@@ -41,12 +35,8 @@ import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 import androidx.transition.TransitionInflater;
 
 import com.bumptech.glide.Glide;
-import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
 import com.google.android.material.appbar.MaterialToolbar;
-import com.google.android.material.bottomsheet.BottomSheetDialog;
-import com.google.android.material.button.MaterialButton;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -58,11 +48,9 @@ import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.WriteBatch;
-import com.google.firebase.messaging.FirebaseMessaging;
 import com.rokudoz.onotes.Adapters.HomePageAdapter;
 import com.rokudoz.onotes.Dialogs.SettingsDialogFragment;
 import com.rokudoz.onotes.LoginActivity;
-import com.rokudoz.onotes.MainActivity;
 import com.rokudoz.onotes.Models.Collaborator;
 import com.rokudoz.onotes.Models.Note;
 import com.rokudoz.onotes.Models.NoteDetails;
@@ -72,7 +60,6 @@ import com.rokudoz.onotes.Utils.BannerAdManager;
 import com.rokudoz.onotes.Utils.ColorUtils;
 import com.rokudoz.onotes.Utils.DbUtils;
 import com.rokudoz.onotes.Utils.NotesUtils;
-import com.rokudoz.onotes.Utils.SettingsUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -86,7 +73,7 @@ import static com.rokudoz.onotes.App.HIDE_BANNER;
 import static com.rokudoz.onotes.App.SETTINGS_PREFS_NAME;
 import static com.rokudoz.onotes.App.TRANSITION_DURATION;
 
-public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClickListener{
+public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClickListener {
     private static final String TAG = "HomeFragment";
 
     public static final int LAYOUT_STAGGERED_TYPE = 0;
@@ -113,7 +100,7 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
     private final CollectionReference usersRef = db.collection("Users");
     private FirebaseAuth.AuthStateListener mAuthListener;
-    private ListenerRegistration notesListener, userDetailsListener, trashNotesListener;
+    private ListenerRegistration notesListener, userDetailsListener, notesDetailsListener;
 
     private CircleImageView userPicture;
 
@@ -358,7 +345,7 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
 
     private void getNotes() {
         if (FirebaseAuth.getInstance().getCurrentUser() != null && FirebaseAuth.getInstance().getCurrentUser().getEmail() != null) {
-            usersRef.document(FirebaseAuth.getInstance().getCurrentUser().getUid()).collection(NotesUtils.NOTES_DETAILS)
+            notesDetailsListener = usersRef.document(FirebaseAuth.getInstance().getCurrentUser().getUid()).collection(NotesUtils.NOTES_DETAILS)
                     .orderBy("note_position")
                     .addSnapshotListener(new EventListener<QuerySnapshot>() {
                         @Override
@@ -367,7 +354,7 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
                                 for (DocumentSnapshot noteDetailsSnapshot : value) {
                                     final NoteDetails noteDetails = noteDetailsSnapshot.toObject(NoteDetails.class);
                                     if (noteDetails != null) {
-                                        db.collection("Notes").document(noteDetails.getNote_doc_id())
+                                        notesListener = db.collection("Notes").document(noteDetails.getNote_doc_id())
                                                 .addSnapshotListener(new EventListener<DocumentSnapshot>() {
                                                     @Override
                                                     public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException error) {
@@ -380,7 +367,6 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
                                                                 if (noteList.contains(note)) {
 
                                                                     int indexOfCurrentNote = noteList.indexOf(note);
-
                                                                     if (note.getDeleted()) {
                                                                         noteList.remove(note);
                                                                         Log.d(TAG, "onEvent: note deleted, removing");
@@ -410,7 +396,6 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
                                                                             staggeredRecyclerViewAdapter.notifyItemRemoved(indexOfCurrentNote);
                                                                             Log.d(TAG, "onEvent: user no longer collab + removing ");
                                                                         }
-
                                                                     }
                                                                 } else { //Notes list does not contain this note
                                                                     if (!note.getDeleted()) {
@@ -478,9 +463,9 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
             notesListener.remove();
             notesListener = null;
         }
-        if (trashNotesListener != null) {
-            trashNotesListener.remove();
-            trashNotesListener = null;
+        if (notesDetailsListener != null) {
+            notesDetailsListener.remove();
+            notesDetailsListener = null;
         }
         //If the user has rearranged any notes, update their position
         updateNotesPositions();

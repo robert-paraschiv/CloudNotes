@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <dimen name="notes_card_radius">12dp</dimen>
+    <dimen name="notes_card_radius">14dp</dimen>
     <dimen name="settings_dialog_corner_radius">18dp</dimen>
     <dimen name="bottom_sheet_dialog_bottom_padding">64dp</dimen>
     <dimen name="bottomsheet_mainText_size">16sp</dimen>
