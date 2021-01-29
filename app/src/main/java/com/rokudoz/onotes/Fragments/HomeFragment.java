@@ -361,58 +361,7 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
                                                         if (documentSnapshot != null && error == null) {
                                                             Note note = documentSnapshot.toObject(Note.class);
                                                             if (note != null) {
-                                                                note.setNote_doc_ID(documentSnapshot.getId());
-                                                                note.setNote_position(noteDetails.getNote_position());
-                                                                note.setNote_background_color(noteDetails.getNote_background_color());
-                                                                if (noteList.contains(note)) {
-
-                                                                    int indexOfCurrentNote = noteList.indexOf(note);
-                                                                    if (note.getDeleted()) {
-                                                                        noteList.remove(note);
-                                                                        Log.d(TAG, "onEvent: note deleted, removing");
-                                                                        staggeredRecyclerViewAdapter.notifyItemRemoved(indexOfCurrentNote);
-                                                                    } else {
-                                                                        //Check if note are different
-                                                                        if (NotesUtils.checkIfNotesAreDifferent(note, noteList.get(indexOfCurrentNote))) {
-                                                                            noteList.set(indexOfCurrentNote, note);
-                                                                            staggeredRecyclerViewAdapter.notifyItemChanged(indexOfCurrentNote);
-                                                                            Log.d(TAG, "onEvent: note changed, notifying");
-
-                                                                        } else if (checkIfBackgroundIsChanged(note, noteList.get(indexOfCurrentNote))) {
-                                                                            //Notes are the same, user just changed color
-                                                                            staggeredRecyclerViewAdapter.unhighlightViewHolder(recyclerView.getChildViewHolder(recyclerView
-                                                                                    .getChildAt(indexOfCurrentNote)), note.getNote_background_color());
-
-                                                                            //Change the note background color for the current user in the notes list
-                                                                            noteList.get(noteList.indexOf(note)).setNote_background_color(note.getNote_background_color());
-
-                                                                        } else if (checkIfPositionIsChanged(note, noteList.get(indexOfCurrentNote))) {
-                                                                            //Change the note position for the current user in the notes list
-                                                                            noteList.get(noteList.indexOf(note)).setNote_position(note.getNote_position());
-                                                                        }
-                                                                        //If user is no longer collaborator, remove note
-                                                                        if (!note.getUsers().contains(FirebaseAuth.getInstance().getCurrentUser().getEmail())) {
-                                                                            noteList.remove(note);
-                                                                            staggeredRecyclerViewAdapter.notifyItemRemoved(indexOfCurrentNote);
-                                                                            Log.d(TAG, "onEvent: user no longer collab + removing ");
-                                                                        }
-                                                                    }
-                                                                } else { //Notes list does not contain this note
-                                                                    if (!note.getDeleted()) {
-                                                                        if (note.getNote_position() != null
-                                                                                && noteList.size() >= note.getNote_position()) {
-                                                                            noteList.add(note.getNote_position(), note);
-                                                                            staggeredRecyclerViewAdapter.notifyItemInserted(noteList.indexOf(note));
-                                                                            Log.d(TAG, "onEvent: added note " + note.getNoteTitle() + " at position "
-                                                                                    + note.getNote_position());
-                                                                        } else {
-                                                                            noteList.add(note);
-                                                                            staggeredRecyclerViewAdapter.notifyItemInserted(noteList.size() - 1);
-                                                                            Log.d(TAG, "onEvent: added note default " + note.getNoteTitle() + " at position " + (noteList.size() - 1) +
-                                                                                    " actual note position " + note.getNote_position());
-                                                                        }
-                                                                    }
-                                                                }
+                                                                handleNoteEvent(documentSnapshot, note, noteDetails);
                                                             }
                                                         }
                                                     }
@@ -425,6 +374,61 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
                             }
                         }
                     });
+        }
+    }
+
+    private void handleNoteEvent(@NonNull DocumentSnapshot documentSnapshot, Note note, NoteDetails noteDetails) {
+        note.setNote_doc_ID(documentSnapshot.getId());
+        note.setNote_position(noteDetails.getNote_position());
+        note.setNote_background_color(noteDetails.getNote_background_color());
+        if (noteList.contains(note)) {
+
+            int indexOfCurrentNote = noteList.indexOf(note);
+            if (note.getDeleted()) {
+                noteList.remove(note);
+                Log.d(TAG, "onEvent: note deleted, removing");
+                staggeredRecyclerViewAdapter.notifyItemRemoved(indexOfCurrentNote);
+            } else {
+                //Check if note are different
+                if (NotesUtils.checkIfNotesAreDifferent(note, noteList.get(indexOfCurrentNote))) {
+                    noteList.set(indexOfCurrentNote, note);
+                    staggeredRecyclerViewAdapter.notifyItemChanged(indexOfCurrentNote);
+                    Log.d(TAG, "onEvent: note changed, notifying");
+
+                } else if (checkIfBackgroundIsChanged(note, noteList.get(indexOfCurrentNote))) {
+                    //Notes are the same, user just changed color
+                    staggeredRecyclerViewAdapter.unhighlightViewHolder(recyclerView.getChildViewHolder(recyclerView
+                            .getChildAt(indexOfCurrentNote)), note.getNote_background_color());
+
+                    //Change the note background color for the current user in the notes list
+                    noteList.get(noteList.indexOf(note)).setNote_background_color(note.getNote_background_color());
+
+                } else if (checkIfPositionIsChanged(note, noteList.get(indexOfCurrentNote))) {
+                    //Change the note position for the current user in the notes list
+                    noteList.get(noteList.indexOf(note)).setNote_position(note.getNote_position());
+                }
+                //If user is no longer collaborator, remove note
+                if (!note.getUsers().contains(FirebaseAuth.getInstance().getCurrentUser().getEmail())) {
+                    noteList.remove(note);
+                    staggeredRecyclerViewAdapter.notifyItemRemoved(indexOfCurrentNote);
+                    Log.d(TAG, "onEvent: user no longer collab + removing ");
+                }
+            }
+        } else { //Notes list does not contain this note
+            if (!note.getDeleted()) {
+                if (note.getNote_position() != null
+                        && noteList.size() >= note.getNote_position()) {
+                    noteList.add(note.getNote_position(), note);
+                    staggeredRecyclerViewAdapter.notifyItemInserted(noteList.indexOf(note));
+                    Log.d(TAG, "onEvent: added note " + note.getNoteTitle() + " at position "
+                            + note.getNote_position());
+                } else {
+                    noteList.add(note);
+                    staggeredRecyclerViewAdapter.notifyItemInserted(noteList.size() - 1);
+                    Log.d(TAG, "onEvent: added note default " + note.getNoteTitle() + " at position " + (noteList.size() - 1) +
+                            " actual note position " + note.getNote_position());
+                }
+            }
         }
     }
 
@@ -482,8 +486,6 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
                         Log.d(TAG, "updateNotesPositions: updated user note position " + note.getNoteTitle() + " " + note.getNote_position());
                     }
                 });
-            } else {
-                Log.d(TAG, "updateNotesPositions: note position: " + note.getNote_position() + " note list pos: " + noteList.indexOf(note));
             }
         }
     }

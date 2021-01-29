@@ -22,7 +22,7 @@ public class App extends Application {
     public static final int TIMES_TO_OPEN_APP_TO_ASK_FOR_SUPPORT_AD = 7;
     public static final int MAX_HOME_CHECKBOX_NUMBER = 5;
     public static final int MAX_HOME_COLLABORATORS_PICTURES = 5;
-    public static final int TRANSITION_DURATION = 250;
+    public static final int TRANSITION_DURATION = 200;
 
 
     @Override

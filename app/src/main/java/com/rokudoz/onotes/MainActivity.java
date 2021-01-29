@@ -115,7 +115,6 @@ public class MainActivity extends AppCompatActivity {
             public void onRewardedAdFailedToLoad(LoadAdError loadAdError) {
                 // Ad failed to load.
                 super.onRewardedAdFailedToLoad(loadAdError);
-                Toast.makeText(MainActivity.this, "FailedToLoad " + loadAdError.toString(), Toast.LENGTH_SHORT).show();
                 Log.d(TAG, "onRewardedAdFailedToLoad: Ad failed to load: " + loadAdError.toString());
                 failedToLoadAdCounter++;
                 if (failedToLoadAdCounter < 10)
@@ -175,7 +174,6 @@ public class MainActivity extends AppCompatActivity {
                                 @Override
                                 public void onRewardedAdFailedToShow(AdError adError) {
                                     // Ad failed to display.
-                                    Toast.makeText(MainActivity.this, "FailedToShow", Toast.LENGTH_SHORT).show();
                                     Log.d(TAG, "onRewardedAdFailedToShow: " + adError.getMessage());
                                     dialog.cancel();
                                 }
