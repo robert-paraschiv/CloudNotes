@@ -37,6 +37,7 @@ import static com.rokudoz.onotes.App.HIDE_BANNER;
 public class NoteEditsFragment extends Fragment implements NoteEditsAdapter.OnItemClickListener {
 
     private String noteID = "";
+    private Integer notePosition;
     private String noteColor = "";
     private Boolean note_has_collaborators = false;
     private View view;
@@ -67,6 +68,7 @@ public class NoteEditsFragment extends Fragment implements NoteEditsAdapter.OnIt
             noteID = noteEditsFragmentArgs.getNoteID();
             noteColor = noteEditsFragmentArgs.getNoteColor();
             note_has_collaborators = noteEditsFragmentArgs.getNoteHasCollaborators();
+            notePosition = noteEditsFragmentArgs.getNotePosition();
             getNotes(noteID);
         }
         recyclerView = view.findViewById(R.id.noteEditsFragment_recyclerView);
@@ -181,6 +183,6 @@ public class NoteEditsFragment extends Fragment implements NoteEditsAdapter.OnIt
         Note note = noteList.get(position);
         if (Objects.requireNonNull(Navigation.findNavController(view).getCurrentDestination()).getId() == R.id.noteEditsFragment)
             Navigation.findNavController(view).navigate(NoteEditsFragmentDirections
-                    .actionNoteEditsFragmentToViewNoteEditFragment(noteID, note.getNote_doc_ID(), noteColor));
+                    .actionNoteEditsFragmentToViewNoteEditFragment(noteID, notePosition, note.getNote_doc_ID(), noteColor));
     }
 }

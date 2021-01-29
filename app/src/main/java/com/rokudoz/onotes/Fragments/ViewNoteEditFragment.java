@@ -63,6 +63,7 @@ public class ViewNoteEditFragment extends Fragment {
 
 
     String noteID = "";
+    Integer notePosition;
     String noteColor = "";
     String note_edit_ID = "";
 
@@ -119,6 +120,7 @@ public class ViewNoteEditFragment extends Fragment {
             noteID = viewNoteEditFragmentArgs.getNoteID();
             note_edit_ID = viewNoteEditFragmentArgs.getNoteEditID();
             noteColor = viewNoteEditFragmentArgs.getNoteColor();
+            notePosition = viewNoteEditFragmentArgs.getNotePosition();
             getNote(noteID);
         }
 
@@ -241,7 +243,7 @@ public class ViewNoteEditFragment extends Fragment {
                                                             Navigation.findNavController(view).navigate(ViewNoteEditFragmentDirections.
                                                                     actionViewNoteEditFragmentToEditNoteFragment(noteID,
                                                                             originalNote.getNote_background_color(),
-                                                                            originalNote.getNote_position(),
+                                                                            notePosition,
                                                                             null
                                                                     ));
                                                         }

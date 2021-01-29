@@ -96,6 +96,7 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
 
     private String noteType = "text";
     private String noteID = "";
+    private int notePosition;
     private int number_of_edits = 0;
     private final List<CheckableItem> checkableItemList = new ArrayList<>();
     private RecyclerView recyclerView, collaboratorsRV;
@@ -155,7 +156,7 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
         if (getArguments() != null) {
             EditNoteFragmentArgs editNoteFragmentArgs = EditNoteFragmentArgs.fromBundle(getArguments());
             noteID = editNoteFragmentArgs.getNoteDocID();
-            int notePosition = editNoteFragmentArgs.getPosition();
+            notePosition = editNoteFragmentArgs.getPosition();
 
             //Shared element transition
             titleInput.setTransitionName("note_home_title" + notePosition);
@@ -523,6 +524,7 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
                                                 == R.id.editNoteFragment)
                                             Navigation.findNavController(view).navigate(EditNoteFragmentDirections
                                                     .actionEditNoteFragmentToNoteEditsFragment(noteID,
+                                                            notePosition,
                                                             mNote.getNote_background_color(),
                                                             hasCollaborators));
                                     }
