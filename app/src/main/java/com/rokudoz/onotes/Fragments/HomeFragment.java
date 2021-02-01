@@ -487,6 +487,7 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
                     }
                 });
             }
+//            Log.d(TAG, "updateNotesPositions: notePos " + note.getNote_position() + " list pos " + noteList.indexOf(note));
         }
     }
 

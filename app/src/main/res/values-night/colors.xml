@@ -33,5 +33,5 @@
     <color name="note_background_color_green">#447146</color>
     <color name="note_background_color_orange">#916640</color>
     <color name="note_background_color_purple">#5B3C81</color>
-
+    <color name="note_background_color_default">#0e0e0e</color>
 </resources>

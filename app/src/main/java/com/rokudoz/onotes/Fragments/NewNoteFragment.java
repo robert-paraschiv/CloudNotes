@@ -339,6 +339,7 @@ public class NewNoteFragment extends Fragment implements CheckableItemAdapter.On
                     noteType, null, "Created", 0, false, mNote.getUsers(), mNote.getCollaboratorList(),
                     Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getEmail(),
                     null);
+            note.setNote_background_color(mNote.getNote_background_color());
 
             if (noteType.equals("text")) {
                 note.setNoteText(Objects.requireNonNull(textInputEditText.getText()).toString());
@@ -366,6 +367,7 @@ public class NewNoteFragment extends Fragment implements CheckableItemAdapter.On
 
                                 //Add initial "edit version"
                                 batch.set(documentReference.collection("Edits").document(), finalNote);
+                                collaboratorsCounter = 0; // Restart Counter
 
                                 for (String email : mNote.getUsers()) {
                                     usersRef.whereEqualTo("email", email).get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
@@ -382,6 +384,7 @@ public class NewNoteFragment extends Fragment implements CheckableItemAdapter.On
                                                             @Override
                                                             public void onSuccess(Void aVoid) {
                                                                 Log.d(TAG, "onSuccess: added note details docs to collaborators ");
+                                                                Log.d(TAG, "onSuccess: note color " + mNote.getNote_background_color());
                                                             }
                                                         });
                                                     }
@@ -463,6 +466,7 @@ public class NewNoteFragment extends Fragment implements CheckableItemAdapter.On
         final WriteBatch batch = db.batch();
         batch.update(noteRef, "users", mNote.getUsers());
         batch.update(noteRef, "collaboratorList", mNote.getCollaboratorList());
+        collaboratorsCounter = 0; // Restart Counter
 
         for (Collaborator collaborator : mNote.getCollaboratorList()) {
             usersRef.document(collaborator.getUser_id()).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
@@ -478,7 +482,7 @@ public class NewNoteFragment extends Fragment implements CheckableItemAdapter.On
                                 batch.commit().addOnSuccessListener(new OnSuccessListener<Void>() {
                                     @Override
                                     public void onSuccess(Void aVoid) {
-                                        Log.d(TAG, "onSuccess: added note details docs to collaborators ");
+                                        Log.d(TAG, "onSuccess: added note details docs to collaborators " + mNote.getNote_background_color());
                                         collaboratorsUpdated = false;
                                     }
                                 });

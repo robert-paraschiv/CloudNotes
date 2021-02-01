@@ -353,16 +353,16 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
 
     private void resetBackgroundColors() {
         if (getActivity() != null) {
-            ColorUtils.resetStatus_NavigationBar_Colors(getActivity());
 
             MaterialCardView cardView = new MaterialCardView(requireContext());
             bottomCard.setBackgroundColor(cardView.getCardBackgroundColor().getDefaultColor());
-            view.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.fragments_background));
-            note_background_color = ContextCompat.getColor(requireContext(), R.color.fragments_background);
+            view.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.note_background_color_default));
+            note_background_color = ContextCompat.getColor(requireContext(), R.color.note_background_color_default);
 
             Window window = requireActivity().getWindow();
             window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
             window.setNavigationBarColor(cardView.getCardBackgroundColor().getDefaultColor());
+            window.setStatusBarColor(ContextCompat.getColor(requireContext(), R.color.note_background_color_default));
         }
     }
 

@@ -33,7 +33,7 @@
     <color name="note_background_color_green">#A5D6A7</color>
     <color name="note_background_color_orange">#FFCC80</color>
     <color name="note_background_color_purple">#CE93D8</color>
-
+    <color name="note_background_color_default">#eaeaea</color>
 
 
 </resources>
