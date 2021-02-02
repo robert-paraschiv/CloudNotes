@@ -82,7 +82,7 @@ public class FCMService extends FirebaseMessagingService implements LifecycleObs
                 R.drawable.ic_notif_icon);
 
         NotificationCompat.Builder notificationBuilder =
-                new NotificationCompat.Builder(this, App.CHANNEL_COLLABORATOR_NOTIFICATION)
+                new NotificationCompat.Builder(this, getString(R.string.default_notification_channel_id))
                         .setSmallIcon(R.drawable.ic_notif_icon)
                         .setLargeIcon(rawBitmap)
                         .setContentTitle(title)

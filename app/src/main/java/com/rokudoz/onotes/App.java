@@ -15,7 +15,6 @@ public class App extends Application {
     private static final String TAG = "App";
     SharedPreferences sharedPreferences;
 
-    public static final String CHANNEL_COLLABORATOR_NOTIFICATION = "Channel_Collaborator_Notification";
     public static final String SETTINGS_PREFS_NAME = "SettingsPrefs";
     public static boolean HIDE_BANNER = false;
     public static boolean ASKED_ALREADY = false;
@@ -46,7 +45,7 @@ public class App extends Application {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             //Messages Channel
             NotificationChannel channel_collaborator_notification = new NotificationChannel(
-                    CHANNEL_COLLABORATOR_NOTIFICATION,
+                    getString(R.string.default_notification_channel_id),
                     "Collaborator notifications channel",
                     NotificationManager.IMPORTANCE_HIGH
             );

@@ -602,7 +602,8 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
             public void onClick(View v) {
                 progressBar.setVisibility(View.VISIBLE);
                 retrievedNote = false;
-                mNote.getCheckableItemList().clear();
+                if (mNote.getCheckableItemList() != null)
+                    mNote.getCheckableItemList().clear();
                 getNote(noteID);
                 dialog.cancel();
             }
