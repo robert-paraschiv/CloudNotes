@@ -408,7 +408,7 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
                     noteList.get(noteList.indexOf(note)).setNote_position(note.getNote_position());
                 }
                 //If user is no longer collaborator, remove note
-                if (!note.getUsers().contains(FirebaseAuth.getInstance().getCurrentUser().getEmail())) {
+                if (!note.getUsers().contains(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getEmail())) {
                     noteList.remove(note);
                     staggeredRecyclerViewAdapter.notifyItemRemoved(indexOfCurrentNote);
                     Log.d(TAG, "onEvent: user no longer collab + removing ");

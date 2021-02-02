@@ -5,6 +5,7 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Build;
 import android.util.Log;
@@ -77,9 +78,13 @@ public class FCMService extends FirebaseMessagingService implements LifecycleObs
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0 /* Request code */, intent,
                 PendingIntent.FLAG_ONE_SHOT);
 
+        Bitmap rawBitmap = BitmapFactory.decodeResource(getResources(),
+                R.drawable.ic_notif_icon);
+
         NotificationCompat.Builder notificationBuilder =
                 new NotificationCompat.Builder(this, App.CHANNEL_COLLABORATOR_NOTIFICATION)
-                        .setSmallIcon(R.mipmap.ic_launcher_foreground)
+                        .setSmallIcon(R.drawable.ic_notif_icon)
+                        .setLargeIcon(rawBitmap)
                         .setContentTitle(title)
                         .setContentText(body)
                         .setPriority(NotificationCompat.PRIORITY_HIGH)
