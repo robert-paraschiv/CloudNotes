@@ -71,7 +71,6 @@ import de.hdodenhof.circleimageview.CircleImageView;
 import static android.content.Context.MODE_PRIVATE;
 import static com.rokudoz.onotes.App.HIDE_BANNER;
 import static com.rokudoz.onotes.App.SETTINGS_PREFS_NAME;
-import static com.rokudoz.onotes.App.TRANSITION_DURATION;
 
 public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClickListener {
     private static final String TAG = "HomeFragment";
@@ -181,7 +180,7 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
             setupFirebaseAuth();
 
             setExitTransition(TransitionInflater.from(getActivity()).inflateTransition(R.transition.grid_exit_transition)
-                    .setDuration(TRANSITION_DURATION)); // EXIT transition duration must be equal to other fragment Enter transition duration
+                    .setDuration(getResources().getInteger(R.integer.transition_home_edit_duration))); // EXIT transition duration must be equal to other fragment Enter transition duration
 
         } else {
             Log.d(TAG, "onCreateView: VIEW NOT NULL");

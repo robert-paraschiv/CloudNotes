@@ -59,7 +59,7 @@ public class FullBottomSheetDialogFragment extends BottomSheetDialogFragment imp
 //        final BottomSheetDialog dialog = (BottomSheetDialog) super.onCreateDialog(savedInstanceState);
         final BottomSheetDialog dialog = new BottomSheetDialog(requireContext(), R.style.CustomBottomSheetDialogTheme);
         //Don't allow dialog to dim background (status bar, nav bar etc)
-        Objects.requireNonNull(dialog.getWindow()).setDimAmount(0);
+//        Objects.requireNonNull(dialog.getWindow()).setDimAmount(0);
 
         final View view = getLayoutInflater().inflate(R.layout.dialog_collaborators, null);
         recyclerView = view.findViewById(R.id.dialog_collaborators_rv);

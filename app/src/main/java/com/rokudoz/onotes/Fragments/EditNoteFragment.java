@@ -37,6 +37,7 @@ import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
@@ -70,7 +71,6 @@ import java.util.Objects;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
-import static com.rokudoz.onotes.App.TRANSITION_DURATION;
 import static com.rokudoz.onotes.Utils.NotesUtils.NOTES_DETAILS;
 import static com.rokudoz.onotes.Utils.NotesUtils.NOTE_TYPE_TEXT;
 import static com.rokudoz.onotes.Utils.NotesUtils.getCheckboxNoteChanges;
@@ -198,8 +198,8 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
         if (mNote.getNoteTitle() != null)
             progressBar.setVisibility(View.GONE);
 
-        setSharedElementEnterTransition(TransitionInflater.from(getActivity()).inflateTransition(R.transition.move)
-                        .setDuration(TRANSITION_DURATION)  // Enter transition duration must be equal to other fragment Exit transition duration
+        setSharedElementEnterTransition(TransitionInflater.from(getActivity()).inflateTransition(R.transition.image_shared_element_transition)
+                        .setDuration(getResources().getInteger(R.integer.transition_home_edit_duration))  // Enter transition duration must be equal to other fragment Exit transition duration
 //                .excludeTarget(R.id.editNoteFragment_toolbar, true)
 //                .excludeTarget(R.id.editNoteFragment_bottomCard, true)
 //                .excludeTarget(R.id.editNoteFragment_titleEditText, true)
@@ -782,24 +782,17 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
         List<Collaborator> collaboratorList = new ArrayList<>();
 
         //if note has no collaborators yet, add the current user
-        if (mNote.getCollaboratorList() == null) {
-            collaboratorList.add(new Collaborator(
-                    Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid(),
-                    Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getEmail(),
-                    Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getDisplayName(),
-                    Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser().getPhotoUrl()).toString(), true));
-            mNote.setCollaboratorList(collaboratorList);
-        } else if (mNote.getCollaboratorList().size() == 0) {
-            collaboratorList.add(new Collaborator(
-                    Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid(),
-                    Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getEmail(),
-                    Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getDisplayName(),
-                    Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser().getPhotoUrl()).toString(), true));
-            mNote.setCollaboratorList(collaboratorList);
-        } else {
-            collaboratorList.addAll(mNote.getCollaboratorList());
-        }
+        if (FirebaseAuth.getInstance().getCurrentUser() != null) {
+            FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
 
+            if (mNote.getCollaboratorList() == null || mNote.getCollaboratorList().size() == 0) {
+                collaboratorList.add(new Collaborator(firebaseUser.getUid(), firebaseUser.getEmail(), firebaseUser.getDisplayName(),
+                        firebaseUser.getPhotoUrl().toString(), true));
+                mNote.setCollaboratorList(collaboratorList);
+            } else {
+                collaboratorList.addAll(mNote.getCollaboratorList());
+            }
+        }
         FullBottomSheetDialogFragment fullBottomSheetDialogFragment =
                 new FullBottomSheetDialogFragment(note_background_color, collaboratorList, isOwner);
 //        fullBottomSheetDialogFragment.setCancelable(false);
