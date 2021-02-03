@@ -66,7 +66,7 @@ public class FullBottomSheetDialogFragment extends BottomSheetDialogFragment imp
 
         buildRecyclerView();
 
-        view.setBackgroundColor(backgroundColor);
+//        view.setBackgroundColor(backgroundColor);
 
 
         dialog.setOnShowListener(new DialogInterface.OnShowListener() {

@@ -130,7 +130,7 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.fragment_edit_note, container, false);
 
-//        postponeEnterTransition();
+        postponeEnterTransition();
         currentUserCollaborator.setUser_email(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getEmail());
 
         textInput = view.findViewById(R.id.editNoteFragment_textEditText);
@@ -159,17 +159,18 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
             notePosition = editNoteFragmentArgs.getPosition();
 
             //Shared element transition
-            titleInput.setTransitionName("note_home_title" + notePosition);
-            textInput.setTransitionName("note_home_text" + notePosition);
-            collaboratorsRV.setTransitionName("note_home_collaborators" + notePosition);
-            recyclerView.setTransitionName("note_home_checkbox" + notePosition);
-            rootLayout.setTransitionName(editNoteFragmentArgs.getTransitionName());
+            titleInput.setTransitionName("note_home_title" + editNoteFragmentArgs.getNoteDocID());
+            textInput.setTransitionName("note_home_text" + editNoteFragmentArgs.getNoteDocID());
+            collaboratorsRV.setTransitionName("note_home_collaborators" + editNoteFragmentArgs.getNoteDocID());
+            recyclerView.setTransitionName("note_home_checkbox" + editNoteFragmentArgs.getNoteDocID());
+            rootLayout.setTransitionName(editNoteFragmentArgs.getNoteDocID());
 
-            Log.d(TAG, "onCreateView: note position " + notePosition);
+            Log.d(TAG, "onCreateView: note_home_title " + titleInput.getTransitionName());
             mNote.setNote_background_color(editNoteFragmentArgs.getNoteColor());
             note_background_colorName = editNoteFragmentArgs.getNoteColor();
             setupBackgroundColor(editNoteFragmentArgs.getNoteColor());
             getNote(noteID);
+//            startPostponedEnterTransition();
         }
 
         //Hide Banner Ad
@@ -198,9 +199,13 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
             progressBar.setVisibility(View.GONE);
 
         setSharedElementEnterTransition(TransitionInflater.from(getActivity()).inflateTransition(R.transition.move)
-                .setDuration(TRANSITION_DURATION)  // Enter transition duration must be equal to other fragment Exit transition duration
-                .excludeTarget(R.id.editNoteFragment_toolbar, true)
-                .excludeTarget(R.id.editNoteFragment_bottomCard, true));
+                        .setDuration(TRANSITION_DURATION)  // Enter transition duration must be equal to other fragment Exit transition duration
+//                .excludeTarget(R.id.editNoteFragment_toolbar, true)
+//                .excludeTarget(R.id.editNoteFragment_bottomCard, true)
+//                .excludeTarget(R.id.editNoteFragment_titleEditText, true)
+//                .excludeTarget(R.id.editNoteFragment_textEditText, true)
+//                .excludeTarget(R.id.editNoteFragment_collaboratorsRV, true)
+        );
 
         return view;
     }
@@ -1109,4 +1114,3 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
         showCollaboratorsDialog();
     }
 }
-

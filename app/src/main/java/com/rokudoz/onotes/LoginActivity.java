@@ -86,6 +86,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         int i = v.getId();
         if (i == R.id.signInButton) {
             progressBar.setVisibility(View.VISIBLE);
+            findViewById(R.id.signInButton).setEnabled(false);
             signIn();
         }
     }
@@ -94,7 +95,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-
+        findViewById(R.id.signInButton).setEnabled(true);
         // Result returned from launching the Intent from GoogleSignInApi.getSignInIntent(...);
         if (requestCode == RC_SIGN_IN) {
             Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);

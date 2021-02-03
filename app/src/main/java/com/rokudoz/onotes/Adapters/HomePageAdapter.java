@@ -29,7 +29,7 @@ import static com.rokudoz.onotes.App.MAX_HOME_COLLABORATORS_PICTURES;
 
 public class HomePageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> implements Filterable {
 
-    private static final String TAG = "StaggeredRecyclerViewAd";
+    private static final String TAG = "HomePageAdapter";
     private OnItemClickListener mListener;
     private List<Note> noteList;
     private final List<Note> selected = new ArrayList<>();
@@ -255,6 +255,11 @@ public class HomePageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         currentUserCollaborator.setUser_email(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getEmail());
 
         holder.relativeLayout.setTransitionName(currentItem.getNote_doc_ID());
+        holder.noteTitle.setTransitionName("note_home_title" + currentItem.getNote_doc_ID());
+        holder.noteText.setTransitionName("note_home_text" + currentItem.getNote_doc_ID());
+        holder.collaboratorsRv.setTransitionName("note_home_collaborators" + currentItem.getNote_doc_ID());
+
+        Log.d(TAG, "populateTextViewHolder: title "+currentItem.getNoteTitle() + " id "+currentItem.getNote_doc_ID());
 
         if (currentItem.getNoteText() != null)
             holder.noteText.setText(currentItem.getNoteText());
@@ -297,6 +302,10 @@ public class HomePageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         currentUserCollaborator.setUser_email(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getEmail());
 
         holder.relativeLayout.setTransitionName(currentItem.getNote_doc_ID());
+        holder.noteTitle.setTransitionName("note_home_title" + currentItem.getNote_doc_ID());
+        holder.recyclerView.setTransitionName("note_home_checkbox" + currentItem.getNote_doc_ID());
+        holder.collaboratorsRv.setTransitionName("note_home_collaborators" + currentItem.getNote_doc_ID());
+
 
         //Setup note background
         if (selected.contains(currentItem)) {

@@ -182,6 +182,7 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
 
             setExitTransition(TransitionInflater.from(getActivity()).inflateTransition(R.transition.grid_exit_transition)
                     .setDuration(TRANSITION_DURATION)); // EXIT transition duration must be equal to other fragment Enter transition duration
+
         } else {
             Log.d(TAG, "onCreateView: VIEW NOT NULL");
         }
@@ -361,7 +362,8 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
                                                         if (documentSnapshot != null && error == null) {
                                                             Note note = documentSnapshot.toObject(Note.class);
                                                             if (note != null) {
-                                                                handleNoteEvent(documentSnapshot, note, noteDetails);
+                                                                note.setNote_doc_ID(documentSnapshot.getId());
+                                                                handleNoteEvent(note, noteDetails);
                                                             }
                                                         }
                                                     }
@@ -377,8 +379,7 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
         }
     }
 
-    private void handleNoteEvent(@NonNull DocumentSnapshot documentSnapshot, Note note, NoteDetails noteDetails) {
-        note.setNote_doc_ID(documentSnapshot.getId());
+    private void handleNoteEvent(Note note, NoteDetails noteDetails) {
         note.setNote_position(noteDetails.getNote_position());
         note.setNote_background_color(noteDetails.getNote_background_color());
         if (noteList.contains(note)) {
@@ -402,10 +403,12 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
 
                     //Change the note background color for the current user in the notes list
                     noteList.get(noteList.indexOf(note)).setNote_background_color(note.getNote_background_color());
+                    Log.d(TAG, "handleNoteEvent: note background color changed");
 
                 } else if (checkIfPositionIsChanged(note, noteList.get(indexOfCurrentNote))) {
                     //Change the note position for the current user in the notes list
                     noteList.get(noteList.indexOf(note)).setNote_position(note.getNote_position());
+                    Log.d(TAG, "handleNoteEvent: note position changed");
                 }
                 //If user is no longer collaborator, remove note
                 if (!note.getUsers().contains(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getEmail())) {
@@ -707,41 +710,33 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
         if (actionMode == null) {
             Note note = noteList.get(position);
             if (Objects.requireNonNull(Navigation.findNavController(view).getCurrentDestination()).getId() == R.id.homeFragment) {
-                FragmentNavigator.Extras extras = null;
-//                Log.d(TAG, "onCreateView: note position " + position);
+
+                FragmentNavigator.Extras.Builder builder = new FragmentNavigator.Extras.Builder();
+                builder.addSharedElement(title, title.getTransitionName())
+                        .addSharedElement(collaboratorsRv, collaboratorsRv.getTransitionName())
+                        .addSharedElement(rootLayout, rootLayout.getTransitionName());
 
                 if (checkboxRv == null && text != null) {
-                    extras = new FragmentNavigator.Extras.Builder()
-//                            .addSharedElement(title, title.getTransitionName())
-//                            .addSharedElement(text, text.getTransitionName())
-//                            .addSharedElement(collaboratorsRv, collaboratorsRv.getTransitionName())
-                            .addSharedElement(rootLayout, rootLayout.getTransitionName())
-                            .build();
+                    builder.addSharedElement(text, text.getTransitionName());
 //                    Log.d(TAG, "onItemClick: CHECKBOX NULL");
 
                 } else if (checkboxRv != null && text == null) {
-                    extras = new FragmentNavigator.Extras.Builder()
-//                            .addSharedElement(title, title.getTransitionName())
-//                            .addSharedElement(checkboxRv, checkboxRv.getTransitionName())
-//                            .addSharedElement(collaboratorsRv, collaboratorsRv.getTransitionName())
-                            .addSharedElement(rootLayout, rootLayout.getTransitionName())
-                            .build();
+                    builder.addSharedElement(checkboxRv, checkboxRv.getTransitionName());
 //                    Log.d(TAG, "onItemClick: TEXT NULL");
-
                 }
-                Log.d(TAG, "onItemClick: " + note.getNote_background_color());
+
+                FragmentNavigator.Extras extras = builder.build();
+                Log.d(TAG, "onItemClick: " + title.getTransitionName());
 
                 NavDirections navDirections = HomeFragmentDirections
                         .actionHomeFragmentToEditNoteFragment(note.getNote_doc_ID(),
                                 note.getNote_background_color(),
                                 position,
                                 rootLayout.getTransitionName());
-                if (extras != null) {
-//                    Log.d(TAG, "onItemClick: extras not null");
-                    Navigation.findNavController(view).navigate(navDirections, extras);
-                }
-            }
 
+                Navigation.findNavController(view).navigate(navDirections, extras);
+
+            }
 
         } else {
             if (selected == 0) {
