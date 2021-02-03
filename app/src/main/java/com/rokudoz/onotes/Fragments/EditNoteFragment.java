@@ -163,7 +163,7 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
             textInput.setTransitionName("note_home_text" + editNoteFragmentArgs.getNoteDocID());
             collaboratorsRV.setTransitionName("note_home_collaborators" + editNoteFragmentArgs.getNoteDocID());
             recyclerView.setTransitionName("note_home_checkbox" + editNoteFragmentArgs.getNoteDocID());
-            rootLayout.setTransitionName(editNoteFragmentArgs.getNoteDocID());
+            rootLayout.setTransitionName("note_home_rootLayout" + editNoteFragmentArgs.getNoteDocID());
 
             Log.d(TAG, "onCreateView: note_home_title " + titleInput.getTransitionName());
             mNote.setNote_background_color(editNoteFragmentArgs.getNoteColor());

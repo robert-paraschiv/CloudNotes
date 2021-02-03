@@ -254,12 +254,12 @@ public class HomePageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         final Collaborator currentUserCollaborator = new Collaborator();
         currentUserCollaborator.setUser_email(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getEmail());
 
-        holder.relativeLayout.setTransitionName(currentItem.getNote_doc_ID());
+        holder.relativeLayout.setTransitionName("note_home_rootLayout" + currentItem.getNote_doc_ID());
         holder.noteTitle.setTransitionName("note_home_title" + currentItem.getNote_doc_ID());
         holder.noteText.setTransitionName("note_home_text" + currentItem.getNote_doc_ID());
         holder.collaboratorsRv.setTransitionName("note_home_collaborators" + currentItem.getNote_doc_ID());
 
-        Log.d(TAG, "populateTextViewHolder: title "+currentItem.getNoteTitle() + " id "+currentItem.getNote_doc_ID());
+        Log.d(TAG, "populateTextViewHolder: title " + currentItem.getNoteTitle() + " id " + currentItem.getNote_doc_ID());
 
         if (currentItem.getNoteText() != null)
             holder.noteText.setText(currentItem.getNoteText());
@@ -301,7 +301,7 @@ public class HomePageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         final Collaborator currentUserCollaborator = new Collaborator();
         currentUserCollaborator.setUser_email(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getEmail());
 
-        holder.relativeLayout.setTransitionName(currentItem.getNote_doc_ID());
+        holder.relativeLayout.setTransitionName("note_home_rootLayout" + currentItem.getNote_doc_ID());
         holder.noteTitle.setTransitionName("note_home_title" + currentItem.getNote_doc_ID());
         holder.recyclerView.setTransitionName("note_home_checkbox" + currentItem.getNote_doc_ID());
         holder.collaboratorsRv.setTransitionName("note_home_collaborators" + currentItem.getNote_doc_ID());
