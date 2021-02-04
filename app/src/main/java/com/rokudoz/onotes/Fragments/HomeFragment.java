@@ -38,6 +38,8 @@ import com.bumptech.glide.Glide;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.transition.Hold;
+import com.google.android.material.transition.MaterialFadeThrough;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
@@ -114,7 +116,7 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
-        //This fixes crash occurring if you click on some note and then press back fast, before enter animation finishes
+//        This fixes crash occurring if you click on some note and then press back fast, before enter animation finishes
         if (view != null) {
             ViewGroup parent = (ViewGroup) view.getParent();
             if (parent != null) {
@@ -137,30 +139,21 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
             sharedPreferences = requireActivity().getSharedPreferences(SETTINGS_PREFS_NAME, MODE_PRIVATE);
             sharedPrefsEditor = requireActivity().getSharedPreferences(SETTINGS_PREFS_NAME, MODE_PRIVATE).edit();
 
-            postponeEnterTransition();
-            recyclerView.getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
-                @Override
-                public boolean onPreDraw() {
-                    recyclerView.getViewTreeObserver().removeOnPreDrawListener(this);
-                    startPostponedEnterTransition();
-                    return true;
-                }
-            });
 
-            searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-                @Override
-                public boolean onQueryTextSubmit(String query) {
-                    staggeredRecyclerViewAdapter.getFilter().filter(query);
-                    searchView.clearFocus();
-                    return false;
-                }
-
-                @Override
-                public boolean onQueryTextChange(String newText) {
-                    staggeredRecyclerViewAdapter.getFilter().filter(newText);
-                    return false;
-                }
-            });
+//            searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+//                @Override
+//                public boolean onQueryTextSubmit(String query) {
+//                    staggeredRecyclerViewAdapter.getFilter().filter(query);
+//                    searchView.clearFocus();
+//                    return false;
+//                }
+//
+//                @Override
+//                public boolean onQueryTextChange(String newText) {
+//                    staggeredRecyclerViewAdapter.getFilter().filter(newText);
+//                    return false;
+//                }
+//            });
 
             materialToolbar = view.findViewById(R.id.homeFragment_toolbar);
 
@@ -179,8 +172,10 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
             buildRecyclerView();
             setupFirebaseAuth();
 
-            setExitTransition(TransitionInflater.from(getActivity()).inflateTransition(R.transition.grid_exit_transition)
-                    .setDuration(getResources().getInteger(R.integer.transition_home_edit_duration))); // EXIT transition duration must be equal to other fragment Enter transition duration
+            setExitTransition(new Hold().setDuration(getResources().getInteger(R.integer.transition_home_edit_duration)));
+            setReenterTransition(new Hold().setDuration(getResources().getInteger(R.integer.transition_home_edit_duration)));
+//            setExitTransition(TransitionInflater.from(getActivity()).inflateTransition(R.transition.grid_exit_transition)
+//                    .setDuration(getResources().getInteger(R.integer.transition_home_edit_duration))); // EXIT transition duration must be equal to other fragment Enter transition duration
 
         } else {
             Log.d(TAG, "onCreateView: VIEW NOT NULL");
@@ -239,6 +234,22 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
         }
 
         return view;
+    }
+
+    @Override
+    public void onViewCreated(@NonNull final View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        postponeEnterTransition();
+
+        if (recyclerView != null)
+            recyclerView.getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
+                @Override
+                public boolean onPreDraw() {
+                    recyclerView.getViewTreeObserver().removeOnPreDrawListener(this);
+                    startPostponedEnterTransition();
+                    return true;
+                }
+            });
     }
 
     private void buildRecyclerView() {
@@ -338,8 +349,7 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
         FirebaseAuth.getInstance().addAuthStateListener(mAuthListener);
 
         if (FirebaseAuth.getInstance().getCurrentUser() != null) {
-            getNotes();
-            getUserInfo();
+
         }
     }
 
@@ -542,8 +552,11 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
                     if (user.isEmailVerified()) {
                         // DO STUFF
 
-                        if (FirebaseAuth.getInstance().getCurrentUser() != null)
+                        if (FirebaseAuth.getInstance().getCurrentUser() != null) {
                             currentUserCollaborator.setUser_email(FirebaseAuth.getInstance().getCurrentUser().getEmail());
+                            getNotes();
+                            getUserInfo();
+                        }
 //                        Log.d(TAG, "onAuthStateChanged: MAIL VERIFIED");
                     } else {
                         Toast.makeText(getActivity(), "Email is not Verified\nCheck your Inbox", Toast.LENGTH_SHORT).show();
@@ -711,18 +724,21 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
             if (Objects.requireNonNull(Navigation.findNavController(view).getCurrentDestination()).getId() == R.id.homeFragment) {
 
                 FragmentNavigator.Extras.Builder builder = new FragmentNavigator.Extras.Builder();
-                builder.addSharedElement(title, title.getTransitionName())
-                        .addSharedElement(collaboratorsRv, collaboratorsRv.getTransitionName())
-                        .addSharedElement(rootLayout, rootLayout.getTransitionName());
+                builder.addSharedElement(rootLayout, rootLayout.getTransitionName())
+//                        .addSharedElement(title, title.getTransitionName())
+//                        .addSharedElement(collaboratorsRv, collaboratorsRv.getTransitionName())
+                ;
+
 
                 if (checkboxRv == null && text != null) {
-                    builder.addSharedElement(text, text.getTransitionName());
+//                    builder.addSharedElement(text, text.getTransitionName());
 //                    Log.d(TAG, "onItemClick: CHECKBOX NULL");
 
                 } else if (checkboxRv != null && text == null) {
-                    builder.addSharedElement(checkboxRv, checkboxRv.getTransitionName());
+//                    builder.addSharedElement(checkboxRv, checkboxRv.getTransitionName());
 //                    Log.d(TAG, "onItemClick: TEXT NULL");
                 }
+//                rootLayout.setLayerType(View.LAYER_TYPE_HARDWARE, null);
 
                 FragmentNavigator.Extras extras = builder.build();
                 Log.d(TAG, "onItemClick: " + title.getTransitionName());

@@ -3,12 +3,14 @@ package com.rokudoz.onotes.Fragments;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Dialog;
+import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.view.Window;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
@@ -36,6 +38,8 @@ import com.google.android.material.button.MaterialButton;
 import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.transition.Hold;
+import com.google.android.material.transition.MaterialContainerTransform;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
@@ -129,9 +133,9 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.fragment_edit_note, container, false);
+        currentUserCollaborator.setUser_email(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getEmail());
 
         postponeEnterTransition();
-        currentUserCollaborator.setUser_email(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getEmail());
 
         textInput = view.findViewById(R.id.editNoteFragment_textEditText);
         titleInput = view.findViewById(R.id.editNoteFragment_titleEditText);
@@ -198,17 +202,30 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
         if (mNote.getNoteTitle() != null)
             progressBar.setVisibility(View.GONE);
 
-        setSharedElementEnterTransition(TransitionInflater.from(getActivity()).inflateTransition(R.transition.image_shared_element_transition)
-                        .setDuration(getResources().getInteger(R.integer.transition_home_edit_duration))  // Enter transition duration must be equal to other fragment Exit transition duration
-//                .excludeTarget(R.id.editNoteFragment_toolbar, true)
-//                .excludeTarget(R.id.editNoteFragment_bottomCard, true)
-//                .excludeTarget(R.id.editNoteFragment_titleEditText, true)
-//                .excludeTarget(R.id.editNoteFragment_textEditText, true)
-//                .excludeTarget(R.id.editNoteFragment_collaboratorsRV, true)
-        );
+        MaterialContainerTransform materialContainerTransform = new MaterialContainerTransform();
+        materialContainerTransform.setDuration(getResources().getInteger(R.integer.transition_home_edit_duration));
+        materialContainerTransform.setDrawingViewId(R.id.nav_host_fragment);
+        setSharedElementEnterTransition(materialContainerTransform);
+
+//        setSharedElementEnterTransition(TransitionInflater.from(getActivity()).inflateTransition(R.transition.image_shared_element_transition)
+//                .setDuration(getResources().getInteger(R.integer.transition_home_edit_duration)));
 
         return view;
     }
+
+//    @Override
+//    public void onViewCreated(@NonNull final View vieww, @Nullable Bundle savedInstanceState) {
+//        super.onViewCreated(vieww, savedInstanceState);
+//        postponeEnterTransition();
+//        vieww.getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
+//            @Override
+//            public boolean onPreDraw() {
+//                vieww.getViewTreeObserver().removeOnPreDrawListener(this);
+//                startPostponedEnterTransition();
+//                return true;
+//            }
+//        });
+//    }
 
     private void setupDeleteNoteBtn() {
         deleteBtn.setOnClickListener(new View.OnClickListener() {
@@ -558,6 +575,7 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
                             }
                             //Start enter animation after info retrieved
                             startPostponedEnterTransition();
+//                            view.setLayerType(View.LAYER_TYPE_NONE, null);
                         }
                     } else if (retrievedNote) {
                         if (documentSnapshot != null && e == null) {

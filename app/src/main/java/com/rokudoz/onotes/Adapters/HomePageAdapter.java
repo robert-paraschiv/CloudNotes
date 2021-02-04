@@ -306,6 +306,7 @@ public class HomePageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         holder.recyclerView.setTransitionName("note_home_checkbox" + currentItem.getNote_doc_ID());
         holder.collaboratorsRv.setTransitionName("note_home_collaborators" + currentItem.getNote_doc_ID());
 
+        Log.d(TAG, "populateCheckBoxViewHolder: title " + currentItem.getNoteTitle() + " id " + currentItem.getNote_doc_ID());
 
         //Setup note background
         if (selected.contains(currentItem)) {

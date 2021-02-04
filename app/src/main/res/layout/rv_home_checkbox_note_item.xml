@@ -19,6 +19,7 @@
         android:layout_marginEnd="8dp"
         android:maxLines="1"
         android:textSize="17sp"
+        app:autoSizeTextType="uniform"
         tools:text="Note title here" />
 
     <androidx.recyclerview.widget.RecyclerView
