@@ -177,6 +177,8 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
         note_background_color = ContextCompat.getColor(requireContext(), R.color.fragments_background);
 
 
+
+
         //Hide Banner Ad
         if (getActivity() != null) {
             BannerAdManager bannerAdManager = new BannerAdManager();
@@ -202,11 +204,6 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
         if (mNote.getNoteTitle() != null)
             progressBar.setVisibility(View.GONE);
 
-        return view;
-    }
-
-    @Override
-    public void onViewCreated(@NonNull final View view, @Nullable Bundle savedInstanceState) {
 
         if (getArguments() != null) {
             EditNoteFragmentArgs editNoteFragmentArgs = EditNoteFragmentArgs.fromBundle(getArguments());
@@ -226,6 +223,14 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
             setupBackgroundColor(editNoteFragmentArgs.getNoteColor());
             getNote(noteID);
         }
+
+        return view;
+    }
+
+    @Override
+    public void onViewCreated(@NonNull final View view, @Nullable Bundle savedInstanceState) {
+
+
 
         postponeEnterTransition();
         view.getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {

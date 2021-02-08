@@ -25,7 +25,6 @@ import java.util.List;
 import java.util.Objects;
 
 import static com.rokudoz.onotes.App.MAX_HOME_CHECKBOX_NUMBER;
-import static com.rokudoz.onotes.App.MAX_HOME_COLLABORATORS_PICTURES;
 
 public class HomePageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> implements Filterable {
 
@@ -86,10 +85,10 @@ public class HomePageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                     if (selected.size() > 0) {
                         if (selected.contains(noteList.get(position))) {
                             selected.remove(noteList.get(position));
-                            highlightView(itemView, position, false);
+                            setItemBackgroundColor(itemView, position, false, null);
                         } else {
                             selected.add(noteList.get(position));
-                            highlightView(itemView, position, true);
+                            setItemBackgroundColor(itemView, position, true,null);
                         }
                     }
 
@@ -107,10 +106,10 @@ public class HomePageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                 if (position != RecyclerView.NO_POSITION) {
                     if (selected.contains(noteList.get(position))) {
                         selected.remove(noteList.get(position));
-                        highlightView(itemView, position, false);
+                        setItemBackgroundColor(itemView, position, false,null);
                     } else {
                         selected.add(noteList.get(position));
-                        highlightView(itemView, position, true);
+                        setItemBackgroundColor(itemView, position, true,null);
                     }
                     mListener.onLongItemClick(position);
                 }
@@ -145,10 +144,10 @@ public class HomePageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                             if (selected.size() > 0) {
                                 if (selected.contains(noteList.get(position))) {
                                     selected.remove(noteList.get(position));
-                                    highlightView(itemView, position, false);
+                                    setItemBackgroundColor(itemView, position, false,null);
                                 } else {
                                     selected.add(noteList.get(position));
-                                    highlightView(itemView, position, true);
+                                    setItemBackgroundColor(itemView, position, true,null);
                                 }
                             }
 
@@ -166,10 +165,10 @@ public class HomePageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                         if (position != RecyclerView.NO_POSITION) {
                             if (selected.contains(noteList.get(position))) {
                                 selected.remove(noteList.get(position));
-                                highlightView(itemView, position, false);
+                                setItemBackgroundColor(itemView, position, false,null);
                             } else {
                                 selected.add(noteList.get(position));
-                                highlightView(itemView, position, true);
+                                setItemBackgroundColor(itemView, position, true,null);
                             }
                             mListener.onLongItemClick(position);
                         }
@@ -187,10 +186,10 @@ public class HomePageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                     if (selected.size() > 0) {
                         if (selected.contains(noteList.get(position))) {
                             selected.remove(noteList.get(position));
-                            highlightView(itemView, position, false);
+                            setItemBackgroundColor(itemView, position, false,null);
                         } else {
                             selected.add(noteList.get(position));
-                            highlightView(itemView, position, true);
+                            setItemBackgroundColor(itemView, position, true,null);
                         }
                     }
                     mListener.onItemClick(position, noteTitle, null, recyclerView, collaboratorsRv, relativeLayout);
@@ -205,10 +204,10 @@ public class HomePageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                 if (position != RecyclerView.NO_POSITION) {
                     if (selected.contains(noteList.get(position))) {
                         selected.remove(noteList.get(position));
-                        highlightView(itemView, position, false);
+                        setItemBackgroundColor(itemView, position, false,null);
                     } else {
                         selected.add(noteList.get(position));
-                        highlightView(itemView, position, true);
+                        setItemBackgroundColor(itemView, position, true,null);
                     }
                     mListener.onLongItemClick(position);
                 }
@@ -269,7 +268,7 @@ public class HomePageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             holder.noteTitle.setText(currentItem.getNoteTitle());
 
         //Setup note background
-        highlightView(holder.itemView, position, selected.contains(currentItem));
+        setItemBackgroundColor(holder.itemView, position, selected.contains(currentItem),null);
 
         //Setup collaborators
         if (currentItem.getCollaboratorList() != null && currentItem.getCollaboratorList().size() > 1) {
@@ -298,7 +297,7 @@ public class HomePageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         Log.d(TAG, "populateCheckBoxViewHolder: title " + currentItem.getNoteTitle() + " id " + currentItem.getNote_doc_ID());
 
         //Setup note background
-        highlightView(holder.itemView, position, selected.contains(currentItem));
+        setItemBackgroundColor(holder.itemView, position, selected.contains(currentItem),null);
 
         if (currentItem.getNoteTitle() != null)
             holder.noteTitle.setText(currentItem.getNoteTitle());
@@ -335,37 +334,14 @@ public class HomePageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         }
     }
 
-    public void changeItemBackgroundColor(RecyclerView.ViewHolder holder, String color) {
-        if (color == null || color.equals("")) {
-            holder.itemView.setBackgroundResource(R.drawable.home_note_background);
-        } else
-            switch (color) {
-                case "yellow":
-                    holder.itemView.setBackgroundResource(R.drawable.home_note_background_yellow);
-                    break;
-                case "red":
-                    holder.itemView.setBackgroundResource(R.drawable.home_note_background_red);
-                    break;
-                case "green":
-                    holder.itemView.setBackgroundResource(R.drawable.home_note_background_green);
-                    break;
-                case "blue":
-                    holder.itemView.setBackgroundResource(R.drawable.home_note_background_blue);
-                    break;
-                case "orange":
-                    holder.itemView.setBackgroundResource(R.drawable.home_note_background_orange);
-                    break;
-                case "purple":
-                    holder.itemView.setBackgroundResource(R.drawable.home_note_background_purple);
-                    break;
-            }
-    }
 
-    public void highlightView(View view, int position, boolean highlight) {
+    public void setItemBackgroundColor(View view, int position, boolean highlight, String color) {
         //Get current user collaborator background color details for current note
         Collaborator currentUserCollaborator = new Collaborator();
         currentUserCollaborator.setUser_email(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getEmail());
-        String color = noteList.get(position).getNote_background_color();
+
+        if (color == null)
+            color = noteList.get(position).getNote_background_color();
 
         if (color == null || color.equals("")) {
             if (highlight)

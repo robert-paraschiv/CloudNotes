@@ -4,7 +4,6 @@ import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
@@ -17,14 +16,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.widget.ImageView;
-import android.widget.RelativeLayout;
 import android.widget.SearchView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavDirections;
@@ -34,16 +31,12 @@ import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.StaggeredGridLayoutManager;
-import androidx.transition.TransitionInflater;
 
 import com.bumptech.glide.Glide;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.appbar.MaterialToolbar;
-import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.transition.Hold;
-import com.google.android.material.transition.MaterialElevationScale;
-import com.google.android.material.transition.MaterialFadeThrough;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
@@ -114,6 +107,17 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
 
     public HomeFragment() {
         // Required empty public constructor
+    }
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        Hold hold = new Hold();
+//        hold.setStartDelay(25);
+        hold.setDuration(getResources().getInteger(R.integer.transition_home_edit_duration));
+
+        setExitTransition(hold);
+//                setReenterTransition(hold);
+        super.onCreate(savedInstanceState);
     }
 
     @SuppressLint("CommitPrefEdits")
@@ -239,17 +243,16 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
     @Override
     public void onViewCreated(@NonNull final View view, @Nullable Bundle savedInstanceState) {
         postponeEnterTransition();
+        final ViewGroup viewGroup = (ViewGroup) view.getParent();
+        viewGroup.getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
+            @Override
+            public boolean onPreDraw() {
+                viewGroup.getViewTreeObserver().removeOnPreDrawListener(this);
+                startPostponedEnterTransition();
+                return true;
+            }
+        });
 
-        if (view != null) {
-            view.getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
-                @Override
-                public boolean onPreDraw() {
-                    view.getViewTreeObserver().removeOnPreDrawListener(this);
-                    startPostponedEnterTransition();
-                    return true;
-                }
-            });
-        }
         super.onViewCreated(view, savedInstanceState);
     }
 
@@ -411,8 +414,8 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
                 } else if (checkIfBackgroundIsChanged(note, noteList.get(indexOfCurrentNote))) {
                     //Notes are the same, user just changed color
 
-                    staggeredRecyclerViewAdapter.changeItemBackgroundColor(recyclerView.getChildViewHolder(recyclerView
-                            .getChildAt(indexOfCurrentNote)), note.getNote_background_color());
+                    staggeredRecyclerViewAdapter.setItemBackgroundColor(recyclerView.getChildViewHolder(recyclerView
+                            .getChildAt(indexOfCurrentNote)).itemView, indexOfCurrentNote, false, note.getNote_background_color());
 
                     //Change the note background color for the current user in the notes list
                     noteList.get(noteList.indexOf(note)).setNote_background_color(note.getNote_background_color());
@@ -621,26 +624,9 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
                                 .equals("")) {
                             Objects.requireNonNull(recyclerView.getLayoutManager().getChildAt(i)).setBackgroundResource(R.drawable.home_note_background);
                         } else {
-                            switch (noteList.get(i).getNote_background_color()) {
-                                case "yellow":
-                                    Objects.requireNonNull(recyclerView.getLayoutManager().getChildAt(i)).setBackgroundResource(R.drawable.home_note_background_yellow);
-                                    break;
-                                case "red":
-                                    Objects.requireNonNull(recyclerView.getLayoutManager().getChildAt(i)).setBackgroundResource(R.drawable.home_note_background_red);
-                                    break;
-                                case "green":
-                                    Objects.requireNonNull(recyclerView.getLayoutManager().getChildAt(i)).setBackgroundResource(R.drawable.home_note_background_green);
-                                    break;
-                                case "blue":
-                                    Objects.requireNonNull(recyclerView.getLayoutManager().getChildAt(i)).setBackgroundResource(R.drawable.home_note_background_blue);
-                                    break;
-                                case "orange":
-                                    Objects.requireNonNull(recyclerView.getLayoutManager().getChildAt(i)).setBackgroundResource(R.drawable.home_note_background_orange);
-                                    break;
-                                case "purple":
-                                    Objects.requireNonNull(recyclerView.getLayoutManager().getChildAt(i)).setBackgroundResource(R.drawable.home_note_background_purple);
-                                    break;
-                            }
+                            staggeredRecyclerViewAdapter.setItemBackgroundColor(recyclerView.getChildViewHolder(recyclerView
+                                            .getChildAt(i)).itemView,
+                                    i, false, noteList.get(i).getNote_background_color());
                         }
                 }
             }
@@ -755,11 +741,6 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
 //                NavDirections navDirections = HomeFragmentDirections.actionHomeFragmentToTestFragment(note.getNote_doc_ID(), note.getNoteTitle(), note.getNoteText(),
 //                        note.getNote_background_color());
 
-                Hold hold = new Hold();
-                hold.setDuration(getResources().getInteger(R.integer.transition_home_edit_duration));
-
-                setExitTransition(hold);
-//                setReenterTransition(hold);
 
                 Navigation.findNavController(view).navigate(navDirections, extras);
             }
