@@ -172,8 +172,7 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
 
             buildRecyclerView();
             setupFirebaseAuth();
-            getUserInfo();
-            getNotes();
+
 
 //            setExitTransition(TransitionInflater.from(getActivity()).inflateTransition(R.transition.grid_exit_transition)
 //                    .setDuration(getResources().getInteger(R.integer.transition_home_edit_duration))); // EXIT transition duration must be equal to other fragment Enter transition duration
@@ -290,8 +289,8 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
             }
         });
 
-        recyclerView.setHasFixedSize(true);
-        staggeredRecyclerViewAdapter.setHasStableIds(true);
+//        recyclerView.setHasFixedSize(true);
+//        staggeredRecyclerViewAdapter.setHasStableIds(true);
         recyclerView.setAdapter(staggeredRecyclerViewAdapter);
         staggeredRecyclerViewAdapter.setOnItemClickListener(HomeFragment.this);
 
@@ -411,7 +410,8 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
 
                 } else if (checkIfBackgroundIsChanged(note, noteList.get(indexOfCurrentNote))) {
                     //Notes are the same, user just changed color
-                    staggeredRecyclerViewAdapter.unhighlightViewHolder(recyclerView.getChildViewHolder(recyclerView
+
+                    staggeredRecyclerViewAdapter.changeItemBackgroundColor(recyclerView.getChildViewHolder(recyclerView
                             .getChildAt(indexOfCurrentNote)), note.getNote_background_color());
 
                     //Change the note background color for the current user in the notes list
@@ -559,6 +559,8 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
 
                         if (FirebaseAuth.getInstance().getCurrentUser() != null) {
                             currentUserCollaborator.setUser_email(FirebaseAuth.getInstance().getCurrentUser().getEmail());
+                            getUserInfo();
+                            getNotes();
                         }
 //                        Log.d(TAG, "onAuthStateChanged: MAIL VERIFIED");
                     } else {

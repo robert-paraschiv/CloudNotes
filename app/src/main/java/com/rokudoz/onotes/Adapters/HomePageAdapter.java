@@ -11,11 +11,9 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.core.view.ViewCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.android.material.card.MaterialCardView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.rokudoz.onotes.Models.CheckableItem;
 import com.rokudoz.onotes.Models.Collaborator;
@@ -88,10 +86,10 @@ public class HomePageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                     if (selected.size() > 0) {
                         if (selected.contains(noteList.get(position))) {
                             selected.remove(noteList.get(position));
-                            unhighlightView(itemView, position);
+                            highlightView(itemView, position, false);
                         } else {
                             selected.add(noteList.get(position));
-                            highlightView(itemView, position);
+                            highlightView(itemView, position, true);
                         }
                     }
 
@@ -109,10 +107,10 @@ public class HomePageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                 if (position != RecyclerView.NO_POSITION) {
                     if (selected.contains(noteList.get(position))) {
                         selected.remove(noteList.get(position));
-                        unhighlightView(itemView, position);
+                        highlightView(itemView, position, false);
                     } else {
                         selected.add(noteList.get(position));
-                        highlightView(itemView, position);
+                        highlightView(itemView, position, true);
                     }
                     mListener.onLongItemClick(position);
                 }
@@ -147,10 +145,10 @@ public class HomePageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                             if (selected.size() > 0) {
                                 if (selected.contains(noteList.get(position))) {
                                     selected.remove(noteList.get(position));
-                                    unhighlightView(itemView, position);
+                                    highlightView(itemView, position, false);
                                 } else {
                                     selected.add(noteList.get(position));
-                                    highlightView(itemView, position);
+                                    highlightView(itemView, position, true);
                                 }
                             }
 
@@ -168,10 +166,10 @@ public class HomePageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                         if (position != RecyclerView.NO_POSITION) {
                             if (selected.contains(noteList.get(position))) {
                                 selected.remove(noteList.get(position));
-                                unhighlightView(itemView, position);
+                                highlightView(itemView, position, false);
                             } else {
                                 selected.add(noteList.get(position));
-                                highlightView(itemView, position);
+                                highlightView(itemView, position, true);
                             }
                             mListener.onLongItemClick(position);
                         }
@@ -189,10 +187,10 @@ public class HomePageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                     if (selected.size() > 0) {
                         if (selected.contains(noteList.get(position))) {
                             selected.remove(noteList.get(position));
-                            unhighlightView(itemView, position);
+                            highlightView(itemView, position, false);
                         } else {
                             selected.add(noteList.get(position));
-                            highlightView(itemView, position);
+                            highlightView(itemView, position, true);
                         }
                     }
                     mListener.onItemClick(position, noteTitle, null, recyclerView, collaboratorsRv, relativeLayout);
@@ -207,10 +205,10 @@ public class HomePageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                 if (position != RecyclerView.NO_POSITION) {
                     if (selected.contains(noteList.get(position))) {
                         selected.remove(noteList.get(position));
-                        unhighlightView(itemView, position);
+                        highlightView(itemView, position, false);
                     } else {
                         selected.add(noteList.get(position));
-                        highlightView(itemView, position);
+                        highlightView(itemView, position, true);
                     }
                     mListener.onLongItemClick(position);
                 }
@@ -271,20 +269,7 @@ public class HomePageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             holder.noteTitle.setText(currentItem.getNoteTitle());
 
         //Setup note background
-        if (selected.contains(currentItem)) {
-            if (currentItem.getNote_background_color() == null) {
-                highlightViewHolder(holder, null);
-            } else {
-                highlightViewHolder(holder, currentItem.getNote_background_color());
-            }
-
-        } else {
-            if (currentItem.getNote_background_color() == null) {
-                unhighlightViewHolder(holder, null);
-            } else {
-                unhighlightViewHolder(holder, currentItem.getNote_background_color());
-            }
-        }
+        highlightView(holder.itemView, position, selected.contains(currentItem));
 
         //Setup collaborators
         if (currentItem.getCollaboratorList() != null && currentItem.getCollaboratorList().size() > 1) {
@@ -313,20 +298,7 @@ public class HomePageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         Log.d(TAG, "populateCheckBoxViewHolder: title " + currentItem.getNoteTitle() + " id " + currentItem.getNote_doc_ID());
 
         //Setup note background
-        if (selected.contains(currentItem)) {
-            if (currentItem.getNote_background_color() == null) {
-                highlightViewHolder(holder, null);
-            } else {
-                highlightViewHolder(holder, currentItem.getNote_background_color());
-            }
-
-        } else {
-            if (currentItem.getNote_background_color() == null) {
-                unhighlightViewHolder(holder, null);
-            } else {
-                unhighlightViewHolder(holder, currentItem.getNote_background_color());
-            }
-        }
+        highlightView(holder.itemView, position, selected.contains(currentItem));
 
         if (currentItem.getNoteTitle() != null)
             holder.noteTitle.setText(currentItem.getNoteTitle());
@@ -352,54 +324,18 @@ public class HomePageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
         //Setup collaborators
         if (currentItem.getCollaboratorList() != null && currentItem.getCollaboratorList().size() > 1) {
-            List<Collaborator> collaborators = new ArrayList<>();
-            if (currentItem.getCollaboratorList().size() < MAX_HOME_COLLABORATORS_PICTURES) {
-                collaborators.addAll(currentItem.getCollaboratorList());
-            } else {
-                for (int i = 0; i < MAX_HOME_COLLABORATORS_PICTURES; i++) {
-                    collaborators.add(currentItem.getCollaboratorList().get(i));
-                }
-            }
-
             holder.collaboratorsRv.setVisibility(View.VISIBLE);
-            CollaboratorHomeAdapter collaboratorHomeAdapter = new CollaboratorHomeAdapter(collaborators);
+            CollaboratorHomeAdapter collaboratorHomeAdapter = new CollaboratorHomeAdapter(currentItem.getCollaboratorList());
             holder.collaboratorsRv.setLayoutManager(new LinearLayoutManager(mContext, RecyclerView.HORIZONTAL, false));
             holder.collaboratorsRv.setAdapter(collaboratorHomeAdapter);
             holder.collaboratorsRv.setHasFixedSize(true);
             holder.collaboratorsRv.suppressLayout(true);
-
         } else {
             holder.collaboratorsRv.setVisibility(View.GONE);
         }
     }
 
-    public void highlightViewHolder(RecyclerView.ViewHolder holder, String color) {
-        if (color == null || color.equals("")) {
-            holder.itemView.setBackgroundResource(R.drawable.home_note_selected_note_background);
-        } else
-            switch (color) {
-                case "yellow":
-                    holder.itemView.setBackgroundResource(R.drawable.home_note_selected_background_yellow);
-                    break;
-                case "red":
-                    holder.itemView.setBackgroundResource(R.drawable.home_note_selected_background_red);
-                    break;
-                case "green":
-                    holder.itemView.setBackgroundResource(R.drawable.home_note_selected_background_green);
-                    break;
-                case "blue":
-                    holder.itemView.setBackgroundResource(R.drawable.home_note_selected_background_blue);
-                    break;
-                case "orange":
-                    holder.itemView.setBackgroundResource(R.drawable.home_note_selected_background_orange);
-                    break;
-                case "purple":
-                    holder.itemView.setBackgroundResource(R.drawable.home_note_selected_background_purple);
-                    break;
-            }
-    }
-
-    public void unhighlightViewHolder(RecyclerView.ViewHolder holder, String color) {
+    public void changeItemBackgroundColor(RecyclerView.ViewHolder holder, String color) {
         if (color == null || color.equals("")) {
             holder.itemView.setBackgroundResource(R.drawable.home_note_background);
         } else
@@ -425,70 +361,57 @@ public class HomePageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             }
     }
 
-    private void highlightView(View view, int position) {
-
+    public void highlightView(View view, int position, boolean highlight) {
         //Get current user collaborator background color details for current note
         Collaborator currentUserCollaborator = new Collaborator();
         currentUserCollaborator.setUser_email(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getEmail());
         String color = noteList.get(position).getNote_background_color();
 
         if (color == null || color.equals("")) {
-            view.setBackgroundResource(R.drawable.home_note_selected_note_background);
+            if (highlight)
+                view.setBackgroundResource(R.drawable.home_note_selected_note_background);
+            else
+                view.setBackgroundResource(R.drawable.home_note_background);
         } else
             switch (color) {
                 case "yellow":
-                    view.setBackgroundResource(R.drawable.home_note_selected_background_yellow);
+                    if (highlight)
+                        view.setBackgroundResource(R.drawable.home_note_selected_background_yellow);
+                    else
+                        view.setBackgroundResource(R.drawable.home_note_background_yellow);
                     break;
                 case "red":
-                    view.setBackgroundResource(R.drawable.home_note_selected_background_red);
+                    if (highlight)
+                        view.setBackgroundResource(R.drawable.home_note_selected_background_red);
+                    else
+                        view.setBackgroundResource(R.drawable.home_note_background_red);
                     break;
                 case "green":
-                    view.setBackgroundResource(R.drawable.home_note_selected_background_green);
+                    if (highlight)
+                        view.setBackgroundResource(R.drawable.home_note_selected_background_green);
+                    else
+                        view.setBackgroundResource(R.drawable.home_note_background_green);
                     break;
                 case "blue":
-                    view.setBackgroundResource(R.drawable.home_note_selected_background_blue);
+                    if (highlight)
+                        view.setBackgroundResource(R.drawable.home_note_selected_background_blue);
+                    else
+                        view.setBackgroundResource(R.drawable.home_note_background_blue);
                     break;
                 case "orange":
-                    view.setBackgroundResource(R.drawable.home_note_selected_background_orange);
+                    if (highlight)
+                        view.setBackgroundResource(R.drawable.home_note_selected_background_orange);
+                    else
+                        view.setBackgroundResource(R.drawable.home_note_background_orange);
                     break;
                 case "purple":
-                    view.setBackgroundResource(R.drawable.home_note_selected_background_purple);
+                    if (highlight)
+                        view.setBackgroundResource(R.drawable.home_note_selected_background_purple);
+                    else
+                        view.setBackgroundResource(R.drawable.home_note_background_purple);
                     break;
             }
     }
-
-    private void unhighlightView(View view, int position) {
-
-        //Get current user collaborator background color details for current note
-        Collaborator currentUserCollaborator = new Collaborator();
-        currentUserCollaborator.setUser_email(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getEmail());
-        String color = noteList.get(position).getNote_background_color();
-
-        if (color == null || color.equals("")) {
-            view.setBackgroundResource(R.drawable.home_note_background);
-        } else
-            switch (color) {
-                case "yellow":
-                    view.setBackgroundResource(R.drawable.home_note_background_yellow);
-                    break;
-                case "red":
-                    view.setBackgroundResource(R.drawable.home_note_background_red);
-                    break;
-                case "green":
-                    view.setBackgroundResource(R.drawable.home_note_background_green);
-                    break;
-                case "blue":
-                    view.setBackgroundResource(R.drawable.home_note_background_blue);
-                    break;
-                case "orange":
-                    view.setBackgroundResource(R.drawable.home_note_background_orange);
-                    break;
-                case "purple":
-                    view.setBackgroundResource(R.drawable.home_note_background_purple);
-                    break;
-            }
-    }
-
 
     public void clearSelected() {
         selected.clear();
