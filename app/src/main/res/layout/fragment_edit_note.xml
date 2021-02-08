@@ -5,8 +5,9 @@
     android:id="@+id/rv_home_note_rootLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:transitionGroup="true"
     android:background="@color/fragments_background"
+    android:focusableInTouchMode="true"
+    android:transitionGroup="true"
     tools:context=".Fragments.EditNoteFragment">
 
     <com.google.android.material.appbar.MaterialToolbar
@@ -149,11 +150,11 @@
 
 
     <com.google.android.material.card.MaterialCardView
-        app:cardElevation="8dp"
         android:id="@+id/editNoteFragment_bottomCard"
         android:layout_width="match_parent"
         android:layout_height="40dp"
-        android:layout_alignParentBottom="true">
+        android:layout_alignParentBottom="true"
+        app:cardElevation="8dp">
 
         <RelativeLayout
             android:layout_width="match_parent"

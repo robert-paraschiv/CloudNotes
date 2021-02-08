@@ -1,13 +1,217 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/testFragment_rootLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:transitionGroup="true"
+    android:background="@color/fragments_background"
     tools:context=".Fragments.TestFragment">
 
-    <TextView
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/testFragment_toolbar"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="@string/hello_blank_fragment" />
+        android:layout_height="?actionBarSize"
+        app:contentInsetStart="0dp">
 
-</FrameLayout>
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/testFragment_backBtn"
+                style="@style/Widget.MaterialComponents.Button.TextButton"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_centerVertical="true"
+                android:layout_marginStart="4dp"
+                app:icon="@drawable/ic_baseline_arrow_back_24"
+                app:iconGravity="start"
+                app:iconTint="@color/icon_tint_color" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/testFragment_deleteBtn"
+                style="@style/Widget.MaterialComponents.Button.TextButton"
+                android:layout_width="35dp"
+                android:layout_height="35dp"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
+                android:layout_marginEnd="16dp"
+                app:icon="@drawable/ic_baseline_delete_outline_24"
+                app:iconTint="@color/icon_tint_color" />
+        </RelativeLayout>
+    </com.google.android.material.appbar.MaterialToolbar>
+
+    <ProgressBar
+        android:id="@+id/testFragment_progressBar"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:layout_centerInParent="true"
+        android:indeterminateTint="@color/icon_tint_color" />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/testFragment_scroll_fab"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@id/testFragment_bottomCard"
+        android:layout_alignParentEnd="true"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="16dp"
+        android:src="@drawable/ic_outline_arrow_drop_down_24"
+        android:visibility="gone"
+        app:fabSize="mini"
+        tools:visibility="visible" />
+
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/testFragment_nestedScrollView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_above="@id/testFragment_bottomCard"
+        android:layout_below="@id/testFragment_toolbar">
+
+        <LinearLayout
+            android:id="@+id/contentLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/testFragment_titleEditText"
+                style="@style/TextAppearance.MaterialComponents.Headline6"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="16dp"
+                android:layout_marginEnd="16dp"
+                android:layout_marginBottom="8dp"
+                android:background="@null"
+                android:hint="Title"
+                android:maxLines="1"
+                android:textSize="22sp" />
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/testFragment_textEditText"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="16dp"
+                android:layout_marginBottom="16dp"
+                android:background="@null"
+                android:gravity="top"
+                android:hint="Text"
+                android:imeOptions="flagNoExtractUi"
+                android:inputType="textMultiLine"
+                android:minHeight="300dp"
+                android:textSize="15sp"
+                tools:visibility="visible" />
+
+
+            <RelativeLayout
+                android:id="@+id/testFragment_scroll_rv"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="8dp"
+                android:visibility="invisible"
+                tools:visibility="invisible">
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/testFragment_checkbox_rv"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/testFragment_add_checkbox_Btn"
+                    style="@style/Widget.MaterialComponents.Button.TextButton"
+                    android:layout_width="35dp"
+                    android:layout_height="35dp"
+                    android:layout_below="@id/testFragment_checkbox_rv"
+                    android:layout_alignParentStart="true"
+                    android:layout_marginStart="25dp"
+                    app:icon="@drawable/ic_baseline_add_24"
+                    app:iconGravity="textStart"
+                    app:iconTint="@color/icon_tint_color" />
+            </RelativeLayout>
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/testFragment_collaboratorsRV"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:layout_marginEnd="10dp"
+                android:visibility="gone"
+                tools:visibility="visible" />
+
+        </LinearLayout>
+
+    </androidx.core.widget.NestedScrollView>
+
+
+    <com.google.android.material.card.MaterialCardView
+        app:cardElevation="8dp"
+        android:id="@+id/testFragment_bottomCard"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:layout_alignParentBottom="true">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="bottom">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/testFragment_CheckBoxModeBtn"
+                style="@style/Widget.MaterialComponents.Button.TextButton"
+                android:layout_width="35dp"
+                android:layout_height="35dp"
+                android:layout_alignParentStart="true"
+                android:layout_centerVertical="true"
+                android:layout_marginStart="16dp"
+                android:visibility="invisible"
+                app:icon="@drawable/ic_outline_check_box_24"
+                app:iconTint="@color/icon_tint_color"
+                tools:visibility="visible" />
+
+            <LinearLayout
+                android:id="@+id/testFragment_editLayout"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="8dp"
+                android:layout_toStartOf="@id/testFragment_optionsBtn"
+                android:layout_toEndOf="@id/testFragment_CheckBoxModeBtn"
+                android:gravity="center_horizontal"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/testFragment_numberOfedits"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    tools:text="340 Edits" />
+
+                <TextView
+                    android:id="@+id/testFragment_lastEditTextView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="-2dp"
+                    android:textSize="10sp"
+                    tools:text="Last edit today at 10:20" />
+            </LinearLayout>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/testFragment_optionsBtn"
+                style="@style/Widget.MaterialComponents.Button.TextButton"
+                android:layout_width="35dp"
+                android:layout_height="35dp"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
+                android:layout_marginEnd="16dp"
+                app:icon="@drawable/ic_outline_more_vert_24"
+                app:iconTint="@color/icon_tint_color" />
+
+
+        </RelativeLayout>
+
+    </com.google.android.material.card.MaterialCardView>
+</RelativeLayout>

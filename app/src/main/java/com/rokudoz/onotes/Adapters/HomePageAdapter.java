@@ -11,9 +11,11 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.core.view.ViewCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.card.MaterialCardView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.rokudoz.onotes.Models.CheckableItem;
 import com.rokudoz.onotes.Models.Collaborator;
@@ -34,6 +36,7 @@ public class HomePageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     private List<Note> noteList;
     private final List<Note> selected = new ArrayList<>();
     private List<Note> noteListFull = new ArrayList<>();
+    private Boolean firstStart = true;
     private final Context mContext;
 
     private static final int TEXT_TYPE = 0;
@@ -41,7 +44,7 @@ public class HomePageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
 
     public interface OnItemClickListener {
-        void onItemClick(int position, TextView title, TextView text, RecyclerView checkboxRv, RecyclerView collaboratorsRv, RelativeLayout rootLayout);
+        void onItemClick(int position, TextView title, TextView text, RecyclerView checkboxRv, RecyclerView collaboratorsRv, View rootLayout);
 
         void onLongItemClick(int position);
     }
@@ -255,6 +258,7 @@ public class HomePageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         currentUserCollaborator.setUser_email(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getEmail());
 
         holder.relativeLayout.setTransitionName("note_home_rootLayout" + currentItem.getNote_doc_ID());
+
         holder.noteTitle.setTransitionName("note_home_title" + currentItem.getNote_doc_ID());
         holder.noteText.setTransitionName("note_home_text" + currentItem.getNote_doc_ID());
         holder.collaboratorsRv.setTransitionName("note_home_collaborators" + currentItem.getNote_doc_ID());
@@ -536,7 +540,10 @@ public class HomePageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             @Override
             protected void publishResults(CharSequence constraint, FilterResults results) {
                 noteList = (List<Note>) results.values;
-                notifyDataSetChanged();
+                if (firstStart)
+                    firstStart = false;
+                else
+                    notifyDataSetChanged();
             }
         };
     }

@@ -6,6 +6,7 @@
     android:layout_height="match_parent"
     android:background="@color/fragments_background"
     android:fitsSystemWindows="true"
+    android:focusableInTouchMode="true"
     tools:context=".Fragments.HomeFragment">
 
     <com.google.android.material.appbar.AppBarLayout
@@ -99,10 +100,10 @@
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
         <androidx.recyclerview.widget.RecyclerView
-            android:transitionGroup="true"
             android:id="@+id/homeFragment_recyclerView"
             android:layout_width="match_parent"
-            android:layout_height="match_parent" />
+            android:layout_height="match_parent"
+            android:transitionGroup="true" />
 
     </androidx.core.widget.NestedScrollView>
 

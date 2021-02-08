@@ -25,6 +25,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.button.MaterialButton;
+import com.google.android.material.card.MaterialCardView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -354,7 +355,7 @@ public class TrashFragment extends Fragment implements HomePageAdapter.OnItemCli
 
     @Override
     public void onItemClick(final int position, final TextView title, final TextView text, final RecyclerView checkboxRv,
-                            final RecyclerView collaboratorsRv, final RelativeLayout rootLayout) {
+                            final RecyclerView collaboratorsRv, final View rootLayout) {
 //        Log.d(TAG, "onItemClick: " + position);
         int selected = noteEditsAdapter.getSelected().size();
         if (actionMode == null) {

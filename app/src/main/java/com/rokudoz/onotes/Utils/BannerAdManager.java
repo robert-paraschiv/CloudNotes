@@ -5,10 +5,15 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.util.Log;
 import android.util.TypedValue;
+import android.view.Gravity;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.RelativeLayout;
 
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
+import androidx.transition.Slide;
+import androidx.transition.Transition;
+import androidx.transition.TransitionManager;
 
 import com.rokudoz.onotes.R;
 
@@ -19,11 +24,33 @@ public class BannerAdManager {
     }
 
     public void showBannerAd(Activity activity) {
-        activity.findViewById(R.id.banner_ad_layout).setVisibility(View.VISIBLE);
+//        activity.findViewById(R.id.banner_ad_layout).setVisibility(View.VISIBLE);
+
+        View bannerLayout = activity.findViewById(R.id.banner_ad_layout);
+        ViewGroup parent = activity.findViewById(R.id.activity_main_root);
+
+        Transition transition = new Slide(Gravity.BOTTOM);
+        transition.setDuration(200);
+        transition.addTarget(R.id.banner_ad_layout);
+
+        TransitionManager.beginDelayedTransition(parent, transition);
+        bannerLayout.setVisibility(View.VISIBLE);
     }
 
     public void hideBannerAd(Activity activity) {
-        activity.findViewById(R.id.banner_ad_layout).setVisibility(View.GONE);
+//        activity.findViewById(R.id.banner_ad_layout).setVisibility(View.GONE);
+//        activity.findViewById(R.id.banner_ad_layout);
+
+        View bannerLayout = activity.findViewById(R.id.banner_ad_layout);
+        ViewGroup parent = activity.findViewById(R.id.activity_main_root);
+
+        Transition transition = new Slide(Gravity.BOTTOM);
+        transition.setDuration(200);
+        transition.addTarget(R.id.banner_ad_layout);
+
+        TransitionManager.beginDelayedTransition(parent, transition);
+        bannerLayout.setVisibility(View.GONE);
+
     }
 
     public void hideBanner_modify_layouts(Activity activity) {

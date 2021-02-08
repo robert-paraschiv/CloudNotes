@@ -243,9 +243,7 @@ public class ViewNoteEditFragment extends Fragment {
                                                             Navigation.findNavController(view).navigate(ViewNoteEditFragmentDirections.
                                                                     actionViewNoteEditFragmentToEditNoteFragment(noteID,
                                                                             originalNote.getNote_background_color(),
-                                                                            notePosition,
-                                                                            null
-                                                                    ));
+                                                                            notePosition));
                                                         }
 
                                                     }

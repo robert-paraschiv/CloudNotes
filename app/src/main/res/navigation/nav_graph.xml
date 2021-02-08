@@ -31,9 +31,9 @@
             app:popUpTo="@id/homeFragment" />
         <argument
             android:name="note_id"
+            android:defaultValue="@null"
             app:argType="string"
-            app:nullable="true"
-            android:defaultValue="@null" />
+            app:nullable="true" />
         <action
             android:id="@+id/action_homeFragment_to_testFragment"
             app:destination="@id/testFragment" />
@@ -71,13 +71,9 @@
         <argument
             android:name="position"
             app:argType="integer" />
-        <argument
-            android:name="transition_name"
-            app:argType="string"
-            app:nullable="true" />
         <action
             android:id="@+id/action_editNoteFragment_to_homeFragment"
-            app:destination="@id/homeFragment" >
+            app:destination="@id/homeFragment">
             <argument
                 android:name="note_id"
                 app:argType="string" />
@@ -185,5 +181,21 @@
         android:id="@+id/testFragment"
         android:name="com.rokudoz.onotes.Fragments.TestFragment"
         android:label="fragment_test"
-        tools:layout="@layout/fragment_test" />
+        tools:layout="@layout/fragment_test">
+        <argument
+            android:name="note_doc_ID"
+            app:argType="string" />
+        <argument
+            android:name="note_title"
+            app:argType="string"
+            app:nullable="true" />
+        <argument
+            android:name="note_text"
+            app:argType="string"
+            app:nullable="true" />
+        <argument
+            android:name="note_background_color"
+            app:argType="string"
+            app:nullable="true" />
+    </fragment>
 </navigation>
