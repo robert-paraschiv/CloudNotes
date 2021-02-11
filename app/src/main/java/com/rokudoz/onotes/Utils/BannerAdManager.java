@@ -30,7 +30,7 @@ public class BannerAdManager {
         ViewGroup parent = activity.findViewById(R.id.activity_main_root);
 
         Transition transition = new Slide(Gravity.BOTTOM);
-        transition.setDuration(200);
+        transition.setDuration(activity.getResources().getInteger(R.integer.transition_show_hide_bannerAd_duration));
         transition.addTarget(R.id.banner_ad_layout);
 
         TransitionManager.beginDelayedTransition(parent, transition);
@@ -45,7 +45,7 @@ public class BannerAdManager {
         ViewGroup parent = activity.findViewById(R.id.activity_main_root);
 
         Transition transition = new Slide(Gravity.BOTTOM);
-        transition.setDuration(200);
+        transition.setDuration(activity.getResources().getInteger(R.integer.transition_show_hide_bannerAd_duration));
         transition.addTarget(R.id.banner_ad_layout);
 
         TransitionManager.beginDelayedTransition(parent, transition);

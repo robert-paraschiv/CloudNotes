@@ -88,7 +88,7 @@ public class HomePageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                             setItemBackgroundColor(itemView, position, false, null);
                         } else {
                             selected.add(noteList.get(position));
-                            setItemBackgroundColor(itemView, position, true,null);
+                            setItemBackgroundColor(itemView, position, true, null);
                         }
                     }
 
@@ -106,10 +106,10 @@ public class HomePageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                 if (position != RecyclerView.NO_POSITION) {
                     if (selected.contains(noteList.get(position))) {
                         selected.remove(noteList.get(position));
-                        setItemBackgroundColor(itemView, position, false,null);
+                        setItemBackgroundColor(itemView, position, false, null);
                     } else {
                         selected.add(noteList.get(position));
-                        setItemBackgroundColor(itemView, position, true,null);
+                        setItemBackgroundColor(itemView, position, true, null);
                     }
                     mListener.onLongItemClick(position);
                 }
@@ -144,10 +144,10 @@ public class HomePageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                             if (selected.size() > 0) {
                                 if (selected.contains(noteList.get(position))) {
                                     selected.remove(noteList.get(position));
-                                    setItemBackgroundColor(itemView, position, false,null);
+                                    setItemBackgroundColor(itemView, position, false, null);
                                 } else {
                                     selected.add(noteList.get(position));
-                                    setItemBackgroundColor(itemView, position, true,null);
+                                    setItemBackgroundColor(itemView, position, true, null);
                                 }
                             }
 
@@ -165,10 +165,10 @@ public class HomePageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                         if (position != RecyclerView.NO_POSITION) {
                             if (selected.contains(noteList.get(position))) {
                                 selected.remove(noteList.get(position));
-                                setItemBackgroundColor(itemView, position, false,null);
+                                setItemBackgroundColor(itemView, position, false, null);
                             } else {
                                 selected.add(noteList.get(position));
-                                setItemBackgroundColor(itemView, position, true,null);
+                                setItemBackgroundColor(itemView, position, true, null);
                             }
                             mListener.onLongItemClick(position);
                         }
@@ -186,10 +186,10 @@ public class HomePageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                     if (selected.size() > 0) {
                         if (selected.contains(noteList.get(position))) {
                             selected.remove(noteList.get(position));
-                            setItemBackgroundColor(itemView, position, false,null);
+                            setItemBackgroundColor(itemView, position, false, null);
                         } else {
                             selected.add(noteList.get(position));
-                            setItemBackgroundColor(itemView, position, true,null);
+                            setItemBackgroundColor(itemView, position, true, null);
                         }
                     }
                     mListener.onItemClick(position, noteTitle, null, recyclerView, collaboratorsRv, relativeLayout);
@@ -204,10 +204,10 @@ public class HomePageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                 if (position != RecyclerView.NO_POSITION) {
                     if (selected.contains(noteList.get(position))) {
                         selected.remove(noteList.get(position));
-                        setItemBackgroundColor(itemView, position, false,null);
+                        setItemBackgroundColor(itemView, position, false, null);
                     } else {
                         selected.add(noteList.get(position));
-                        setItemBackgroundColor(itemView, position, true,null);
+                        setItemBackgroundColor(itemView, position, true, null);
                     }
                     mListener.onLongItemClick(position);
                 }
@@ -268,7 +268,7 @@ public class HomePageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             holder.noteTitle.setText(currentItem.getNoteTitle());
 
         //Setup note background
-        setItemBackgroundColor(holder.itemView, position, selected.contains(currentItem),null);
+        setItemBackgroundColor(holder.itemView, position, selected.contains(currentItem), null);
 
         //Setup collaborators
         if (currentItem.getCollaboratorList() != null && currentItem.getCollaboratorList().size() > 1) {
@@ -297,7 +297,7 @@ public class HomePageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         Log.d(TAG, "populateCheckBoxViewHolder: title " + currentItem.getNoteTitle() + " id " + currentItem.getNote_doc_ID());
 
         //Setup note background
-        setItemBackgroundColor(holder.itemView, position, selected.contains(currentItem),null);
+        setItemBackgroundColor(holder.itemView, position, selected.contains(currentItem), null);
 
         if (currentItem.getNoteTitle() != null)
             holder.noteTitle.setText(currentItem.getNoteTitle());
@@ -445,6 +445,11 @@ public class HomePageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                     notifyDataSetChanged();
             }
         };
+    }
+
+    //This is used in order to get the proper note when the recyclerview list has been filtered by the search view
+    public Note getNote(int position) {
+        return noteList.get(position);
     }
 
 

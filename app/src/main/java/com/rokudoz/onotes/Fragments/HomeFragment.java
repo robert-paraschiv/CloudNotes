@@ -112,7 +112,7 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         Hold hold = new Hold();
-//        hold.setStartDelay(25);
+//        hold.setStartDelay(55);
         hold.setDuration(getResources().getInteger(R.integer.transition_home_edit_duration));
 
         setExitTransition(hold);
@@ -292,7 +292,7 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
             }
         });
 
-//        recyclerView.setHasFixedSize(true);
+//        recyclerView.setHasFixedSize(true); // If you set these two up, rearranging the items in the rv glitches
 //        staggeredRecyclerViewAdapter.setHasStableIds(true);
         recyclerView.setAdapter(staggeredRecyclerViewAdapter);
         staggeredRecyclerViewAdapter.setOnItemClickListener(HomeFragment.this);
@@ -711,7 +711,7 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
 //        Log.d(TAG, "onItemClick: " + position);
         int selected = staggeredRecyclerViewAdapter.getSelected().size();
         if (actionMode == null) {
-            Note note = noteList.get(position);
+            Note note = staggeredRecyclerViewAdapter.getNote(position);
             if (Objects.requireNonNull(Navigation.findNavController(view).getCurrentDestination()).getId() == R.id.homeFragment) {
 
                 FragmentNavigator.Extras.Builder builder = new FragmentNavigator.Extras.Builder();
@@ -719,7 +719,6 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
 //                        .addSharedElement(title, title.getTransitionName())
 //                        .addSharedElement(collaboratorsRv, collaboratorsRv.getTransitionName())
                 ;
-
 
                 if (checkboxRv == null && text != null) {
 //                    builder.addSharedElement(text, text.getTransitionName());
@@ -731,7 +730,6 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
                 }
 
                 FragmentNavigator.Extras extras = builder.build();
-                Log.d(TAG, "onItemClick: " + title.getTransitionName());
 
                 NavDirections navDirections = HomeFragmentDirections
                         .actionHomeFragmentToEditNoteFragment(note.getNote_doc_ID(),

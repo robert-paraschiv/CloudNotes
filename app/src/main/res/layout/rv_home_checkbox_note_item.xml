@@ -8,35 +8,35 @@
     android:layout_margin="5dp"
     android:background="@drawable/home_note_background"
     android:elevation="0dp"
-    android:padding="8dp"
-    android:transitionGroup="true">
+    android:transitionGroup="true"
+    android:padding="8dp">
 
-        <TextView
-            android:id="@+id/rv_home_checkboxNote_TitleTV"
-            style="@style/TextAppearance.MaterialComponents.Subtitle2"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="4dp"
-            android:layout_marginEnd="8dp"
-            android:maxLines="1"
-            android:textSize="17sp"
-            app:autoSizeTextType="uniform"
-            tools:text="Note title here" />
+    <TextView
+        android:id="@+id/rv_home_checkboxNote_TitleTV"
+        style="@style/TextAppearance.MaterialComponents.Subtitle2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="4dp"
+        android:layout_marginEnd="8dp"
+        android:maxLines="1"
+        android:textSize="17sp"
+        app:autoSizeTextType="uniform"
+        tools:text="Note title here" />
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/rv_home_checkboxNote_recyclerView"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/rv_home_checkboxNote_TitleTV" />
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rv_home_checkboxNote_recyclerView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/rv_home_checkboxNote_TitleTV" />
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/rv_home_checkboxNote_collaboratorsRV"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/rv_home_checkboxNote_recyclerView"
-            android:layout_marginTop="8dp"
-            android:visibility="gone"
-            tools:visibility="visible" />
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rv_home_checkboxNote_collaboratorsRV"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/rv_home_checkboxNote_recyclerView"
+        android:layout_marginTop="8dp"
+        android:visibility="gone"
+        tools:visibility="visible" />
 
 
 </RelativeLayout>

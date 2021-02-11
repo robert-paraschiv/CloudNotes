@@ -138,7 +138,7 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
 
         MaterialContainerTransform materialContainerTransform = new MaterialContainerTransform();
         materialContainerTransform.setDuration(getResources().getInteger(R.integer.transition_home_edit_duration));
-//        materialContainerTransform.setStartDelay(25);
+//        materialContainerTransform.setStartDelay(55);
         materialContainerTransform.setElevationShadowEnabled(true);
         materialContainerTransform.setAllContainerColors(Color.TRANSPARENT);
         materialContainerTransform.setScrimColor(Color.TRANSPARENT);
@@ -175,8 +175,6 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
         scrollFab = view.findViewById(R.id.editNoteFragment_scroll_fab);
         nestedScrollView = view.findViewById(R.id.editNoteFragment_nestedScrollView);
         note_background_color = ContextCompat.getColor(requireContext(), R.color.fragments_background);
-
-
 
 
         //Hide Banner Ad
@@ -221,6 +219,7 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
             mNote.setNote_background_color(editNoteFragmentArgs.getNoteColor());
             note_background_colorName = editNoteFragmentArgs.getNoteColor();
             setupBackgroundColor(editNoteFragmentArgs.getNoteColor());
+
             getNote(noteID);
         }
 
@@ -229,7 +228,6 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
 
     @Override
     public void onViewCreated(@NonNull final View view, @Nullable Bundle savedInstanceState) {
-
 
 
         postponeEnterTransition();
@@ -478,136 +476,13 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
                 @Override
                 public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException e) {
                     if (documentSnapshot != null && e == null && !retrievedNote) {
-                        //hide progress bar
-                        progressBar.setVisibility(View.GONE);
 
-                        mNote = documentSnapshot.toObject(Note.class);
-                        if (mNote != null) {
-                            mNote.setNote_doc_ID(documentSnapshot.getId());
-                            titleInput.setText(mNote.getNoteTitle());
-                            textInput.setText(mNote.getNoteText());
-                            mNote.setNote_background_color(note_background_colorName);
-                            //Scroll edit text to bottom
-                            if (textInput.canScrollVertically(1) && mNote.getNoteType().equals(NOTE_TYPE_TEXT) || showScrollFab) {
-                                Log.d(TAG, "onEvent: VISIBLE FAB");
-                                scrollFab.setVisibility(View.VISIBLE);
-                                showScrollFab = true;
-                                scrollFab.setOnClickListener(new View.OnClickListener() {
-                                    @Override
-                                    public void onClick(View v) {
-                                        if (textInput.getText() != null) {
-                                            textInput.requestFocus();
-                                            textInput.setSelection(textInput.getText().length());
-                                            scrollFab.setVisibility(View.GONE);
-                                        }
-                                    }
-                                });
-                            } else if (!textInput.canScrollVertically(1)) {
-                                Log.d(TAG, "onEvent: FAB NOT VISIBLE");
-                            }
+                        Note note = documentSnapshot.toObject(Note.class);
+                        if (note != null)
+                            note.setNote_doc_ID(documentSnapshot.getId());
 
-                            if (mNote.getNumber_of_edits() != null)
-                                number_of_edits = mNote.getNumber_of_edits();
+                        handleNoteEvent(note);
 
-                            if (mNote.getNoteType() != null) {
-                                noteType = mNote.getNoteType();
-                            } else {
-                                noteType = NOTE_TYPE_TEXT;
-                            }
-                            if (noteType.equals("text")) {
-                                textInput.setVisibility(View.VISIBLE);
-                                checkableItemList.clear();
-                                mAdapter.notifyDataSetChanged();
-                                rv_checkbox_Layout.setVisibility(View.GONE);
-                                checkboxModeBtn.setIconResource(R.drawable.ic_outline_check_box_24);
-
-                            } else if (noteType.equals("checkbox")) {
-                                textInput.setText("");
-                                textInput.setVisibility(View.GONE);
-                                checkableItemList.clear();
-                                mAdapter.notifyDataSetChanged();
-
-                                for (CheckableItem item : mNote.getCheckableItemList()) {
-                                    if (item.getUid() == null)
-                                        item.setUid(System.currentTimeMillis() + "" + checkableItemList.size());
-                                    checkableItemList.add(new CheckableItem(item.getText(), item.getChecked(), item.getUid()));
-                                    mAdapter.notifyItemInserted(checkableItemList.size() - 1);
-                                }
-                                rv_checkbox_Layout.setVisibility(View.VISIBLE);
-                                checkboxModeBtn.setIconResource(R.drawable.ic_outline_text_fields_24);
-                            }
-                            checkboxModeBtn.setVisibility(View.VISIBLE);
-
-                            //Setup last edit text
-                            if (mNote.getCreation_date() != null && mNote.getEdited() != null) {
-                                Date date = mNote.getCreation_date();
-
-                                if (mNote.getEdited()) {
-                                    lastEditTv.setText(MessageFormat.format("Last edit {0}", LastEdit.getLastEdit(date.getTime())));
-                                    if (mNote.getNumber_of_edits() != null) {
-                                        if (mNote.getNumber_of_edits() == 1) {
-                                            numberOfEditsTv.setText(MessageFormat.format("{0} Edit", mNote.getNumber_of_edits()));
-                                        } else if (mNote.getNumber_of_edits() > 1) {
-                                            numberOfEditsTv.setText(MessageFormat.format("{0} Edits", mNote.getNumber_of_edits()));
-                                        }
-                                    }
-                                } else {
-                                    lastEditTv.setText(MessageFormat.format("Created {0}", LastEdit.getLastEdit(date.getTime())));
-                                }
-
-                                editLinearLayout.setOnClickListener(new View.OnClickListener() {
-                                    @Override
-                                    public void onClick(View v) {
-                                        boolean hasCollaborators = false;
-                                        if (mNote.getCollaboratorList().size() > 1)
-                                            hasCollaborators = true;
-
-                                        if (Objects.requireNonNull(Navigation.findNavController(view).getCurrentDestination()).getId()
-                                                == R.id.editNoteFragment)
-                                            Navigation.findNavController(view).navigate(EditNoteFragmentDirections
-                                                    .actionEditNoteFragmentToNoteEditsFragment(noteID,
-                                                            notePosition,
-                                                            mNote.getNote_background_color(),
-                                                            hasCollaborators));
-                                    }
-                                });
-                            }
-
-                            optionsBtn.setOnClickListener(new View.OnClickListener() {
-                                @Override
-                                public void onClick(View v) {
-                                    showColorSettings();
-                                }
-                            });
-                            retrievedNote = true;
-
-                            Log.d(TAG, "onEvent: " + mNote.getCollaboratorList().toString());
-
-                            if (mNote.getCollaboratorList().size() > 1) {
-                                collaboratorsRV.setVisibility(View.VISIBLE);
-
-//                                if (mCollaboratorsList.size() > 0) {
-//                                    mCollaboratorsList.clear();
-//                                    collaboratorNotesAdapter.notifyDataSetChanged();
-//                                }
-//                                for (Collaborator collaborator : mNote.getCollaboratorList()) {
-//                                    mCollaboratorsList.add(collaborator);
-//                                    collaboratorNotesAdapter.notifyItemInserted(mCollaboratorsList.indexOf(collaborator));
-//                                }
-                                mCollaboratorsList.clear();
-                                collaboratorNotesAdapter.notifyDataSetChanged();
-
-                                mCollaboratorsList.addAll(mNote.getCollaboratorList());
-                                collaboratorNotesAdapter.notifyDataSetChanged();
-
-                            } else {
-                                collaboratorsRV.setVisibility(View.GONE);
-
-                            }
-                            //Start enter animation after info retrieved
-//                            startPostponedEnterTransition();
-//                            view.setLayerType(View.LAYER_TYPE_NONE, null);
-                        }
                     } else if (retrievedNote) {
                         if (documentSnapshot != null && e == null) {
                             Note newNote = documentSnapshot.toObject(Note.class);
@@ -617,6 +492,139 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
                     }
                 }
             });
+    }
+
+    private void handleNoteEvent(Note note) {
+        //hide progress bar
+        progressBar.setVisibility(View.GONE);
+
+        mNote = note;
+        if (mNote != null) {
+            mNote.setNote_doc_ID(note.getNote_doc_ID());
+            titleInput.setText(mNote.getNoteTitle());
+            textInput.setText(mNote.getNoteText());
+            mNote.setNote_background_color(note_background_colorName);
+            //Scroll edit text to bottom
+            if (textInput.canScrollVertically(1) && mNote.getNoteType().equals(NOTE_TYPE_TEXT) || showScrollFab) {
+                Log.d(TAG, "onEvent: VISIBLE FAB");
+                scrollFab.setVisibility(View.VISIBLE);
+                showScrollFab = true;
+                scrollFab.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        if (textInput.getText() != null) {
+                            textInput.requestFocus();
+                            textInput.setSelection(textInput.getText().length());
+                            scrollFab.setVisibility(View.GONE);
+                        }
+                    }
+                });
+            } else if (!textInput.canScrollVertically(1)) {
+                Log.d(TAG, "onEvent: FAB NOT VISIBLE");
+            }
+
+            if (mNote.getNumber_of_edits() != null)
+                number_of_edits = mNote.getNumber_of_edits();
+
+            if (mNote.getNoteType() != null) {
+                noteType = mNote.getNoteType();
+            } else {
+                noteType = NOTE_TYPE_TEXT;
+            }
+            if (noteType.equals("text")) {
+                textInput.setVisibility(View.VISIBLE);
+                checkableItemList.clear();
+                mAdapter.notifyDataSetChanged();
+                rv_checkbox_Layout.setVisibility(View.GONE);
+                checkboxModeBtn.setIconResource(R.drawable.ic_outline_check_box_24);
+
+            } else if (noteType.equals("checkbox")) {
+                textInput.setText("");
+                textInput.setVisibility(View.GONE);
+                checkableItemList.clear();
+                mAdapter.notifyDataSetChanged();
+
+                for (CheckableItem item : mNote.getCheckableItemList()) {
+                    if (item.getUid() == null)
+                        item.setUid(System.currentTimeMillis() + "" + checkableItemList.size());
+                    checkableItemList.add(new CheckableItem(item.getText(), item.getChecked(), item.getUid()));
+                    mAdapter.notifyItemInserted(checkableItemList.size() - 1);
+                }
+                rv_checkbox_Layout.setVisibility(View.VISIBLE);
+                checkboxModeBtn.setIconResource(R.drawable.ic_outline_text_fields_24);
+            }
+            checkboxModeBtn.setVisibility(View.VISIBLE);
+
+            //Setup last edit text
+            if (mNote.getCreation_date() != null && mNote.getEdited() != null) {
+                Date date = mNote.getCreation_date();
+
+                if (mNote.getEdited()) {
+                    lastEditTv.setText(MessageFormat.format("Last edit {0}", LastEdit.getLastEdit(date.getTime())));
+                    if (mNote.getNumber_of_edits() != null) {
+                        if (mNote.getNumber_of_edits() == 1) {
+                            numberOfEditsTv.setText(MessageFormat.format("{0} Edit", mNote.getNumber_of_edits()));
+                        } else if (mNote.getNumber_of_edits() > 1) {
+                            numberOfEditsTv.setText(MessageFormat.format("{0} Edits", mNote.getNumber_of_edits()));
+                        }
+                    }
+                } else {
+                    lastEditTv.setText(MessageFormat.format("Created {0}", LastEdit.getLastEdit(date.getTime())));
+                }
+
+                editLinearLayout.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        boolean hasCollaborators = false;
+                        if (mNote.getCollaboratorList().size() > 1)
+                            hasCollaborators = true;
+
+                        if (Objects.requireNonNull(Navigation.findNavController(view).getCurrentDestination()).getId()
+                                == R.id.editNoteFragment)
+                            Navigation.findNavController(view).navigate(EditNoteFragmentDirections
+                                    .actionEditNoteFragmentToNoteEditsFragment(noteID,
+                                            notePosition,
+                                            mNote.getNote_background_color(),
+                                            hasCollaborators));
+                    }
+                });
+            }
+
+            optionsBtn.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    showColorSettings();
+                }
+            });
+            retrievedNote = true;
+
+            Log.d(TAG, "onEvent: " + mNote.getCollaboratorList().toString());
+
+            if (mNote.getCollaboratorList().size() > 1) {
+                collaboratorsRV.setVisibility(View.VISIBLE);
+
+//                                if (mCollaboratorsList.size() > 0) {
+//                                    mCollaboratorsList.clear();
+//                                    collaboratorNotesAdapter.notifyDataSetChanged();
+//                                }
+//                                for (Collaborator collaborator : mNote.getCollaboratorList()) {
+//                                    mCollaboratorsList.add(collaborator);
+//                                    collaboratorNotesAdapter.notifyItemInserted(mCollaboratorsList.indexOf(collaborator));
+//                                }
+                mCollaboratorsList.clear();
+                collaboratorNotesAdapter.notifyDataSetChanged();
+
+                mCollaboratorsList.addAll(mNote.getCollaboratorList());
+                collaboratorNotesAdapter.notifyDataSetChanged();
+
+            } else {
+                collaboratorsRV.setVisibility(View.GONE);
+
+            }
+            //Start enter animation after info retrieved
+//                            startPostponedEnterTransition();
+//                            view.setLayerType(View.LAYER_TYPE_NONE, null);
+        }
     }
 
 
