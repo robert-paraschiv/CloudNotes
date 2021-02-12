@@ -111,12 +111,7 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
-        Hold hold = new Hold();
-//        hold.setStartDelay(55);
-        hold.setDuration(getResources().getInteger(R.integer.transition_home_edit_duration));
 
-        setExitTransition(hold);
-//                setReenterTransition(hold);
         super.onCreate(savedInstanceState);
     }
 
@@ -739,6 +734,13 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
 //                NavDirections navDirections = HomeFragmentDirections.actionHomeFragmentToTestFragment(note.getNote_doc_ID(), note.getNoteTitle(), note.getNoteText(),
 //                        note.getNote_background_color());
 
+
+                Hold hold = new Hold();
+//        hold.setStartDelay(55);
+                hold.setDuration(getResources().getInteger(R.integer.transition_home_edit_duration));
+
+                setExitTransition(hold);
+//                setReenterTransition(hold);
 
                 Navigation.findNavController(view).navigate(navDirections, extras);
             }

@@ -2,6 +2,7 @@ package com.rokudoz.onotes.Fragments;
 
 import android.app.AlertDialog;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -45,7 +46,7 @@ import de.hdodenhof.circleimageview.CircleImageView;
 import static com.rokudoz.onotes.App.HIDE_BANNER;
 
 public class ViewNoteEditFragment extends Fragment {
-
+    private static final String TAG = "ViewNoteEditFragment";
     private View view;
 
     private TextView titleTv, textTv;
@@ -238,12 +239,14 @@ public class ViewNoteEditFragment extends Fragment {
                                                         dialog.cancel();
                                                         if (Objects.requireNonNull(Navigation.findNavController(view).getCurrentDestination()).getId()
                                                                 == R.id.viewNoteEditFragment) {
-                                                            Collaborator collaborator = new Collaborator();
-                                                            collaborator.setUser_email(FirebaseAuth.getInstance().getCurrentUser().getEmail());
-                                                            Navigation.findNavController(view).navigate(ViewNoteEditFragmentDirections.
-                                                                    actionViewNoteEditFragmentToEditNoteFragment(noteID,
-                                                                            originalNote.getNote_background_color(),
-                                                                            notePosition));
+                                                            Log.d(TAG, "onSuccess: " + noteID);
+
+//                                                            Navigation.findNavController(view).navigate(ViewNoteEditFragmentDirections.
+//                                                                    actionViewNoteEditFragmentToEditNoteFragment(noteID,
+//                                                                            noteColor,
+//                                                                            notePosition));
+//                                                            Navigation.findNavController(view).popBackStack(R.id.editNoteFragment,false);
+                                                            Navigation.findNavController(view).popBackStack();
                                                         }
 
                                                     }
