@@ -6,7 +6,6 @@ import android.text.Editable;
 import android.text.InputType;
 import android.text.TextWatcher;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -15,10 +14,8 @@ import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.CompoundButton;
 import android.widget.ImageView;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.core.view.MotionEventCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.button.MaterialButton;
@@ -80,50 +77,41 @@ public class CheckableItemAdapter extends RecyclerView.Adapter<CheckableItemAdap
             this.dragHandle = itemView.findViewById(R.id.checkableItem_drag_handle);
             this.deleteBtn = itemView.findViewById(R.id.checkableItem_deleteBtn);
 
-            this.deleteBtn.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if (onItemClickListener != null) {
-                        int position = getAdapterPosition();
-                        if (position != RecyclerView.NO_POSITION)
-                            onItemClickListener.onDeleteClick(position);
-                    }
+            this.deleteBtn.setOnClickListener(v -> {
+                if (onItemClickListener != null) {
+                    int position = getAdapterPosition();
+                    if (position != RecyclerView.NO_POSITION)
+                        onItemClickListener.onDeleteClick(position);
                 }
             });
             this.text.setImeOptions(EditorInfo.IME_ACTION_NEXT);
             this.text.setRawInputType(InputType.TYPE_CLASS_TEXT|InputType.TYPE_TEXT_FLAG_CAP_SENTENCES);
-            this.text.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-                @Override
-                public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                    boolean handled = false;
-                    if (actionId == EditorInfo.IME_ACTION_NEXT) {
-                        if (onItemClickListener != null) {
-                            int position = getAdapterPosition();
-                            if (position != RecyclerView.NO_POSITION) {
-                                onItemClickListener.onEnterPressed(position);
-                            }
-                        }
-                        handled = true;
-                    }
-                    return handled;
-                }
-            });
-            this.checkBox.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if (((CompoundButton) v).isChecked()) {
-                        if (onItemClickListener != null) {
-                            int position = getAdapterPosition();
-                            if (position != RecyclerView.NO_POSITION) {
-                                onItemClickListener.onCheckClick(position, true);
-                            }
-                        }
-
-                    } else {
+            this.text.setOnEditorActionListener((v, actionId, event) -> {
+                boolean handled = false;
+                if (actionId == EditorInfo.IME_ACTION_NEXT) {
+                    if (onItemClickListener != null) {
                         int position = getAdapterPosition();
                         if (position != RecyclerView.NO_POSITION) {
-                            onItemClickListener.onCheckClick(position, false);
+                            onItemClickListener.onEnterPressed(position);
                         }
+                    }
+                    handled = true;
+                }
+                return handled;
+            });
+            this.checkBox.setOnClickListener(v -> {
+                if (((CompoundButton) v).isChecked()) {
+                    if (onItemClickListener != null) {
+                        int position = getAdapterPosition();
+                        if (position != RecyclerView.NO_POSITION) {
+                            onItemClickListener.onCheckClick(position, true);
+                        }
+                    }
+
+                } else {
+                    int position = getAdapterPosition();
+                    if (position != RecyclerView.NO_POSITION) {
+                        onItemClickListener.onCheckClick(position, false);
                     }
                 }
             });
@@ -148,15 +136,12 @@ public class CheckableItemAdapter extends RecyclerView.Adapter<CheckableItemAdap
                 }
             });
 
-            this.dragHandle.setOnTouchListener(new View.OnTouchListener() {
-                @Override
-                public boolean onTouch(View v, MotionEvent event) {
-                    int position = getAdapterPosition();
-                    if (position != RecyclerView.NO_POSITION & event.getActionMasked() == MotionEvent.ACTION_DOWN) {
-                        onStartDragListener.onStartDrag(position);
-                    }
-                    return false;
+            this.dragHandle.setOnTouchListener((v, event) -> {
+                int position = getAdapterPosition();
+                if (position != RecyclerView.NO_POSITION & event.getActionMasked() == MotionEvent.ACTION_DOWN) {
+                    onStartDragListener.onStartDrag(position);
                 }
+                return false;
             });
         }
     }
@@ -183,13 +168,10 @@ public class CheckableItemAdapter extends RecyclerView.Adapter<CheckableItemAdap
         }
 
         if (currentItem != null && currentItem.getShouldBeFocused() != null && currentItem.getShouldBeFocused()) {
-            holder.text.post(new Runnable() {
-                @Override
-                public void run() {
-                    if (holder.text.requestFocus()) {
-                        InputMethodManager inputMethodManager = (InputMethodManager) holder.text.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
-                        inputMethodManager.showSoftInput(holder.text, InputMethodManager.SHOW_IMPLICIT);
-                    }
+            holder.text.post(() -> {
+                if (holder.text.requestFocus()) {
+                    InputMethodManager inputMethodManager = (InputMethodManager) holder.text.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+                    inputMethodManager.showSoftInput(holder.text, InputMethodManager.SHOW_IMPLICIT);
                 }
             });
             currentItem.setShouldBeFocused(false);

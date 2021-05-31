@@ -115,14 +115,11 @@ public class NoteEditsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
             this.noCollaboratorsDateTv = itemView.findViewById(R.id.rv_note_edits_checkboxNote_noCollaborators_dateTv);
 
             itemView.setOnClickListener(this);
-            recyclerView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if (mListener != null) {
-                        int position = getAdapterPosition();
-                        if (position != RecyclerView.NO_POSITION) {
-                            mListener.onItemClick(position);
-                        }
+            recyclerView.setOnClickListener(v -> {
+                if (mListener != null) {
+                    int position = getAdapterPosition();
+                    if (position != RecyclerView.NO_POSITION) {
+                        mListener.onItemClick(position);
                     }
                 }
             });

@@ -15,13 +15,10 @@ import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.button.MaterialButton;
-import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
-import com.google.firebase.firestore.QuerySnapshot;
 import com.rokudoz.onotes.Adapters.NoteEditsAdapter;
 import com.rokudoz.onotes.Models.Note;
 import com.rokudoz.onotes.R;
@@ -49,7 +46,6 @@ public class NoteEditsFragment extends Fragment implements NoteEditsAdapter.OnIt
     private final List<Note> noteList = new ArrayList<>();
 
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
-    private final CollectionReference usersRef = db.collection("Users");
 
     private DocumentSnapshot mLastQueriedDocument;
 
@@ -91,13 +87,10 @@ public class NoteEditsFragment extends Fragment implements NoteEditsAdapter.OnIt
         }
 
         MaterialButton backBtn = view.findViewById(R.id.noteEditsFragment_backBtn);
-        backBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (Objects.requireNonNull(Navigation.findNavController(view).getCurrentDestination()).getId() == R.id.noteEditsFragment)
-                    Navigation.findNavController(view).popBackStack();
+        backBtn.setOnClickListener(v -> {
+            if (Objects.requireNonNull(Navigation.findNavController(view).getCurrentDestination()).getId() == R.id.noteEditsFragment)
+                Navigation.findNavController(view).popBackStack();
 //                    Navigation.findNavController(view).navigate(NoteEditsFragmentDirections.actionNoteEditsFragmentToEditNoteFragment(noteID, noteColor));
-            }
         });
 
         //If user comes back from another fragment, hide progress bar
@@ -147,32 +140,29 @@ public class NoteEditsFragment extends Fragment implements NoteEditsAdapter.OnIt
                     .orderBy("creation_date", Query.Direction.DESCENDING).limit(10);
         }
 
-        notesQuery.get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
-            @Override
-            public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
-                if (queryDocumentSnapshots != null) {
-                    for (DocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
-                        //hide progress bar
-                        progressBar.setVisibility(View.GONE);
+        notesQuery.get().addOnSuccessListener(queryDocumentSnapshots -> {
+            if (queryDocumentSnapshots != null) {
+                for (DocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
+                    //hide progress bar
+                    progressBar.setVisibility(View.GONE);
 
-                        Note note = documentSnapshot.toObject(Note.class);
-                        if (note != null) {
-                            note.setNote_doc_ID(documentSnapshot.getId());
-                            note.setHas_collaborators(note_has_collaborators);
-                            if (noteList.contains(note)) {
-                                noteList.set(noteList.indexOf(note), note);
-                                noteEditsAdapter.notifyItemChanged(noteList.indexOf(note));
-                            } else {
-                                noteList.add(note);
-                                noteEditsAdapter.notifyItemInserted(noteList.size() - 1);
-                            }
+                    Note note = documentSnapshot.toObject(Note.class);
+                    if (note != null) {
+                        note.setNote_doc_ID(documentSnapshot.getId());
+                        note.setHas_collaborators(note_has_collaborators);
+                        if (noteList.contains(note)) {
+                            noteList.set(noteList.indexOf(note), note);
+                            noteEditsAdapter.notifyItemChanged(noteList.indexOf(note));
+                        } else {
+                            noteList.add(note);
+                            noteEditsAdapter.notifyItemInserted(noteList.size() - 1);
                         }
                     }
+                }
 
-                    if (queryDocumentSnapshots.getDocuments().size() != 0) {
-                        mLastQueriedDocument = queryDocumentSnapshots.getDocuments()
-                                .get(queryDocumentSnapshots.getDocuments().size() - 1);
-                    }
+                if (queryDocumentSnapshots.getDocuments().size() != 0) {
+                    mLastQueriedDocument = queryDocumentSnapshots.getDocuments()
+                            .get(queryDocumentSnapshots.getDocuments().size() - 1);
                 }
             }
         });

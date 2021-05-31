@@ -77,14 +77,11 @@ public class TrashNotesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
             this.recyclerView = itemView.findViewById(R.id.rv_home_checkboxNote_recyclerView);
 
             itemView.setOnClickListener(this);
-            recyclerView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if (mListener != null) {
-                        int position = getAdapterPosition();
-                        if (position != RecyclerView.NO_POSITION) {
-                            mListener.onItemClick(position);
-                        }
+            recyclerView.setOnClickListener(v -> {
+                if (mListener != null) {
+                    int position = getAdapterPosition();
+                    if (position != RecyclerView.NO_POSITION) {
+                        mListener.onItemClick(position);
                     }
                 }
             });

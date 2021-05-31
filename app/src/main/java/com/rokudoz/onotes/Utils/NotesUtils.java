@@ -27,14 +27,8 @@ public class NotesUtils {
 
     public static boolean compareCheckableItemLists(List<CheckableItem> list1, List<CheckableItem> list2) {
 
-        if (list1 == null && list2 == null) {
+        if (list1 == null || list2 == null) {
             Log.d(TAG, "compareCheckableItemLists: lists are both null");
-        } else if (list1 != null && list2 == null) {
-            Log.d(TAG, "compareCheckableItemLists: first list not null, second list null");
-            return true;
-        } else if (list1 == null && list2 != null) {
-            Log.d(TAG, "compareCheckableItemLists: first list null, second list not null");
-            return true;
         } else {
             if (list1.size() == list2.size()) {
 
@@ -43,8 +37,11 @@ public class NotesUtils {
                     if (list2.contains(item)) {
                         if (list2.get(list2.indexOf(item)).getChecked() != item.getChecked()) {
                             //list contains the checkbox, but its checked differently
-                            Log.d(TAG, "compareCheckableItemLists: item1 " + item.getUid() + " " + item.getText() + " " + item.getChecked() + " item2 " + list2.get(list2.indexOf(item)).getUid() + " " + list2.get(list2.indexOf(item)).getText() +
+                            Log.d(TAG, "compareCheckableItemLists: item1 " + item.getUid() + " " + item.getText() + " " + item.getChecked()
+                                    + " item2 " + list2.get(list2.indexOf(item)).getUid() + " " + list2.get(list2.indexOf(item)).getText() +
                                     " " + list2.get(list2.indexOf(item)).getChecked() + "");
+                            return true;
+                        } else if (!list2.get(list2.indexOf(item)).getText().equals(item.getText())) {
                             return true;
                         }
                     } else {
@@ -58,8 +55,11 @@ public class NotesUtils {
                     if (list1.contains(item)) {
                         if (list1.get(list1.indexOf(item)).getChecked() != item.getChecked()) {
                             //list contains the checkbox, but its checked differently
-                            Log.d(TAG, "compareCheckableItemLists: item1 " + item.getText() + " " + item.getChecked() + " item2 " + list1.get(list1.indexOf(item)).getText() +
+                            Log.d(TAG, "compareCheckableItemLists: item1 " + item.getText() + " " + item.getChecked() + " item2 "
+                                    + list1.get(list1.indexOf(item)).getText() +
                                     " " + list1.get(list1.indexOf(item)).getChecked() + "");
+                            return true;
+                        } else if (!list1.get(list1.indexOf(item)).getText().equals(item.getText())) {
                             return true;
                         }
                     } else {
@@ -140,14 +140,15 @@ public class NotesUtils {
         for (int i = 0; i < currentNoteTextList.size(); i++) {
             if (oldNoteTextList.size() > i) {
                 if (!currentNoteTextList.get(i).equals(oldNoteTextList.get(i))) {
-                    noteChangeList.add(new NoteChange(NOTE_CHANGE_TYPE_CHANGE, currentNoteTextList.get(i), oldNoteTextList.get(i), null, null));
+                    noteChangeList.add(new NoteChange(NOTE_CHANGE_TYPE_CHANGE, currentNoteTextList.get(i),
+                            oldNoteTextList.get(i), null, null));
                 }
             } else {
                 noteChangeList.add(new NoteChange(NOTE_CHANGE_TYPE_ADDED, currentNoteTextList.get(i), null, null, null));
             }
         }
         if (oldNoteTextList.size() > currentNoteTextList.size()) {
-            for (int i = currentNoteTextList.size() ; i < oldNoteTextList.size(); i++) {
+            for (int i = currentNoteTextList.size(); i < oldNoteTextList.size(); i++) {
                 noteChangeList.add(new NoteChange(NOTE_CHANGE_TYPE_REMOVED, null, oldNoteTextList.get(i), null, null));
             }
         }
@@ -172,7 +173,8 @@ public class NotesUtils {
                 comparedItemsList.add(newItem);
 
                 if (!oldItem.getText().equals(newItem.getText()) || !oldItem.getChecked().equals(newItem.getChecked())) {
-                    noteChangeList.add(new NoteChange(NOTE_CHANGE_TYPE_CHANGE, newItem.getText(), oldItem.getText(), newItem.getChecked(), oldItem.getChecked()));
+                    noteChangeList.add(new NoteChange(NOTE_CHANGE_TYPE_CHANGE, newItem.getText(), oldItem.getText(), newItem.getChecked(),
+                            oldItem.getChecked()));
                 }
 
             } else {
@@ -187,7 +189,8 @@ public class NotesUtils {
                 if (!comparedItemsList.contains(oldItem)) {
                     if (!oldItem.getText().equals(newItem.getText()) || !oldItem.getChecked().equals(newItem.getChecked())) {
                         comparedItemsList.add(oldItem);
-                        noteChangeList.add(new NoteChange(NOTE_CHANGE_TYPE_CHANGE, newItem.getText(), oldItem.getText(), newItem.getChecked(), oldItem.getChecked()));
+                        noteChangeList.add(new NoteChange(NOTE_CHANGE_TYPE_CHANGE, newItem.getText(), oldItem.getText(), newItem.getChecked(),
+                                oldItem.getChecked()));
                     }
                 }
 
@@ -200,8 +203,8 @@ public class NotesUtils {
 
 
     /* Splits a string's lines into a list to calculate a RON sum
-    *  If the line contains the word "lei" it tries to get the amount and add it to the sum
-    * */
+     *  If the line contains the word "lei" it tries to get the amount and add it to the sum
+     * */
     public static Integer CalculateRONPrice(String text, Context context) {
         String[] noteTextList = text.split("\\r?\\n");
         int price = 0;

@@ -92,7 +92,7 @@ public class MainActivity extends AppCompatActivity {
         mBannerAd.loadAd(new AdRequest.Builder().build());
 
         //Show ads
-        loadSupportAppRewardedAd();
+//        loadSupportAppRewardedAd();
         loadCloseBannerRewardedAd();
     }
 

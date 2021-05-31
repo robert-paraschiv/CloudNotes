@@ -33,7 +33,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 
 import com.bumptech.glide.Glide;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.transition.Hold;
@@ -41,11 +40,8 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.ListenerRegistration;
-import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.WriteBatch;
 import com.rokudoz.onotes.Adapters.HomePageAdapter;
 import com.rokudoz.onotes.Dialogs.SettingsDialogFragment;
@@ -160,13 +156,10 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
             userPicture = view.findViewById(R.id.homeFragment_userImage);
             layoutManagerIcon = view.findViewById(R.id.homeFragment_layoutManagerIcon);
 
-            addNewNoteBtn.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if (Objects.requireNonNull(Navigation.findNavController(view).getCurrentDestination()).getId() == R.id.homeFragment)
-                        Navigation.findNavController(view).navigate(HomeFragmentDirections.actionHomeFragmentToNewNoteFragment());
+            addNewNoteBtn.setOnClickListener(v -> {
+                if (Objects.requireNonNull(Navigation.findNavController(view).getCurrentDestination()).getId() == R.id.homeFragment)
+                    Navigation.findNavController(view).navigate(HomeFragmentDirections.actionHomeFragmentToNewNoteFragment());
 
-                }
             });
 
             buildRecyclerView();
@@ -270,21 +263,18 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
         }
 
         //Change type of home layout on click : Staggered / Linear
-        layoutManagerIcon.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (sharedPreferences.getInt("home_layout_manager_type", 0) == LAYOUT_STAGGERED_TYPE) {
-                    recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-                    sharedPrefsEditor.putInt("home_layout_manager_type", 1);
-                    layoutManagerIcon.setImageResource(R.drawable.ic_outline_dashboard_24);
-                } else {
-                    StaggeredGridLayoutManager staggeredGridLayoutManager = new StaggeredGridLayoutManager(2, LinearLayoutManager.VERTICAL);
-                    recyclerView.setLayoutManager(staggeredGridLayoutManager);
-                    sharedPrefsEditor.putInt("home_layout_manager_type", 0);
-                    layoutManagerIcon.setImageResource(R.drawable.ic_outline_view_agenda_24);
-                }
-                sharedPrefsEditor.apply();
+        layoutManagerIcon.setOnClickListener(v -> {
+            if (sharedPreferences.getInt("home_layout_manager_type", 0) == LAYOUT_STAGGERED_TYPE) {
+                recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+                sharedPrefsEditor.putInt("home_layout_manager_type", 1);
+                layoutManagerIcon.setImageResource(R.drawable.ic_outline_dashboard_24);
+            } else {
+                StaggeredGridLayoutManager staggeredGridLayoutManager = new StaggeredGridLayoutManager(2, LinearLayoutManager.VERTICAL);
+                recyclerView.setLayoutManager(staggeredGridLayoutManager);
+                sharedPrefsEditor.putInt("home_layout_manager_type", 0);
+                layoutManagerIcon.setImageResource(R.drawable.ic_outline_view_agenda_24);
             }
+            sharedPrefsEditor.apply();
         });
 
 //        recyclerView.setHasFixedSize(true); // If you set these two up, rearranging the items in the rv glitches
@@ -329,13 +319,10 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
 
                 if (actionMode != null) {
                     final Handler handler = new Handler();
-                    handler.postDelayed(new Runnable() {
-                        @Override
-                        public void run() {
-                            //Stop action mode after delay
-                            if (actionMode != null)
-                                actionMode.finish();
-                        }
+                    handler.postDelayed(() -> {
+                        //Stop action mode after delay
+                        if (actionMode != null)
+                            actionMode.finish();
                     }, 200);
                 }
                 return true;
@@ -358,32 +345,26 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
         if (FirebaseAuth.getInstance().getCurrentUser() != null && FirebaseAuth.getInstance().getCurrentUser().getEmail() != null) {
             notesDetailsListener = usersRef.document(FirebaseAuth.getInstance().getCurrentUser().getUid()).collection(NotesUtils.NOTES_DETAILS)
                     .orderBy("note_position")
-                    .addSnapshotListener(new EventListener<QuerySnapshot>() {
-                        @Override
-                        public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
-                            if (error == null && value != null && value.size() > 0) {
-                                for (DocumentSnapshot noteDetailsSnapshot : value) {
-                                    final NoteDetails noteDetails = noteDetailsSnapshot.toObject(NoteDetails.class);
-                                    if (noteDetails != null) {
-                                        notesListener = db.collection("Notes").document(noteDetails.getNote_doc_id())
-                                                .addSnapshotListener(new EventListener<DocumentSnapshot>() {
-                                                    @Override
-                                                    public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException error) {
-                                                        if (documentSnapshot != null && error == null) {
-                                                            Note note = documentSnapshot.toObject(Note.class);
-                                                            if (note != null) {
-                                                                note.setNote_doc_ID(documentSnapshot.getId());
-                                                                handleNoteEvent(note, noteDetails);
-                                                            }
-                                                        }
+                    .addSnapshotListener((value, error) -> {
+                        if (error == null && value != null && value.size() > 0) {
+                            for (DocumentSnapshot noteDetailsSnapshot : value) {
+                                final NoteDetails noteDetails = noteDetailsSnapshot.toObject(NoteDetails.class);
+                                if (noteDetails != null) {
+                                    notesListener = db.collection("Notes").document(noteDetails.getNote_doc_id())
+                                            .addSnapshotListener((documentSnapshot, error1) -> {
+                                                if (documentSnapshot != null && error1 == null) {
+                                                    Note note = documentSnapshot.toObject(Note.class);
+                                                    if (note != null) {
+                                                        note.setNote_doc_ID(documentSnapshot.getId());
+                                                        handleNoteEvent(note, noteDetails);
                                                     }
-                                                });
-                                    }
+                                                }
+                                            });
                                 }
-                            } else {
-                                //No notes available, show no notes tv
-                                noNotesTv.setVisibility(View.VISIBLE);
                             }
+                        } else {
+                            //No notes available, show no notes tv
+                            noNotesTv.setVisibility(View.VISIBLE);
                         }
                     });
         }
@@ -494,12 +475,7 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
             if ((note.getChangedPos() != null && note.getChangedPos()) || note.getNote_position() != noteList.indexOf(note)) {
                 usersRef.document(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid()).collection(NotesUtils.NOTES_DETAILS)
                         .document(note.getNote_doc_ID())
-                        .update("note_position", noteList.indexOf(note)).addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void aVoid) {
-                        Log.d(TAG, "updateNotesPositions: updated user note position " + note.getNoteTitle() + " " + note.getNote_position());
-                    }
-                });
+                        .update("note_position", noteList.indexOf(note)).addOnSuccessListener(aVoid -> Log.d(TAG, "updateNotesPositions: updated user note position " + note.getNoteTitle() + " " + note.getNote_position()));
             }
 //            Log.d(TAG, "updateNotesPositions: notePos " + note.getNote_position() + " list pos " + noteList.indexOf(note));
         }
@@ -508,26 +484,20 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
     private void getUserInfo() {
         if (FirebaseAuth.getInstance().getCurrentUser() != null)
             userDetailsListener = usersRef.document(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid())
-                    .addSnapshotListener(new EventListener<DocumentSnapshot>() {
-                        @Override
-                        public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException e) {
-                            if (e == null && documentSnapshot != null) {
-                                mUser = documentSnapshot.toObject(User.class);
-                                if (mUser != null) {
-                                    if (mUser.getUser_profile_picture() != null) {
-                                        Glide.with(requireContext()).load(mUser.getUser_profile_picture()).centerCrop().into(userPicture);
-                                        userPicture.setOnClickListener(new View.OnClickListener() {
-                                            @Override
-                                            public void onClick(View v) {
-                                                //Settings dialog
-                                                showSettingsBottomSheet(mUser);
-                                            }
-                                        });
-                                    }
-                                    //User device token is null, update the db with new token
-                                    if (mUser.getUser_device_token() == null) {
-                                        DbUtils.getCurrentRegistrationToken(mUser, TAG);
-                                    }
+                    .addSnapshotListener((documentSnapshot, e) -> {
+                        if (e == null && documentSnapshot != null) {
+                            mUser = documentSnapshot.toObject(User.class);
+                            if (mUser != null) {
+                                if (mUser.getUser_profile_picture() != null) {
+                                    Glide.with(requireContext()).load(mUser.getUser_profile_picture()).centerCrop().into(userPicture);
+                                    userPicture.setOnClickListener(v -> {
+                                        //Settings dialog
+                                        showSettingsBottomSheet(mUser);
+                                    });
+                                }
+                                //User device token is null, update the db with new token
+                                if (mUser.getUser_device_token() == null) {
+                                    DbUtils.getCurrentRegistrationToken(mUser, TAG);
                                 }
                             }
                         }
@@ -546,37 +516,34 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
     private void setupFirebaseAuth() {
 //        Log.d(TAG, "setupFirebaseAuth: started");
 
-        mAuthListener = new FirebaseAuth.AuthStateListener() {
-            @Override
-            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
-                FirebaseUser user = firebaseAuth.getCurrentUser();
-                if (user != null) {
-                    //check if email is verified
-                    if (user.isEmailVerified()) {
-                        // DO STUFF
+        mAuthListener = firebaseAuth -> {
+            FirebaseUser user = firebaseAuth.getCurrentUser();
+            if (user != null) {
+                //check if email is verified
+                if (user.isEmailVerified()) {
+                    // DO STUFF
 
-                        if (FirebaseAuth.getInstance().getCurrentUser() != null) {
-                            currentUserCollaborator.setUser_email(FirebaseAuth.getInstance().getCurrentUser().getEmail());
-                            getUserInfo();
-                            getNotes();
-                        }
-//                        Log.d(TAG, "onAuthStateChanged: MAIL VERIFIED");
-                    } else {
-                        Toast.makeText(getActivity(), "Email is not Verified\nCheck your Inbox", Toast.LENGTH_SHORT).show();
-                        FirebaseAuth.getInstance().signOut();
+                    if (FirebaseAuth.getInstance().getCurrentUser() != null) {
+                        currentUserCollaborator.setUser_email(FirebaseAuth.getInstance().getCurrentUser().getEmail());
+                        getUserInfo();
+                        getNotes();
                     }
-
+//                        Log.d(TAG, "onAuthStateChanged: MAIL VERIFIED");
                 } else {
-                    // User is signed out
-                    Log.d(TAG, "onAuthStateChanged: signed_out");
-                    Toast.makeText(getActivity(), "Not logged in", Toast.LENGTH_SHORT).show();
-                    Intent intent = new Intent(getActivity(), LoginActivity.class);
-                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                    startActivity(intent);
-                    requireActivity().finish();
+                    Toast.makeText(getActivity(), "Email is not Verified\nCheck your Inbox", Toast.LENGTH_SHORT).show();
+                    FirebaseAuth.getInstance().signOut();
                 }
-                // ...
+
+            } else {
+                // User is signed out
+                Log.d(TAG, "onAuthStateChanged: signed_out");
+                Toast.makeText(getActivity(), "Not logged in", Toast.LENGTH_SHORT).show();
+                Intent intent = new Intent(getActivity(), LoginActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                startActivity(intent);
+                requireActivity().finish();
             }
+            // ...
         };
     }
 
@@ -643,22 +610,19 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
             if (note.getCreator_user_email().equals(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getEmail())) {
                 db.collection("Notes")
                         .document(note.getNote_doc_ID())
-                        .update("deleted", true).addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void aVoid) {
-                        Log.d(TAG, "onSuccess: Deleted note " + note.getNoteTitle());
-                        if (noteList.contains(note)) {
-                            int position = noteList.indexOf(note);
-                            noteList.remove(position);
-                            staggeredRecyclerViewAdapter.notifyItemRemoved(position);
-                        }
+                        .update("deleted", true).addOnSuccessListener(aVoid -> {
+                            Log.d(TAG, "onSuccess: Deleted note " + note.getNoteTitle());
+                            if (noteList.contains(note)) {
+                                int position = noteList.indexOf(note);
+                                noteList.remove(position);
+                                staggeredRecyclerViewAdapter.notifyItemRemoved(position);
+                            }
 
-                        notesDeleted[0]++;
-                        if (notesDeleted[0] == notesToDelete.size()) {
-                            dialog.cancel();
-                        }
-                    }
-                });
+                            notesDeleted[0]++;
+                            if (notesDeleted[0] == notesToDelete.size()) {
+                                dialog.cancel();
+                            }
+                        });
             } else {  //The current user isn't the creator of the note, update it and remove current user from collaborators
                 for (int i = 0; i < note.getCollaboratorList().size(); i++) {
                     if (note.getCollaboratorList().get(i).getUser_email().equals(FirebaseAuth.getInstance().getCurrentUser().getEmail())) {
@@ -678,21 +642,18 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
                         .document(note.getNote_doc_ID()));
                 batch.update(db.collection("Notes").document(note.getNote_doc_ID()), "users", note.getUsers());
                 batch.update(db.collection("Notes").document(note.getNote_doc_ID()), "collaboratorList", note.getCollaboratorList());
-                batch.commit().addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void aVoid) {
-                        Log.d(TAG, "onSuccess: updated collaborators successfully");
+                batch.commit().addOnSuccessListener(aVoid -> {
+                    Log.d(TAG, "onSuccess: updated collaborators successfully");
 
-                        if (noteList.contains(note)) {
-                            int position = noteList.indexOf(note);
-                            noteList.remove(position);
-                            staggeredRecyclerViewAdapter.notifyItemRemoved(position);
-                        }
+                    if (noteList.contains(note)) {
+                        int position = noteList.indexOf(note);
+                        noteList.remove(position);
+                        staggeredRecyclerViewAdapter.notifyItemRemoved(position);
+                    }
 
-                        notesDeleted[0]++;
-                        if (notesDeleted[0] == notesToDelete.size()) {
-                            dialog.cancel();
-                        }
+                    notesDeleted[0]++;
+                    if (notesDeleted[0] == notesToDelete.size()) {
+                        dialog.cancel();
                     }
                 });
             }
@@ -726,8 +687,7 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
 
                 FragmentNavigator.Extras extras = builder.build();
 
-                NavDirections navDirections = HomeFragmentDirections
-                        .actionHomeFragmentToEditNoteFragment(note.getNote_doc_ID(),
+                NavDirections navDirections = HomeFragmentDirections.actionHomeFragmentToEditNoteFragment(note.getNote_doc_ID(),
                                 note.getNote_background_color(),
                                 position);
 

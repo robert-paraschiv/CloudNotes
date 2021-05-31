@@ -16,25 +16,18 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.button.MaterialButton;
-import com.google.android.material.card.MaterialCardView;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.Query;
-import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.WriteBatch;
 import com.rokudoz.onotes.Adapters.HomePageAdapter;
 import com.rokudoz.onotes.Models.Collaborator;
@@ -61,7 +54,6 @@ public class TrashFragment extends Fragment implements HomePageAdapter.OnItemCli
     private ProgressBar progressBar;
     private final Collaborator currentUserCollaborator = new Collaborator();
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
-    private final CollectionReference usersRef = db.collection("Users");
     private ListenerRegistration notesListener;
     private View view;
     private MaterialToolbar materialToolbar;
@@ -88,49 +80,35 @@ public class TrashFragment extends Fragment implements HomePageAdapter.OnItemCli
         if (FirebaseAuth.getInstance().getCurrentUser() != null)
             currentUserCollaborator.setUser_email(FirebaseAuth.getInstance().getCurrentUser().getEmail());
 
-        backBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (Objects.requireNonNull(Navigation.findNavController(view).getCurrentDestination()).getId() == R.id.trashFragment)
-                    Navigation.findNavController(view).navigate(TrashFragmentDirections.actionTrashFragmentToHomeFragment());
-            }
+        backBtn.setOnClickListener(v -> {
+            if (Objects.requireNonNull(Navigation.findNavController(view).getCurrentDestination()).getId() == R.id.trashFragment)
+                Navigation.findNavController(view).navigate(TrashFragmentDirections.actionTrashFragmentToHomeFragment());
         });
 
-        emptyTrashBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (noteList.size() > 0) {
-                    //Dialog for delete note
-                    View dialogView = getLayoutInflater().inflate(R.layout.dialog_show_ad, (ViewGroup) view, false);
-                    final Dialog dialog = new Dialog(requireContext(), R.style.CustomBottomSheetDialogTheme);
-                    MaterialButton confirmBtn = dialogView.findViewById(R.id.dialog_ShowAd_confirmBtn);
-                    MaterialButton cancelBtn = dialogView.findViewById(R.id.dialog_ShowAd_cancelBtn);
-                    TextView title = dialogView.findViewById(R.id.dialog_ShowAd_title);
-                    title.setText("You will not be able to recover these notes after you delete them\nAre you sure you want to delete all notes?");
-                    dialog.setContentView(dialogView);
+        emptyTrashBtn.setOnClickListener(v -> {
+            if (noteList.size() > 0) {
+                //Dialog for delete note
+                View dialogView = getLayoutInflater().inflate(R.layout.dialog_show_ad, (ViewGroup) view, false);
+                final Dialog dialog = new Dialog(requireContext(), R.style.CustomBottomSheetDialogTheme);
+                MaterialButton confirmBtn = dialogView.findViewById(R.id.dialog_ShowAd_confirmBtn);
+                MaterialButton cancelBtn = dialogView.findViewById(R.id.dialog_ShowAd_cancelBtn);
+                TextView title = dialogView.findViewById(R.id.dialog_ShowAd_title);
+                title.setText("You will not be able to recover these notes after you delete them\nAre you sure you want to delete all notes?");
+                dialog.setContentView(dialogView);
 
-                    confirmBtn.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            //Delete note
-                            dialog.cancel();
-                            deleteAllNotes();
-                        }
-                    });
-                    cancelBtn.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            dialog.cancel();
-                        }
-                    });
+                confirmBtn.setOnClickListener(v1 -> {
+                    //Delete note
+                    dialog.cancel();
+                    deleteAllNotes();
+                });
+                cancelBtn.setOnClickListener(v12 -> dialog.cancel());
 
-                    dialog.show();
-                } else {
-                    Log.d(TAG, "onClick: trash is empty");
-                    Toast.makeText(requireContext(), "Your bin is already empty", Toast.LENGTH_SHORT).show();
-                }
-
+                dialog.show();
+            } else {
+                Log.d(TAG, "onClick: trash is empty");
+                Toast.makeText(requireContext(), "Your bin is already empty", Toast.LENGTH_SHORT).show();
             }
+
         });
 
         //Show Banner Ad
@@ -161,47 +139,37 @@ public class TrashFragment extends Fragment implements HomePageAdapter.OnItemCli
         db.collection("Notes")
                 .whereEqualTo("creator_user_email", Objects.requireNonNull(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getEmail()))
                 .whereEqualTo("deleted", true)
-                .get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
-            @Override
-            public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
-                if (queryDocumentSnapshots != null && queryDocumentSnapshots.size() > 0) {
-                    final int notesToDelete = queryDocumentSnapshots.size();
-                    final int[] notesDeleted = {0};
-                    for (DocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
-                        //Add note to the delete batch
-                        batch.delete(documentSnapshot.getReference());
-                        documentSnapshot.getReference().collection("Edits").get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
-                            @Override
-                            public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
-                                if (queryDocumentSnapshots != null && queryDocumentSnapshots.size() > 0) {
+                .get().addOnSuccessListener(queryDocumentSnapshots -> {
+            if (queryDocumentSnapshots != null && queryDocumentSnapshots.size() > 0) {
+                final int notesToDelete = queryDocumentSnapshots.size();
+                final int[] notesDeleted = {0};
+                for (DocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
+                    //Add note to the delete batch
+                    batch.delete(documentSnapshot.getReference());
+                    documentSnapshot.getReference().collection("Edits").get().addOnSuccessListener(queryDocumentSnapshots1 -> {
+                        if (queryDocumentSnapshots1 != null && queryDocumentSnapshots1.size() > 0) {
 
-                                    //Add inner note edits to the delete batch
-                                    for (DocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
-                                        batch.delete(documentSnapshot.getReference());
-                                    }
-                                    notesDeleted[0]++;
-                                    if (notesDeleted[0] == notesToDelete) { //finished adding notes to the batch, go commit
-
-                                        batch.commit().addOnSuccessListener(new OnSuccessListener<Void>() {
-                                            @Override
-                                            public void onSuccess(Void aVoid) {
-                                                if (getContext() != null)
-                                                    Toast.makeText(requireContext(), "Emptied trash", Toast.LENGTH_SHORT).show();
-                                                //Show No notes Text View
-                                                noNotesTv.setVisibility(View.VISIBLE);
-                                                noteList.clear();
-                                                noteEditsAdapter.notifyDataSetChanged();
-                                                dialog.cancel();
-                                                if (Navigation.findNavController(view) != null)
-                                                    if (Objects.requireNonNull(Navigation.findNavController(view).getCurrentDestination()).getId() == R.id.trashFragment)
-                                                        Navigation.findNavController(view).navigate(TrashFragmentDirections.actionTrashFragmentToHomeFragment());
-                                            }
-                                        });
-                                    }
-                                }
+                            //Add inner note edits to the delete batch
+                            for (DocumentSnapshot documentSnapshot1 : queryDocumentSnapshots1) {
+                                batch.delete(documentSnapshot1.getReference());
                             }
-                        });
-                    }
+                            notesDeleted[0]++;
+                            if (notesDeleted[0] == notesToDelete) { //finished adding notes to the batch, go commit
+
+                                batch.commit().addOnSuccessListener(aVoid -> {
+                                    if (getContext() != null)
+                                        Toast.makeText(requireContext(), "Emptied trash", Toast.LENGTH_SHORT).show();
+                                    //Show No notes Text View
+                                    noNotesTv.setVisibility(View.VISIBLE);
+                                    noteList.clear();
+                                    noteEditsAdapter.notifyDataSetChanged();
+                                    dialog.cancel();
+                                    if (Objects.requireNonNull(Navigation.findNavController(view).getCurrentDestination()).getId() == R.id.trashFragment)
+                                        Navigation.findNavController(view).navigate(TrashFragmentDirections.actionTrashFragmentToHomeFragment());
+                                });
+                            }
+                        }
+                    });
                 }
             }
         });
@@ -233,43 +201,40 @@ public class TrashFragment extends Fragment implements HomePageAdapter.OnItemCli
                     .whereEqualTo("creator_user_email", FirebaseAuth.getInstance().getCurrentUser().getEmail())
                     .whereEqualTo("deleted", true)
                     .orderBy("creation_date", Query.Direction.DESCENDING)
-                    .addSnapshotListener(new EventListener<QuerySnapshot>() {
-                        @Override
-                        public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) {
-                            if (queryDocumentSnapshots != null && queryDocumentSnapshots.size() > 0 && e == null) {
-                                //Hide progress bar
-                                progressBar.setVisibility(View.GONE);
-                                //Hide No notes Text View
-                                noNotesTv.setVisibility(View.GONE);
+                    .addSnapshotListener((queryDocumentSnapshots, e) -> {
+                        if (queryDocumentSnapshots != null && queryDocumentSnapshots.size() > 0 && e == null) {
+                            //Hide progress bar
+                            progressBar.setVisibility(View.GONE);
+                            //Hide No notes Text View
+                            noNotesTv.setVisibility(View.GONE);
 
-                                for (DocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
-                                    Note note = documentSnapshot.toObject(Note.class);
-                                    if (note != null) {
-                                        note.setNote_doc_ID(documentSnapshot.getId());
-                                        if (noteList.contains(note)) {
-                                            if (note.getDeleted()) {
-                                                noteList.set(noteList.indexOf(note), note);
-                                                noteEditsAdapter.notifyItemChanged(noteList.indexOf(note));
-                                            } else {
-                                                int notePosition = noteList.indexOf(note);
-                                                noteList.remove(note);
-                                                noteEditsAdapter.notifyItemRemoved(notePosition);
-                                            }
+                            for (DocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
+                                Note note = documentSnapshot.toObject(Note.class);
+                                if (note != null) {
+                                    note.setNote_doc_ID(documentSnapshot.getId());
+                                    if (noteList.contains(note)) {
+                                        if (note.getDeleted()) {
+                                            noteList.set(noteList.indexOf(note), note);
+                                            noteEditsAdapter.notifyItemChanged(noteList.indexOf(note));
                                         } else {
-                                            if (note.getDeleted()) {
-                                                noteList.add(note);
-                                                noteEditsAdapter.notifyItemInserted(noteList.size() - 1);
-                                            }
+                                            int notePosition = noteList.indexOf(note);
+                                            noteList.remove(note);
+                                            noteEditsAdapter.notifyItemRemoved(notePosition);
+                                        }
+                                    } else {
+                                        if (note.getDeleted()) {
+                                            noteList.add(note);
+                                            noteEditsAdapter.notifyItemInserted(noteList.size() - 1);
                                         }
                                     }
                                 }
-                            } else {
-                                //Hide progress bar
-                                progressBar.setVisibility(View.GONE);
-                                //Show No notes Text View
-                                noNotesTv.setVisibility(View.VISIBLE);
-                                Log.d(TAG, "onEvent: empty trash bin");
                             }
+                        } else {
+                            //Hide progress bar
+                            progressBar.setVisibility(View.GONE);
+                            //Show No notes Text View
+                            noNotesTv.setVisibility(View.VISIBLE);
+                            Log.d(TAG, "onEvent: empty trash bin");
                         }
                     });
     }
@@ -293,32 +258,26 @@ public class TrashFragment extends Fragment implements HomePageAdapter.OnItemCli
         final int[] counter = {0};
         for (final Note note : notesToDelete) {
             db.collection("Notes").document(note.getNote_doc_ID()).collection("Edits").get()
-                    .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
-                        @Override
-                        public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
-                            if (queryDocumentSnapshots != null && queryDocumentSnapshots.size() > 0) {
-                                WriteBatch batch = db.batch();
-                                for (DocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
-                                    batch.delete(documentSnapshot.getReference());
-                                }
-                                batch.delete(db.collection("Notes").document(note.getNote_doc_ID()));
-                                batch.commit().addOnSuccessListener(new OnSuccessListener<Void>() {
-                                    @Override
-                                    public void onSuccess(Void aVoid) {
-                                        //Remove note from list
-                                        int position = noteList.indexOf(note);
-                                        noteList.remove(note);
-                                        noteEditsAdapter.notifyItemRemoved(position);
-
-                                        counter[0]++;
-                                        //If all selected notes have been deleted
-                                        if (counter[0] == notesToDelete.size()) {
-                                            Toast.makeText(requireContext(), "Deleted all notes", Toast.LENGTH_SHORT).show();
-                                            dialog.cancel();
-                                        }
-                                    }
-                                });
+                    .addOnSuccessListener(queryDocumentSnapshots -> {
+                        if (queryDocumentSnapshots != null && queryDocumentSnapshots.size() > 0) {
+                            WriteBatch batch = db.batch();
+                            for (DocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
+                                batch.delete(documentSnapshot.getReference());
                             }
+                            batch.delete(db.collection("Notes").document(note.getNote_doc_ID()));
+                            batch.commit().addOnSuccessListener(aVoid -> {
+                                //Remove note from list
+                                int position = noteList.indexOf(note);
+                                noteList.remove(note);
+                                noteEditsAdapter.notifyItemRemoved(position);
+
+                                counter[0]++;
+                                //If all selected notes have been deleted
+                                if (counter[0] == notesToDelete.size()) {
+                                    Toast.makeText(requireContext(), "Deleted all notes", Toast.LENGTH_SHORT).show();
+                                    dialog.cancel();
+                                }
+                            });
                         }
                     });
         }
@@ -333,20 +292,17 @@ public class TrashFragment extends Fragment implements HomePageAdapter.OnItemCli
 
         final int[] counter = {0};
         for (final Note note : notesToRestore) {
-            db.collection("Notes").document(note.getNote_doc_ID()).update("deleted", false).addOnSuccessListener(new OnSuccessListener<Void>() {
-                @Override
-                public void onSuccess(Void aVoid) {
-                    //Remove note from list
-                    int position = noteList.indexOf(note);
-                    noteList.remove(note);
-                    noteEditsAdapter.notifyItemRemoved(position);
+            db.collection("Notes").document(note.getNote_doc_ID()).update("deleted", false).addOnSuccessListener(aVoid -> {
+                //Remove note from list
+                int position = noteList.indexOf(note);
+                noteList.remove(note);
+                noteEditsAdapter.notifyItemRemoved(position);
 
-                    counter[0]++;
-                    //If all selected notes have been restored
-                    if (counter[0] == notesToRestore.size()) {
-                        Toast.makeText(requireContext(), "Selected notes have been restored", Toast.LENGTH_SHORT).show();
-                        dialog.cancel();
-                    }
+                counter[0]++;
+                //If all selected notes have been restored
+                if (counter[0] == notesToRestore.size()) {
+                    Toast.makeText(requireContext(), "Selected notes have been restored", Toast.LENGTH_SHORT).show();
+                    dialog.cancel();
                 }
             });
         }

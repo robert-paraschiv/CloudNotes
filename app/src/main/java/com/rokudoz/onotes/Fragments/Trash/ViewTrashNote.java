@@ -19,12 +19,9 @@ import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.button.MaterialButton;
-import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.WriteBatch;
 import com.rokudoz.onotes.Adapters.NonCheckableAdapter;
 import com.rokudoz.onotes.Models.CheckableItem;
@@ -52,13 +49,13 @@ public class ViewTrashNote extends Fragment {
     String noteID = "";
 
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
-    private final CollectionReference usersRef = db.collection("Users");
 
 
     public ViewTrashNote() {
         // Required empty public constructor
     }
 
+    @SuppressLint("SetTextI18n")
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.fragment_view_trash_note, container, false);
@@ -88,70 +85,49 @@ public class ViewTrashNote extends Fragment {
             getNote(noteID);
         }
 
-        backBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (Objects.requireNonNull(Navigation.findNavController(view).getCurrentDestination()).getId() == R.id.viewTrashNote)
-                    Navigation.findNavController(view).navigate(ViewTrashNoteDirections.actionViewTrashNoteToTrashFragment());
-            }
+        backBtn.setOnClickListener(v -> {
+            if (Objects.requireNonNull(Navigation.findNavController(view).getCurrentDestination()).getId() == R.id.viewTrashNote)
+                Navigation.findNavController(view).navigate(ViewTrashNoteDirections.actionViewTrashNoteToTrashFragment());
         });
 
-        deleteBtn.setOnClickListener(new View.OnClickListener() {
-            @SuppressLint("SetTextI18n")
-            @Override
-            public void onClick(View v) {
+        deleteBtn.setOnClickListener(v -> {
 
-                //Dialog for delete note
-                View dialogView = getLayoutInflater().inflate(R.layout.dialog_show_ad, (ViewGroup) view, false);
-                final Dialog dialog = new Dialog(requireContext(), R.style.CustomBottomSheetDialogTheme);
-                MaterialButton confirmBtn = dialogView.findViewById(R.id.dialog_ShowAd_confirmBtn);
-                MaterialButton cancelBtn = dialogView.findViewById(R.id.dialog_ShowAd_cancelBtn);
-                TextView title = dialogView.findViewById(R.id.dialog_ShowAd_title);
-                title.setText("Are you sure you want to delete this note forever?");
-                dialog.setContentView(dialogView);
+            //Dialog for delete note
+            View dialogView = getLayoutInflater().inflate(R.layout.dialog_show_ad, (ViewGroup) view, false);
+            final Dialog dialog = new Dialog(requireContext(), R.style.CustomBottomSheetDialogTheme);
+            MaterialButton confirmBtn = dialogView.findViewById(R.id.dialog_ShowAd_confirmBtn);
+            MaterialButton cancelBtn = dialogView.findViewById(R.id.dialog_ShowAd_cancelBtn);
+            TextView title = dialogView.findViewById(R.id.dialog_ShowAd_title);
+            title.setText("Are you sure you want to delete this note forever?");
+            dialog.setContentView(dialogView);
 
-                confirmBtn.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        //Delete note
-                        dialog.cancel();
-                        final WriteBatch batch = db.batch();
-                        db.collection("Notes").document(noteID)
-                                .collection("Edits").get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
-                            @Override
-                            public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
-                                if (queryDocumentSnapshots != null && queryDocumentSnapshots.size() > 0) {
-                                    for (DocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
-                                        batch.delete(documentSnapshot.getReference());
-                                    }
-                                    batch.delete(db.collection("Notes").document(noteID));
-                                    batch.commit().addOnSuccessListener(new OnSuccessListener<Void>() {
-                                        @Override
-                                        public void onSuccess(Void aVoid) {
-                                            Toast.makeText(getContext(), "Deleted note", Toast.LENGTH_SHORT).show();
-                                            Log.d(TAG, "onSuccess: Deleted note");
-                                            hideSoftKeyboard(requireActivity());
-                                            if (Objects.requireNonNull(Navigation.findNavController(view).getCurrentDestination()).getId()
-                                                    == R.id.viewTrashNote)
-                                                Navigation.findNavController(view).navigate(ViewTrashNoteDirections.actionViewTrashNoteToTrashFragment());
-                                        }
-                                    });
+            confirmBtn.setOnClickListener(v1 -> {
+                //Delete note
+                dialog.cancel();
+                final WriteBatch batch = db.batch();
+                db.collection("Notes").document(noteID)
+                        .collection("Edits").get().addOnSuccessListener(queryDocumentSnapshots -> {
+                            if (queryDocumentSnapshots != null && queryDocumentSnapshots.size() > 0) {
+                                for (DocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
+                                    batch.delete(documentSnapshot.getReference());
                                 }
+                                batch.delete(db.collection("Notes").document(noteID));
+                                batch.commit().addOnSuccessListener(aVoid -> {
+                                    Toast.makeText(getContext(), "Deleted note", Toast.LENGTH_SHORT).show();
+                                    Log.d(TAG, "onSuccess: Deleted note");
+                                    hideSoftKeyboard(requireActivity());
+                                    if (Objects.requireNonNull(Navigation.findNavController(view).getCurrentDestination()).getId()
+                                            == R.id.viewTrashNote)
+                                        Navigation.findNavController(view).navigate(ViewTrashNoteDirections.actionViewTrashNoteToTrashFragment());
+                                });
                             }
                         });
 
-                    }
-                });
-                cancelBtn.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        dialog.cancel();
-                    }
-                });
+            });
+            cancelBtn.setOnClickListener(v12 -> dialog.cancel());
 
-                dialog.show();
+            dialog.show();
 
-            }
         });
 
 
@@ -172,33 +148,29 @@ public class ViewTrashNote extends Fragment {
 
     private void getNote(final String noteID) {
         db.collection("Notes").document(noteID)
-                .get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-            @Override
-            public void onSuccess(DocumentSnapshot documentSnapshot) {
-                if (documentSnapshot != null) {
-                    //Hide progress bar
-                    progressBar.setVisibility(View.GONE);
+                .get().addOnSuccessListener(documentSnapshot -> {
+                    if (documentSnapshot != null) {
+                        //Hide progress bar
+                        progressBar.setVisibility(View.GONE);
 
-                    final Note note = documentSnapshot.toObject(Note.class);
-                    if (note != null) {
-                        note.setNote_doc_ID(documentSnapshot.getId());
-                        if (note.getNoteTitle() != null)
-                            titleTv.setText(note.getNoteTitle());
-                        if (note.getNoteText() != null)
-                            textTv.setText(note.getNoteText());
+                        final Note note = documentSnapshot.toObject(Note.class);
+                        if (note != null) {
+                            note.setNote_doc_ID(documentSnapshot.getId());
+                            if (note.getNoteTitle() != null)
+                                titleTv.setText(note.getNoteTitle());
+                            if (note.getNoteText() != null)
+                                textTv.setText(note.getNoteText());
 
-                        if (note.getNoteType() != null && note.getNoteType().equals("checkbox")) {
-                            recyclerView.setVisibility(View.VISIBLE);
-                            textTv.setVisibility(View.INVISIBLE);
-                            if (note.getCheckableItemList() != null)
-                                buildRecyclerView(note.getCheckableItemList());
-                        } else {
-                            recyclerView.setVisibility(View.INVISIBLE);
-                        }
+                            if (note.getNoteType() != null && note.getNoteType().equals("checkbox")) {
+                                recyclerView.setVisibility(View.VISIBLE);
+                                textTv.setVisibility(View.INVISIBLE);
+                                if (note.getCheckableItemList() != null)
+                                    buildRecyclerView(note.getCheckableItemList());
+                            } else {
+                                recyclerView.setVisibility(View.INVISIBLE);
+                            }
 
-                        restoreBtn.setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(final View v) {
+                            restoreBtn.setOnClickListener(v -> {
                                 AlertDialog.Builder builder = new AlertDialog.Builder(getContext(), R.style.CustomBottomSheetDialogTheme);
                                 builder.setCancelable(false);
                                 builder.setView(R.layout.dialog_please_wait);
@@ -206,21 +178,16 @@ public class ViewTrashNote extends Fragment {
                                 dialog.show();
 
                                 db.collection("Notes").document(noteID)
-                                        .update("deleted", false).addOnSuccessListener(new OnSuccessListener<Void>() {
-                                    @Override
-                                    public void onSuccess(Void aVoid) {
-                                        dialog.cancel();
-                                        if (Objects.requireNonNull(Navigation.findNavController(view).getCurrentDestination()).getId() == R.id.viewTrashNote)
-                                            Navigation.findNavController(view).navigate(ViewTrashNoteDirections.actionViewTrashNoteToTrashFragment());
-                                    }
-                                });
+                                        .update("deleted", false).addOnSuccessListener(aVoid -> {
+                                            dialog.cancel();
+                                            if (Objects.requireNonNull(Navigation.findNavController(view).getCurrentDestination()).getId() == R.id.viewTrashNote)
+                                                Navigation.findNavController(view).navigate(ViewTrashNoteDirections.actionViewTrashNoteToTrashFragment());
+                                        });
 
-                            }
-                        });
+                            });
+                        }
                     }
-                }
-            }
-        });
+                });
 
     }
 

@@ -9,8 +9,8 @@ android {
         applicationId "com.rokudoz.onotes"
         minSdkVersion 25
         targetSdkVersion 30
-        versionCode 35
-        versionName "1.34"
+        versionCode 38
+        versionName "1.38"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         signingConfig signingConfigs.debug

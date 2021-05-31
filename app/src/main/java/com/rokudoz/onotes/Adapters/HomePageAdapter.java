@@ -32,7 +32,7 @@ public class HomePageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     private OnItemClickListener mListener;
     private List<Note> noteList;
     private final List<Note> selected = new ArrayList<>();
-    private List<Note> noteListFull = new ArrayList<>();
+    private List<Note> noteListFull;
     private Boolean firstStart = true;
     private final Context mContext;
 
@@ -135,34 +135,11 @@ public class HomePageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
             itemView.setOnClickListener(this);
             itemView.setOnLongClickListener(this);
-            recyclerView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if (mListener != null) {
-                        int position = getAdapterPosition();
-                        if (position != RecyclerView.NO_POSITION) {
-                            if (selected.size() > 0) {
-                                if (selected.contains(noteList.get(position))) {
-                                    selected.remove(noteList.get(position));
-                                    setItemBackgroundColor(itemView, position, false, null);
-                                } else {
-                                    selected.add(noteList.get(position));
-                                    setItemBackgroundColor(itemView, position, true, null);
-                                }
-                            }
-
-                            mListener.onItemClick(position, noteTitle, null, recyclerView, collaboratorsRv, relativeLayout);
-                        }
-                    }
-                }
-            });
-
-            recyclerView.setOnLongClickListener(new View.OnLongClickListener() {
-                @Override
-                public boolean onLongClick(View v) {
-                    if (mListener != null) {
-                        int position = getAdapterPosition();
-                        if (position != RecyclerView.NO_POSITION) {
+            recyclerView.setOnClickListener(v -> {
+                if (mListener != null) {
+                    int position = getAdapterPosition();
+                    if (position != RecyclerView.NO_POSITION) {
+                        if (selected.size() > 0) {
                             if (selected.contains(noteList.get(position))) {
                                 selected.remove(noteList.get(position));
                                 setItemBackgroundColor(itemView, position, false, null);
@@ -170,11 +147,28 @@ public class HomePageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                                 selected.add(noteList.get(position));
                                 setItemBackgroundColor(itemView, position, true, null);
                             }
-                            mListener.onLongItemClick(position);
                         }
+
+                        mListener.onItemClick(position, noteTitle, null, recyclerView, collaboratorsRv, relativeLayout);
                     }
-                    return true;
                 }
+            });
+
+            recyclerView.setOnLongClickListener(v -> {
+                if (mListener != null) {
+                    int position = getAdapterPosition();
+                    if (position != RecyclerView.NO_POSITION) {
+                        if (selected.contains(noteList.get(position))) {
+                            selected.remove(noteList.get(position));
+                            setItemBackgroundColor(itemView, position, false, null);
+                        } else {
+                            selected.add(noteList.get(position));
+                            setItemBackgroundColor(itemView, position, true, null);
+                        }
+                        mListener.onLongItemClick(position);
+                    }
+                }
+                return true;
             });
         }
 

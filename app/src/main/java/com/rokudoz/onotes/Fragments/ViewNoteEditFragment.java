@@ -12,25 +12,18 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.button.MaterialButton;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.WriteBatch;
 import com.rokudoz.onotes.Adapters.NonCheckableAdapter;
 import com.rokudoz.onotes.Models.CheckableItem;
-import com.rokudoz.onotes.Models.Collaborator;
 import com.rokudoz.onotes.Models.Note;
 import com.rokudoz.onotes.R;
 import com.rokudoz.onotes.Utils.BannerAdManager;
@@ -69,7 +62,6 @@ public class ViewNoteEditFragment extends Fragment {
     String note_edit_ID = "";
 
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
-    private final CollectionReference usersRef = db.collection("Users");
 
 
     public ViewNoteEditFragment() {
@@ -126,12 +118,9 @@ public class ViewNoteEditFragment extends Fragment {
         }
 
 
-        backBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (Objects.requireNonNull(Navigation.findNavController(view).getCurrentDestination()).getId() == R.id.viewNoteEditFragment)
-                    Navigation.findNavController(view).popBackStack();
-            }
+        backBtn.setOnClickListener(v -> {
+            if (Objects.requireNonNull(Navigation.findNavController(view).getCurrentDestination()).getId() == R.id.viewNoteEditFragment)
+                Navigation.findNavController(view).popBackStack();
         });
 
 
@@ -145,28 +134,24 @@ public class ViewNoteEditFragment extends Fragment {
     }
 
     private void getNote(final String noteID) {
-        db.collection("Notes").document(noteID).addSnapshotListener(new EventListener<DocumentSnapshot>() {
-            @Override
-            public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException e) {
-                if (documentSnapshot != null && e == null) {
-                    final Note originalNote = documentSnapshot.toObject(Note.class);
-                    if (originalNote != null) {
-                        originalNote.setNote_doc_ID(documentSnapshot.getId());
+        db.collection("Notes").document(noteID).addSnapshotListener((documentSnapshot, e) -> {
+            if (documentSnapshot != null && e == null) {
+                final Note originalNote = documentSnapshot.toObject(Note.class);
+                if (originalNote != null) {
+                    originalNote.setNote_doc_ID(documentSnapshot.getId());
 
-                        //hide progress bar
-                        progressBar.setVisibility(View.GONE);
-                        if (originalNote.getNumber_of_edits() != null)
-                            nrOfEdits = originalNote.getNumber_of_edits();
+                    //hide progress bar
+                    progressBar.setVisibility(View.GONE);
+                    if (originalNote.getNumber_of_edits() != null)
+                        nrOfEdits = originalNote.getNumber_of_edits();
 
 
-                        db.collection("Notes").document(noteID)
-                                .collection("Edits").document(note_edit_ID).addSnapshotListener(new EventListener<DocumentSnapshot>() {
-                            @Override
-                            public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException e) {
-                                if (documentSnapshot != null && e == null) {
-                                    final Note note = documentSnapshot.toObject(Note.class);
+                    db.collection("Notes").document(noteID)
+                            .collection("Edits").document(note_edit_ID).addSnapshotListener((documentSnapshot1, e1) -> {
+                                if (documentSnapshot1 != null && e1 == null) {
+                                    final Note note = documentSnapshot1.toObject(Note.class);
                                     if (note != null) {
-                                        note.setNote_doc_ID(documentSnapshot.getId());
+                                        note.setNote_doc_ID(documentSnapshot1.getId());
                                         if (note.getNoteTitle() != null)
                                             titleTv.setText(note.getNoteTitle());
                                         if (note.getNoteText() != null)
@@ -185,8 +170,8 @@ public class ViewNoteEditFragment extends Fragment {
                                             hasCollaborators = true;
                                             creatorLayout.setVisibility(View.VISIBLE);
 
-                                            String userPictureUrl = "";
-                                            String userName = "";
+                                            String userPictureUrl;
+                                            String userName;
                                             for (int i = 0; i < note.getCollaboratorList().size(); i++) {
                                                 if (note.getCollaboratorList().get(i).getUser_email().equals(note.getLast_edited_by_user())) {
                                                     userPictureUrl = note.getCollaboratorList().get(i).getUser_picture();
@@ -211,54 +196,46 @@ public class ViewNoteEditFragment extends Fragment {
                                             creatorLayout.setVisibility(View.GONE);
                                         }
 
-                                        restoreBtn.setOnClickListener(new View.OnClickListener() {
-                                            @Override
-                                            public void onClick(final View v) {
-                                                AlertDialog.Builder builder = new AlertDialog.Builder(getContext(), R.style.CustomBottomSheetDialogTheme);
-                                                builder.setCancelable(false);
-                                                builder.setView(R.layout.dialog_please_wait);
-                                                final AlertDialog dialog = builder.create();
-                                                dialog.show();
+                                        restoreBtn.setOnClickListener(v -> {
+                                            AlertDialog.Builder builder = new AlertDialog.Builder(getContext(), R.style.CustomBottomSheetDialogTheme);
+                                            builder.setCancelable(false);
+                                            builder.setView(R.layout.dialog_please_wait);
+                                            final AlertDialog dialog = builder.create();
+                                            dialog.show();
 
-                                                note.setNumber_of_edits(nrOfEdits + 1);
+                                            note.setNumber_of_edits(nrOfEdits + 1);
 
-                                                note.setCollaboratorList(originalNote.getCollaboratorList());
-                                                note.setLast_edited_by_user(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getEmail());
-                                                note.setUsers(originalNote.getUsers());
-                                                note.setEdited(true);
-                                                note.setEdit_type("Restored");
-                                                note.setCreation_date(null);
-                                                WriteBatch batch = db.batch();
-                                                batch.set(db.collection("Notes").document(noteID), note);
-                                                batch.set(db.collection("Notes").document(noteID)
-                                                        .collection("Edits").document(), note);
-                                                batch.commit().addOnSuccessListener(new OnSuccessListener<Void>() {
-                                                    @Override
-                                                    public void onSuccess(Void aVoid) {
-                                                        Toast.makeText(getContext(), "Restored note successfully", Toast.LENGTH_SHORT).show();
-                                                        dialog.cancel();
-                                                        if (Objects.requireNonNull(Navigation.findNavController(view).getCurrentDestination()).getId()
-                                                                == R.id.viewNoteEditFragment) {
-                                                            Log.d(TAG, "onSuccess: " + noteID);
+                                            note.setCollaboratorList(originalNote.getCollaboratorList());
+                                            note.setLast_edited_by_user(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getEmail());
+                                            note.setUsers(originalNote.getUsers());
+                                            note.setEdited(true);
+                                            note.setEdit_type("Restored");
+                                            note.setCreation_date(null);
+                                            WriteBatch batch = db.batch();
+                                            batch.set(db.collection("Notes").document(noteID), note);
+                                            batch.set(db.collection("Notes").document(noteID)
+                                                    .collection("Edits").document(), note);
+                                            batch.commit().addOnSuccessListener(aVoid -> {
+                                                Toast.makeText(getContext(), "Restored note successfully", Toast.LENGTH_SHORT).show();
+                                                dialog.cancel();
+                                                if (Objects.requireNonNull(Navigation.findNavController(view).getCurrentDestination()).getId()
+                                                        == R.id.viewNoteEditFragment) {
+                                                    Log.d(TAG, "onSuccess: " + noteID);
 
 //                                                            Navigation.findNavController(view).navigate(ViewNoteEditFragmentDirections.
 //                                                                    actionViewNoteEditFragmentToEditNoteFragment(noteID,
 //                                                                            noteColor,
 //                                                                            notePosition));
 //                                                            Navigation.findNavController(view).popBackStack(R.id.editNoteFragment,false);
-                                                            Navigation.findNavController(view).popBackStack();
-                                                        }
+                                                    Navigation.findNavController(view).popBackStack();
+                                                }
 
-                                                    }
-                                                });
+                                            });
 
-                                            }
                                         });
                                     }
                                 }
-                            }
-                        });
-                    }
+                            });
                 }
             }
         });

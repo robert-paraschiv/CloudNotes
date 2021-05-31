@@ -2,6 +2,7 @@ package com.rokudoz.onotes.Fragments;
 
 import android.app.Activity;
 import android.content.Context;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -20,7 +21,6 @@ import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.card.MaterialCardView;
@@ -28,9 +28,7 @@ import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.WriteBatch;
 import com.rokudoz.onotes.Adapters.CheckableItemAdapter;
 import com.rokudoz.onotes.Adapters.CollaboratorNotesAdapter;
@@ -132,103 +130,87 @@ public class NewNoteFragment extends Fragment implements CheckableItemAdapter.On
         }
 
         MaterialButton backBtn = view.findViewById(R.id.newNoteFragment_backBtn);
-        backBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (getActivity() != null)
-                    hideSoftKeyboard(getActivity());
-                if (Objects.requireNonNull(Navigation.findNavController(view).getCurrentDestination()).getId() == R.id.newNoteFragment)
-                    Navigation.findNavController(view).popBackStack();
-            }
+        backBtn.setOnClickListener(v -> {
+            if (getActivity() != null)
+                hideSoftKeyboard(getActivity());
+            if (Objects.requireNonNull(Navigation.findNavController(view).getCurrentDestination()).getId() == R.id.newNoteFragment)
+                Navigation.findNavController(view).popBackStack();
         });
 
 
         titleInputEditText.setFocusableInTouchMode(true);
-        titleInputEditText.post(new Runnable() {
-            public void run() {
-                titleInputEditText.requestFocusFromTouch();
-                InputMethodManager lManager = (InputMethodManager) requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
-                lManager.showSoftInput(titleInputEditText, 0);
-            }
+        titleInputEditText.post(() -> {
+            titleInputEditText.requestFocusFromTouch();
+            InputMethodManager lManager = (InputMethodManager) requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+            lManager.showSoftInput(titleInputEditText, 0);
         });
 
 
-        checkboxModeBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (noteType.equals("text")) {
-                    checkboxModeBtn.setEnabled(false);
+        checkboxModeBtn.setOnClickListener(v -> {
+            if (noteType.equals("text")) {
+                checkboxModeBtn.setEnabled(false);
 
-                    checkableItemList.clear();
-                    mAdapter.notifyDataSetChanged();
+                checkableItemList.clear();
+                mAdapter.notifyDataSetChanged();
 
-                    noteType = "checkbox";
-                    List<String> textList = new ArrayList<>(Arrays.asList(Objects.requireNonNull(textInputEditText.getText()).toString().split("\n")));
-                    textInputEditText.setText("");
-                    textInputEditText.setVisibility(View.GONE);
+                noteType = "checkbox";
+                List<String> textList = new ArrayList<>(Arrays.asList(Objects.requireNonNull(textInputEditText.getText()).toString().split("\n")));
+                textInputEditText.setText("");
+                textInputEditText.setVisibility(View.GONE);
 
-                    for (int i = 0; i < textList.size(); i++) {
-                        String uid = "" + System.currentTimeMillis() + checkableItemList.size();
-                        CheckableItem checkableItem = new CheckableItem(textList.get(i), false, uid);
-                        checkableItem.setShouldBeFocused(true);
-                        checkableItemList.add(checkableItem);
-                        mAdapter.notifyItemInserted(checkableItemList.size() - 1);
-                    }
-                    if (checkableItemList.size() == 0) {
-                        String uid = "" + System.currentTimeMillis() + checkableItemList.size();
-                        CheckableItem checkableItem = new CheckableItem("", false, uid);
-                        checkableItem.setShouldBeFocused(true);
-                        checkableItemList.add(checkableItem);
-                        mAdapter.notifyItemInserted(checkableItemList.size() - 1);
-                    }
-
-                    rv_checkableList_layout.setVisibility(View.VISIBLE);
-                    checkboxModeBtn.setIconResource(R.drawable.ic_outline_text_fields_24);
-                    checkboxModeBtn.setEnabled(true);
-
-                } else if (noteType.equals("checkbox")) {
-                    checkboxModeBtn.setEnabled(false);
-
-                    StringBuilder text = new StringBuilder();
-                    for (int i = 0; i < checkableItemList.size(); i++) {
-                        if (i == checkableItemList.size() - 1) {
-                            text.append(checkableItemList.get(i).getText());
-                        } else {
-                            text.append(checkableItemList.get(i).getText()).append("\n");
-                        }
-                    }
-                    noteType = "text";
-                    textInputEditText.setText(text);
-                    textInputEditText.setVisibility(View.VISIBLE);
-
-                    checkableItemList.clear();
-                    mAdapter.notifyDataSetChanged();
-
-                    rv_checkableList_layout.setVisibility(View.INVISIBLE);
-                    checkboxModeBtn.setIconResource(R.drawable.ic_outline_check_box_24);
-                    checkboxModeBtn.setEnabled(true);
+                for (int i = 0; i < textList.size(); i++) {
+                    String uid = "" + System.currentTimeMillis() + checkableItemList.size();
+                    CheckableItem checkableItem = new CheckableItem(textList.get(i), false, uid);
+                    checkableItem.setShouldBeFocused(true);
+                    checkableItemList.add(checkableItem);
+                    mAdapter.notifyItemInserted(checkableItemList.size() - 1);
+                }
+                if (checkableItemList.size() == 0) {
+                    String uid = "" + System.currentTimeMillis() + checkableItemList.size();
+                    CheckableItem checkableItem = new CheckableItem("", false, uid);
+                    checkableItem.setShouldBeFocused(true);
+                    checkableItemList.add(checkableItem);
+                    mAdapter.notifyItemInserted(checkableItemList.size() - 1);
                 }
 
+                rv_checkableList_layout.setVisibility(View.VISIBLE);
+                checkboxModeBtn.setIconResource(R.drawable.ic_outline_text_fields_24);
+                checkboxModeBtn.setEnabled(true);
+
+            } else if (noteType.equals("checkbox")) {
+                checkboxModeBtn.setEnabled(false);
+
+                StringBuilder text = new StringBuilder();
+                for (int i = 0; i < checkableItemList.size(); i++) {
+                    if (i == checkableItemList.size() - 1) {
+                        text.append(checkableItemList.get(i).getText());
+                    } else {
+                        text.append(checkableItemList.get(i).getText()).append("\n");
+                    }
+                }
+                noteType = "text";
+                textInputEditText.setText(text);
+                textInputEditText.setVisibility(View.VISIBLE);
+
+                checkableItemList.clear();
+                mAdapter.notifyDataSetChanged();
+
+                rv_checkableList_layout.setVisibility(View.INVISIBLE);
+                checkboxModeBtn.setIconResource(R.drawable.ic_outline_check_box_24);
+                checkboxModeBtn.setEnabled(true);
             }
+
         });
 
-        settingsBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                showColorSettings();
-            }
-        });
+        settingsBtn.setOnClickListener(v -> showColorSettings());
 
-        discardBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (getActivity() != null)
-                    hideSoftKeyboard(getActivity());
-                if (Objects.requireNonNull(Navigation.findNavController(view).getCurrentDestination()).getId() == R.id.newNoteFragment)
-                    Navigation.findNavController(view).navigate(NewNoteFragmentDirections.actionNewNoteFragmentToHomeFragment());
+        discardBtn.setOnClickListener(v -> {
+            if (getActivity() != null)
+                hideSoftKeyboard(getActivity());
+            if (Objects.requireNonNull(Navigation.findNavController(view).getCurrentDestination()).getId() == R.id.newNoteFragment)
+                Navigation.findNavController(view).navigate(NewNoteFragmentDirections.actionNewNoteFragmentToHomeFragment());
 
-                discard = true;
-            }
+            discard = true;
         });
 
         buildRecyclerView();
@@ -252,15 +234,12 @@ public class NewNoteFragment extends Fragment implements CheckableItemAdapter.On
         checkableItemList.add(new CheckableItem("", false, uid));
         mAdapter.notifyDataSetChanged();
 
-        addCheckboxBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String uid = "" + System.currentTimeMillis() + checkableItemList.size();
-                CheckableItem checkableItem = new CheckableItem("", false, uid);
-                checkableItem.setShouldBeFocused(true);
-                checkableItemList.add(checkableItemList.size(), checkableItem);
-                mAdapter.notifyItemInserted(checkableItemList.size() - 1);
-            }
+        addCheckboxBtn.setOnClickListener(v -> {
+            String uid1 = "" + System.currentTimeMillis() + checkableItemList.size();
+            CheckableItem checkableItem = new CheckableItem("", false, uid1);
+            checkableItem.setShouldBeFocused(true);
+            checkableItemList.add(checkableItemList.size(), checkableItem);
+            mAdapter.notifyItemInserted(checkableItemList.size() - 1);
         });
 
         helper = new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(ItemTouchHelper.UP | ItemTouchHelper.DOWN, 0) {
@@ -316,7 +295,7 @@ public class NewNoteFragment extends Fragment implements CheckableItemAdapter.On
                 || !Objects.requireNonNull(titleInputEditText.getText()).toString().trim().equals("")
                 || !empty) {
 
-            Note note = new Note();
+            Note note;
             String title;
             if (Objects.requireNonNull(titleInputEditText.getText()).toString().trim().equals("")) {
                 title = "";
@@ -325,7 +304,7 @@ public class NewNoteFragment extends Fragment implements CheckableItemAdapter.On
             }
 
             if (mNote.getUsers() == null) {
-                mNote.setUsers(new ArrayList<String>());
+                mNote.setUsers(new ArrayList<>());
                 mNote.getUsers().add(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getEmail());
             }
             List<CheckableItem> currentCheckboxList = new ArrayList<>();
@@ -356,43 +335,35 @@ public class NewNoteFragment extends Fragment implements CheckableItemAdapter.On
             if (noteRef == null) {
                 final Note finalNote = note;
                 db.collection("Notes").add(note)
-                        .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
-                            @Override
-                            public void onSuccess(DocumentReference documentReference) {
-                                noteRef = documentReference;
-                                Log.d(TAG, "onSuccess: note added " + noteRef.getId());
+                        .addOnSuccessListener(documentReference -> {
+                            noteRef = documentReference;
+                            Log.d(TAG, "onSuccess: note added " + noteRef.getId());
 
-                                mNote = finalNote;
-                                final WriteBatch batch = db.batch();
+                            mNote = finalNote;
+                            final WriteBatch batch = db.batch();
 
-                                //Add initial "edit version"
-                                batch.set(documentReference.collection("Edits").document(), finalNote);
-                                collaboratorsCounter = 0; // Restart Counter
+                            //Add initial "edit version"
+                            batch.set(documentReference.collection("Edits").document(), finalNote);
+                            collaboratorsCounter = 0; // Restart Counter
 
-                                for (String email : mNote.getUsers()) {
-                                    usersRef.whereEqualTo("email", email).get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
-                                        @Override
-                                        public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
-                                            if (queryDocumentSnapshots != null && queryDocumentSnapshots.size() > 0) {
-                                                User user = queryDocumentSnapshots.getDocuments().get(0).toObject(User.class);
-                                                if (user != null) {
-                                                    collaboratorsCounter++;
-                                                    NoteDetails noteDetails = new NoteDetails(noteRef.getId(), user.getUser_id(), 0, mNote.getNote_background_color());
-                                                    batch.set(usersRef.document(user.getUser_id()).collection(NOTES_DETAILS).document(noteRef.getId()), noteDetails);
-                                                    if (collaboratorsCounter == finalNote.getUsers().size()) {
-                                                        batch.commit().addOnSuccessListener(new OnSuccessListener<Void>() {
-                                                            @Override
-                                                            public void onSuccess(Void aVoid) {
-                                                                Log.d(TAG, "onSuccess: added note details docs to collaborators ");
-                                                                Log.d(TAG, "onSuccess: note color " + mNote.getNote_background_color());
-                                                            }
-                                                        });
-                                                    }
-                                                }
+                            for (String email : mNote.getUsers()) {
+                                usersRef.whereEqualTo("email", email).get().addOnSuccessListener(queryDocumentSnapshots -> {
+                                    if (queryDocumentSnapshots != null && queryDocumentSnapshots.size() > 0) {
+                                        User user = queryDocumentSnapshots.getDocuments().get(0).toObject(User.class);
+                                        if (user != null) {
+                                            collaboratorsCounter++;
+                                            NoteDetails noteDetails = new NoteDetails(noteRef.getId(), user.getUser_id(), 0,
+                                                    mNote.getNote_background_color());
+                                            batch.set(usersRef.document(user.getUser_id()).collection(NOTES_DETAILS).document(noteRef.getId()), noteDetails);
+                                            if (collaboratorsCounter == finalNote.getUsers().size()) {
+                                                batch.commit().addOnSuccessListener(aVoid -> {
+                                                    Log.d(TAG, "onSuccess: added note details docs to collaborators ");
+                                                    Log.d(TAG, "onSuccess: note color " + mNote.getNote_background_color());
+                                                });
                                             }
                                         }
-                                    });
-                                }
+                                    }
+                                });
                             }
                         });
             } else { //If note has been saved before
@@ -411,13 +382,10 @@ public class NewNoteFragment extends Fragment implements CheckableItemAdapter.On
                         batch.set(noteRef.collection("Edits").document(), note);
 
                         final Note finalNote1 = note;
-                        batch.commit().addOnSuccessListener(new OnSuccessListener<Void>() {
-                            @Override
-                            public void onSuccess(Void aVoid) {
-                                Log.d(TAG, "onSuccess: updated note");
-                                mNote = finalNote1;
-                                UpdateCollaboratorsOfNote();
-                            }
+                        batch.commit().addOnSuccessListener(aVoid -> {
+                            Log.d(TAG, "onSuccess: updated note");
+                            mNote = finalNote1;
+                            UpdateCollaboratorsOfNote();
                         });
                     } else if (collaboratorsUpdated) {
                         UpdateCollaboratorsOfNote();
@@ -443,13 +411,10 @@ public class NewNoteFragment extends Fragment implements CheckableItemAdapter.On
                         batch.set(noteRef.collection("Edits").document(), note);
 
                         final Note finalNote1 = note;
-                        batch.commit().addOnSuccessListener(new OnSuccessListener<Void>() {
-                            @Override
-                            public void onSuccess(Void aVoid) {
-                                Log.d(TAG, "onSuccess: updated note");
-                                mNote = finalNote1;
-                                UpdateCollaboratorsOfNote();
-                            }
+                        batch.commit().addOnSuccessListener(aVoid -> {
+                            Log.d(TAG, "onSuccess: updated note");
+                            mNote = finalNote1;
+                            UpdateCollaboratorsOfNote();
                         });
                     } else if (collaboratorsUpdated) {
                         //check if collaborators have changed
@@ -469,24 +434,18 @@ public class NewNoteFragment extends Fragment implements CheckableItemAdapter.On
         collaboratorsCounter = 0; // Restart Counter
 
         for (Collaborator collaborator : mNote.getCollaboratorList()) {
-            usersRef.document(collaborator.getUser_id()).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-                @Override
-                public void onSuccess(DocumentSnapshot documentSnapshot) {
-                    if (documentSnapshot != null) {
-                        User user = documentSnapshot.toObject(User.class);
-                        if (user != null) {
-                            collaboratorsCounter++;
-                            NoteDetails noteDetails = new NoteDetails(noteRef.getId(), user.getUser_id(), 0, mNote.getNote_background_color());
-                            batch.set(usersRef.document(user.getUser_id()).collection(NOTES_DETAILS).document(noteRef.getId()), noteDetails);
-                            if (collaboratorsCounter == mNote.getUsers().size()) {
-                                batch.commit().addOnSuccessListener(new OnSuccessListener<Void>() {
-                                    @Override
-                                    public void onSuccess(Void aVoid) {
-                                        Log.d(TAG, "onSuccess: added note details docs to collaborators " + mNote.getNote_background_color());
-                                        collaboratorsUpdated = false;
-                                    }
-                                });
-                            }
+            usersRef.document(collaborator.getUser_id()).get().addOnSuccessListener(documentSnapshot -> {
+                if (documentSnapshot != null) {
+                    User user = documentSnapshot.toObject(User.class);
+                    if (user != null) {
+                        collaboratorsCounter++;
+                        NoteDetails noteDetails = new NoteDetails(noteRef.getId(), user.getUser_id(), 0, mNote.getNote_background_color());
+                        batch.set(usersRef.document(user.getUser_id()).collection(NOTES_DETAILS).document(noteRef.getId()), noteDetails);
+                        if (collaboratorsCounter == mNote.getUsers().size()) {
+                            batch.commit().addOnSuccessListener(aVoid -> {
+                                Log.d(TAG, "onSuccess: added note details docs to collaborators " + mNote.getNote_background_color());
+                                collaboratorsUpdated = false;
+                            });
                         }
                     }
                 }
@@ -612,65 +571,41 @@ public class NewNoteFragment extends Fragment implements CheckableItemAdapter.On
             }
         }
 
-        yellow.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Color_on_click("yellow", R.color.note_background_color_yellow, bottomSheetDialog);
-                yellow.setBorderWidth(5);
-            }
+        yellow.setOnClickListener(v -> {
+            Color_on_click("yellow", R.color.note_background_color_yellow, bottomSheetDialog);
+            yellow.setBorderWidth(5);
         });
-        red.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Color_on_click("red", R.color.note_background_color_red, bottomSheetDialog);
-                red.setBorderWidth(5);
-            }
+        red.setOnClickListener(v -> {
+            Color_on_click("red", R.color.note_background_color_red, bottomSheetDialog);
+            red.setBorderWidth(5);
         });
-        blue.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Color_on_click("blue", R.color.note_background_color_blue, bottomSheetDialog);
-                blue.setBorderWidth(5);
-            }
+        blue.setOnClickListener(v -> {
+            Color_on_click("blue", R.color.note_background_color_blue, bottomSheetDialog);
+            blue.setBorderWidth(5);
         });
-        green.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Color_on_click("green", R.color.note_background_color_green, bottomSheetDialog);
-                green.setBorderWidth(5);
-            }
+        green.setOnClickListener(v -> {
+            Color_on_click("green", R.color.note_background_color_green, bottomSheetDialog);
+            green.setBorderWidth(5);
         });
-        orange.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Color_on_click("orange", R.color.note_background_color_orange, bottomSheetDialog);
-                orange.setBorderWidth(5);
-            }
+        orange.setOnClickListener(v -> {
+            Color_on_click("orange", R.color.note_background_color_orange, bottomSheetDialog);
+            orange.setBorderWidth(5);
         });
-        purple.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Color_on_click("purple", R.color.note_background_color_purple, bottomSheetDialog);
-                purple.setBorderWidth(5);
-            }
+        purple.setOnClickListener(v -> {
+            Color_on_click("purple", R.color.note_background_color_purple, bottomSheetDialog);
+            purple.setBorderWidth(5);
         });
-        initial.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                resetBackgroundColors();
-                mNote.setNote_background_color("");
-                initial.setBorderWidth(5);
-                bottomSheetDialog.cancel();
-            }
+        initial.setOnClickListener(v -> {
+            resetBackgroundColors();
+            mNote.setNote_background_color("");
+            initial.setBorderWidth(5);
+            bottomSheetDialog.cancel();
         });
 
-        collaboratorsBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                bottomSheetDialog.cancel();
+        collaboratorsBtn.setOnClickListener(v -> {
+            bottomSheetDialog.cancel();
 
-                showCollaboratorsDialog();
-            }
+            showCollaboratorsDialog();
         });
 
         bottomSheetDialog.setContentView(dialogView);
@@ -680,7 +615,9 @@ public class NewNoteFragment extends Fragment implements CheckableItemAdapter.On
         if (window != null) {
             window.findViewById(com.google.android.material.R.id.container).setFitsSystemWindows(false);
             View decorView = window.getDecorView();
-            decorView.setSystemUiVisibility(decorView.getSystemUiVisibility() | View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                decorView.setSystemUiVisibility(decorView.getSystemUiVisibility() | View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR);
+            }
         }
     }
 
@@ -797,47 +734,44 @@ public class NewNoteFragment extends Fragment implements CheckableItemAdapter.On
         for (final Collaborator collaborator : collaboratorList) {
             if (!collaborator.getUser_email().trim().equals("")) {
                 db.collection("Users").whereEqualTo("email", collaborator.getUser_email()).get()
-                        .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
-                            @Override
-                            public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
-                                if (queryDocumentSnapshots != null && queryDocumentSnapshots.size() > 0) {
-                                    User user = queryDocumentSnapshots.getDocuments().get(0).toObject(User.class);
-                                    if (user != null) {
-                                        boolean containsAlready = false;
-                                        for (int i = 0; i < collaborators.size(); i++) {
-                                            if (user.getEmail().equals(collaborators.get(i).getUser_email())) {
-                                                containsAlready = true;
-                                                break;
-                                            }
+                        .addOnSuccessListener(queryDocumentSnapshots -> {
+                            if (queryDocumentSnapshots != null && queryDocumentSnapshots.size() > 0) {
+                                User user = queryDocumentSnapshots.getDocuments().get(0).toObject(User.class);
+                                if (user != null) {
+                                    boolean containsAlready = false;
+                                    for (int i = 0; i < collaborators.size(); i++) {
+                                        if (user.getEmail().equals(collaborators.get(i).getUser_email())) {
+                                            containsAlready = true;
+                                            break;
                                         }
-                                        if (!containsAlready) {
-                                            if (collaborator.getCreator()) {
-                                                collaborators.add(0, new Collaborator(user.getUser_id(), user.getEmail(), user.getUser_name(),
-                                                        user.getUser_profile_picture(), collaborator.getCreator()));
-                                            } else {
-                                                collaborators.add(new Collaborator(user.getUser_id(), user.getEmail(), user.getUser_name(),
-                                                        user.getUser_profile_picture(), collaborator.getCreator()));
-                                            }
+                                    }
+                                    if (!containsAlready) {
+                                        if (collaborator.getCreator()) {
+                                            collaborators.add(0, new Collaborator(user.getUser_id(), user.getEmail(), user.getUser_name(),
+                                                    user.getUser_profile_picture(), collaborator.getCreator()));
+                                        } else {
+                                            collaborators.add(new Collaborator(user.getUser_id(), user.getEmail(), user.getUser_name(),
+                                                    user.getUser_profile_picture(), collaborator.getCreator()));
+                                        }
 
-                                            //finished getting user pictures
-                                            if (collaborators.size() == userList.size()) {
-                                                mNote.setUsers(userList);
-                                                mNote.setCollaboratorList(collaborators);
-                                                collaboratorsUpdated = true;
-                                                Log.d(TAG, "getCollaborators: " + collaboratorList.toString());
+                                        //finished getting user pictures
+                                        if (collaborators.size() == userList.size()) {
+                                            mNote.setUsers(userList);
+                                            mNote.setCollaboratorList(collaborators);
+                                            collaboratorsUpdated = true;
+                                            Log.d(TAG, "getCollaborators: " + collaboratorList.toString());
 
 
-                                                if (mNote.getCollaboratorList() != null) {
-                                                    if (mNote.getCollaboratorList().size() > 1) {
-                                                        collaboratorsRV.setVisibility(View.VISIBLE);
-                                                        mCollaboratorsList.clear();
-                                                        mCollaboratorsList.addAll(mNote.getCollaboratorList());
-                                                        collaboratorNotesAdapter.notifyDataSetChanged();
-                                                    } else {
-                                                        collaboratorsRV.setVisibility(View.GONE);
-                                                    }
-
+                                            if (mNote.getCollaboratorList() != null) {
+                                                if (mNote.getCollaboratorList().size() > 1) {
+                                                    collaboratorsRV.setVisibility(View.VISIBLE);
+                                                    mCollaboratorsList.clear();
+                                                    mCollaboratorsList.addAll(mNote.getCollaboratorList());
+                                                    collaboratorNotesAdapter.notifyDataSetChanged();
+                                                } else {
+                                                    collaboratorsRV.setVisibility(View.GONE);
                                                 }
+
                                             }
                                         }
                                     }

@@ -6,7 +6,6 @@ import android.text.Editable;
 import android.text.InputType;
 import android.text.TextWatcher;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -36,7 +35,7 @@ public class CollaboratorsAdapter extends RecyclerView.Adapter<CollaboratorsAdap
 
     private OnItemClickListener onItemClickListener;
     private final List<Collaborator> collaboratorList;
-    private boolean isOwner = false;
+    private boolean isOwner;
 
 
     public interface OnItemClickListener {
@@ -72,33 +71,27 @@ public class CollaboratorsAdapter extends RecyclerView.Adapter<CollaboratorsAdap
             this.picture = itemView.findViewById(R.id.rv_collaborator_picture);
             this.emailTEXTVIEW = itemView.findViewById(R.id.rv_collaborator_emailTEXTVIEW);
 
-            this.deleteBtn.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if (onItemClickListener != null) {
-                        int position = getAdapterPosition();
-                        if (position != RecyclerView.NO_POSITION)
-                            onItemClickListener.onDeleteClick(position);
-                    }
+            this.deleteBtn.setOnClickListener(v -> {
+                if (onItemClickListener != null) {
+                    int position = getAdapterPosition();
+                    if (position != RecyclerView.NO_POSITION)
+                        onItemClickListener.onDeleteClick(position);
                 }
             });
             this.email.setImeOptions(EditorInfo.IME_ACTION_NEXT);
             this.email.setRawInputType(InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS);
-            this.email.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-                @Override
-                public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                    boolean handled = false;
-                    if (actionId == EditorInfo.IME_ACTION_NEXT) {
-                        if (onItemClickListener != null) {
-                            int position = getAdapterPosition();
-                            if (position != RecyclerView.NO_POSITION) {
-                                onItemClickListener.onEnterPressed(position);
-                            }
+            this.email.setOnEditorActionListener((v, actionId, event) -> {
+                boolean handled = false;
+                if (actionId == EditorInfo.IME_ACTION_NEXT) {
+                    if (onItemClickListener != null) {
+                        int position = getAdapterPosition();
+                        if (position != RecyclerView.NO_POSITION) {
+                            onItemClickListener.onEnterPressed(position);
                         }
-                        handled = true;
                     }
-                    return handled;
+                    handled = true;
                 }
+                return handled;
             });
             this.email.addTextChangedListener(new TextWatcher() {
                 @Override
@@ -179,13 +172,10 @@ public class CollaboratorsAdapter extends RecyclerView.Adapter<CollaboratorsAdap
                 }
 
             if (currentItem.getShouldBeFocused() != null && currentItem.getShouldBeFocused()) {
-                holder.email.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        if (holder.email.requestFocus()) {
-                            InputMethodManager inputMethodManager = (InputMethodManager) holder.email.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
-                            inputMethodManager.showSoftInput(holder.email, InputMethodManager.SHOW_IMPLICIT);
-                        }
+                holder.email.post(() -> {
+                    if (holder.email.requestFocus()) {
+                        InputMethodManager inputMethodManager = (InputMethodManager) holder.email.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+                        inputMethodManager.showSoftInput(holder.email, InputMethodManager.SHOW_IMPLICIT);
                     }
                 });
                 currentItem.setShouldBeFocused(false);
