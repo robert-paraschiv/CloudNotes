@@ -232,7 +232,7 @@ public class NewNoteFragment extends Fragment implements CheckableItemAdapter.On
 
         String uid = "" + System.currentTimeMillis() + checkableItemList.size();
         checkableItemList.add(new CheckableItem("", false, uid));
-        mAdapter.notifyDataSetChanged();
+        mAdapter.notifyItemInserted(checkableItemList.size() - 1);
 
         addCheckboxBtn.setOnClickListener(v -> {
             String uid1 = "" + System.currentTimeMillis() + checkableItemList.size();

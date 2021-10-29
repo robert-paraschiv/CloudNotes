@@ -2,15 +2,15 @@ apply plugin: 'com.android.application'
 apply plugin: 'io.fabric'
 
 android {
-    compileSdkVersion 30
+    compileSdkVersion 31
     buildToolsVersion "29.0.3"
 
     defaultConfig {
         applicationId "com.rokudoz.onotes"
         minSdkVersion 25
-        targetSdkVersion 30
-        versionCode 38
-        versionName "1.38"
+        targetSdkVersion 31
+        versionCode 39
+        versionName "1.39"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         signingConfig signingConfigs.debug

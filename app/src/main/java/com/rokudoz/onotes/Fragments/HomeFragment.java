@@ -31,8 +31,10 @@ import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.StaggeredGridLayoutManager;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.bumptech.glide.Glide;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.transition.Hold;
@@ -42,6 +44,7 @@ import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.ListenerRegistration;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.WriteBatch;
 import com.rokudoz.onotes.Adapters.HomePageAdapter;
 import com.rokudoz.onotes.Dialogs.SettingsDialogFragment;
@@ -67,7 +70,8 @@ import static android.content.Context.MODE_PRIVATE;
 import static com.rokudoz.onotes.App.HIDE_BANNER;
 import static com.rokudoz.onotes.App.SETTINGS_PREFS_NAME;
 
-public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClickListener {
+public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClickListener{
+//public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClickListener, SwipeRefreshLayout.OnRefreshListener {
     private static final String TAG = "HomeFragment";
 
     public static final int LAYOUT_STAGGERED_TYPE = 0;
@@ -75,15 +79,17 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
 
     private ActionMode actionMode;
     private MaterialToolbar materialToolbar;
-    FloatingActionButton addNewNoteBtn;
+    private FloatingActionButton addNewNoteBtn;
     private View view;
     private RecyclerView recyclerView;
-    ItemTouchHelper helper;
+    private ItemTouchHelper helper;
     private ImageView layoutManagerIcon;
+//    private SwipeRefreshLayout swipeRefreshLayout;
 
     private TextView noNotesTv;
 
-    SearchView searchView;
+    private SearchView searchView;
+
 
     private final Collaborator currentUserCollaborator = new Collaborator();
 
@@ -98,8 +104,8 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
 
     private CircleImageView userPicture;
 
-    SharedPreferences sharedPreferences;
-    SharedPreferences.Editor sharedPrefsEditor;
+    private SharedPreferences sharedPreferences;
+    private SharedPreferences.Editor sharedPrefsEditor;
 
     public HomeFragment() {
         // Required empty public constructor
@@ -134,6 +140,8 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
             addNewNoteBtn = view.findViewById(R.id.homeFragment_addNoteFab);
             noNotesTv = view.findViewById(R.id.homeFragment_empty);
             searchView = view.findViewById(R.id.homeFragment_searchView);
+//            swipeRefreshLayout = view.findViewById(R.id.homeFragment_swipeRefresh_layout);
+//            swipeRefreshLayout.setOnRefreshListener(this);
 
 
             searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
@@ -369,6 +377,42 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
                     });
         }
     }
+
+//    private void refreshNotes() {
+//        if (FirebaseAuth.getInstance().getCurrentUser() != null && FirebaseAuth.getInstance().getCurrentUser().getEmail() != null) {
+////            for (int i = 0; i < noteList.size(); i++) {
+////                noteList.remove(i);
+////                staggeredRecyclerViewAdapter.notifyItemRemoved(i);
+////            }
+//            noteList.clear();
+//            staggeredRecyclerViewAdapter.notifyDataSetChanged();
+//            usersRef.document(FirebaseAuth.getInstance().getCurrentUser().getUid()).collection(NotesUtils.NOTES_DETAILS)
+//                    .orderBy("note_position")
+//                    .get().addOnSuccessListener(queryDocumentSnapshots -> {
+//                if (queryDocumentSnapshots != null && queryDocumentSnapshots.size() > 0) {
+//                    for (DocumentSnapshot noteDetailsSnapshot : queryDocumentSnapshots) {
+//                        final NoteDetails noteDetails = noteDetailsSnapshot.toObject(NoteDetails.class);
+//                        if (noteDetails != null) {
+//                            db.collection("Notes").document(noteDetails.getNote_doc_id()).get().addOnSuccessListener(documentSnapshot -> {
+//                                if (documentSnapshot != null) {
+//                                    Note note = documentSnapshot.toObject(Note.class);
+//                                    if (note != null) {
+//                                        note.setNote_doc_ID(documentSnapshot.getId());
+//                                        handleNoteEvent(note, noteDetails);
+//                                    }
+//                                }
+//                            });
+//
+//                        }
+//                    }
+//                    swipeRefreshLayout.setRefreshing(false);
+//                } else {
+//                    //No notes available, show no notes tv
+//                    noNotesTv.setVisibility(View.VISIBLE);
+//                }
+//            });
+//        }
+//    }
 
     private void handleNoteEvent(Note note, NoteDetails noteDetails) {
         note.setNote_position(noteDetails.getNote_position());
@@ -611,18 +655,18 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
                 db.collection("Notes")
                         .document(note.getNote_doc_ID())
                         .update("deleted", true).addOnSuccessListener(aVoid -> {
-                            Log.d(TAG, "onSuccess: Deleted note " + note.getNoteTitle());
-                            if (noteList.contains(note)) {
-                                int position = noteList.indexOf(note);
-                                noteList.remove(position);
-                                staggeredRecyclerViewAdapter.notifyItemRemoved(position);
-                            }
+                    Log.d(TAG, "onSuccess: Deleted note " + note.getNoteTitle());
+                    if (noteList.contains(note)) {
+                        int position = noteList.indexOf(note);
+                        noteList.remove(position);
+                        staggeredRecyclerViewAdapter.notifyItemRemoved(position);
+                    }
 
-                            notesDeleted[0]++;
-                            if (notesDeleted[0] == notesToDelete.size()) {
-                                dialog.cancel();
-                            }
-                        });
+                    notesDeleted[0]++;
+                    if (notesDeleted[0] == notesToDelete.size()) {
+                        dialog.cancel();
+                    }
+                });
             } else {  //The current user isn't the creator of the note, update it and remove current user from collaborators
                 for (int i = 0; i < note.getCollaboratorList().size(); i++) {
                     if (note.getCollaboratorList().get(i).getUser_email().equals(FirebaseAuth.getInstance().getCurrentUser().getEmail())) {
@@ -688,8 +732,8 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
                 FragmentNavigator.Extras extras = builder.build();
 
                 NavDirections navDirections = HomeFragmentDirections.actionHomeFragmentToEditNoteFragment(note.getNote_doc_ID(),
-                                note.getNote_background_color(),
-                                position);
+                        note.getNote_background_color(),
+                        position);
 
 //                NavDirections navDirections = HomeFragmentDirections.actionHomeFragmentToTestFragment(note.getNote_doc_ID(), note.getNoteTitle(), note.getNoteText(),
 //                        note.getNote_background_color());
@@ -730,4 +774,9 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
             }
         }
     }
+
+//    @Override
+//    public void onRefresh() {
+//        refreshNotes();
+//    }
 }

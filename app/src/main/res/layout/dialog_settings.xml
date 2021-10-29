@@ -95,7 +95,7 @@
                 android:layout_marginStart="4dp"
                 android:layout_marginTop="12dp"
                 android:text="@string/deleted_notes"
-                android:textColor="@color/dialog_please_wait_text_color"
+                android:textColor="@color/search_view_text_color"
                 android:textSize="@dimen/bottomsheet_mainText_size" />
 
             <TextView
@@ -126,7 +126,7 @@
                 android:layout_marginStart="4dp"
                 android:layout_marginTop="12dp"
                 android:text="@string/theme"
-                android:textColor="@color/dialog_please_wait_text_color"
+                android:textColor="@color/search_view_text_color"
                 android:textSize="@dimen/bottomsheet_mainText_size" />
 
             <TextView

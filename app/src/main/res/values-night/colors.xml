@@ -4,14 +4,18 @@
     <color name="colorPrimaryDark">#004ba0</color>
     <color name="colorAccent">#0091ea</color>
     <color name="note_stroke_color">#fafafa</color>
-    <color name="fragments_background">#121212</color>
+    <color name="fragments_background">#1f1f1f</color>
     <color name="status_bar_color">#121212</color>
     <color name="navigationColor">#0f0f0f</color>
 
-    <color name="dialog_settings_background_color">#1f1f1f</color>
 
+    <color name="dialog_settings_background_color">#2b2d30</color>
     <color name="settings_dialog_handle_color">#5f5f5f</color>
 
+    <color name="search_background_color">#2b2d30</color>
+    <color name="search_view_text_color">#e0e0e0</color>
+
+    <color name="home_note_text_color">#d0d0d0</color>
     <color name="home_note_background_color">#2a2a2a</color>
     <color name="home_note_selected_background_color">#3a3a3a</color>
     <color name="home_note_selected_stroke_color">#eaeaea</color>
@@ -33,5 +37,8 @@
     <color name="note_background_color_green">#447146</color>
     <color name="note_background_color_orange">#916640</color>
     <color name="note_background_color_purple">#5B3C81</color>
-    <color name="note_background_color_default">#0e0e0e</color>
+    <color name="note_background_color_default">#2a2a2a</color>
+
+    <color name="note_bottom_background_color_default">#222222</color>
+    <color name="home_note_title_text_color">#ffffff</color>
 </resources>

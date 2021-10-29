@@ -8,8 +8,8 @@
     android:layout_margin="5dp"
     android:background="@drawable/home_note_background"
     android:elevation="0dp"
-    android:transitionGroup="true"
-    android:padding="8dp">
+    android:padding="8dp"
+    android:transitionGroup="true">
 
     <TextView
         android:id="@+id/rv_home_note_TitleTV"
@@ -19,6 +19,7 @@
         android:layout_marginStart="4dp"
         android:layout_marginEnd="8dp"
         android:maxLines="1"
+        android:textColor="@color/home_note_title_text_color"
         android:textSize="17sp"
         app:autoSizeTextType="uniform"
         tools:text="Note title here" />
@@ -32,14 +33,11 @@
         android:layout_marginStart="4dp"
         android:layout_marginTop="4dp"
         android:layout_marginEnd="4dp"
-        app:autoSizeTextType="uniform"
         android:maxHeight="250dp"
+        android:textColor="@color/home_note_text_color"
         android:textSize="14sp"
-        tools:text="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
-Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
-Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
-
-        />
+        app:autoSizeTextType="uniform"
+        tools:text="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua." />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rv_home_note_collaboratorsRV"

@@ -23,4 +23,9 @@
         <item name="android:backgroundDimEnabled">false</item>
     </style>
 
+    <style name="SearchViewStyle" parent="Widget.AppCompat.SearchView">
+        <item name="android:textColorHint">@color/search_view_text_color</item>
+        <item name="android:textSize">16sp</item>
+    </style>
+
 </resources>

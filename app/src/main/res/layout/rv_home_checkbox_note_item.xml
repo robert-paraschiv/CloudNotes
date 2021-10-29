@@ -12,6 +12,7 @@
     android:padding="8dp">
 
     <TextView
+        android:textColor="@color/home_note_title_text_color"
         android:id="@+id/rv_home_checkboxNote_TitleTV"
         style="@style/TextAppearance.MaterialComponents.Subtitle2"
         android:layout_width="match_parent"

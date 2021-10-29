@@ -72,25 +72,18 @@ public class SettingsDialogFragment extends BottomSheetDialogFragment {
 
         bottomSheetDialog.setContentView(dialogView);
 
-        trashLL.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (Objects.requireNonNull(Navigation.findNavController(parentView).getCurrentDestination()).getId() == R.id.homeFragment)
-                    Navigation.findNavController(parentView).navigate(HomeFragmentDirections.actionHomeFragmentToTrashFragment());
+        trashLL.setOnClickListener(v -> {
+            if (Objects.requireNonNull(Navigation.findNavController(parentView).getCurrentDestination()).getId() == R.id.homeFragment)
+                Navigation.findNavController(parentView).navigate(HomeFragmentDirections.actionHomeFragmentToTrashFragment());
 
-                bottomSheetDialog.cancel();
-            }
+            bottomSheetDialog.cancel();
         });
 
-        accountRL.setOnClickListener(new View.OnClickListener() {
-            @SuppressLint("SetTextI18n")
-            @Override
-            public void onClick(View v) {
-                //Hide bottom sheet to avoid screen flickering
-                bottomSheetDialog.cancel();
+        accountRL.setOnClickListener(v -> {
+            //Hide bottom sheet to avoid screen flickering
+            bottomSheetDialog.cancel();
 
-                SettingsUtils.showLogOutDialog(requireContext());
-            }
+            SettingsUtils.showLogOutDialog(requireContext());
         });
         bottomSheetDialog.show();
 
