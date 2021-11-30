@@ -8,15 +8,44 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="..\:/Users/paras/Documents/GitHub/CloudNotes/app/src/main/res/drawable/dialog_handle.xml" value="0.22135416666666666" />
         <entry key="..\:/Users/paras/Documents/GitHub/CloudNotes/app/src/main/res/drawable/dialog_settings_background.xml" value="0.3728205128205128" />
+        <entry key="..\:/Users/paras/Documents/GitHub/CloudNotes/app/src/main/res/drawable/dialog_theme_settings_background.xml" value="0.22135416666666666" />
         <entry key="..\:/Users/paras/Documents/GitHub/CloudNotes/app/src/main/res/drawable/home_note_background.xml" value="0.3728205128205128" />
+        <entry key="..\:/Users/paras/Documents/GitHub/CloudNotes/app/src/main/res/drawable/home_note_background_blue.xml" value="0.22135416666666666" />
+        <entry key="..\:/Users/paras/Documents/GitHub/CloudNotes/app/src/main/res/drawable/home_note_background_green.xml" value="0.22135416666666666" />
+        <entry key="..\:/Users/paras/Documents/GitHub/CloudNotes/app/src/main/res/drawable/home_note_background_orange.xml" value="0.22135416666666666" />
+        <entry key="..\:/Users/paras/Documents/GitHub/CloudNotes/app/src/main/res/drawable/home_note_background_purple.xml" value="0.22135416666666666" />
+        <entry key="..\:/Users/paras/Documents/GitHub/CloudNotes/app/src/main/res/drawable/home_note_background_red.xml" value="0.22135416666666666" />
+        <entry key="..\:/Users/paras/Documents/GitHub/CloudNotes/app/src/main/res/drawable/home_note_background_yellow.xml" value="0.22135416666666666" />
+        <entry key="..\:/Users/paras/Documents/GitHub/CloudNotes/app/src/main/res/drawable/home_note_selected_background_blue.xml" value="0.22135416666666666" />
+        <entry key="..\:/Users/paras/Documents/GitHub/CloudNotes/app/src/main/res/drawable/home_note_selected_background_green.xml" value="0.22135416666666666" />
+        <entry key="..\:/Users/paras/Documents/GitHub/CloudNotes/app/src/main/res/drawable/home_note_selected_background_orange.xml" value="0.22135416666666666" />
+        <entry key="..\:/Users/paras/Documents/GitHub/CloudNotes/app/src/main/res/drawable/home_note_selected_background_purple.xml" value="0.22135416666666666" />
+        <entry key="..\:/Users/paras/Documents/GitHub/CloudNotes/app/src/main/res/drawable/home_note_selected_background_red.xml" value="0.22135416666666666" />
+        <entry key="..\:/Users/paras/Documents/GitHub/CloudNotes/app/src/main/res/drawable/home_note_selected_background_yellow.xml" value="0.22135416666666666" />
+        <entry key="..\:/Users/paras/Documents/GitHub/CloudNotes/app/src/main/res/drawable/home_note_selected_note_background.xml" value="0.22135416666666666" />
         <entry key="..\:/Users/paras/Documents/GitHub/CloudNotes/app/src/main/res/drawable/search_background.xml" value="0.3728205128205128" />
+        <entry key="..\:/Users/paras/Documents/GitHub/CloudNotes/app/src/main/res/layout/activity_login.xml" value="0.36666666666666664" />
         <entry key="..\:/Users/paras/Documents/GitHub/CloudNotes/app/src/main/res/layout/activity_main.xml" value="0.36666666666666664" />
+        <entry key="..\:/Users/paras/Documents/GitHub/CloudNotes/app/src/main/res/layout/dialog_collaborators.xml" value="0.20520833333333333" />
+        <entry key="..\:/Users/paras/Documents/GitHub/CloudNotes/app/src/main/res/layout/dialog_note_settings.xml" value="0.20520833333333333" />
+        <entry key="..\:/Users/paras/Documents/GitHub/CloudNotes/app/src/main/res/layout/dialog_please_wait.xml" value="0.20520833333333333" />
         <entry key="..\:/Users/paras/Documents/GitHub/CloudNotes/app/src/main/res/layout/dialog_settings.xml" value="0.3625" />
+        <entry key="..\:/Users/paras/Documents/GitHub/CloudNotes/app/src/main/res/layout/dialog_show_ad.xml" value="0.20520833333333333" />
         <entry key="..\:/Users/paras/Documents/GitHub/CloudNotes/app/src/main/res/layout/fragment_edit_note.xml" value="0.3625" />
         <entry key="..\:/Users/paras/Documents/GitHub/CloudNotes/app/src/main/res/layout/fragment_home.xml" value="0.2514450867052023" />
+        <entry key="..\:/Users/paras/Documents/GitHub/CloudNotes/app/src/main/res/layout/fragment_new_note.xml" value="0.20520833333333333" />
+        <entry key="..\:/Users/paras/Documents/GitHub/CloudNotes/app/src/main/res/layout/fragment_note_edits.xml" value="0.20520833333333333" />
+        <entry key="..\:/Users/paras/Documents/GitHub/CloudNotes/app/src/main/res/layout/fragment_test.xml" value="0.20520833333333333" />
+        <entry key="..\:/Users/paras/Documents/GitHub/CloudNotes/app/src/main/res/layout/fragment_trash.xml" value="0.20520833333333333" />
+        <entry key="..\:/Users/paras/Documents/GitHub/CloudNotes/app/src/main/res/layout/fragment_view_note_edit.xml" value="0.20520833333333333" />
+        <entry key="..\:/Users/paras/Documents/GitHub/CloudNotes/app/src/main/res/layout/fragment_view_trash_note.xml" value="0.20520833333333333" />
+        <entry key="..\:/Users/paras/Documents/GitHub/CloudNotes/app/src/main/res/layout/rv_checkable_item_layout.xml" value="0.20520833333333333" />
+        <entry key="..\:/Users/paras/Documents/GitHub/CloudNotes/app/src/main/res/layout/rv_collaborator_dialog_item.xml" value="0.20520833333333333" />
         <entry key="..\:/Users/paras/Documents/GitHub/CloudNotes/app/src/main/res/layout/rv_home_checkbox_note_item.xml" value="0.3625" />
         <entry key="..\:/Users/paras/Documents/GitHub/CloudNotes/app/src/main/res/layout/rv_home_note_item.xml" value="0.3625" />
+        <entry key="..\:/Users/paras/Documents/GitHub/CloudNotes/app/src/main/res/layout/rv_non_checkable_item.xml" value="0.20520833333333333" />
       </map>
     </option>
   </component>

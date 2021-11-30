@@ -79,10 +79,8 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
 
     private ActionMode actionMode;
     private MaterialToolbar materialToolbar;
-    private FloatingActionButton addNewNoteBtn;
     private View view;
     private RecyclerView recyclerView;
-    private ItemTouchHelper helper;
     private ImageView layoutManagerIcon;
 //    private SwipeRefreshLayout swipeRefreshLayout;
 
@@ -137,7 +135,7 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
 
             view = inflater.inflate(R.layout.fragment_home, container, false);
             recyclerView = view.findViewById(R.id.homeFragment_recyclerView);
-            addNewNoteBtn = view.findViewById(R.id.homeFragment_addNoteFab);
+            FloatingActionButton addNewNoteBtn = view.findViewById(R.id.homeFragment_addNoteFab);
             noNotesTv = view.findViewById(R.id.homeFragment_empty);
             searchView = view.findViewById(R.id.homeFragment_searchView);
 //            swipeRefreshLayout = view.findViewById(R.id.homeFragment_swipeRefresh_layout);
@@ -289,7 +287,11 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
         staggeredRecyclerViewAdapter.setOnItemClickListener(HomeFragment.this);
 
         //Touch helper to order notes on long press
-        helper = new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(ItemTouchHelper.UP | ItemTouchHelper.DOWN |
+        //Swap notes position
+        //Update notes individual position in the list
+        //Update notes individual position in the list
+        //Stop action mode after delay
+        ItemTouchHelper helper = new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(ItemTouchHelper.UP | ItemTouchHelper.DOWN |
                 ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT, 0) {
             @Override
             public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {
