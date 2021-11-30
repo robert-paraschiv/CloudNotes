@@ -76,7 +76,7 @@ public class FCMService extends FirebaseMessagingService implements LifecycleObs
 
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0 /* Request code */, intent,
-                PendingIntent.FLAG_ONE_SHOT);
+                PendingIntent.FLAG_MUTABLE);
 
         Bitmap rawBitmap = BitmapFactory.decodeResource(getResources(),
                 R.drawable.ic_notif_icon);

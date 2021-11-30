@@ -11,6 +11,8 @@ import android.util.Log;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatDelegate;
 
+import com.google.android.material.color.DynamicColors;
+
 public class App extends Application {
     private static final String TAG = "App";
     SharedPreferences sharedPreferences;
@@ -26,6 +28,9 @@ public class App extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
+
+        DynamicColors.applyToActivitiesIfAvailable(this);
+
         sharedPreferences = getSharedPreferences(SETTINGS_PREFS_NAME, MODE_PRIVATE);
 
         //Increase Times app started so we can use it for showing rewarded ad
