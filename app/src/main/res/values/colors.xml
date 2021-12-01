@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources xmlns:tools="http://schemas.android.com/tools">
+<resources>
     <color name="md_theme_light_primary">#6750A4</color>
     <color name="md_theme_light_onPrimary">#FFFFFF</color>
     <color name="md_theme_light_primaryContainer">#EADDFF</color>
@@ -56,16 +56,15 @@
     <color name="error">#B3261E</color>
 
 
-
     <color name="colorPrimary">#1976d2</color>
     <color name="colorPrimaryDark">#004ba0</color>
     <color name="colorAccent">#0091ea</color>
     <color name="note_stroke_color">#000000</color>
-    <color name="fragments_background" tools:ignore="NewApi">@android:color/system_neutral2_10</color>
-    <color name="status_bar_color" tools:ignore="NewApi">@android:color/system_neutral2_1000</color>
+    <color name="fragments_background">#ffffff</color>
+    <color name="status_bar_color">#f6f6f6</color>
     <color name="navigationColor">#eeeeee</color>
 
-    <color name="dialog_settings_background_color" tools:ignore="NewApi">@android:color/system_neutral2_10</color>
+    <color name="dialog_settings_background_color">#f2f5fa</color>
     <color name="settings_dialog_handle_color">#e1e1e1</color>
 
 
@@ -86,7 +85,6 @@
     <color name="edit_type_restored">#d50000</color>
 
     <color name="dialog_please_wait_text_color">#4f4f4f</color>
-
 
 
     <color name="note_background_color_yellow">#FFF59D</color>
