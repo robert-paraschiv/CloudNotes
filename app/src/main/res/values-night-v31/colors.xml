@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <color name="fragments_background">@android:color/system_neutral2_900</color>
-    <color name="dialog_settings_background_color">@android:color/system_neutral2_800</color>
-    <color name="search_background_color">@android:color/system_accent2_800</color>
-</resources>
