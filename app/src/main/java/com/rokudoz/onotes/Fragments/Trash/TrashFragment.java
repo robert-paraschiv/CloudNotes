@@ -111,17 +111,17 @@ public class TrashFragment extends Fragment implements HomePageAdapter.OnItemCli
 
         });
 
-        //Show Banner Ad
-        BannerAdManager bannerAdManager = new BannerAdManager();
-        if (getActivity() != null && !HIDE_BANNER) {
-            bannerAdManager.showBannerAd(getActivity());
-            RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) recyclerView.getLayoutParams();
-            params.setMargins(bannerAdManager.convertDpToPixel(requireActivity(), 10)
-                    , 0
-                    , bannerAdManager.convertDpToPixel(requireActivity(), 10)
-                    , bannerAdManager.convertDpToPixel(requireActivity(), 50));
-
-        }
+//        //Show Banner Ad
+//        BannerAdManager bannerAdManager = new BannerAdManager();
+//        if (getActivity() != null && !HIDE_BANNER) {
+//            bannerAdManager.showBannerAd(getActivity());
+//            RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) recyclerView.getLayoutParams();
+//            params.setMargins(bannerAdManager.convertDpToPixel(requireActivity(), 10)
+//                    , 0
+//                    , bannerAdManager.convertDpToPixel(requireActivity(), 10)
+//                    , bannerAdManager.convertDpToPixel(requireActivity(), 50));
+//
+//        }
 
         setUpRecyclerView();
         return view;

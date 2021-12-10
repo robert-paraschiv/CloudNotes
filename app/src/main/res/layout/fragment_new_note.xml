@@ -6,7 +6,8 @@
     android:layout_height="match_parent"
     android:background="@color/fragments_background"
     android:focusableInTouchMode="true"
-    tools:context=".Fragments.NewNoteFragment">
+    tools:context=".Fragments.NewNoteFragment"
+    tools:ignore="HardcodedText">
 
     <com.google.android.material.appbar.MaterialToolbar
         android:id="@+id/newNoteFragment_toolbar"
@@ -92,7 +93,6 @@
                 android:id="@+id/newNoteFragment_scroll_rv"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_below="@id/newNoteFragment_title_textInput"
                 android:layout_margin="8dp"
                 android:visibility="invisible"
                 tools:visibility="invisible">
@@ -133,7 +133,9 @@
         android:id="@+id/newNoteFragment_bottom_card"
         android:layout_width="match_parent"
         android:layout_height="40dp"
-        android:layout_alignParentBottom="true">
+        android:layout_alignParentBottom="true"
+        app:cardElevation="8dp"
+        app:strokeWidth="0dp">
 
         <RelativeLayout
             android:layout_width="match_parent"

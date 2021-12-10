@@ -75,16 +75,16 @@ public class NoteEditsFragment extends Fragment implements NoteEditsAdapter.OnIt
             hideSoftKeyboard(getActivity());
         }
 
-        //Show Banner Ad
-        if (getActivity() != null && !HIDE_BANNER) {
-            BannerAdManager bannerAdManager = new BannerAdManager();
-            bannerAdManager.showBannerAd(getActivity());
-            RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) recyclerView.getLayoutParams();
-            params.setMargins(0
-                    , 0
-                    , 0
-                    , bannerAdManager.convertDpToPixel(requireActivity(), 50));
-        }
+//        //Show Banner Ad
+//        if (getActivity() != null && !HIDE_BANNER) {
+//            BannerAdManager bannerAdManager = new BannerAdManager();
+//            bannerAdManager.showBannerAd(getActivity());
+//            RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) recyclerView.getLayoutParams();
+//            params.setMargins(0
+//                    , 0
+//                    , 0
+//                    , bannerAdManager.convertDpToPixel(requireActivity(), 50));
+//        }
 
         MaterialButton backBtn = view.findViewById(R.id.noteEditsFragment_backBtn);
         backBtn.setOnClickListener(v -> {
