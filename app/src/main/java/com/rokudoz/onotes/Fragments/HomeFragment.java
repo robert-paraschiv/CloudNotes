@@ -163,9 +163,21 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
             layoutManagerIcon = view.findViewById(R.id.homeFragment_layoutManagerIcon);
 
             addNewNoteBtn.setOnClickListener(v -> {
-                if (Objects.requireNonNull(Navigation.findNavController(view).getCurrentDestination()).getId() == R.id.homeFragment)
-                    Navigation.findNavController(view).navigate(HomeFragmentDirections.actionHomeFragmentToNewNoteFragment());
+                FragmentNavigator.Extras.Builder builder = new FragmentNavigator.Extras.Builder();
+                addNewNoteBtn.setTransitionName("addnewnote");
+                builder.addSharedElement(addNewNoteBtn, "addnewnote");
 
+
+                FragmentNavigator.Extras extras = builder.build();
+
+                NavDirections navDirections = HomeFragmentDirections.actionHomeFragmentToNewNoteFragment();
+
+                Hold hold = new Hold();
+                hold.setDuration(getResources().getInteger(R.integer.transition_home_edit_duration));
+
+                setExitTransition(hold);
+
+                Navigation.findNavController(view).navigate(navDirections, extras);
             });
 
             buildRecyclerView();
