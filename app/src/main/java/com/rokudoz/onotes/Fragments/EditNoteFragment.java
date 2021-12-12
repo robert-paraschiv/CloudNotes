@@ -253,10 +253,10 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
                             .update("deleted", true).addOnSuccessListener(aVoid -> {
                         Toast.makeText(getContext(), "Deleted note", Toast.LENGTH_SHORT).show();
                         hideSoftKeyboard(requireActivity());
-                        if (Objects.requireNonNull(Navigation.findNavController(view).getCurrentDestination()).getId()
-                                == R.id.editNoteFragment)
-                            Navigation.findNavController(view).popBackStack();
                         dialog.cancel();
+                        if (Objects.requireNonNull(Navigation.findNavController(view).getCurrentDestination()).getId() == R.id.editNoteFragment){
+                            Navigation.findNavController(view).popBackStack();
+                        }
                     });
                 } else { //The current user isn't the creator of the note, update it and remove current user from collaborators
                     for (int i = 0; i < mNote.getCollaboratorList().size(); i++) {
