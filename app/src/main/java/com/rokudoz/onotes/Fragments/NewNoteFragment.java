@@ -2,18 +2,21 @@ package com.rokudoz.onotes.Fragments;
 
 import android.app.Activity;
 import android.content.Context;
+import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.view.Window;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.RelativeLayout;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.Navigation;
@@ -25,6 +28,7 @@ import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.transition.MaterialContainerTransform;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
@@ -92,6 +96,20 @@ public class NewNoteFragment extends Fragment implements CheckableItemAdapter.On
     }
 
     @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+
+        MaterialContainerTransform materialContainerTransform = new MaterialContainerTransform();
+        materialContainerTransform.setDuration(getResources().getInteger(R.integer.transition_home_edit_duration));
+        materialContainerTransform.setElevationShadowEnabled(true);
+        materialContainerTransform.setAllContainerColors(Color.TRANSPARENT);
+        materialContainerTransform.setScrimColor(Color.TRANSPARENT);
+        materialContainerTransform.setDrawingViewId(R.id.nav_host_fragment);
+        setSharedElementEnterTransition(materialContainerTransform);
+
+        super.onCreate(savedInstanceState);
+    }
+
+    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.fragment_new_note, container, false);
 
@@ -105,6 +123,8 @@ public class NewNoteFragment extends Fragment implements CheckableItemAdapter.On
         collaboratorsRV = view.findViewById(R.id.newNoteFragment_collaboratorsRV);
         MaterialButton settingsBtn = view.findViewById(R.id.newNoteFragment_settingsBtn);
         MaterialButton discardBtn = view.findViewById(R.id.newNoteFragment_discardBtn);
+
+        view.findViewById(R.id.newNoteFragment_rootLayout).setTransitionName("addnewnote");
 
         if (FirebaseAuth.getInstance().getCurrentUser() != null) {
             List<Collaborator> collaborators = new ArrayList<>();

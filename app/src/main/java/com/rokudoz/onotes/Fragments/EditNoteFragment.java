@@ -25,6 +25,7 @@ import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.core.widget.NestedScrollView;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -44,6 +45,7 @@ import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.WriteBatch;
 import com.rokudoz.onotes.Adapters.CheckableItemAdapter;
 import com.rokudoz.onotes.Adapters.CollaboratorNotesAdapter;
+import com.rokudoz.onotes.Data.NotesViewModel;
 import com.rokudoz.onotes.Dialogs.FullBottomSheetDialogFragment;
 import com.rokudoz.onotes.Models.CheckableItem;
 import com.rokudoz.onotes.Models.Collaborator;
@@ -119,12 +121,16 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
     private final CollectionReference usersRef = db.collection("Users");
 
+
+    private NotesViewModel notesViewModel;
+
     public EditNoteFragment() {
         // Required empty public constructor
     }
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
+        postponeEnterTransition();
 
         MaterialContainerTransform materialContainerTransform = new MaterialContainerTransform();
         materialContainerTransform.setDuration(getResources().getInteger(R.integer.transition_home_edit_duration));
@@ -166,6 +172,7 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
         nestedScrollView = view.findViewById(R.id.editNoteFragment_nestedScrollView);
         note_background_color = ContextCompat.getColor(requireContext(), R.color.fragments_background);
 
+        notesViewModel = new ViewModelProvider(this).get(NotesViewModel.class);
 
         //Hide Banner Ad
         if (getActivity() != null) {
@@ -207,28 +214,33 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
             note_background_colorName = editNoteFragmentArgs.getNoteColor();
             setupBackgroundColor(editNoteFragmentArgs.getNoteColor());
 
-            getNote(noteID);
+//            getNote(noteID);
+            getNote(notePosition);
         }
 
         return view;
     }
 
-    @Override
-    public void onViewCreated(@NonNull final View view, @Nullable Bundle savedInstanceState) {
-
-
-        postponeEnterTransition();
-        view.getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
-            @Override
-            public boolean onPreDraw() {
-                view.getViewTreeObserver().removeOnPreDrawListener(this);
-                startPostponedEnterTransition();
-                return true;
-            }
-        });
-
-        super.onViewCreated(view, savedInstanceState);
+    private void getNote(int notePosition) {
+        handleNoteEvent(notesViewModel.loadNote(notePosition));
     }
+
+//    @Override
+//    public void onViewCreated(@NonNull final View view, @Nullable Bundle savedInstanceState) {
+//
+//
+//        postponeEnterTransition();
+//        view.getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
+//            @Override
+//            public boolean onPreDraw() {
+//                view.getViewTreeObserver().removeOnPreDrawListener(this);
+//                startPostponedEnterTransition();
+//                return true;
+//            }
+//        });
+//
+//        super.onViewCreated(view, savedInstanceState);
+//    }
 
 
     @SuppressLint("SetTextI18n")
@@ -254,7 +266,7 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
                         Toast.makeText(getContext(), "Deleted note", Toast.LENGTH_SHORT).show();
                         hideSoftKeyboard(requireActivity());
                         dialog.cancel();
-                        if (Objects.requireNonNull(Navigation.findNavController(view).getCurrentDestination()).getId() == R.id.editNoteFragment){
+                        if (Objects.requireNonNull(Navigation.findNavController(view).getCurrentDestination()).getId() == R.id.editNoteFragment) {
                             Navigation.findNavController(view).popBackStack();
                         }
                     });
@@ -570,7 +582,7 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
 
             }
             //Start enter animation after info retrieved
-//                            startPostponedEnterTransition();
+                            startPostponedEnterTransition();
 //                            view.setLayerType(View.LAYER_TYPE_NONE, null);
         }
     }
@@ -612,7 +624,7 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
             retrievedNote = false;
             if (mNote.getCheckableItemList() != null)
                 mNote.getCheckableItemList().clear();
-            getNote(noteID);
+            getNote(notePosition);
             dialog.cancel();
         });
         cancelBtn.setOnClickListener(v -> dialog.cancel());

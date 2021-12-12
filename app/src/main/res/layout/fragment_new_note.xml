@@ -6,6 +6,7 @@
     android:layout_height="match_parent"
     android:background="@color/fragments_background"
     android:focusableInTouchMode="true"
+    android:id="@+id/newNoteFragment_rootLayout"
     tools:context=".Fragments.NewNoteFragment"
     tools:ignore="HardcodedText">
 

@@ -7,6 +7,6 @@
     <dimen name="bottomsheet_mainText_size">16sp</dimen>
     <dimen name="bottomsheet_secondaryText_size">12sp</dimen>
 
-    <integer name="transition_home_edit_duration">300</integer>
+    <integer name="transition_home_edit_duration">400</integer>
     <integer name="transition_show_hide_bannerAd_duration">150</integer>
 </resources>

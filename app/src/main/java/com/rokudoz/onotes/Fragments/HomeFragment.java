@@ -23,7 +23,9 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
+import androidx.core.view.ViewCompat;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavDirections;
 import androidx.navigation.Navigation;
 import androidx.navigation.fragment.FragmentNavigator;
@@ -38,6 +40,8 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.transition.Hold;
+import com.google.android.material.transition.MaterialElevationScale;
+import com.google.android.material.transition.platform.MaterialContainerTransformSharedElementCallback;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
@@ -47,6 +51,7 @@ import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.WriteBatch;
 import com.rokudoz.onotes.Adapters.HomePageAdapter;
+import com.rokudoz.onotes.Data.NotesViewModel;
 import com.rokudoz.onotes.Dialogs.SettingsDialogFragment;
 import com.rokudoz.onotes.LoginActivity;
 import com.rokudoz.onotes.Models.Collaborator;
@@ -70,8 +75,8 @@ import static android.content.Context.MODE_PRIVATE;
 import static com.rokudoz.onotes.App.HIDE_BANNER;
 import static com.rokudoz.onotes.App.SETTINGS_PREFS_NAME;
 
-public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClickListener{
-//public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClickListener, SwipeRefreshLayout.OnRefreshListener {
+public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClickListener {
+    //public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClickListener, SwipeRefreshLayout.OnRefreshListener {
     private static final String TAG = "HomeFragment";
 
     public static final int LAYOUT_STAGGERED_TYPE = 0;
@@ -105,6 +110,9 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
     private SharedPreferences sharedPreferences;
     private SharedPreferences.Editor sharedPrefsEditor;
 
+
+    private NotesViewModel notesViewModel;
+
     public HomeFragment() {
         // Required empty public constructor
     }
@@ -127,8 +135,10 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
 //                view = null;
 //            }
 //        }
-        if (FirebaseAuth.getInstance().getCurrentUser() != null)
+        if (FirebaseAuth.getInstance().getCurrentUser() != null) {
             currentUserCollaborator.setUser_email(FirebaseAuth.getInstance().getCurrentUser().getEmail());
+            notesViewModel = new ViewModelProvider(this).get(NotesViewModel.class);
+        }
 
         if (view == null) {
             Log.d(TAG, "onCreateView: VIEW WAS NULL");
@@ -163,8 +173,21 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
             layoutManagerIcon = view.findViewById(R.id.homeFragment_layoutManagerIcon);
 
             addNewNoteBtn.setOnClickListener(v -> {
-                if (Objects.requireNonNull(Navigation.findNavController(view).getCurrentDestination()).getId() == R.id.homeFragment)
-                    Navigation.findNavController(view).navigate(HomeFragmentDirections.actionHomeFragmentToNewNoteFragment());
+                FragmentNavigator.Extras.Builder builder = new FragmentNavigator.Extras.Builder();
+                addNewNoteBtn.setTransitionName("addnewnote");
+                builder.addSharedElement(addNewNoteBtn, "addnewnote");
+
+
+                FragmentNavigator.Extras extras = builder.build();
+
+                NavDirections navDirections = HomeFragmentDirections.actionHomeFragmentToNewNoteFragment();
+
+                Hold hold = new Hold();
+                hold.setDuration(getResources().getInteger(R.integer.transition_home_edit_duration));
+
+                setExitTransition(hold);
+
+                Navigation.findNavController(view).navigate(navDirections, extras);
 
             });
 
@@ -570,7 +593,8 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
                     if (FirebaseAuth.getInstance().getCurrentUser() != null) {
                         currentUserCollaborator.setUser_email(FirebaseAuth.getInstance().getCurrentUser().getEmail());
                         getUserInfo();
-                        getNotes();
+//                        getNotes();
+                        loadNotes();
                     }
 //                        Log.d(TAG, "onAuthStateChanged: MAIL VERIFIED");
                 } else {
@@ -589,6 +613,24 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
             }
             // ...
         };
+    }
+
+    private void loadNotes() {
+        notesViewModel.loadData().observe(getViewLifecycleOwner(), notes -> {
+            if (notes == null) {
+                Log.d(TAG, "loadNotes: notes null");
+            } else {
+                for (Note note : notes) {
+                    if (noteList.contains(note)) {
+
+                    } else {
+                        Log.d(TAG, "loadNotes: added note " + note.getNoteTitle());
+                        noteList.add(note);
+                        staggeredRecyclerViewAdapter.notifyItemInserted(noteList.indexOf(note));
+                    }
+                }
+            }
+        });
     }
 
 
