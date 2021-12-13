@@ -61,3 +61,7 @@ exports.noteDeleteListener = functions.firestore.document("Notes/{note_id}").onD
     });
 
 });
+
+exports.helloWorld = functions.https.onRequest((req, res) => {
+    res.send('Hello from firebase function');
+});
