@@ -22,8 +22,6 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.coordinatorlayout.widget.CoordinatorLayout;
-import androidx.core.view.ViewCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavDirections;
@@ -33,24 +31,20 @@ import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.StaggeredGridLayoutManager;
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.bumptech.glide.Glide;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.transition.Hold;
-import com.google.android.material.transition.MaterialElevationScale;
-import com.google.android.material.transition.platform.MaterialContainerTransformSharedElementCallback;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.ListenerRegistration;
-import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.WriteBatch;
 import com.rokudoz.onotes.Adapters.HomePageAdapter;
+import com.rokudoz.onotes.Data.NotesRepo;
 import com.rokudoz.onotes.Data.NotesViewModel;
 import com.rokudoz.onotes.Dialogs.SettingsDialogFragment;
 import com.rokudoz.onotes.LoginActivity;
@@ -59,7 +53,6 @@ import com.rokudoz.onotes.Models.Note;
 import com.rokudoz.onotes.Models.NoteDetails;
 import com.rokudoz.onotes.Models.User;
 import com.rokudoz.onotes.R;
-import com.rokudoz.onotes.Utils.BannerAdManager;
 import com.rokudoz.onotes.Utils.ColorUtils;
 import com.rokudoz.onotes.Utils.DbUtils;
 import com.rokudoz.onotes.Utils.NotesUtils;
@@ -72,7 +65,6 @@ import java.util.Objects;
 import de.hdodenhof.circleimageview.CircleImageView;
 
 import static android.content.Context.MODE_PRIVATE;
-import static com.rokudoz.onotes.App.HIDE_BANNER;
 import static com.rokudoz.onotes.App.SETTINGS_PREFS_NAME;
 
 public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClickListener {
@@ -126,111 +118,21 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
     @SuppressLint("CommitPrefEdits")
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-
-//        This fixes crash occurring if you click on some note and then press back fast, before enter animation finishes
-//        if (view != null) {
-//            ViewGroup parent = (ViewGroup) view.getParent();
-//            if (parent != null) {
-//                parent.removeView(view);
-//                view = null;
-//            }
-//        }
-        if (FirebaseAuth.getInstance().getCurrentUser() != null) {
-            currentUserCollaborator.setUser_email(FirebaseAuth.getInstance().getCurrentUser().getEmail());
-            notesViewModel = new ViewModelProvider(this).get(NotesViewModel.class);
-        }
-
         if (view == null) {
             Log.d(TAG, "onCreateView: VIEW WAS NULL");
 
+            if (FirebaseAuth.getInstance().getCurrentUser() != null) {
+                currentUserCollaborator.setUser_email(FirebaseAuth.getInstance().getCurrentUser().getEmail());
+                notesViewModel = new ViewModelProvider(this).get(NotesViewModel.class);
+            }
             view = inflater.inflate(R.layout.fragment_home, container, false);
-            recyclerView = view.findViewById(R.id.homeFragment_recyclerView);
-            FloatingActionButton addNewNoteBtn = view.findViewById(R.id.homeFragment_addNoteFab);
-            noNotesTv = view.findViewById(R.id.homeFragment_empty);
-            searchView = view.findViewById(R.id.homeFragment_searchView);
-//            swipeRefreshLayout = view.findViewById(R.id.homeFragment_swipeRefresh_layout);
-//            swipeRefreshLayout.setOnRefreshListener(this);
-
-
-            searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-                @Override
-                public boolean onQueryTextSubmit(String query) {
-                    staggeredRecyclerViewAdapter.getFilter().filter(query);
-                    searchView.clearFocus();
-                    return false;
-                }
-
-                @Override
-                public boolean onQueryTextChange(String newText) {
-                    staggeredRecyclerViewAdapter.getFilter().filter(newText);
-                    return false;
-                }
-            });
-
-            materialToolbar = view.findViewById(R.id.homeFragment_toolbar);
-
-            userPicture = view.findViewById(R.id.homeFragment_userImage);
-            layoutManagerIcon = view.findViewById(R.id.homeFragment_layoutManagerIcon);
-
-            addNewNoteBtn.setOnClickListener(v -> {
-                FragmentNavigator.Extras.Builder builder = new FragmentNavigator.Extras.Builder();
-                addNewNoteBtn.setTransitionName("addnewnote");
-                builder.addSharedElement(addNewNoteBtn, "addnewnote");
-
-
-                FragmentNavigator.Extras extras = builder.build();
-
-                NavDirections navDirections = HomeFragmentDirections.actionHomeFragmentToNewNoteFragment();
-
-                Hold hold = new Hold();
-                hold.setDuration(getResources().getInteger(R.integer.transition_home_edit_duration));
-
-                setExitTransition(hold);
-
-                Navigation.findNavController(view).navigate(navDirections, extras);
-
-            });
+            initViews();
 
             buildRecyclerView();
             setupFirebaseAuth();
-
-
-//            setExitTransition(TransitionInflater.from(getActivity()).inflateTransition(R.transition.grid_exit_transition)
-//                    .setDuration(getResources().getInteger(R.integer.transition_home_edit_duration))); // EXIT transition duration must be equal to other fragment Enter transition duration
-
         } else {
             Log.d(TAG, "onCreateView: VIEW NOT NULL");
         }
-
-//        BannerAdManager bannerAdManager = new BannerAdManager();
-//
-//        //Show Banner Ad
-//        if (getActivity() != null && !HIDE_BANNER) {
-//            bannerAdManager.showBannerAd(getActivity());
-//            //Move Add note Fab lower
-//            CoordinatorLayout.LayoutParams params = (CoordinatorLayout.LayoutParams) addNewNoteBtn.getLayoutParams();
-//            params.setMargins(0, 0, bannerAdManager.convertDpToPixel(getActivity(), 16), bannerAdManager.convertDpToPixel(getActivity(), 66));
-//
-//            //Move recyclerview lower
-//            CoordinatorLayout.LayoutParams recyclerviewParams = (CoordinatorLayout.LayoutParams) view.findViewById(R.id.homeFragment_recyclerView_layout)
-//                    .getLayoutParams();
-//            recyclerviewParams.setMargins(bannerAdManager.convertDpToPixel(getActivity(), 4),
-//                    0,
-//                    bannerAdManager.convertDpToPixel(getActivity(), 4),
-//                    bannerAdManager.convertDpToPixel(getActivity(), 50));
-//        } else if (getActivity() != null && HIDE_BANNER) {
-//            //Move Add note Fab lower
-//            CoordinatorLayout.LayoutParams params = (CoordinatorLayout.LayoutParams) addNewNoteBtn.getLayoutParams();
-//            params.setMargins(0, 0, bannerAdManager.convertDpToPixel(getActivity(), 16), bannerAdManager.convertDpToPixel(getActivity(), 16));
-//
-//            //Move recyclerview lower
-//            CoordinatorLayout.LayoutParams recyclerviewParams = (CoordinatorLayout.LayoutParams) view.findViewById(R.id.homeFragment_recyclerView_layout)
-//                    .getLayoutParams();
-//            recyclerviewParams.setMargins(bannerAdManager.convertDpToPixel(getActivity(), 4),
-//                    0,
-//                    bannerAdManager.convertDpToPixel(getActivity(), 4),
-//                    0);
-//        }
 
         //Reset status bar color
         if (getActivity() != null) {
@@ -242,17 +144,63 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
             if (homeFragmentArgs.getNoteId() != null) {
                 Note note = new Note();
                 note.setNote_doc_ID(homeFragmentArgs.getNoteId());
-//                Log.d(TAG, "onCreateView: " + note.getNote_doc_ID());
                 if (noteList.size() > 0 && noteList.contains(note)) {
                     int position = noteList.indexOf(note);
                     noteList.remove(position);
                     staggeredRecyclerViewAdapter.notifyItemRemoved(position);
-//                    Log.d(TAG, "onCreateView: removed note");
                 }
             }
         }
 
         return view;
+    }
+
+    private void initViews() {
+        recyclerView = view.findViewById(R.id.homeFragment_recyclerView);
+        FloatingActionButton addNewNoteBtn = view.findViewById(R.id.homeFragment_addNoteFab);
+        noNotesTv = view.findViewById(R.id.homeFragment_empty);
+        searchView = view.findViewById(R.id.homeFragment_searchView);
+//            swipeRefreshLayout = view.findViewById(R.id.homeFragment_swipeRefresh_layout);
+//            swipeRefreshLayout.setOnRefreshListener(this);
+
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                staggeredRecyclerViewAdapter.getFilter().filter(query);
+                searchView.clearFocus();
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                staggeredRecyclerViewAdapter.getFilter().filter(newText);
+                return false;
+            }
+        });
+
+        materialToolbar = view.findViewById(R.id.homeFragment_toolbar);
+
+        userPicture = view.findViewById(R.id.homeFragment_userImage);
+        layoutManagerIcon = view.findViewById(R.id.homeFragment_layoutManagerIcon);
+
+        addNewNoteBtn.setOnClickListener(v -> {
+            FragmentNavigator.Extras.Builder builder = new FragmentNavigator.Extras.Builder();
+            addNewNoteBtn.setTransitionName("addnewnote");
+            builder.addSharedElement(addNewNoteBtn, "addnewnote");
+
+
+            FragmentNavigator.Extras extras = builder.build();
+
+            NavDirections navDirections = HomeFragmentDirections.actionHomeFragmentToNewNoteFragment();
+
+            Hold hold = new Hold();
+            hold.setDuration(getResources().getInteger(R.integer.transition_home_edit_duration));
+
+            setExitTransition(hold);
+
+            Navigation.findNavController(view).navigate(navDirections, extras);
+
+        });
     }
 
     @Override
@@ -311,7 +259,6 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
 
         //Touch helper to order notes on long press
         //Swap notes position
-        //Update notes individual position in the list
         //Update notes individual position in the list
         //Stop action mode after delay
         ItemTouchHelper helper = new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(ItemTouchHelper.UP | ItemTouchHelper.DOWN |
@@ -372,126 +319,68 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
         FirebaseAuth.getInstance().addAuthStateListener(mAuthListener);
     }
 
-    private void getNotes() {
-        if (FirebaseAuth.getInstance().getCurrentUser() != null && FirebaseAuth.getInstance().getCurrentUser().getEmail() != null) {
-            notesDetailsListener = usersRef.document(FirebaseAuth.getInstance().getCurrentUser().getUid()).collection(NotesUtils.NOTES_DETAILS)
-                    .orderBy("note_position")
-                    .addSnapshotListener((value, error) -> {
-                        if (error == null && value != null && value.size() > 0) {
-                            for (DocumentSnapshot noteDetailsSnapshot : value) {
-                                final NoteDetails noteDetails = noteDetailsSnapshot.toObject(NoteDetails.class);
-                                if (noteDetails != null) {
-                                    notesListener = db.collection("Notes").document(noteDetails.getNote_doc_id())
-                                            .addSnapshotListener((documentSnapshot, error1) -> {
-                                                if (documentSnapshot != null && error1 == null) {
-                                                    Note note = documentSnapshot.toObject(Note.class);
-                                                    if (note != null) {
-                                                        note.setNote_doc_ID(documentSnapshot.getId());
-                                                        handleNoteEvent(note, noteDetails);
-                                                    }
-                                                }
-                                            });
-                                }
-                            }
-                        } else {
-                            //No notes available, show no notes tv
-                            noNotesTv.setVisibility(View.VISIBLE);
-                        }
-                    });
-        }
-    }
+    private void handleNoteEvent(Note newNote) {
+        if (noteList.contains(newNote)) {
 
-//    private void refreshNotes() {
-//        if (FirebaseAuth.getInstance().getCurrentUser() != null && FirebaseAuth.getInstance().getCurrentUser().getEmail() != null) {
-////            for (int i = 0; i < noteList.size(); i++) {
-////                noteList.remove(i);
-////                staggeredRecyclerViewAdapter.notifyItemRemoved(i);
-////            }
-//            noteList.clear();
-//            staggeredRecyclerViewAdapter.notifyDataSetChanged();
-//            usersRef.document(FirebaseAuth.getInstance().getCurrentUser().getUid()).collection(NotesUtils.NOTES_DETAILS)
-//                    .orderBy("note_position")
-//                    .get().addOnSuccessListener(queryDocumentSnapshots -> {
-//                if (queryDocumentSnapshots != null && queryDocumentSnapshots.size() > 0) {
-//                    for (DocumentSnapshot noteDetailsSnapshot : queryDocumentSnapshots) {
-//                        final NoteDetails noteDetails = noteDetailsSnapshot.toObject(NoteDetails.class);
-//                        if (noteDetails != null) {
-//                            db.collection("Notes").document(noteDetails.getNote_doc_id()).get().addOnSuccessListener(documentSnapshot -> {
-//                                if (documentSnapshot != null) {
-//                                    Note note = documentSnapshot.toObject(Note.class);
-//                                    if (note != null) {
-//                                        note.setNote_doc_ID(documentSnapshot.getId());
-//                                        handleNoteEvent(note, noteDetails);
-//                                    }
-//                                }
-//                            });
-//
-//                        }
-//                    }
-//                    swipeRefreshLayout.setRefreshing(false);
-//                } else {
-//                    //No notes available, show no notes tv
-//                    noNotesTv.setVisibility(View.VISIBLE);
-//                }
-//            });
-//        }
-//    }
-
-    private void handleNoteEvent(Note note, NoteDetails noteDetails) {
-        note.setNote_position(noteDetails.getNote_position());
-        note.setNote_background_color(noteDetails.getNote_background_color());
-        if (noteList.contains(note)) {
-
-            int indexOfCurrentNote = noteList.indexOf(note);
-            if (note.getDeleted()) {
-                noteList.remove(note);
+            int indexOfCurrentNote = noteList.indexOf(newNote);
+            if (newNote.getDeleted()) {
+                noteList.remove(newNote);
                 Log.d(TAG, "onEvent: note deleted, removing");
                 staggeredRecyclerViewAdapter.notifyItemRemoved(indexOfCurrentNote);
             } else {
                 //Check if note are different
-                if (NotesUtils.checkIfNotesAreDifferent(note, noteList.get(indexOfCurrentNote))) {
-                    noteList.set(indexOfCurrentNote, note);
+                if (NotesUtils.checkIfNotesAreDifferent(noteList.get(indexOfCurrentNote), newNote)) {
+                    noteList.set(indexOfCurrentNote, newNote);
                     staggeredRecyclerViewAdapter.notifyItemChanged(indexOfCurrentNote);
                     Log.d(TAG, "onEvent: note changed, notifying");
 
-                } else if (checkIfBackgroundIsChanged(note, noteList.get(indexOfCurrentNote))) {
+                } else if (checkIfBackgroundIsChanged(noteList.get(indexOfCurrentNote), newNote)) {
                     //Notes are the same, user just changed color
 
                     staggeredRecyclerViewAdapter.setItemBackgroundColor(recyclerView.getChildViewHolder(recyclerView
-                            .getChildAt(indexOfCurrentNote)).itemView, indexOfCurrentNote, false, note.getNote_background_color());
+                            .getChildAt(indexOfCurrentNote)).itemView, indexOfCurrentNote, false, newNote.getNote_background_color());
 
                     //Change the note background color for the current user in the notes list
-                    noteList.get(noteList.indexOf(note)).setNote_background_color(note.getNote_background_color());
+                    noteList.get(indexOfCurrentNote).setNote_background_color(newNote.getNote_background_color());
                     Log.d(TAG, "handleNoteEvent: note background color changed");
 
-                } else if (checkIfPositionIsChanged(note, noteList.get(indexOfCurrentNote))) {
+                } else if (checkIfPositionIsChanged(noteList.get(indexOfCurrentNote), newNote)) {
                     //Change the note position for the current user in the notes list
-                    noteList.get(noteList.indexOf(note)).setNote_position(note.getNote_position());
+                    noteList.get(indexOfCurrentNote).setNote_position(newNote.getNote_position());
                     Log.d(TAG, "handleNoteEvent: note position changed");
+                } else if (checkIfCreationDateChanged(noteList.get(indexOfCurrentNote), newNote)) {
+                    noteList.get(indexOfCurrentNote).setCreation_date(newNote.getCreation_date());
                 }
                 //If user is no longer collaborator, remove note
-                if (!note.getUsers().contains(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getEmail())) {
-                    noteList.remove(note);
+                if (!newNote.getUsers().contains(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getEmail())) {
+                    noteList.remove(newNote);
                     staggeredRecyclerViewAdapter.notifyItemRemoved(indexOfCurrentNote);
                     Log.d(TAG, "onEvent: user no longer collab + removing ");
                 }
             }
         } else { //Notes list does not contain this note
-            if (!note.getDeleted()) {
-                if (note.getNote_position() != null
-                        && noteList.size() >= note.getNote_position()) {
-                    noteList.add(note.getNote_position(), note);
-                    staggeredRecyclerViewAdapter.notifyItemInserted(noteList.indexOf(note));
-                    Log.d(TAG, "onEvent: added note " + note.getNoteTitle() + " at position "
-                            + note.getNote_position());
+            if (!newNote.getDeleted()) {
+                if (newNote.getNote_position() != null
+                        && noteList.size() >= newNote.getNote_position()) {
+                    noteList.add(newNote.getNote_position(), newNote);
+                    staggeredRecyclerViewAdapter.notifyItemInserted(noteList.indexOf(newNote));
+                    Log.d(TAG, "onEvent: added note " + newNote.getNoteTitle() + " at position "
+                            + newNote.getNote_position());
                 } else {
-                    noteList.add(note);
+                    noteList.add(newNote);
                     staggeredRecyclerViewAdapter.notifyItemInserted(noteList.size() - 1);
-                    Log.d(TAG, "onEvent: added note default " + note.getNoteTitle() + " at position " + (noteList.size() - 1) +
-                            " actual note position " + note.getNote_position());
+                    Log.d(TAG, "onEvent: added note default " + newNote.getNoteTitle() + " at position " + (noteList.size() - 1) +
+                            " actual note position " + newNote.getNote_position());
                 }
             }
         }
+    }
+
+    private boolean checkIfCreationDateChanged(Note oldNote, Note newNote) {
+        return oldNote.getCreation_date() == null && newNote.getCreation_date() != null
+                || oldNote.getCreation_date() != null && newNote.getCreation_date() == null
+                || (oldNote.getCreation_date() != null && newNote.getCreation_date() != null
+                && !oldNote.getCreation_date().equals(newNote.getCreation_date()));
     }
 
     private boolean checkIfBackgroundIsChanged(Note newNote, Note oldNote) {
@@ -621,12 +510,11 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
                 Log.d(TAG, "loadNotes: notes null");
             } else {
                 for (Note note : notes) {
-                    if (noteList.contains(note)) {
-
-                    } else {
-                        Log.d(TAG, "loadNotes: added note " + note.getNoteTitle());
-                        noteList.add(note);
-                        staggeredRecyclerViewAdapter.notifyItemInserted(noteList.indexOf(note));
+                    try {
+                        Note newNote = note.clone();
+                        handleNoteEvent(newNote);
+                    } catch (CloneNotSupportedException e) {
+                        e.printStackTrace();
                     }
                 }
             }
@@ -750,7 +638,7 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
     @Override
     public void onItemClick(final int position, final TextView title, final TextView text, final RecyclerView checkboxRv,
                             final RecyclerView collaboratorsRv, final View rootLayout) {
-//        Log.d(TAG, "onItemClick: " + position);
+        Log.d(TAG, "onItemClick: " + position);
         int selected = staggeredRecyclerViewAdapter.getSelected().size();
         if (actionMode == null) {
             Note note = staggeredRecyclerViewAdapter.getNote(position);

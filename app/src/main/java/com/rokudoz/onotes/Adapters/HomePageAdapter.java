@@ -80,7 +80,7 @@ public class HomePageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         @Override
         public void onClick(View v) {
             if (mListener != null) {
-                int position = getAdapterPosition();
+                int position = getAbsoluteAdapterPosition();
                 if (position != RecyclerView.NO_POSITION) {
                     if (selected.size() > 0) {
                         if (selected.contains(noteList.get(position))) {
@@ -102,7 +102,7 @@ public class HomePageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         @Override
         public boolean onLongClick(View v) {
             if (mListener != null) {
-                int position = getAdapterPosition();
+                int position = getAbsoluteAdapterPosition();
                 if (position != RecyclerView.NO_POSITION) {
                     if (selected.contains(noteList.get(position))) {
                         selected.remove(noteList.get(position));
@@ -175,7 +175,7 @@ public class HomePageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         @Override
         public void onClick(View v) {
             if (mListener != null) {
-                int position = getAdapterPosition();
+                int position = getAbsoluteAdapterPosition();
                 if (position != RecyclerView.NO_POSITION) {
                     if (selected.size() > 0) {
                         if (selected.contains(noteList.get(position))) {
@@ -194,7 +194,7 @@ public class HomePageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         @Override
         public boolean onLongClick(View v) {
             if (mListener != null) {
-                int position = getAdapterPosition();
+                int position = getAbsoluteAdapterPosition();
                 if (position != RecyclerView.NO_POSITION) {
                     if (selected.contains(noteList.get(position))) {
                         selected.remove(noteList.get(position));

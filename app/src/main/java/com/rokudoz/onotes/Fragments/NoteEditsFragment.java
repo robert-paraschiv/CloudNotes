@@ -16,6 +16,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.button.MaterialButton;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
@@ -133,10 +134,19 @@ public class NoteEditsFragment extends Fragment implements NoteEditsAdapter.OnIt
     private void getNotes(String noteID) {
         Query notesQuery;
         if (mLastQueriedDocument != null) {
-            notesQuery = db.collection("Notes").document(noteID).collection("Edits")
-                    .orderBy("creation_date", Query.Direction.DESCENDING).startAfter(mLastQueriedDocument).limit(10);
+            notesQuery = db.collection("Users")
+                    .document(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid())
+                    .collection("Notes")
+                    .document(noteID)
+                    .collection("Edits")
+                    .orderBy("creation_date", Query.Direction.DESCENDING)
+                    .startAfter(mLastQueriedDocument).limit(10);
         } else {
-            notesQuery = db.collection("Notes").document(noteID).collection("Edits")
+            notesQuery = db.collection("Users")
+                    .document(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid())
+                    .collection("Notes")
+                    .document(noteID)
+                    .collection("Edits")
                     .orderBy("creation_date", Query.Direction.DESCENDING).limit(10);
         }
 

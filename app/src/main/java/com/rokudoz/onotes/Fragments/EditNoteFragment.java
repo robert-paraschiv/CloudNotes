@@ -788,8 +788,11 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
     private void updateNoteColor(final String noteColor) {
         mNote.setNote_background_color(noteColor);
         note_background_colorName = noteColor;
-        db.collection("Users").document(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid()).collection(NotesUtils.NOTES_DETAILS)
-                .document(mNote.getNote_doc_ID()).update("note_background_color", noteColor).addOnSuccessListener(
+        db.collection("Users")
+                .document(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid())
+                .collection("Notes")
+                .document(mNote.getNote_doc_ID())
+                .update("note_background_color", noteColor).addOnSuccessListener(
                 aVoid -> Log.d(TAG, "onSuccess: Updated note color " + noteColor));
     }
 
@@ -844,6 +847,8 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
                             false, mNote.getUsers(), mNote.getCollaboratorList(),
                             Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getEmail(),
                             noteChangeList);
+                    note.setNote_background_color(mNote.getNote_background_color());
+                    note.setNote_position(mNote.getNote_position());
 
                 } else if (noteType.equals("checkbox")) {
                     //Compare new checkbox values to old ones and get changes
@@ -858,11 +863,19 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
                             false, mNote.getUsers(), mNote.getCollaboratorList(),
                             Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getEmail(),
                             noteChangeList);
+                    note.setNote_background_color(mNote.getNote_background_color());
+                    note.setNote_position(mNote.getNote_position());
                 }
 
                 WriteBatch batch = db.batch();
-                batch.set(db.collection("Notes").document(noteID), note);
-                batch.set(db.collection("Notes").document(noteID).collection("Edits").document(), note);
+                batch.set(db.collection("Users")
+                        .document(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser().getUid()))
+                        .collection("Notes")
+                        .document(noteID), note);
+                batch.set(db.collection("Users")
+                        .document(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser().getUid()))
+                        .collection("Notes")
+                        .document(noteID).collection("Edits").document(), note);
 
                 final Note finalNote = note;
                 batch.commit().addOnSuccessListener(aVoid -> {

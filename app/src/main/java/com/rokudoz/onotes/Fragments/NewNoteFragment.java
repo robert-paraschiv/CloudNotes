@@ -354,7 +354,9 @@ public class NewNoteFragment extends Fragment implements CheckableItemAdapter.On
             //If note hasn't been saved before
             if (noteRef == null) {
                 final Note finalNote = note;
-                db.collection("Notes").add(note)
+                db.collection("Users")
+                        .document(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser().getUid()))
+                        .collection("Notes").add(note)
                         .addOnSuccessListener(documentReference -> {
                             noteRef = documentReference;
                             Log.d(TAG, "onSuccess: note added " + noteRef.getId());

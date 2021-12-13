@@ -7,7 +7,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
-public class Note {
+public class Note implements Cloneable{
     private String note_doc_ID;
     private String noteTitle;
     private String noteText;
@@ -229,6 +229,10 @@ public class Note {
                 ", note_position=" + note_position +
                 ", creation_date=" + creation_date +
                 '}';
+    }
+
+    public Note clone() throws CloneNotSupportedException {
+        return (Note) super.clone();
     }
 
     @Override
