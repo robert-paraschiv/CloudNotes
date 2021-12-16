@@ -134,7 +134,11 @@ public class ViewNoteEditFragment extends Fragment {
     }
 
     private void getNote(final String noteID) {
-        db.collection("Notes").document(noteID).addSnapshotListener((documentSnapshot, e) -> {
+        db.collection("Users")
+                .document(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid())
+                .collection("Notes")
+                .document(noteID)
+                .addSnapshotListener((documentSnapshot, e) -> {
             if (documentSnapshot != null && e == null) {
                 final Note originalNote = documentSnapshot.toObject(Note.class);
                 if (originalNote != null) {
@@ -146,7 +150,10 @@ public class ViewNoteEditFragment extends Fragment {
                         nrOfEdits = originalNote.getNumber_of_edits();
 
 
-                    db.collection("Notes").document(noteID)
+                    db.collection("Users")
+                            .document(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid())
+                            .collection("Notes")
+                            .document(noteID)
                             .collection("Edits").document(note_edit_ID).addSnapshotListener((documentSnapshot1, e1) -> {
                                 if (documentSnapshot1 != null && e1 == null) {
                                     final Note note = documentSnapshot1.toObject(Note.class);
@@ -212,8 +219,14 @@ public class ViewNoteEditFragment extends Fragment {
                                             note.setEdit_type("Restored");
                                             note.setCreation_date(null);
                                             WriteBatch batch = db.batch();
-                                            batch.set(db.collection("Notes").document(noteID), note);
-                                            batch.set(db.collection("Notes").document(noteID)
+                                            batch.set( db.collection("Users")
+                                                    .document(FirebaseAuth.getInstance().getCurrentUser().getUid())
+                                                    .collection("Notes")
+                                                    .document(noteID), note);
+                                            batch.set( db.collection("Users")
+                                                    .document(FirebaseAuth.getInstance().getCurrentUser().getUid())
+                                                    .collection("Notes")
+                                                    .document(noteID)
                                                     .collection("Edits").document(), note);
                                             batch.commit().addOnSuccessListener(aVoid -> {
                                                 Toast.makeText(getContext(), "Restored note successfully", Toast.LENGTH_SHORT).show();
@@ -226,8 +239,8 @@ public class ViewNoteEditFragment extends Fragment {
 //                                                                    actionViewNoteEditFragmentToEditNoteFragment(noteID,
 //                                                                            noteColor,
 //                                                                            notePosition));
-//                                                            Navigation.findNavController(view).popBackStack(R.id.editNoteFragment,false);
-                                                    Navigation.findNavController(view).popBackStack();
+                                                            Navigation.findNavController(view).popBackStack(R.id.homeFragment,false);
+//                                                    Navigation.findNavController(view).popBackStack();
                                                 }
 
                                             });

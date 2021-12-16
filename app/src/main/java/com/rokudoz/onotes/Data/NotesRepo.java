@@ -7,9 +7,12 @@ import androidx.lifecycle.MutableLiveData;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
 import com.rokudoz.onotes.Models.Note;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Objects;
 
 public class NotesRepo {
     private static final String TAG = "NotesRepo";
@@ -39,6 +42,7 @@ public class NotesRepo {
             db.collection("Users")
                     .document(FirebaseAuth.getInstance().getCurrentUser().getUid())
                     .collection("Notes")
+                    .orderBy("note_position", Query.Direction.ASCENDING)
                     .addSnapshotListener((value, error) -> {
                         if (error == null && value != null) {
                             if (value.size() > 0) {
@@ -85,6 +89,9 @@ public class NotesRepo {
         if (!oldNote.getNoteText().equals(note.getNoteText()))
             return true;
 
+        if (!oldNote.getNote_position().equals(note.getNote_position()))
+            return true;
+
         if (oldNote.getNote_background_color() == null && note.getNote_background_color() != null
                 || oldNote.getNote_background_color() != null && note.getNote_background_color() == null
                 || (oldNote.getNote_background_color() != null && note.getNote_background_color() != null
@@ -121,6 +128,12 @@ public class NotesRepo {
         } else {
             return allNotes.getValue().get(position);
         }
+    }
+
+    public void swapNotesPositions(int x, int y) {
+        Collections.swap(Objects.requireNonNull(allNotes.getValue()), x, y);
+        noteList.get(x).setNote_position(x);
+        noteList.get(y).setNote_position(y);
     }
 
     public void deleteNote(int position) {

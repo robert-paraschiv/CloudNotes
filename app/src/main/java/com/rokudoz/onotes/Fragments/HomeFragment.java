@@ -274,6 +274,7 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
                         Collections.swap(noteList, i, i + 1);
                         noteList.get(i).setNote_position(i);
                         noteList.get(i + 1).setNote_position(i + 1);
+                        notesViewModel.swapNotesPositions(i, i + 1);
                         staggeredRecyclerViewAdapter.notifyItemMoved(i, i + 1);
 
                         //Update notes individual position in the list
@@ -285,6 +286,7 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
                         Collections.swap(noteList, i, i - 1);
                         noteList.get(i).setNote_position(i);
                         noteList.get(i - 1).setNote_position(i - 1);
+                        notesViewModel.swapNotesPositions(i, i - 1);
                         staggeredRecyclerViewAdapter.notifyItemMoved(i, i - 1);
 
                         //Update notes individual position in the list
@@ -429,9 +431,12 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
     private void updateNotesPositions() {
         for (final Note note : noteList) {
             if ((note.getChangedPos() != null && note.getChangedPos()) || note.getNote_position() != noteList.indexOf(note)) {
-                usersRef.document(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid()).collection(NotesUtils.NOTES_DETAILS)
+                db.collection("Users")
+                        .document(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid())
+                        .collection("Notes")
                         .document(note.getNote_doc_ID())
-                        .update("note_position", noteList.indexOf(note)).addOnSuccessListener(aVoid -> Log.d(TAG, "updateNotesPositions: updated user note position " + note.getNoteTitle() + " " + note.getNote_position()));
+                        .update("note_position", noteList.indexOf(note))
+                        .addOnSuccessListener(aVoid -> Log.d(TAG, "updateNotesPositions: updated user note position " + note.getNoteTitle() + " " + note.getNote_position()));
             }
 //            Log.d(TAG, "updateNotesPositions: notePos " + note.getNote_position() + " list pos " + noteList.indexOf(note));
         }
@@ -582,7 +587,9 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
 
             //If current user is the creator of the note, delete it
             if (note.getCreator_user_email().equals(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getEmail())) {
-                db.collection("Notes")
+                db.collection("Users")
+                        .document(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid())
+                        .collection("Notes")
                         .document(note.getNote_doc_ID())
                         .update("deleted", true).addOnSuccessListener(aVoid -> {
                     Log.d(TAG, "onSuccess: Deleted note " + note.getNoteTitle());
@@ -614,8 +621,12 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
                 WriteBatch batch = db.batch();
                 batch.delete(db.collection("Users").document(FirebaseAuth.getInstance().getCurrentUser().getUid()).collection(NotesUtils.NOTES_DETAILS)
                         .document(note.getNote_doc_ID()));
-                batch.update(db.collection("Notes").document(note.getNote_doc_ID()), "users", note.getUsers());
-                batch.update(db.collection("Notes").document(note.getNote_doc_ID()), "collaboratorList", note.getCollaboratorList());
+                batch.update(db.collection("Users")
+                        .document(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid())
+                        .collection("Notes").document(note.getNote_doc_ID()), "users", note.getUsers());
+                batch.update(db.collection("Users")
+                        .document(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid())
+                        .collection("Notes").document(note.getNote_doc_ID()), "collaboratorList", note.getCollaboratorList());
                 batch.commit().addOnSuccessListener(aVoid -> {
                     Log.d(TAG, "onSuccess: updated collaborators successfully");
 

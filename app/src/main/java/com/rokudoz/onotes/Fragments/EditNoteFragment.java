@@ -261,7 +261,9 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
 
                 //If current user is the creator of the note, delete it
                 if (mNote.getCreator_user_email().equals(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getEmail())) {
-                    db.collection("Notes").document(noteID)
+                    db.collection("Users")
+                            .document(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid())
+                            .collection("Notes").document(noteID)
                             .update("deleted", true).addOnSuccessListener(aVoid -> {
                         Toast.makeText(getContext(), "Deleted note", Toast.LENGTH_SHORT).show();
                         hideSoftKeyboard(requireActivity());
@@ -284,8 +286,12 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
                         }
                     }
                     WriteBatch batch = db.batch();
-                    batch.update(db.collection("Notes").document(noteID), "users", mNote.getUsers());
-                    batch.update(db.collection("Notes").document(noteID), "collaboratorList", mNote.getCollaboratorList());
+                    batch.update(db.collection("Users")
+                            .document(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid())
+                            .collection("Notes").document(noteID), "users", mNote.getUsers());
+                    batch.update(db.collection("Users")
+                            .document(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid())
+                            .collection("Notes").document(noteID), "collaboratorList", mNote.getCollaboratorList());
                     batch.commit().addOnSuccessListener(aVoid -> {
                         Log.d(TAG, "onSuccess: updated collaborators successfully");
 
@@ -955,7 +961,7 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
                 final boolean finalStillCollaborator = stillCollaborator;
                 db.collection("Users").whereEqualTo("email", collaborator.getUser_email()).get()
                         .addOnSuccessListener(queryDocumentSnapshots -> {
-                            if (queryDocumentSnapshots != null && queryDocumentSnapshots.size() > 0) {
+                            if (queryDocumentSnapshots.size() > 0) {
                                 User user = queryDocumentSnapshots.getDocuments().get(0).toObject(User.class);
                                 if (user != null) {
 
@@ -1052,8 +1058,12 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
     }
 
     private void UpdateCollaboratorsOfNote(WriteBatch batch, List<String> userList, List<Collaborator> collaborators, boolean finalStillCollaborator) {
-        batch.update(db.collection("Notes").document(noteID), "users", userList);
-        batch.update(db.collection("Notes").document(noteID), "collaboratorList", collaborators);
+        batch.update(db.collection("Users")
+                .document(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid())
+                .collection("Notes").document(noteID), "users", userList);
+        batch.update(db.collection("Users")
+                .document(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid())
+                .collection("Notes").document(noteID), "collaboratorList", collaborators);
         batch.commit().addOnSuccessListener(aVoid -> Log.d(TAG, "onSuccess: updated collaborators successfully"));
         mNote.setUsers(userList);
         mNote.setCollaboratorList(collaborators);

@@ -25,4 +25,8 @@ public class NotesViewModel extends AndroidViewModel {
     public Note loadNote(Integer position) {
         return repo.getNote(position);
     }
+
+    public void swapNotesPositions(int x, int y) {
+        repo.swapNotesPositions(x, y);
+    }
 }
