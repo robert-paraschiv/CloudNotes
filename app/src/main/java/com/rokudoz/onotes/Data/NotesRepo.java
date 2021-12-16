@@ -72,8 +72,13 @@ public class NotesRepo {
                 noteList.set(notePosition, note);
             }
         } else {
-            noteList.add(note);
-            noteList.get(noteList.indexOf(note)).setNote_position(noteList.indexOf(note));
+            if (note.getNote_position() != null && note.getNote_position() < noteList.size()) {
+                noteList.add(note.getNote_position(), note);
+            } else {
+                noteList.add(note);
+                noteList.get(noteList.indexOf(note)).setNote_position(noteList.indexOf(note));
+            }
+
             Log.d(TAG, "getNotes: added note " + note.getNoteTitle());
         }
     }

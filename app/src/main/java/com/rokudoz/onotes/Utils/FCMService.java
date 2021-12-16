@@ -1,13 +1,11 @@
 package com.rokudoz.onotes.Utils;
 
-import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.os.Build;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -19,8 +17,6 @@ import androidx.lifecycle.ProcessLifecycleOwner;
 
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
-import com.rokudoz.onotes.App;
-import com.rokudoz.onotes.MainActivity;
 import com.rokudoz.onotes.R;
 
 public class FCMService extends FirebaseMessagingService implements LifecycleObserver {
@@ -75,8 +71,11 @@ public class FCMService extends FirebaseMessagingService implements LifecycleObs
         intent.putExtra("note_doc_id", note_doc_id);
 
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0 /* Request code */, intent,
-                PendingIntent.FLAG_MUTABLE);
+        PendingIntent pendingIntent = null;
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S) {
+            pendingIntent = PendingIntent.getActivity(this, 0 /* Request code */, intent,
+                    PendingIntent.FLAG_MUTABLE);
+        }
 
         Bitmap rawBitmap = BitmapFactory.decodeResource(getResources(),
                 R.drawable.ic_notif_icon);
@@ -112,6 +111,8 @@ public class FCMService extends FirebaseMessagingService implements LifecycleObs
     public void onForegroundStart() {
         isAppInForeground = true;
     }
+
+
 
     @OnLifecycleEvent(Lifecycle.Event.ON_STOP)
     public void onForegroundStop() {

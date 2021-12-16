@@ -339,6 +339,7 @@ public class NewNoteFragment extends Fragment implements CheckableItemAdapter.On
                     Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getEmail(),
                     null);
             note.setNote_background_color(mNote.getNote_background_color());
+            note.setNote_position(0);
 
             if (noteType.equals("text")) {
                 note.setNoteText(Objects.requireNonNull(textInputEditText.getText()).toString());
