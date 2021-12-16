@@ -25,6 +25,7 @@ import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.core.widget.NestedScrollView;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.ItemTouchHelper;
@@ -214,7 +215,7 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
             note_background_colorName = editNoteFragmentArgs.getNoteColor();
             setupBackgroundColor(editNoteFragmentArgs.getNoteColor());
 
-//            getNote(noteID);
+            getNoteChanges(noteID);
             getNote(notePosition);
         }
 
@@ -450,25 +451,31 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
             inputMethodManager.hideSoftInputFromWindow(activity.getCurrentFocus().getWindowToken(), 0);
     }
 
-    private void getNote(final String noteID) {
+    private void getNoteChanges(final String noteID) {
+//        notesViewModel.loadSingleNote(noteID).observe(getViewLifecycleOwner(), note -> {
+//            if (note == null) {
+//                Log.d(TAG, "loadSingleNote: note null");
+//            } else {
+//                Log.d(TAG, "loadSingleNote: not null");
+//                checkNoteEvent(note);
+//            }
+//        });
+
+
         if (FirebaseAuth.getInstance().getCurrentUser() != null)
-            noteListener = db.collection("Notes").document(noteID).addSnapshotListener((documentSnapshot, e) -> {
-                if (documentSnapshot != null && e == null && !retrievedNote) {
+            noteListener = db.collection("Users")
+                    .document(FirebaseAuth.getInstance().getCurrentUser().getUid())
+                    .collection("Notes")
+                    .document(noteID)
+                    .addSnapshotListener((documentSnapshot, e) -> {
+                        if (e == null && documentSnapshot != null && retrievedNote) {
 
-                    Note note = documentSnapshot.toObject(Note.class);
-                    if (note != null)
-                        note.setNote_doc_ID(documentSnapshot.getId());
+                            Note newNote = documentSnapshot.toObject(Note.class);
+                            checkNoteEvent(newNote);
 
-                    handleNoteEvent(note);
-
-                } else if (retrievedNote) {
-                    if (documentSnapshot != null && e == null) {
-                        Note newNote = documentSnapshot.toObject(Note.class);
-                        checkNoteEvent(newNote);
-                    }
-                    Log.d(TAG, "onEvent: GOT EVENT again");
-                }
-            });
+                            Log.d(TAG, "onEvent: GOT EVENT again");
+                        }
+                    });
     }
 
     private void handleNoteEvent(Note note) {
@@ -578,7 +585,7 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
 //                                    collaboratorNotesAdapter.notifyItemInserted(mCollaboratorsList.indexOf(collaborator));
 //                                }
                 mCollaboratorsList.clear();
-                collaboratorNotesAdapter.notifyDataSetChanged();
+//                collaboratorNotesAdapter.notifyDataSetChanged();
 
                 mCollaboratorsList.addAll(mNote.getCollaboratorList());
                 collaboratorNotesAdapter.notifyDataSetChanged();
@@ -588,7 +595,7 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
 
             }
             //Start enter animation after info retrieved
-                            startPostponedEnterTransition();
+            startPostponedEnterTransition();
 //                            view.setLayerType(View.LAYER_TYPE_NONE, null);
         }
     }
