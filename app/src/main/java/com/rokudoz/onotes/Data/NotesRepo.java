@@ -7,6 +7,7 @@ import androidx.lifecycle.MutableLiveData;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.Query;
 import com.rokudoz.onotes.Models.Note;
 
@@ -23,6 +24,9 @@ public class NotesRepo {
 
     private final MutableLiveData<ArrayList<Note>> allNotes;
     private final ArrayList<Note> noteList;
+    private final MutableLiveData<Note> note;
+    private ListenerRegistration notesListener;
+    private ListenerRegistration singleNoteListener;
 
     public static NotesRepo getInstance() {
         if (instance == null) {
@@ -34,12 +38,15 @@ public class NotesRepo {
     public NotesRepo() {
         this.allNotes = new MutableLiveData<>();
         this.noteList = new ArrayList<>();
+        this.note = new MutableLiveData<>();
     }
 
     public MutableLiveData<ArrayList<Note>> getNotes() {
+        if (notesListener != null)
+            notesListener.remove();
         if (FirebaseAuth.getInstance().getCurrentUser() != null && FirebaseAuth.getInstance().getCurrentUser().getEmail() != null) {
 
-            db.collection("Users")
+            notesListener = db.collection("Users")
                     .document(FirebaseAuth.getInstance().getCurrentUser().getUid())
                     .collection("Notes")
                     .orderBy("note_position", Query.Direction.ASCENDING)
@@ -61,6 +68,51 @@ public class NotesRepo {
                     });
         }
         return allNotes;
+    }
+
+    public MutableLiveData<Note> getSingleNote(String noteID) {
+        if (singleNoteListener != null) {
+            singleNoteListener.remove();
+            note.setValue(null);
+        }
+        if (FirebaseAuth.getInstance().getCurrentUser() != null) {
+            singleNoteListener = db.collection("Users")
+                    .document(FirebaseAuth.getInstance().getCurrentUser().getUid())
+                    .collection("Notes")
+                    .document(noteID)
+                    .addSnapshotListener((documentSnapshot, e) -> {
+                        if (e == null && documentSnapshot != null) {
+                            Note newNote = documentSnapshot.toObject(Note.class);
+                            if (newNote != null) {
+                                newNote.setNote_doc_ID(documentSnapshot.getId());
+                                note.setValue(newNote);
+                            }
+                        }
+                    });
+        }
+        return note;
+    }
+
+    public Note getNote(Integer position) {
+        if (allNotes.getValue() == null) {
+            return null;
+        } else {
+            return allNotes.getValue().get(position);
+        }
+    }
+
+    public void deleteNote(int position) {
+        if (allNotes.getValue() == null || position >= allNotes.getValue().size()) {
+            Log.e(TAG, "deleteNote: null or out of bounds allNotes");
+        } else {
+            allNotes.getValue().remove(position);
+        }
+    }
+
+    public void swapNotesPositions(int x, int y) {
+        Collections.swap(Objects.requireNonNull(allNotes.getValue()), x, y);
+        noteList.get(x).setNote_position(x);
+        noteList.get(y).setNote_position(y);
     }
 
     private void handleNoteEvent(Note note) {
@@ -125,28 +177,6 @@ public class NotesRepo {
             return true;
 
         return false;
-    }
-
-    public Note getNote(Integer position) {
-        if (allNotes.getValue() == null) {
-            return null;
-        } else {
-            return allNotes.getValue().get(position);
-        }
-    }
-
-    public void swapNotesPositions(int x, int y) {
-        Collections.swap(Objects.requireNonNull(allNotes.getValue()), x, y);
-        noteList.get(x).setNote_position(x);
-        noteList.get(y).setNote_position(y);
-    }
-
-    public void deleteNote(int position) {
-        if (allNotes.getValue() == null || position >= allNotes.getValue().size()) {
-            Log.e(TAG, "deleteNote: null or out of bounds allNotes");
-        } else {
-            allNotes.getValue().remove(position);
-        }
     }
 
 }

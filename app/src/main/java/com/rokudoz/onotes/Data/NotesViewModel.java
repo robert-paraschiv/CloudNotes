@@ -22,6 +22,10 @@ public class NotesViewModel extends AndroidViewModel {
         return repo.getNotes();
     }
 
+    public MutableLiveData<Note> loadSingleNote(String noteID) {
+        return repo.getSingleNote(noteID);
+    }
+
     public Note loadNote(Integer position) {
         return repo.getNote(position);
     }

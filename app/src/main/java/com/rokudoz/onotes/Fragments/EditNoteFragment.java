@@ -1,5 +1,10 @@
 package com.rokudoz.onotes.Fragments;
 
+import static com.rokudoz.onotes.Utils.NotesUtils.NOTES_DETAILS;
+import static com.rokudoz.onotes.Utils.NotesUtils.NOTE_TYPE_TEXT;
+import static com.rokudoz.onotes.Utils.NotesUtils.getCheckboxNoteChanges;
+import static com.rokudoz.onotes.Utils.NotesUtils.getTextNoteChanges;
+
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Dialog;
@@ -10,7 +15,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewTreeObserver;
 import android.view.Window;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
@@ -25,7 +29,6 @@ import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.core.widget.NestedScrollView;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.ItemTouchHelper;
@@ -68,11 +71,6 @@ import java.util.List;
 import java.util.Objects;
 
 import de.hdodenhof.circleimageview.CircleImageView;
-
-import static com.rokudoz.onotes.Utils.NotesUtils.NOTES_DETAILS;
-import static com.rokudoz.onotes.Utils.NotesUtils.NOTE_TYPE_TEXT;
-import static com.rokudoz.onotes.Utils.NotesUtils.getCheckboxNoteChanges;
-import static com.rokudoz.onotes.Utils.NotesUtils.getTextNoteChanges;
 
 public class EditNoteFragment extends Fragment implements CheckableItemAdapter.OnStartDragListener,
         CheckableItemAdapter.OnItemClickListener, FullBottomSheetDialogFragment.ExampleDialogListener, CollaboratorNotesAdapter.OnItemClickListener {
@@ -311,6 +309,7 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
         });
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     private void setupCheckboxModeButton() {
         checkboxModeBtn.setOnClickListener(v -> {
             if (noteType.equals("text")) {
@@ -418,8 +417,8 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
         helper = new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(ItemTouchHelper.UP | ItemTouchHelper.DOWN, 0) {
             @Override
             public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {
-                int position_dragged = viewHolder.getAdapterPosition();
-                int position_target = target.getAdapterPosition();
+                int position_dragged = viewHolder.getBindingAdapterPosition();
+                int position_target = target.getBindingAdapterPosition();
 
                 //Swap notes position
                 if (position_dragged < position_target) {
@@ -452,32 +451,17 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
     }
 
     private void getNoteChanges(final String noteID) {
-//        notesViewModel.loadSingleNote(noteID).observe(getViewLifecycleOwner(), note -> {
-//            if (note == null) {
-//                Log.d(TAG, "loadSingleNote: note null");
-//            } else {
-//                Log.d(TAG, "loadSingleNote: not null");
-//                checkNoteEvent(note);
-//            }
-//        });
-
-
-        if (FirebaseAuth.getInstance().getCurrentUser() != null)
-            noteListener = db.collection("Users")
-                    .document(FirebaseAuth.getInstance().getCurrentUser().getUid())
-                    .collection("Notes")
-                    .document(noteID)
-                    .addSnapshotListener((documentSnapshot, e) -> {
-                        if (e == null && documentSnapshot != null && retrievedNote) {
-
-                            Note newNote = documentSnapshot.toObject(Note.class);
-                            checkNoteEvent(newNote);
-
-                            Log.d(TAG, "onEvent: GOT EVENT again");
-                        }
-                    });
+        notesViewModel.loadSingleNote(noteID).observe(getViewLifecycleOwner(), note -> {
+            if (note == null) {
+                Log.d(TAG, "loadSingleNote: note null");
+            } else {
+                Log.d(TAG, "loadSingleNote: not null");
+                checkNoteEvent(note);
+            }
+        });
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     private void handleNoteEvent(Note note) {
         //hide progress bar
         progressBar.setVisibility(View.GONE);
@@ -575,18 +559,7 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
 
             if (mNote.getCollaboratorList().size() > 1) {
                 collaboratorsRV.setVisibility(View.VISIBLE);
-
-//                                if (mCollaboratorsList.size() > 0) {
-//                                    mCollaboratorsList.clear();
-//                                    collaboratorNotesAdapter.notifyDataSetChanged();
-//                                }
-//                                for (Collaborator collaborator : mNote.getCollaboratorList()) {
-//                                    mCollaboratorsList.add(collaborator);
-//                                    collaboratorNotesAdapter.notifyItemInserted(mCollaboratorsList.indexOf(collaborator));
-//                                }
                 mCollaboratorsList.clear();
-//                collaboratorNotesAdapter.notifyDataSetChanged();
-
                 mCollaboratorsList.addAll(mNote.getCollaboratorList());
                 collaboratorNotesAdapter.notifyDataSetChanged();
 
@@ -596,11 +569,11 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
             }
             //Start enter animation after info retrieved
             startPostponedEnterTransition();
-//                            view.setLayerType(View.LAYER_TYPE_NONE, null);
         }
     }
 
 
+    @SuppressLint("NotifyDataSetChanged")
     private void checkNoteEvent(Note note) {
         //Snapshot listener received new event, need to check if note has been modified or just added collaborators
         if (note != null && mNote != null && !note.getLast_edited_by_user().equals(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getEmail())) {
