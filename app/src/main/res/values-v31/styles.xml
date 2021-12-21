@@ -29,10 +29,19 @@
         <item name="colorSurfaceInverse">@color/md_theme_light_inverseSurface</item>
         <item name="colorPrimaryInverse">@color/md_theme_light_primaryInverse</item>
 
-        <item name="android:statusBarColor">@color/status_bar_color</item>
+        <!-- change navigation bar color -->
+        <item name="android:navigationBarColor">
+            @android:color/transparent
+        </item>
+
+        <!-- change status bar color -->
+        <item name="android:statusBarColor">
+            @android:color/transparent
+        </item>
+
         <item name="android:windowLightStatusBar">true</item>
-        <item name="android:navigationBarColor">@color/navigationColor</item>
         <item name="android:windowLightNavigationBar">true</item>
+        <item name="android:enforceNavigationBarContrast">false</item>
         <item name="fontFamily">@font/montserrat</item>
         <item name="windowActionModeOverlay">true</item>
         <item name="android:windowActivityTransitions">true</item>

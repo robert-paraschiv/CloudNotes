@@ -135,9 +135,9 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
         }
 
         //Reset status bar color
-        if (getActivity() != null) {
-            ColorUtils.resetStatus_NavigationBar_Colors(getActivity());
-        }
+//        if (getActivity() != null) {
+//            ColorUtils.resetStatus_NavigationBar_Colors(getActivity());
+//        }
 
         if (getArguments() != null) {
             HomeFragmentArgs homeFragmentArgs = HomeFragmentArgs.fromBundle(getArguments());

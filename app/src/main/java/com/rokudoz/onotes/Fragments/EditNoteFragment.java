@@ -27,6 +27,10 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
+import androidx.core.graphics.Insets;
+import androidx.core.view.OnApplyWindowInsetsListener;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 import androidx.core.widget.NestedScrollView;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
@@ -151,6 +155,7 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
         view = inflater.inflate(R.layout.fragment_edit_note, container, false);
         currentUserCollaborator.setUser_email(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getEmail());
 
+
         textInput = view.findViewById(R.id.editNoteFragment_textEditText);
         titleInput = view.findViewById(R.id.editNoteFragment_titleEditText);
         backBtn = view.findViewById(R.id.editNoteFragment_backBtn);
@@ -172,6 +177,18 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
         note_background_color = ContextCompat.getColor(requireContext(), R.color.fragments_background);
 
         notesViewModel = new ViewModelProvider(this).get(NotesViewModel.class);
+
+        ViewCompat.setOnApplyWindowInsetsListener(view.findViewById(R.id.editNoteFragment_bottomCard), (v, windowInsets) -> {
+            Insets insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars());
+            // Apply the insets as padding to the view. Here we're setting all of the
+            // dimensions, but apply as appropriate to your layout. You could also
+            // update the views margin if more appropriate.
+            view.setPadding(insets.left, insets.top, insets.right, insets.bottom);
+
+            // Return CONSUMED if we don't want the window insets to keep being passed
+            // down to descendant views.
+            return WindowInsetsCompat.CONSUMED;
+        });
 
         //Hide Banner Ad
         if (getActivity() != null) {
@@ -372,8 +389,8 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
         window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
 
 //
-        window.setStatusBarColor(color);
-        window.setNavigationBarColor(color);
+//        window.setStatusBarColor(color);
+//        window.setNavigationBarColor(color);
     }
 
     private void resetBackgroundColors() {
@@ -383,10 +400,10 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
             view.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.note_background_color_default));
             note_background_color = ContextCompat.getColor(requireContext(), R.color.note_background_color_default);
 
-            Window window = requireActivity().getWindow();
-            window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
-            window.setNavigationBarColor(ContextCompat.getColor(requireContext(), R.color.note_bottom_background_color_default));
-            window.setStatusBarColor(ContextCompat.getColor(requireContext(), R.color.note_background_color_default));
+//            Window window = requireActivity().getWindow();
+//            window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+//            window.setNavigationBarColor(ContextCompat.getColor(requireContext(), R.color.note_bottom_background_color_default));
+//            window.setStatusBarColor(ContextCompat.getColor(requireContext(), R.color.note_background_color_default));
         }
     }
 

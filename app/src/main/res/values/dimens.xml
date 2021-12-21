@@ -6,6 +6,7 @@
     <dimen name="bottom_sheet_dialog_bottom_padding">64dp</dimen>
     <dimen name="bottomsheet_mainText_size">16sp</dimen>
     <dimen name="bottomsheet_secondaryText_size">12sp</dimen>
+    <dimen name="padding_top_bottom">32dp</dimen>
 
     <integer name="transition_home_edit_duration">400</integer>
     <integer name="transition_show_hide_bannerAd_duration">150</integer>

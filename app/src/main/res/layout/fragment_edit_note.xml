@@ -7,6 +7,7 @@
     android:layout_height="match_parent"
     android:background="@color/fragments_background"
     android:focusableInTouchMode="true"
+    android:paddingTop="@dimen/padding_top_bottom"
     android:transitionGroup="true"
     tools:context=".Fragments.EditNoteFragment"
     tools:ignore="HardcodedText">

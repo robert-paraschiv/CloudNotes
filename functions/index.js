@@ -66,16 +66,17 @@ exports.noteUpdateListener = functions.firestore.document("Users/{userID}/Notes/
     const userID = context.params.userID;
     const noteID = context.params.noteID;
 
-    const oldValue = change.before.exists ? change.before.data() : null;
     const newValue = change.after.exists ? change.after.data() : null;
-    const newDate = change.after.exists ? change.after.data().date : null;
-    const oldDate = change.before.exists ? change.before.data().date : null;
-
 
     let collaboratorList = newValue.collaboratorList;
 
     if (newValue.last_edited_by_user !== "admin") {
         console.log('Last updated by other user ');
+
+        collaboratorList.forEach((collaborator) => {
+            console.log("collaborator: " + collaborator.user_email);
+        });
+
         return admin.firestore().collection("Users").doc(userID).collection("Notes").doc(noteID).update({
             last_edited_by_user: "admin"
         })
@@ -85,6 +86,8 @@ exports.noteUpdateListener = functions.firestore.document("Users/{userID}/Notes/
 
 });
 
-exports.helloWorld = functions.https.onRequest((req, res) => {
-    res.send('Hello from firebase function');
-});
+
+
+// exports.helloWorld = functions.https.onRequest((req, res) => {
+//     res.send('Hello from firebase function');
+// });
