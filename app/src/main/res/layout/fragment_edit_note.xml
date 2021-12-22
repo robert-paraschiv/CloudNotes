@@ -7,7 +7,6 @@
     android:layout_height="match_parent"
     android:background="@color/fragments_background"
     android:focusableInTouchMode="true"
-    android:paddingTop="@dimen/padding_top_bottom"
     android:transitionGroup="true"
     tools:context=".Fragments.EditNoteFragment"
     tools:ignore="HardcodedText">
@@ -155,14 +154,14 @@
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/editNoteFragment_bottomCard"
         android:layout_width="match_parent"
-        android:layout_height="40dp"
+        android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         app:cardElevation="8dp"
         app:strokeWidth="0dp">
 
         <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:gravity="bottom">
 
             <com.google.android.material.button.MaterialButton
@@ -181,7 +180,7 @@
             <LinearLayout
                 android:id="@+id/editNoteFragment_editLayout"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
+                android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
                 android:layout_marginEnd="8dp"
                 android:layout_toStartOf="@id/editNoteFragment_optionsBtn"

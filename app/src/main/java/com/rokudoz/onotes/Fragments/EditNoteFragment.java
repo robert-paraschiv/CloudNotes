@@ -178,12 +178,12 @@ public class EditNoteFragment extends Fragment implements CheckableItemAdapter.O
 
         notesViewModel = new ViewModelProvider(this).get(NotesViewModel.class);
 
-        ViewCompat.setOnApplyWindowInsetsListener(view.findViewById(R.id.editNoteFragment_bottomCard), (v, windowInsets) -> {
+        ViewCompat.setOnApplyWindowInsetsListener(view, (v, windowInsets) -> {
             Insets insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars());
             // Apply the insets as padding to the view. Here we're setting all of the
             // dimensions, but apply as appropriate to your layout. You could also
             // update the views margin if more appropriate.
-            view.setPadding(insets.left, insets.top, insets.right, insets.bottom);
+            v.setPadding(insets.left, insets.top, insets.right, insets.bottom);
 
             // Return CONSUMED if we don't want the window insets to keep being passed
             // down to descendant views.

@@ -22,6 +22,9 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavDirections;
@@ -39,21 +42,17 @@ import com.google.android.material.transition.Hold;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.WriteBatch;
 import com.rokudoz.onotes.Adapters.HomePageAdapter;
-import com.rokudoz.onotes.Data.NotesRepo;
 import com.rokudoz.onotes.Data.NotesViewModel;
 import com.rokudoz.onotes.Dialogs.SettingsDialogFragment;
 import com.rokudoz.onotes.LoginActivity;
 import com.rokudoz.onotes.Models.Collaborator;
 import com.rokudoz.onotes.Models.Note;
-import com.rokudoz.onotes.Models.NoteDetails;
 import com.rokudoz.onotes.Models.User;
 import com.rokudoz.onotes.R;
-import com.rokudoz.onotes.Utils.ColorUtils;
 import com.rokudoz.onotes.Utils.DbUtils;
 import com.rokudoz.onotes.Utils.NotesUtils;
 
@@ -133,7 +132,7 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
         } else {
             Log.d(TAG, "onCreateView: VIEW NOT NULL");
         }
-
+        setupEdgeToEdgeDisplay();
         //Reset status bar color
 //        if (getActivity() != null) {
 //            ColorUtils.resetStatus_NavigationBar_Colors(getActivity());
@@ -153,6 +152,20 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
         }
 
         return view;
+    }
+
+    private void setupEdgeToEdgeDisplay() {
+        ViewCompat.setOnApplyWindowInsetsListener(view, (v, windowInsets) -> {
+            Insets insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars());
+            // Apply the insets as padding to the view. Here we're setting all of the
+            // dimensions, but apply as appropriate to your layout. You could also
+            // update the views margin if more appropriate.
+            v.setPadding(insets.left, insets.top, insets.right, insets.bottom);
+
+            // Return CONSUMED if we don't want the window insets to keep being passed
+            // down to descendant views.
+            return WindowInsetsCompat.CONSUMED;
+        });
     }
 
     private void initViews() {

@@ -14,6 +14,9 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -107,21 +110,21 @@ public class ViewTrashNote extends Fragment {
                 final WriteBatch batch = db.batch();
                 db.collection("Notes").document(noteID)
                         .collection("Edits").get().addOnSuccessListener(queryDocumentSnapshots -> {
-                            if (queryDocumentSnapshots != null && queryDocumentSnapshots.size() > 0) {
-                                for (DocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
-                                    batch.delete(documentSnapshot.getReference());
-                                }
-                                batch.delete(db.collection("Notes").document(noteID));
-                                batch.commit().addOnSuccessListener(aVoid -> {
-                                    Toast.makeText(getContext(), "Deleted note", Toast.LENGTH_SHORT).show();
-                                    Log.d(TAG, "onSuccess: Deleted note");
-                                    hideSoftKeyboard(requireActivity());
-                                    if (Objects.requireNonNull(Navigation.findNavController(view).getCurrentDestination()).getId()
-                                            == R.id.viewTrashNote)
-                                        Navigation.findNavController(view).navigate(ViewTrashNoteDirections.actionViewTrashNoteToTrashFragment());
-                                });
-                            }
+                    if (queryDocumentSnapshots != null && queryDocumentSnapshots.size() > 0) {
+                        for (DocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
+                            batch.delete(documentSnapshot.getReference());
+                        }
+                        batch.delete(db.collection("Notes").document(noteID));
+                        batch.commit().addOnSuccessListener(aVoid -> {
+                            Toast.makeText(getContext(), "Deleted note", Toast.LENGTH_SHORT).show();
+                            Log.d(TAG, "onSuccess: Deleted note");
+                            hideSoftKeyboard(requireActivity());
+                            if (Objects.requireNonNull(Navigation.findNavController(view).getCurrentDestination()).getId()
+                                    == R.id.viewTrashNote)
+                                Navigation.findNavController(view).navigate(ViewTrashNoteDirections.actionViewTrashNoteToTrashFragment());
                         });
+                    }
+                });
 
             });
             cancelBtn.setOnClickListener(v12 -> dialog.cancel());
@@ -130,8 +133,23 @@ public class ViewTrashNote extends Fragment {
 
         });
 
+        setupEdgeToEdgeDisplay();
 
         return view;
+    }
+
+    private void setupEdgeToEdgeDisplay() {
+        ViewCompat.setOnApplyWindowInsetsListener(view, (v, windowInsets) -> {
+            Insets insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars());
+            // Apply the insets as padding to the view. Here we're setting all of the
+            // dimensions, but apply as appropriate to your layout. You could also
+            // update the views margin if more appropriate.
+            v.setPadding(insets.left, insets.top, insets.right, insets.bottom);
+
+            // Return CONSUMED if we don't want the window insets to keep being passed
+            // down to descendant views.
+            return WindowInsetsCompat.CONSUMED;
+        });
     }
 
     public static void hideSoftKeyboard(Activity activity) {
@@ -149,45 +167,45 @@ public class ViewTrashNote extends Fragment {
     private void getNote(final String noteID) {
         db.collection("Notes").document(noteID)
                 .get().addOnSuccessListener(documentSnapshot -> {
-                    if (documentSnapshot != null) {
-                        //Hide progress bar
-                        progressBar.setVisibility(View.GONE);
+            if (documentSnapshot != null) {
+                //Hide progress bar
+                progressBar.setVisibility(View.GONE);
 
-                        final Note note = documentSnapshot.toObject(Note.class);
-                        if (note != null) {
-                            note.setNote_doc_ID(documentSnapshot.getId());
-                            if (note.getNoteTitle() != null)
-                                titleTv.setText(note.getNoteTitle());
-                            if (note.getNoteText() != null)
-                                textTv.setText(note.getNoteText());
+                final Note note = documentSnapshot.toObject(Note.class);
+                if (note != null) {
+                    note.setNote_doc_ID(documentSnapshot.getId());
+                    if (note.getNoteTitle() != null)
+                        titleTv.setText(note.getNoteTitle());
+                    if (note.getNoteText() != null)
+                        textTv.setText(note.getNoteText());
 
-                            if (note.getNoteType() != null && note.getNoteType().equals("checkbox")) {
-                                recyclerView.setVisibility(View.VISIBLE);
-                                textTv.setVisibility(View.INVISIBLE);
-                                if (note.getCheckableItemList() != null)
-                                    buildRecyclerView(note.getCheckableItemList());
-                            } else {
-                                recyclerView.setVisibility(View.INVISIBLE);
-                            }
-
-                            restoreBtn.setOnClickListener(v -> {
-                                AlertDialog.Builder builder = new AlertDialog.Builder(getContext(), R.style.CustomBottomSheetDialogTheme);
-                                builder.setCancelable(false);
-                                builder.setView(R.layout.dialog_please_wait);
-                                final AlertDialog dialog = builder.create();
-                                dialog.show();
-
-                                db.collection("Notes").document(noteID)
-                                        .update("deleted", false).addOnSuccessListener(aVoid -> {
-                                            dialog.cancel();
-                                            if (Objects.requireNonNull(Navigation.findNavController(view).getCurrentDestination()).getId() == R.id.viewTrashNote)
-                                                Navigation.findNavController(view).navigate(ViewTrashNoteDirections.actionViewTrashNoteToTrashFragment());
-                                        });
-
-                            });
-                        }
+                    if (note.getNoteType() != null && note.getNoteType().equals("checkbox")) {
+                        recyclerView.setVisibility(View.VISIBLE);
+                        textTv.setVisibility(View.INVISIBLE);
+                        if (note.getCheckableItemList() != null)
+                            buildRecyclerView(note.getCheckableItemList());
+                    } else {
+                        recyclerView.setVisibility(View.INVISIBLE);
                     }
-                });
+
+                    restoreBtn.setOnClickListener(v -> {
+                        AlertDialog.Builder builder = new AlertDialog.Builder(getContext(), R.style.CustomBottomSheetDialogTheme);
+                        builder.setCancelable(false);
+                        builder.setView(R.layout.dialog_please_wait);
+                        final AlertDialog dialog = builder.create();
+                        dialog.show();
+
+                        db.collection("Notes").document(noteID)
+                                .update("deleted", false).addOnSuccessListener(aVoid -> {
+                            dialog.cancel();
+                            if (Objects.requireNonNull(Navigation.findNavController(view).getCurrentDestination()).getId() == R.id.viewTrashNote)
+                                Navigation.findNavController(view).navigate(ViewTrashNoteDirections.actionViewTrashNoteToTrashFragment());
+                        });
+
+                    });
+                }
+            }
+        });
 
     }
 

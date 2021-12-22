@@ -10,6 +10,9 @@ import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 
 import androidx.annotation.NonNull;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -98,10 +101,24 @@ public class NoteEditsFragment extends Fragment implements NoteEditsAdapter.OnIt
         if (noteList != null && noteList.size() > 0)
             progressBar.setVisibility(View.GONE);
 
-
+        setupEdgeToEdgeDisplay();
         setUpRecyclerView();
 
         return view;
+    }
+
+    private void setupEdgeToEdgeDisplay() {
+        ViewCompat.setOnApplyWindowInsetsListener(view, (v, windowInsets) -> {
+            Insets insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars());
+            // Apply the insets as padding to the view. Here we're setting all of the
+            // dimensions, but apply as appropriate to your layout. You could also
+            // update the views margin if more appropriate.
+            v.setPadding(insets.left, insets.top, insets.right, insets.bottom);
+
+            // Return CONSUMED if we don't want the window insets to keep being passed
+            // down to descendant views.
+            return WindowInsetsCompat.CONSUMED;
+        });
     }
 
     public static void hideSoftKeyboard(Activity activity) {

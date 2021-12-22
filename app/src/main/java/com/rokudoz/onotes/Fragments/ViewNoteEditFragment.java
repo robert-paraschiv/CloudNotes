@@ -12,6 +12,9 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -123,8 +126,22 @@ public class ViewNoteEditFragment extends Fragment {
                 Navigation.findNavController(view).popBackStack();
         });
 
-
+        setupEdgeToEdgeDisplay();
         return view;
+    }
+
+    private void setupEdgeToEdgeDisplay() {
+        ViewCompat.setOnApplyWindowInsetsListener(view, (v, windowInsets) -> {
+            Insets insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars());
+            // Apply the insets as padding to the view. Here we're setting all of the
+            // dimensions, but apply as appropriate to your layout. You could also
+            // update the views margin if more appropriate.
+            v.setPadding(insets.left, insets.top, insets.right, insets.bottom);
+
+            // Return CONSUMED if we don't want the window insets to keep being passed
+            // down to descendant views.
+            return WindowInsetsCompat.CONSUMED;
+        });
     }
 
     private void buildRecyclerView(List<CheckableItem> checkableItemList) {
@@ -139,22 +156,22 @@ public class ViewNoteEditFragment extends Fragment {
                 .collection("Notes")
                 .document(noteID)
                 .addSnapshotListener((documentSnapshot, e) -> {
-            if (documentSnapshot != null && e == null) {
-                final Note originalNote = documentSnapshot.toObject(Note.class);
-                if (originalNote != null) {
-                    originalNote.setNote_doc_ID(documentSnapshot.getId());
+                    if (documentSnapshot != null && e == null) {
+                        final Note originalNote = documentSnapshot.toObject(Note.class);
+                        if (originalNote != null) {
+                            originalNote.setNote_doc_ID(documentSnapshot.getId());
 
-                    //hide progress bar
-                    progressBar.setVisibility(View.GONE);
-                    if (originalNote.getNumber_of_edits() != null)
-                        nrOfEdits = originalNote.getNumber_of_edits();
+                            //hide progress bar
+                            progressBar.setVisibility(View.GONE);
+                            if (originalNote.getNumber_of_edits() != null)
+                                nrOfEdits = originalNote.getNumber_of_edits();
 
 
-                    db.collection("Users")
-                            .document(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid())
-                            .collection("Notes")
-                            .document(noteID)
-                            .collection("Edits").document(note_edit_ID).addSnapshotListener((documentSnapshot1, e1) -> {
+                            db.collection("Users")
+                                    .document(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid())
+                                    .collection("Notes")
+                                    .document(noteID)
+                                    .collection("Edits").document(note_edit_ID).addSnapshotListener((documentSnapshot1, e1) -> {
                                 if (documentSnapshot1 != null && e1 == null) {
                                     final Note note = documentSnapshot1.toObject(Note.class);
                                     if (note != null) {
@@ -219,11 +236,11 @@ public class ViewNoteEditFragment extends Fragment {
                                             note.setEdit_type("Restored");
                                             note.setCreation_date(null);
                                             WriteBatch batch = db.batch();
-                                            batch.set( db.collection("Users")
+                                            batch.set(db.collection("Users")
                                                     .document(FirebaseAuth.getInstance().getCurrentUser().getUid())
                                                     .collection("Notes")
                                                     .document(noteID), note);
-                                            batch.set( db.collection("Users")
+                                            batch.set(db.collection("Users")
                                                     .document(FirebaseAuth.getInstance().getCurrentUser().getUid())
                                                     .collection("Notes")
                                                     .document(noteID)
@@ -239,7 +256,7 @@ public class ViewNoteEditFragment extends Fragment {
 //                                                                    actionViewNoteEditFragmentToEditNoteFragment(noteID,
 //                                                                            noteColor,
 //                                                                            notePosition));
-                                                            Navigation.findNavController(view).popBackStack(R.id.homeFragment,false);
+                                                    Navigation.findNavController(view).popBackStack(R.id.homeFragment, false);
 //                                                    Navigation.findNavController(view).popBackStack();
                                                 }
 
@@ -249,9 +266,9 @@ public class ViewNoteEditFragment extends Fragment {
                                     }
                                 }
                             });
-                }
-            }
-        });
+                        }
+                    }
+                });
 
     }
 
