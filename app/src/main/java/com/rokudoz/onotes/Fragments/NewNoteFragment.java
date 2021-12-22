@@ -699,8 +699,8 @@ public class NewNoteFragment extends Fragment implements CheckableItemAdapter.On
         Window window = requireActivity().getWindow();
         window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
 
-        window.setStatusBarColor(color);
-        window.setNavigationBarColor(color);
+//        window.setStatusBarColor(color);
+//        window.setNavigationBarColor(color);
         _note_background_color = color;
         bottomCard.setBackgroundColor(color);
         view.setBackgroundColor(color);
@@ -710,9 +710,9 @@ public class NewNoteFragment extends Fragment implements CheckableItemAdapter.On
         if (getActivity() != null) {
             ColorUtils.resetStatus_NavigationBar_Colors(getActivity());
 
-            bottomCard.setCardBackgroundColor(ContextCompat.getColor(requireContext(), R.color.note_bottom_background_color_default));
-            view.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.fragments_background));
-            _note_background_color = ContextCompat.getColor(requireContext(), R.color.fragments_background);
+            bottomCard.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.note_bottom_background_color_default));
+            view.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.note_background_color_default));
+            _note_background_color = ContextCompat.getColor(requireContext(), R.color.note_background_color_default);
         }
     }
 
