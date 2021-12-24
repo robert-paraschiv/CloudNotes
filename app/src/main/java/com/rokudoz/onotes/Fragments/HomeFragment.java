@@ -78,6 +78,7 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
     private View view;
     private RecyclerView recyclerView;
     private ImageView layoutManagerIcon;
+    private FloatingActionButton addNewNoteBtn;
 //    private SwipeRefreshLayout swipeRefreshLayout;
 
     private TextView noNotesTv;
@@ -160,7 +161,10 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
             // Apply the insets as padding to the view. Here we're setting all of the
             // dimensions, but apply as appropriate to your layout. You could also
             // update the views margin if more appropriate.
-            v.setPadding(insets.left, insets.top, insets.right, insets.bottom);
+            v.setPadding(insets.left, insets.top, insets.right, 0);
+            ViewGroup.MarginLayoutParams params = (ViewGroup.MarginLayoutParams) addNewNoteBtn.getLayoutParams();
+            params.bottomMargin = 48 + insets.bottom;
+            addNewNoteBtn.setLayoutParams(params);
 
             // Return CONSUMED if we don't want the window insets to keep being passed
             // down to descendant views.
@@ -170,7 +174,7 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
 
     private void initViews() {
         recyclerView = view.findViewById(R.id.homeFragment_recyclerView);
-        FloatingActionButton addNewNoteBtn = view.findViewById(R.id.homeFragment_addNoteFab);
+        addNewNoteBtn = view.findViewById(R.id.homeFragment_addNoteFab);
         noNotesTv = view.findViewById(R.id.homeFragment_empty);
         searchView = view.findViewById(R.id.homeFragment_searchView);
 //            swipeRefreshLayout = view.findViewById(R.id.homeFragment_swipeRefresh_layout);

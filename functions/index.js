@@ -70,7 +70,7 @@ exports.noteUpdateListener = functions.firestore.document("Users/{userID}/Notes/
 
     let collaboratorList = newValue.collaboratorList;
 
-    if (newValue.last_edited_by_user !== "admin") {
+    if (collaboratorList.length > 1 && newValue.last_edited_by_user !== "cloud_function" && newValue.edit_type !== "updated_by_function") {
         console.log('Last updated by other user ');
 
         collaboratorList.forEach((collaborator) => {
@@ -78,12 +78,13 @@ exports.noteUpdateListener = functions.firestore.document("Users/{userID}/Notes/
         });
 
         return admin.firestore().collection("Users").doc(userID).collection("Notes").doc(noteID).update({
-            last_edited_by_user: "admin"
+            last_edited_by_user: "cloud_function",
+            edit_type: "updated_by_function"
         })
     } else {
-        return console.log('Last updated by admin ');
+        console.log('User is the only collaborator or Note was last updated by cloud_function ');
+        return true;
     }
-
 });
 
 
