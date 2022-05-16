@@ -4,18 +4,16 @@ admin.initializeApp(functions.config().firebase)
 admin.firestore().settings({ timestampsInSnapshots: true })
 
 
-exports.notesCollaboratorsListener = functions.firestore.document("Users/{userID}/NotesDetails/{documentID}").onCreate((snap, context) => {
-    const user_id = context.params.userID;
-    const note_docID = context.params.documentID;
+exports.notesCollaboratorsListener = functions.firestore.document("Users/{userID}/Notes/{noteID}").onCreate((snap, context) => {
+    const userID = context.params.userID;
+    const noteID = context.params.noteID;
 
-    const user_data = admin.firestore().collection("Users").doc(user_id).get();
-    const note_data = admin.firestore().collection("Notes").doc(note_docID).get();
+    const newValue = snap.data();
 
-    return Promise.all([user_data, note_data]).then(result => {
-        const user_email = result[0].data().email;
-        const note_creator_email = result[1].data().creator_user_email;
-
-        const user_tokenID = result[0].data().user_device_token;
+    return admin.firestore().collection("Users").doc(userID).get().then(document => {
+        const user_email = document.data().email;
+        const note_creator_email = newValue.creator_user_email;
+        const user_tokenID = document.data().user_device_token;
 
         if (user_tokenID === null) {
             return console.log("User token is null");
@@ -26,7 +24,7 @@ exports.notesCollaboratorsListener = functions.firestore.document("Users/{userID
                 }
                 const payload = {
                     data: {
-                        noteID: note_docID,
+                        noteID: noteID,
                         title: "New note",
                         body: "You have been added as a collaborator to a new note!",
                         icon: "default",
@@ -70,17 +68,26 @@ exports.noteUpdateListener = functions.firestore.document("Users/{userID}/Notes/
 
     let collaboratorList = newValue.collaboratorList;
 
-    if (collaboratorList.length > 1 && newValue.last_edited_by_user !== "cloud_function" && newValue.edit_type !== "updated_by_function") {
-        console.log('Last updated by other user ');
+    if (collaboratorList.length > 1 && newValue.updated_by_cloud_function !== "true") {
+
+        newValue.updated_by_cloud_function = "true";
+        const batch = admin.firestore().batch();
 
         collaboratorList.forEach((collaborator) => {
-            console.log("collaborator: " + collaborator.user_email);
+            if (collaborator.user_email !== newValue.last_edited_by_user) {
+                batch.update(admin.firestore().collection("Users").doc(collaborator.user_id).collection("Notes").doc(noteID), {
+                    noteText: newValue.noteText,
+                    noteTitle: newValue.noteTitle
+                });
+                batch.set(admin.firestore().collection("Users").doc(collaborator.user_id).collection("Notes").doc(noteID).collection("Edits").doc(), newValue);
+                console.log("collaborator: " + collaborator.user_email);
+            }
         });
 
-        return admin.firestore().collection("Users").doc(userID).collection("Notes").doc(noteID).update({
-            last_edited_by_user: "cloud_function",
-            edit_type: "updated_by_function"
-        })
+        return batch.commit().then(() => {
+            return console.log("Updated notes for collaborators");
+        });
+
     } else {
         console.log('User is the only collaborator or Note was last updated by cloud_function ');
         return true;

@@ -49,6 +49,7 @@ public class NotesRepo {
             notesListener = db.collection("Users")
                     .document(FirebaseAuth.getInstance().getCurrentUser().getUid())
                     .collection("Notes")
+                    .whereEqualTo("deleted",false)
                     .orderBy("note_position", Query.Direction.ASCENDING)
                     .addSnapshotListener((value, error) -> {
                         if (error == null && value != null) {

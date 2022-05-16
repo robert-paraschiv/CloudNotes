@@ -1,5 +1,8 @@
 package com.rokudoz.onotes.Fragments;
 
+import static android.content.Context.MODE_PRIVATE;
+import static com.rokudoz.onotes.App.SETTINGS_PREFS_NAME;
+
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.Intent;
@@ -63,9 +66,6 @@ import java.util.Objects;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
-import static android.content.Context.MODE_PRIVATE;
-import static com.rokudoz.onotes.App.SETTINGS_PREFS_NAME;
-
 public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClickListener {
     //public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClickListener, SwipeRefreshLayout.OnRefreshListener {
     private static final String TAG = "HomeFragment";
@@ -80,8 +80,6 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
     private ImageView layoutManagerIcon;
     private FloatingActionButton addNewNoteBtn;
 //    private SwipeRefreshLayout swipeRefreshLayout;
-
-    private TextView noNotesTv;
 
     private SearchView searchView;
 
@@ -175,7 +173,7 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
     private void initViews() {
         recyclerView = view.findViewById(R.id.homeFragment_recyclerView);
         addNewNoteBtn = view.findViewById(R.id.homeFragment_addNoteFab);
-        noNotesTv = view.findViewById(R.id.homeFragment_empty);
+//        TextView noNotesTv = view.findViewById(R.id.homeFragment_empty);
         searchView = view.findViewById(R.id.homeFragment_searchView);
 //            swipeRefreshLayout = view.findViewById(R.id.homeFragment_swipeRefresh_layout);
 //            swipeRefreshLayout.setOnRefreshListener(this);
@@ -282,8 +280,8 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
                 ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT, 0) {
             @Override
             public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {
-                final int fromPosition = viewHolder.getAdapterPosition();
-                final int toPosition = target.getAdapterPosition();
+                final int fromPosition = viewHolder.getAbsoluteAdapterPosition();
+                final int toPosition = target.getAbsoluteAdapterPosition();
 
                 //Swap notes position
                 if (fromPosition < toPosition) {
@@ -614,6 +612,7 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
                         int position = noteList.indexOf(note);
                         noteList.remove(position);
                         staggeredRecyclerViewAdapter.notifyItemRemoved(position);
+                        notesViewModel.deleteNote(position);
                     }
 
                     notesDeleted[0]++;
@@ -651,6 +650,7 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
                         int position = noteList.indexOf(note);
                         noteList.remove(position);
                         staggeredRecyclerViewAdapter.notifyItemRemoved(position);
+                        notesViewModel.deleteNote(position);
                     }
 
                     notesDeleted[0]++;
@@ -678,18 +678,18 @@ public class HomeFragment extends Fragment implements HomePageAdapter.OnItemClic
 //                        .addSharedElement(collaboratorsRv, collaboratorsRv.getTransitionName())
                 ;
 
-                if (checkboxRv == null && text != null) {
+//                if (checkboxRv == null && text != null) {
 //                    builder.addSharedElement(text, text.getTransitionName());
 //                    Log.d(TAG, "onItemClick: CHECKBOX NULL");
 
-                } else if (checkboxRv != null && text == null) {
+//                } else if (checkboxRv != null && text == null) {
 //                    builder.addSharedElement(checkboxRv, checkboxRv.getTransitionName());
 //                    Log.d(TAG, "onItemClick: TEXT NULL");
-                }
+//                }
 
                 FragmentNavigator.Extras extras = builder.build();
 
-                NavDirections navDirections = HomeFragmentDirections.actionHomeFragmentToEditNoteFragment(note.getNote_doc_ID(),
+                NavDirections navDirections = (NavDirections) HomeFragmentDirections.actionHomeFragmentToEditNoteFragment(note.getNote_doc_ID(),
                         note.getNote_background_color(),
                         position);
 

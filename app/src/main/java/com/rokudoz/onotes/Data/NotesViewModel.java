@@ -30,6 +30,10 @@ public class NotesViewModel extends AndroidViewModel {
         return repo.getNote(position);
     }
 
+    public void deleteNote(Integer position) {
+        repo.deleteNote(position);
+    }
+
     public void swapNotesPositions(int x, int y) {
         repo.swapNotesPositions(x, y);
     }
